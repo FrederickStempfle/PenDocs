@@ -1,0 +1,84 @@
+---
+title: The Expert's SQLMap Guide
+description: A comprehensive guide to full-site penetration testing with SQLMap
+---
+
+# The Expert's SQLMap Cheat Sheet: A Comprehensive Guide to Full-Site Penetration Testing
+
+Welcome to the comprehensive SQLMap guide. This documentation provides detailed instructions on using SQLMap, one of the most powerful and versatile SQL injection tools available for penetration testing.
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="features">Key Features</TabsTrigger>
+    <TabsTrigger value="versions">Version History</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    SQLMap is an open-source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws. It comes with a powerful detection engine, many niche features for the ultimate penetration tester, and a broad range of options for database fingerprinting, data fetching from the database, accessing the underlying file system, and executing commands on the operating system.
+  </TabsContent>
+  <TabsContent value="features">
+    - **Fully automated SQL injection tool**
+    - **Support for multiple database systems**: MySQL, Oracle, PostgreSQL, Microsoft SQL Server, etc.
+    - **Six SQL injection techniques**: boolean-based blind, time-based blind, error-based, UNION query, stacked queries, and out-of-band
+    - **Database fingerprinting, enumeration, and data extraction**
+    - **File system access and operating system command execution**
+    - **Support for various authentication methods and proxy settings**
+  </TabsContent>
+  <TabsContent value="versions">
+    - **SQLMap 1.7.2** (2023): Latest stable release with improved WAF detection
+    - **SQLMap 1.6** (2022): Added support for new database systems and improved performance
+    - **SQLMap 1.5** (2021): Enhanced evasion techniques and better handling of edge cases
+    - **SQLMap 1.0** (2012): First stable release after years of development
+  </TabsContent>
+</Tabs>
+
+## Why Use SQLMap?
+
+- **Automation**: Automates the process of detecting and exploiting SQL injection vulnerabilities
+- **Comprehensive**: Supports multiple database management systems
+- **Versatile**: Offers various injection techniques and evasion methods
+- **Powerful**: Provides extensive options for database enumeration and data extraction
+- **Free and Open Source**: Available to everyone with an active community
+
+## Getting Started with SQLMap
+
+<Stepper>
+  <StepperItem title="Install SQLMap">
+    SQLMap comes pre-installed in many security-focused Linux distributions like Kali Linux. For other systems, you can install it from GitHub:
+    ```bash
+    git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git sqlmap-dev
+    ```
+  </StepperItem>
+  <StepperItem title="Verify Installation">
+    Test your installation by running:
+    ```bash
+    python sqlmap.py --version
+    ```
+    This should display the current version of SQLMap.
+  </StepperItem>
+  <StepperItem title="Run Your First Scan">
+    Try a basic scan against a test URL:
+    ```bash
+    python sqlmap.py -u "http://testsite.com/page.php?id=1" --batch
+    ```
+    The `--batch` parameter accepts default answers to all questions.
+  </StepperItem>
+</Stepper>
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **Core Operations and Targeting**: Basic syntax, targeting methods, and request customization
+2. **Vulnerability Detection and Analysis**: Controlling test intensity, specifying injection techniques
+3. **Database Enumeration and Data Extraction**: Exploring database structure and extracting data
+4. **Advanced Exploitation Techniques**: OS command execution, privilege escalation
+5. **Evasion and Bypass Techniques**: WAF detection and bypass methods
+
+Each section provides detailed explanations, command examples, and real-world use cases to help you master SQLMap for ethical penetration testing.
+
+<Note title="Ethical Usage" type="warning">
+SQLMap is a powerful tool that should only be used for legitimate security testing with proper authorization. Unauthorized testing of systems you don't own is illegal and unethical.
+</Note>
+
+Let's begin with understanding the core operations and targeting methods in SQLMap.

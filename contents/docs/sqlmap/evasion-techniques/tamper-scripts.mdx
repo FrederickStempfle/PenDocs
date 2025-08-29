@@ -1,0 +1,157 @@
+---
+title: Tamper Scripts
+description: Learn how to use SQLMap's tamper scripts to evade detection and bypass security controls
+---
+
+# Tamper Scripts
+
+SQLMap's tamper scripts are powerful tools that modify SQL injection payloads to help evade detection by security mechanisms such as Web Application Firewalls (WAFs), Intrusion Detection Systems (IDS), and Intrusion Prevention Systems (IPS).
+
+## Understanding Tamper Scripts
+
+Tamper scripts work by transforming the SQL injection payload before it's sent to the target. These transformations can include:
+
+- Character encoding
+- Case manipulation
+- Whitespace modification
+- Comment insertion
+- Syntax alterations
+- String concatenation
+
+## Using Tamper Scripts
+
+### Basic Usage
+
+To use a single tamper script:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=between
+```
+
+This applies the `between` tamper script, which replaces greater than and less than operators with equivalent BETWEEN expressions.
+
+### Chaining Multiple Scripts
+
+You can chain multiple tamper scripts, which will be applied in the specified order:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=between,space2comment,randomcase
+```
+
+This applies three tamper scripts in sequence:
+1. `between`: Replaces operators with BETWEEN expressions
+2. `space2comment`: Replaces spaces with comments
+3. `randomcase`: Randomizes the case of SQL keywords
+
+## Common Tamper Scripts
+
+### Character Encoding Scripts
+
+- `base64encode`: Encodes all characters in Base64
+- `charencode`: URL-encodes all characters in a payload
+- `charunicodeencode`: Unicode-encodes characters
+- `hex2char`: Replaces hexadecimal encoded characters with their actual character
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=charencode
+```
+
+### Whitespace Manipulation Scripts
+
+- `space2comment`: Replaces spaces with comments
+- `space2dash`: Replaces spaces with dashes followed by a comment
+- `space2hash`: Replaces spaces with hashes followed by a random string and a new line
+- `space2plus`: Replaces spaces with plus signs
+- `space2randomblank`: Replaces spaces with random whitespace characters
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=space2comment
+```
+
+### Case Manipulation Scripts
+
+- `randomcase`: Randomizes the case of SQL keywords
+- `lowercase`: Converts all uppercase characters to lowercase
+- `uppercase`: Converts all lowercase characters to uppercase
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=randomcase
+```
+
+### Syntax Modification Scripts
+
+- `between`: Replaces greater than and less than operators with BETWEEN expressions
+- `equaltolike`: Replaces equal operators with LIKE operators
+- `greatest`: Replaces greater than operator with GREATEST function
+- `ifnull2ifisnull`: Replaces IFNULL with IF(IS NULL)
+- `modsecurityversioned`: Adds versioned MySQL comment
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=between,equaltolike
+```
+
+## WAF-Specific Tamper Scripts
+
+### ModSecurity
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=modsecurityversioned,space2comment,space2hash,charunicodeencode,securesphere
+```
+
+### Cloudflare
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=cloudflare
+```
+
+### F5 BIG-IP ASM
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=charunicodeencode,space2randomblank,apostrophemask,randomcase
+```
+
+### Imperva SecureSphere
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=securesphere
+```
+
+## Creating Custom Tamper Scripts
+
+You can create custom tamper scripts to address specific evasion needs:
+
+1. Create a Python file in the SQLMap `tamper` directory
+2. Define a `tamper` function that takes and returns a payload
+3. Implement your transformation logic
+
+Example custom tamper script (`mytamper.py`):
+
+```python
+#!/usr/bin/env python
+
+def tamper(payload, **kwargs):
+    """
+    Description of your tamper script
+    """
+    retVal = payload
+    
+    if payload:
+        # Your transformation logic here
+        retVal = payload.replace("SELECT", "SEL/**/ECT")
+    
+    return retVal
+```
+
+<Note title="Performance Impact">
+Using multiple tamper scripts can significantly slow down the testing process. Only use the tamper scripts necessary for your specific scenario.
+</Note>
+
+## Troubleshooting Tamper Scripts
+
+If you're having issues with tamper scripts:
+
+1. Use verbose mode (`-v`) to see the transformed payloads
+2. Try different combinations of tamper scripts
+3. Ensure the tamper scripts are compatible with your target DBMS
+4. Consider the order of tamper scripts, as it can affect the final payload
+5. Some tamper scripts may break the syntax for certain injection types

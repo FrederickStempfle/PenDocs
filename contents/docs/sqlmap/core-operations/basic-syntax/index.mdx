@@ -1,0 +1,79 @@
+---
+title: Basic Syntax and Targeting
+description: Learn the fundamental SQLMap commands and targeting methods
+---
+
+# Core SQLMap Operations and Targeting
+
+## Basic Syntax and Target Specification
+
+SQLMap provides multiple ways to specify targets for testing. This section covers the most common methods for targeting websites and databases.
+
+### Targeting a Single URL
+
+The most fundamental operation in SQLMap is targeting a single URL for vulnerability testing using the `-u` or `--url` flag.
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1"
+```
+
+When this command is executed, SQLMap automatically tests the `id` parameter for various types of SQL injection vulnerabilities. It sends crafted requests to the server and analyzes the responses for anomalies that indicate a vulnerability.
+
+SQLMap can detect a wide range of injection types:
+- Boolean-based blind
+- Time-based blind
+- Error-based
+- UNION query-based injections
+
+#### Real-World Example
+
+In a penetration test, you might identify a potential vulnerability in a search feature:
+
+```bash
+sqlmap -u "http://shop.example.com/search?q=laptops"
+```
+
+This tests the `q` parameter for vulnerabilities. If SQLMap detects an issue, it provides detailed information about the injection type and the backend database management system (DBMS).
+
+### Targeting Multiple URLs from a File
+
+For large-scale penetration tests, you can test multiple targets using the `-m` flag with a file containing a list of URLs:
+
+```bash
+sqlmap -m targets.txt
+```
+
+The file should contain one URL per line:
+```
+www.target1.com/vuln1.php?q=foobar
+www.target2.com/vuln2.asp?id=1
+www.target3.com/vuln3/id/1*
+```
+
+This approach is particularly useful when you have URLs gathered from a web crawler or Google dorking session.
+
+### Using Google Dorks for Target Discovery
+
+SQLMap can use Google dorks to discover potential targets with the `-g` flag:
+
+```bash
+sqlmap -g "inurl:\".php?id=1\""
+```
+
+This searches for websites with a URL parameter named `id` with a value of `1`, which is a common indicator of potential SQL injection vulnerabilities.
+
+<Note title="Warning">
+Use this feature responsibly. Overusing it may lead to your IP address being blocked by Google.
+</Note>
+
+### Specifying a Direct Database Connection
+
+You can connect directly to a database using the `-d` flag:
+
+```bash
+sqlmap -d "mysql://admin:password@127.0.0.1:3306/testdb"
+```
+
+The connection string format is `DBMS://user:password@host:port/database`. This allows you to interact with the database directly, bypassing any web application security measures.
+
+This technique is useful when you've discovered database credentials during a penetration test and want to explore the database further.

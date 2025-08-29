@@ -1,0 +1,73 @@
+---
+title: Request Customization
+description: Learn how to customize HTTP requests in SQLMap for more effective testing
+---
+
+# Request Customization
+
+SQLMap provides extensive options for customizing HTTP requests to test different parts of a web application for SQL injection vulnerabilities.
+
+## Specifying HTTP Methods (GET, POST)
+
+You can specify which HTTP method to use with the `--method` flag:
+
+```bash
+sqlmap -u "http://www.example.com/login.php" --method POST --data "username=admin&password=password"
+```
+
+This allows you to test forms and other parts of a web application that use different HTTP methods.
+
+## Injecting into POST Data
+
+Many web applications use POST requests for form submissions. Test for SQL injection in POST data using the `--data` flag:
+
+```bash
+sqlmap -u "http://www.example.com/login.php" --data "username=admin&password=password"
+```
+
+SQLMap will test each parameter in the POST data for SQL injection vulnerabilities. This is particularly useful for testing login forms, search forms, and other types of forms that submit data via POST.
+
+## Injecting into HTTP Headers (User-Agent, Referer, Cookie)
+
+SQL injection vulnerabilities can also exist in HTTP headers. Test headers using the `--headers` flag:
+
+```bash
+sqlmap -u "http://www.example.com/" --headers "User-Agent: Mozilla/5.0 (SQLMap)"
+```
+
+You can test specific headers like:
+- User-Agent
+- Referer
+- Cookie
+- Custom headers
+
+This is an advanced technique that can uncover vulnerabilities that might otherwise be missed.
+
+## Using a Request File from a Web Proxy (Burp Suite)
+
+One of the most effective ways to use SQLMap is with a web proxy like Burp Suite:
+
+1. Intercept a request with Burp Suite
+2. Save the request to a file
+3. Use the `-r` flag to test that specific request:
+
+```bash
+sqlmap -r request.txt
+```
+
+This allows you to test the exact request sent by the browser, which is valuable for finding vulnerabilities in complex applications.
+
+## Specifying a Custom Injection Point with an Asterisk (*)
+
+You can specify a custom injection point using an asterisk (*):
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1*"
+```
+
+The asterisk tells SQLMap to test the `id` parameter for SQL injection vulnerabilities. This is useful for:
+- Testing specific parameters
+- Testing for second-order SQL injection
+- Testing parameters in non-standard locations
+
+This technique gives you precise control over which parts of the request are tested for vulnerabilities.

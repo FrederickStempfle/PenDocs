@@ -1,0 +1,113 @@
+/* Catppuccin Mocha Blue Theme */
+:root {
+  /* Base colors */
+  --ctp-rosewater: 220, 54%, 86%;
+  --ctp-flamingo: 221, 70%, 69%;
+  --ctp-pink: 316, 72%, 69%;
+  --ctp-mauve: 267, 84%, 81%;
+  --ctp-red: 343, 81%, 75%;
+  --ctp-maroon: 350, 65%, 77%;
+  --ctp-peach: 23, 92%, 75%;
+  --ctp-yellow: 41, 86%, 83%;
+  --ctp-green: 128, 50%, 71%;
+  --ctp-teal: 171, 68%, 67%;
+  --ctp-sky: 189, 71%, 73%;
+  --ctp-sapphire: 199, 76%, 69%;
+  --ctp-blue: 217, 92%, 76%;
+  --ctp-lavender: 232, 97%, 85%;
+  
+  /* Surface colors */
+  --ctp-base: 240, 21%, 15%;
+  --ctp-mantle: 240, 21%, 12%;
+  --ctp-crust: 240, 23%, 9%;
+  
+  /* Text colors */
+  --ctp-text: 226, 64%, 88%;
+  --ctp-subtext1: 226, 50%, 80%;
+  --ctp-subtext0: 226, 35%, 72%;
+  --ctp-overlay2: 226, 25%, 64%;
+  --ctp-overlay1: 226, 20%, 56%;
+  --ctp-overlay0: 226, 15%, 48%;
+  --ctp-surface2: 227, 12%, 40%;
+  --ctp-surface1: 227, 10%, 33%;
+  --ctp-surface0: 228, 9%, 25%;
+}
+
+/* Light theme overrides */
+:root {
+  --background: var(--ctp-base);
+  --foreground: var(--ctp-text);
+  --card: var(--ctp-mantle);
+  --card-foreground: var(--ctp-text);
+  --popover: var(--ctp-mantle);
+  --popover-foreground: var(--ctp-text);
+  --primary: var(--ctp-blue);
+  --primary-foreground: var(--ctp-mantle);
+  --secondary: var(--ctp-surface0);
+  --secondary-foreground: var(--ctp-text);
+  --muted: var(--ctp-surface0);
+  --muted-foreground: var(--ctp-subtext0);
+  --accent: var(--ctp-sapphire);
+  --accent-foreground: var(--ctp-text);
+  --destructive: var(--ctp-red);
+  --destructive-foreground: var(--ctp-mantle);
+  --border: var(--ctp-surface0);
+  --input: var(--ctp-surface0);
+  --ring: var(--ctp-blue);
+  --sidebar: var(--ctp-crust);
+  --sidebar-foreground: var(--ctp-text);
+  --sidebar-primary: var(--ctp-blue);
+  --sidebar-primary-foreground: var(--ctp-mantle);
+  --sidebar-accent: var(--ctp-sapphire);
+  --sidebar-accent-foreground: var(--ctp-text);
+  --sidebar-border: var(--ctp-surface0);
+  --sidebar-ring: var(--ctp-blue);
+}
+
+/* Dark theme - same as light since we're using Catppuccin Mocha for both */
+.dark {
+  --background: var(--ctp-base);
+  --foreground: var(--ctp-text);
+  --card: var(--ctp-mantle);
+  --card-foreground: var(--ctp-text);
+  --popover: var(--ctp-mantle);
+  --popover-foreground: var(--ctp-text);
+  --primary: var(--ctp-blue);
+  --primary-foreground: var(--ctp-mantle);
+  --secondary: var(--ctp-surface0);
+  --secondary-foreground: var(--ctp-text);
+  --muted: var(--ctp-surface0);
+  --muted-foreground: var(--ctp-subtext0);
+  --accent: var(--ctp-sapphire);
+  --accent-foreground: var(--ctp-text);
+  --destructive: var(--ctp-red);
+  --destructive-foreground: var(--ctp-mantle);
+  --border: var(--ctp-surface0);
+  --input: var(--ctp-surface0);
+  --ring: var(--ctp-blue);
+  --sidebar: var(--ctp-crust);
+  --sidebar-foreground: var(--ctp-text);
+  --sidebar-primary: var(--ctp-blue);
+  --sidebar-primary-foreground: var(--ctp-mantle);
+  --sidebar-accent: var(--ctp-sapphire);
+  --sidebar-accent-foreground: var(--ctp-text);
+  --sidebar-border: var(--ctp-surface0);
+  --sidebar-ring: var(--ctp-blue);
+}
+
+/* Custom scrollbar colors */
+:root {
+  --scrollbar-thumb: hsla(217, 92%, 76%, 0.5); /* Blue with transparency */
+}
+
+[data-theme="dark"],
+[class*="dark"] {
+  --scrollbar-thumb: hsla(217, 92%, 76%, 0.5); /* Same blue for dark mode */
+}
+
+/* Override code highlighting colors */
+.highlight-line {
+  border-left-width: 2px;
+  border-color: hsla(217, 92%, 76%, 0.6) !important;
+  background-color: hsla(217, 92%, 76%, 0.1) !important;
+}

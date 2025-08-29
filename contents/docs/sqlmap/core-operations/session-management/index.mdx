@@ -1,0 +1,83 @@
+---
+title: Session and Performance Management
+description: Learn how to optimize SQLMap performance and manage sessions effectively
+---
+
+# Session and Performance Management
+
+SQLMap provides several options to manage sessions and optimize performance during testing.
+
+## Using `--batch` for Non-Interactive Sessions
+
+When running SQLMap, you'll often be prompted to answer questions. For automated testing, use the `--batch` flag:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --batch
+```
+
+This flag runs SQLMap in non-interactive mode, automatically answering "yes" to all prompts. This is useful for:
+- Running large-scale tests
+- Scripting SQLMap operations
+- Batch processing multiple targets
+
+## Increasing Speed with `--threads`
+
+SQLMap is multi-threaded and can perform multiple tasks simultaneously. Increase the number of threads to speed up testing:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --threads 5
+```
+
+Higher thread counts can significantly reduce testing time, especially when:
+- Testing multiple parameters
+- Performing data extraction
+- Running time-intensive operations
+
+<Note title="Warning">
+Be careful with high thread counts as they can put significant load on the target server and increase the risk of detection.
+</Note>
+
+## Throttling Requests with `--delay`
+
+To avoid overloading the target server or triggering intrusion detection systems, use the `--delay` flag to add a delay between requests:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --delay 1
+```
+
+This adds a 1-second delay between requests, which can help:
+- Avoid detection by IDS/WAF systems
+- Reduce server load
+- Make traffic appear more like normal user behavior
+
+## Routing Traffic through a Proxy (`--proxy`)
+
+For anonymity or to bypass network restrictions, route your traffic through a proxy:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --proxy "http://127.0.0.1:8080"
+```
+
+This is useful for:
+- Hiding your real IP address
+- Bypassing network restrictions
+- Analyzing traffic with tools like Burp Suite
+- Testing targets on private networks
+
+## Using Tor for Anonymity (`--tor`)
+
+For maximum anonymity, route your traffic through the Tor network:
+
+```bash
+sqlmap -u "http://www.example.com/vuln.php?id=1" --tor
+```
+
+This routes all SQLMap traffic through the Tor network, providing:
+- Enhanced anonymity
+- IP address obfuscation
+- Protection against tracking
+- Bypass of geographic restrictions
+
+<Note title="Important">
+Ensure Tor is properly installed and configured on your system before using this option.
+</Note>

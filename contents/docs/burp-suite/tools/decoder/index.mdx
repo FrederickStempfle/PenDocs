@@ -13,7 +13,7 @@ The Decoder tool is a utility within Burp Suite that allows you to encode, decod
 
 Decoder serves as Burp Suite's data transformation utility:
 
-- Encode data in various formats (URL, HTML, Base64, etc.)
+- Encode data in various formats - URL, HTML, Base64, etc.
 - Decode encoded content for analysis
 - Hash data using common algorithms
 - Convert between text and binary formats
@@ -86,11 +86,11 @@ Decoder offers various encoding options:
 
 1. **URL encoding**
    - Converts characters to %XX format
-   - Standard encoding (spaces as +)
-   - Full encoding (all non-alphanumeric)
+   - Standard encoding - spaces as +
+   - Full encoding - all non-alphanumeric
 
 2. **HTML encoding**
-   - Entity encoding (&lt; for <)
+   - Entity encoding - &lt; for &lt;
    - Decimal and hex formats
    - All characters or minimal set
 
@@ -108,7 +108,7 @@ Decoder offers various encoding options:
    - Represents data in base-8 format
 
 7. **Binary encoding**
-   - Converts to binary (base-2) representation
+   - Converts to binary - base-2 representation
 
 8. **GZIP encoding**
    - Compresses data using GZIP algorithm
@@ -130,7 +130,7 @@ Steps for encoding data:
 3. **Review result**
    - The encoded output appears in the output panel
 
-4. **Chain encodings (optional)**
+4. **Chain encodings - optional**
    - Click "Copy as input" to use the result for further encoding
    - Apply additional encoding methods as needed
 
@@ -304,23 +304,23 @@ Using Decoder to craft payloads that bypass security controls:
    - HTML encode to bypass basic filters
    - Double encoding to bypass WAFs
    - Mixed encoding techniques
-   - Example: `<script>` → `%3Cscript%3E` → `%253Cscript%253E`
+   - Example: `&lt;script&gt;` -> `%3Cscript%3E` -> `%253Cscript%253E`
 
 2. **SQL injection encoding**
    - URL encode special characters
    - Hex encoding for string literals
    - Comment variations
-   - Example: `' OR 1=1--` → `%27%20OR%201%3D1--%20`
+   - Example: `' OR 1=1--` -> `%27%20OR%201%3D1--%20`
 
 3. **Command injection obfuscation**
    - Encode spaces and special characters
    - Use alternative command separators
-   - Example: `; ls -la` → `%3B%20ls%20-la`
+   - Example: `; ls -la` -> `%3B%20ls%20-la`
 
 4. **Path traversal variations**
    - Double encoding of slashes and dots
    - Alternative path representations
-   - Example: `../../../etc/passwd` → `%2E%2E%2F%2E%2E%2F%2E%2E%2Fetc%2Fpasswd`
+   - Example: `../../../etc/passwd` -> `%2E%2E%2F%2E%2E%2F%2E%2E%2Fetc%2Fpasswd`
 
 Understanding how applications decode and process input is key to crafting effective bypass payloads.
 
@@ -472,16 +472,16 @@ Learn to identify encoding types by sight:
    - Example: `%20` for space, `%3D` for =
 
 2. **Base64**
-   - Contains only A-Z, a-z, 0-9, +, /, and = (padding)
+   - Contains only A-Z, a-z, 0-9, +, /, and = - used for padding
    - Often ends with = or ==
    - Example: `SGVsbG8gV29ybGQ=`
 
 3. **HTML encoding**
-   - Entity references like `&lt;` or `&#60;`
+   - Entity references like `&lt;` or `&amp;#60;`
    - Named or numeric entities
 
 4. **Hex encoding**
-   - Pairs of hex digits (0-9, A-F)
+   - Pairs of hex digits - 0-9, A-F
    - Often space or delimiter separated
    - Example: `48 65 6C 6C 6F`
 
@@ -504,8 +504,8 @@ Solutions to frequently encountered problems:
    - Verify the input is correctly formatted
 
 2. **Base64 decoding errors**
-   - Check for proper padding (= characters)
-   - Verify it's standard Base64 (not URL-safe)
+   - Check for proper padding - = characters
+   - Verify it's standard Base64 - not URL-safe
    - Remove line breaks or whitespace
 
 3. **Incomplete decoding**

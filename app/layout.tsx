@@ -19,10 +19,10 @@ const monoFont = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SQLMap Documentation",
+  title: "PenDocs",
   metadataBase: new URL("https://sqldocs.vercel.app/"),
   description:
-    "A comprehensive guide to SQLMap - the powerful SQL injection and database exploitation tool. Learn everything from basic syntax to advanced techniques for authorized security testing.",
+    "A comprehensive guide to penetration testing tools and techniques. Learn everything from basic usage to advanced exploitation methods for authorized security testing.",
 };
 
 export default function RootLayout({

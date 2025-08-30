@@ -7,8 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Stepper, StepperItem } from "@/components/markdown/stepper"
 import { Note } from "@/components/markdown/note"
 
-# Introduction to John the Ripper
-
 Welcome to the comprehensive John the Ripper guide. This documentation provides detailed instructions on using John the Ripper, one of the most powerful and versatile password cracking tools available for penetration testing and security auditing.
 
 <Tabs defaultValue="overview" className="pt-5 pb-1">
@@ -30,10 +28,10 @@ Welcome to the comprehensive John the Ripper guide. This documentation provides 
     - **Extensive customization** options for optimizing performance
   </TabsContent>
   <TabsContent value="versions">
-    - **John the Ripper 1.9.0-jumbo-1** (2019): Latest jumbo version with enhanced features
-    - **John the Ripper 1.8.0-jumbo-1** (2014): Major jumbo release with expanded hash support
-    - **John the Ripper 1.7.9** (2011): Improved performance and added features
-    - **John the Ripper 1.7.0** (2008): Enhanced multi-platform support
+    - **John the Ripper 1.9.0-jumbo-1** from 2019: Latest jumbo version with enhanced features
+    - **John the Ripper 1.8.0-jumbo-1** from 2014: Major jumbo release with expanded hash support
+    - **John the Ripper 1.7.9** from 2011: Improved performance and added features
+    - **John the Ripper 1.7.0** from 2008: Enhanced multi-platform support
   </TabsContent>
 </Tabs>
 
@@ -71,7 +69,7 @@ Welcome to the comprehensive John the Ripper guide. This documentation provides 
   <StepperItem title="Run Your First Password Crack">
     Try a basic password crack against a sample hash file:
     ```bash
-    # Create a sample hash file (for demonstration)
+    # Create a sample hash file for demonstration
     echo "user:$1$salt$hashedpassword" > hash.txt
 
     # Run John the Ripper against the hash file

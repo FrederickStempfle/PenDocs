@@ -81,22 +81,22 @@ The reconnaissance phase is a critical step in password cracking that significan
     ```bash
     # Combine company terms with common password patterns
     cat company_terms.txt | while read word; do
-      echo "${word}"
-      echo "${word}123"
-      echo "${word}!"
-      echo "${word}2023"
+      echo "\${word}"
+      echo "\${word}123"
+      echo "\${word}!"
+      echo "\${word}2023"
     done > company_passwords.txt
     
     # Add company founding year variations
     for year in {1990..2023}; do
-      echo "Company${year}" >> company_passwords.txt
-      echo "company${year}" >> company_passwords.txt
+      echo "Company\${year}" >> company_passwords.txt
+      echo "company\${year}" >> company_passwords.txt
     done
     ```
     
     Include specific elements:
     
-    - Company name and variations (CompanyName, company_name)
+    - Company name and variations like CompanyName, company_name
     - Product names and abbreviations
     - Company slogans and mottos
     - Office locations and addresses
@@ -110,16 +110,16 @@ The reconnaissance phase is a critical step in password cracking that significan
     ```bash
     # Combine industry terms with common password patterns
     cat industry_terms.txt | while read word; do
-      echo "${word}"
-      echo "${word}123"
-      echo "${word}!"
+      echo "\${word}"
+      echo "\${word}123"
+      echo "\${word}!"
     done > industry_passwords.txt
     ```
     
     Include industry-specific elements:
     
     - Industry terminology and jargon
-    - Regulatory frameworks (HIPAA, PCI, etc.)
+    - Regulatory frameworks and compliance standards
     - Common tools and software in the industry
     - Industry abbreviations and acronyms
     - Competitor names and products
@@ -132,9 +132,9 @@ The reconnaissance phase is a critical step in password cracking that significan
     ```bash
     # Generate location-based passwords
     cat locations.txt | while read location; do
-      echo "${location}"
-      echo "${location}123"
-      echo "${location}!"
+      echo "\${location}"
+      echo "\${location}123"
+      echo "\${location}!"
     done > location_passwords.txt
     ```
     
@@ -189,7 +189,7 @@ The reconnaissance phase is a critical step in password cracking that significan
     
     ```bash
     # Sort by length (shortest first for efficiency)
-    cat processed_wordlist.txt | awk '{print length, $0}' | sort -n | cut -d " " -f2- > optimized_wordlist.txt
+    cat processed_wordlist.txt | awk '{print length, $0}' | sort -n > optimized_wordlist.txt
     
     # Limit size if necessary
     head -n 1000000 optimized_wordlist.txt > final_wordlist.txt
@@ -202,7 +202,7 @@ The reconnaissance phase is a critical step in password cracking that significan
     Validate your wordlist against sample data if available:
     
     ```bash
-    # Test against sample hashes (if available)
+    # Test against sample hashes
     john --wordlist=final_wordlist.txt sample_hashes.txt
     
     # Analyze results and refine
@@ -230,7 +230,7 @@ The reconnaissance phase is a critical step in password cracking that significan
       - **Backup systems**: May contain unprotected password data
       
       ```bash
-      # Network scanning (when authorized)
+      # Network scanning with proper authorization
       nmap -sV -p 389,636,88,1433,3306 10.0.0.0/24
       
       # Identifying domain controllers
@@ -277,14 +277,14 @@ The reconnaissance phase is a critical step in password cracking that significan
     In Windows environments, identify user accounts through various methods:
     
     ```bash
-    # Using enum4linux (when authorized)
+    # Using enum4linux with proper authorization
     enum4linux -a 10.0.0.1
     
-    # Using net commands (requires access)
+    # Using net commands with proper access
     net user /domain
     net group "Domain Admins" /domain
     
-    # Using PowerShell (requires access)
+    # Using PowerShell with proper access
     Get-ADUser -Filter * -Properties * | Select-Object SamAccountName, GivenName, Surname
     ```
     
@@ -301,11 +301,11 @@ The reconnaissance phase is a critical step in password cracking that significan
     In Linux/Unix environments, identify user accounts through:
     
     ```bash
-    # Local user enumeration (requires access)
+    # Local user enumeration with proper access
     cat /etc/passwd
     
-    # LDAP enumeration (when authorized)
-    ldapsearch -x -h 10.0.0.1 -b "dc=example,dc=com" "(objectClass=user)"
+    # LDAP enumeration with proper authorization
+    ldapsearch -x -h 10.0.0.1 -b "dc=example,dc=com" -s sub "objectClass=user"
     
     # SSH users enumeration
     metasploit> use auxiliary/scanner/ssh/ssh_enumusers
@@ -395,7 +395,7 @@ The reconnaissance phase is a critical step in password cracking that significan
     Analyze password complexity policies to inform cracking strategies:
     
     ```powershell
-    # Windows domain policy (requires access)
+    # Windows domain policy with proper access
     Get-ADDefaultDomainPasswordPolicy
     
     # Output example:
@@ -405,8 +405,8 @@ The reconnaissance phase is a critical step in password cracking that significan
     ```
     
     Common complexity requirements:
-    - Minimum length (typically 8-12 characters)
-    - Character class requirements (uppercase, lowercase, numbers, symbols)
+    - Minimum length requirements
+    - Character class requirements
     - Dictionary word restrictions
     - Username inclusion restrictions
     
@@ -423,14 +423,14 @@ The reconnaissance phase is a critical step in password cracking that significan
     
     # Output example:
     # Password history length:     24
-    # Minimum password age (days): 1
-    # Maximum password age (days): 90
+    # Minimum password age in days: 1
+    # Maximum password age in days: 90
     ```
     
     Common patterns in password rotation:
-    - Incremental changes (password1, password2)
-    - Seasonal variations (Company_Spring2023)
-    - Character substitutions (p@ssword, p@$$word)
+    - Incremental changes like password1, password2
+    - Seasonal variations like Company_Spring2023
+    - Character substitutions like p@ssword, p@$$word
     
     Understanding rotation patterns helps predict current passwords based on previous ones.
   </TabsContent>
@@ -592,4 +592,4 @@ Now that you understand the reconnaissance and intelligence gathering phase, you
 
 1. Learn about [vulnerability analysis and scanning](/docs/john-the-ripper/vulnerability-analysis) methods
 2. Explore [exploitation techniques](/docs/john-the-ripper/exploitation) for extracting password hashes
-3. Prepare for [password cracking](/docs/john-the-ripper/post-exploitation) using the intelligence you've gathered
+3. Prepare for password cracking using the intelligence you've gathered

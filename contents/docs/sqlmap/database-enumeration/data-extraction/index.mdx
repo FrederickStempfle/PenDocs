@@ -3,11 +3,9 @@ title: Data Extraction Techniques
 description: Learn how to extract data from databases using SQLMap
 ---
 
-# Data Extraction Techniques
-
 After identifying the database structure, you can extract data from specific tables and columns of interest.
 
-## Dumping Table Data (`--dump`)
+## Dumping Table Data (--dump)
 
 To extract all data from a specific table:
 
@@ -17,7 +15,7 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T table_name 
 
 This command retrieves all records from the specified table. For large tables, SQLMap will ask if you want to retrieve all entries or a subset.
 
-## Dumping Specific Columns (`-C`)
+## Dumping Specific Columns (-C)
 
 To extract data from specific columns only:
 
@@ -27,7 +25,7 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T table_name 
 
 This is useful when you're only interested in certain columns, especially in tables with many columns or large amounts of data.
 
-## Conditional Data Extraction (`--where`)
+## Conditional Data Extraction (--where)
 
 To extract records that match specific criteria:
 
@@ -37,7 +35,7 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T users -C "u
 
 This allows you to filter the data based on specific conditions, similar to a SQL WHERE clause.
 
-## Extracting a Range of Records (`--start` and `--stop`)
+## Extracting a Range of Records (--start and --stop)
 
 For large tables, you can extract a specific range of records:
 
@@ -47,7 +45,7 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T users --dum
 
 This retrieves only records 1 through 100, which is useful for paginating through large datasets.
 
-## Dumping All Databases (`--dump-all`)
+## Dumping All Databases (--dump-all)
 
 To extract data from all tables in all databases:
 
@@ -56,7 +54,7 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" --dump-all
 ```
 
 
-## Password Cracking (`--passwords`)
+## Password Cracking (--passwords)
 
 SQLMap can attempt to identify and crack password hashes:
 

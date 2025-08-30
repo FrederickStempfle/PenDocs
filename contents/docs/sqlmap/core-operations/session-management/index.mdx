@@ -3,11 +3,9 @@ title: Session and Performance Management
 description: Learn how to optimize SQLMap performance and manage sessions effectively
 ---
 
-# Session and Performance Management
-
 SQLMap provides several options to manage sessions and optimize performance during testing.
 
-## Using `--batch` for Non-Interactive Sessions
+## Using --batch for Non-Interactive Sessions
 
 When running SQLMap, you'll often be prompted to answer questions. For automated testing, use the `--batch` flag:
 
@@ -20,7 +18,7 @@ This flag runs SQLMap in non-interactive mode, automatically answering "yes" to 
 - Scripting SQLMap operations
 - Batch processing multiple targets
 
-## Increasing Speed with `--threads`
+## Increasing Speed with --threads
 
 SQLMap is multi-threaded and can perform multiple tasks simultaneously. Increase the number of threads to speed up testing:
 
@@ -34,7 +32,7 @@ Higher thread counts can significantly reduce testing time, especially when:
 - Running time-intensive operations
 
 
-## Throttling Requests with `--delay`
+## Throttling Requests with --delay
 
 To avoid overloading the target server or triggering intrusion detection systems, use the `--delay` flag to add a delay between requests:
 
@@ -47,7 +45,7 @@ This adds a 1-second delay between requests, which can help:
 - Reduce server load
 - Make traffic appear more like normal user behavior
 
-## Routing Traffic through a Proxy (`--proxy`)
+## Routing Traffic through a Proxy (--proxy)
 
 For anonymity or to bypass network restrictions, route your traffic through a proxy:
 
@@ -61,7 +59,7 @@ This is useful for:
 - Analyzing traffic with tools like Burp Suite
 - Testing targets on private networks
 
-## Using Tor for Anonymity (`--tor`)
+## Using Tor for Anonymity (--tor)
 
 For maximum anonymity, route your traffic through the Tor network:
 

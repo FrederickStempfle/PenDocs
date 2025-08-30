@@ -3,8 +3,6 @@ title: Optimization Best Practices
 description: Learn essential best practices, strategies, and methodologies for effective and efficient password cracking with John the Ripper
 ---
 
-# Optimization Best Practices
-
 This guide outlines essential best practices, strategies, and methodologies for effective and efficient password cracking with John the Ripper. Following these recommendations will help you maximize success rates while optimizing resource usage and time efficiency.
 
 ## Strategic Approach to Password Cracking
@@ -162,7 +160,7 @@ Develop custom rules based on observed patterns:
 # Capitalize first letter, add digit at end
 c $[0-9]
 # Capitalize first letter, add digit and symbol at end
-c $[0-9] $[!@#$%^&*()]
+c $[0-9] $[!@#$%^&*]
 # Replace letters with similar symbols
 sa@ si1 se3 sA4 sB8 sE3 sI1 sO0 sS5 sT7
 ```

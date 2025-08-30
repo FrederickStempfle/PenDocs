@@ -3,15 +3,13 @@ title: Password Cracking Techniques
 description: Overview of different password cracking techniques available in John the Ripper
 ---
 
-# Password Cracking Techniques
-
 John the Ripper supports multiple password cracking techniques, each with its own strengths and ideal use cases. This section covers the main approaches to password cracking and how to implement them effectively.
 
 ## In This Section
 
-- [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) - Using wordlists to crack passwords
-- [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) - Applying transformation rules to wordlists
-- [Brute Force Attacks](/docs/john-the-ripper/password-cracking-techniques/brute-force-attacks) - Trying all possible character combinations
+- [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) — Using wordlists to crack passwords
+- [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) — Applying transformation rules to wordlists
+- [Brute Force Attacks](/docs/john-the-ripper/password-cracking-techniques/brute-force-attacks) — Trying all possible character combinations
 
 ## Choosing the Right Technique
 
@@ -40,7 +38,7 @@ Dictionary attacks use wordlists of common passwords and words to attempt to cra
 - **Fast** compared to brute force approaches
 - **Highly effective** against common passwords
 
-Learn more in the [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) section.
+Learn more in the Dictionary Attacks section.
 
 ## Rule-Based Attacks
 
@@ -50,17 +48,17 @@ Rule-based attacks apply transformations to wordlist entries to create variation
 - **Target** common password creation patterns
 - **Balance** efficiency and thoroughness
 
-Learn more in the [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) section.
+Learn more in the Rule-Based Attacks section.
 
 ## Brute Force Attacks
 
 Brute force attacks try all possible character combinations. John implements these through its "incremental mode" which:
 
 - **Prioritizes** more likely character combinations
-- **Provides** complete coverage (given enough time)
+- **Provides** complete coverage given enough time
 - **Offers** customizable character sets and patterns
 
-Learn more in the [Brute Force Attacks](/docs/john-the-ripper/password-cracking-techniques/brute-force-attacks) section.
+Learn more in the Brute Force Attacks section.
 
 ## Hybrid Approaches
 
@@ -105,7 +103,7 @@ Regardless of the technique you choose, consider these optimizations:
 
 ## Best Practices
 
-1. **Start with the fastest methods** (dictionary) before moving to slower ones (brute force)
+1. **Start with the fastest methods** like dictionary before moving to slower ones like brute force
 2. **Target your approach** based on known password policies
 3. **Save your session state** for long-running attacks
 4. **Use multiple techniques** in combination
@@ -114,5 +112,5 @@ Regardless of the technique you choose, consider these optimizations:
 ## Next Steps
 
 After exploring these password cracking techniques, you may want to learn about:
-- [Advanced Techniques](/docs/john-the-ripper/advanced-techniques) - More sophisticated approaches to password cracking
-- [Optimization Best Practices](/docs/john-the-ripper/optimization-best-practices) - How to optimize John for better performance
+- [Advanced Techniques](/docs/john-the-ripper/advanced-techniques) — More sophisticated approaches to password cracking
+- [Optimization Best Practices](/docs/john-the-ripper/optimization-best-practices) — How to optimize John for better performance

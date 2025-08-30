@@ -45,7 +45,7 @@ SQLMap provides several methods to execute operating system commands on the targ
 
 ## Basic OS Command Execution
 
-### Single Command Execution (`--os-cmd`)
+### Single Command Execution (--os-cmd)
 
 To execute a single operating system command:
 
@@ -55,7 +55,7 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" --os-cmd="whoami"
 
 This executes the specified command and returns its output. It's useful for quick verification of command execution capabilities.
 
-### Interactive OS Shell (`--os-shell`)
+### Interactive OS Shell (--os-shell)
 
 To obtain an interactive shell:
 
@@ -145,7 +145,7 @@ This provides an interactive command prompt where you can execute multiple comma
           <li>Java stored procedures</li>
           <li>External tables</li>
           <li>PL/SQL packages</li>
-          <li>DBMS_SCHEDULER jobs</li>
+          <li>Database scheduler jobs</li>
         </ul>
       </div>
       <div>
@@ -184,7 +184,7 @@ This executes commands that produce observable side effects (like network connec
 
 ## Establishing Persistent Access
 
-### Meterpreter Shell (`--os-pwn`)
+### Meterpreter Shell (--os-pwn)
 
 To establish a Meterpreter session using Metasploit:
 
@@ -194,7 +194,7 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" --os-pwn --msf-path=/path/to/me
 
 This creates a more sophisticated backdoor using Metasploit's capabilities.
 
-### Custom Backdoor (`--os-smbrelay`)
+### Custom Backdoor (--os-smbrelay)
 
 To create a custom backdoor:
 

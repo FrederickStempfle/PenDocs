@@ -8,8 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Callout } from "@/components/markdown/callout"
 import { Steps } from "@/components/markdown/steps"
 
-# Burp Suite Intruder Tool
-
 The Intruder tool is Burp Suite's automated request manipulation engine. It allows you to perform customized attacks against web applications by sending multiple variations of requests and analyzing the responses.
 
 ## Overview
@@ -616,7 +614,7 @@ The Intruder tool is Burp Suite's automated request manipulation engine. It allo
          - `' OR 1=1 --`
          - `" OR 1=1 --`
          - `1' OR '1'='1`
-         - `1\) OR \(1=1`
+         - `1) OR (1=1`
       
       2. **Error-based detection**
          - Look for database error messages
@@ -628,7 +626,7 @@ The Intruder tool is Burp Suite's automated request manipulation engine. It allo
       
       4. **Time-based testing**
          - `' WAITFOR DELAY '0:0:5' --`
-         - `' SLEEP\(5\) --`
+         - `' SLEEP(5) --`
          - Monitor response times
       
       5. **Analysis techniques**
@@ -646,20 +644,20 @@ The Intruder tool is Burp Suite's automated request manipulation engine. It allo
       Testing for XSS vulnerabilities:
       
       1. **Detection payloads**
-         - `<script>alert\(1\)</script>`
-         - `"><script>alert\(1\)</script>`
-         - `'><script>alert\(1\)</script>`
-         - `javascript:alert\(1\)`
+         - `<script>alert(1)</script>`
+         - `"><script>alert(1)</script>`
+         - `'><script>alert(1)</script>`
+         - `javascript:alert(1)`
       
       2. **Context-specific payloads**
-         - HTML attribute context: `" onmouseover="alert\(1\)`
-         - JavaScript context: `';alert\(1\);//`
-         - CSS context: `</style><script>alert\(1\)</script>`
+         - HTML attribute context: `" onmouseover="alert(1)`
+         - JavaScript context: `';alert(1);//`
+         - CSS context: `</style><script>alert(1)</script>`
       
       3. **Evasion techniques**
-         - Case variation: `<ScRiPt>alert\(1\)</sCrIpT>`
-         - Encoding: `%3Cscript%3Ealert\(1\)%3C/script%3E`
-         - Alternative syntax: `<img src=x onerror=alert\(1\)>`
+         - Case variation: `<ScRiPt>alert(1)</sCrIpT>`
+         - Encoding: `%3Cscript%3Ealert(1)%3C/script%3E`
+         - Alternative syntax: `<img src=x onerror=alert(1)>`
       
       4. **Analysis techniques**
          - Look for unfiltered payloads in responses

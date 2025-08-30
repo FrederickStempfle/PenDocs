@@ -11,7 +11,7 @@ Rule-based attacks combine the efficiency of dictionary attacks with the thoroug
 
 Rule-based attacks work by:
 1. Taking a base word from a wordlist
-2. Applying one or more transformations (rules)
+2. Applying one or more transformations or rules
 3. Testing the transformed word against the password hash
 
 This approach is based on the observation that users often create passwords by modifying common words in predictable ways.
@@ -31,10 +31,10 @@ This command applies John's default ruleset to each word in the wordlist.
 John comes with several predefined rule sets:
 
 ```bash
-# Use the "Single" ruleset (optimized for single-crack mode)
+# Use the Single ruleset optimized for single-crack mode
 john --wordlist=wordlist.txt --rules=Single hash.txt
 
-# Use the "Wordlist" ruleset (default for wordlist mode)
+# Use the Wordlist ruleset default for wordlist mode
 john --wordlist=wordlist.txt --rules=Wordlist hash.txt
 
 # Use the "NT" ruleset (optimized for Windows passwords)
@@ -240,7 +240,7 @@ For systems requiring specific password complexity:
 
 ```
 # At least 8 chars, upper, lower, digit, special
->7 c _[a-z] _[A-Z] _[0-9] _[!@#$%^&*()]
+>7 c _[a-z] _[A-Z] _[0-9] _[!@#$%^&*]
 ```
 
 ### Corporate Username to Password Conversion

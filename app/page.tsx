@@ -61,6 +61,15 @@ const getRoleByContributions = (count: number): string => {
   return "New Contributor";
 };
 
+// Get color based on contribution count
+const getColorByContributions = (count: number): string => {
+  if (count > 30) return "text-purple-500 font-bold";
+  if (count > 20) return "text-blue-500 font-bold";
+  if (count > 10) return "text-green-500 font-semibold";
+  if (count > 5) return "text-amber-500";
+  return "text-gray-500";
+};
+
 // Format date to YYYY-MM-DD
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
@@ -150,7 +159,7 @@ export default function Home() {
           name: contributor.login,
           avatar: contributor.avatar_url,
           contributions: contributor.contributions,
-          role: getRoleByContributions(contributor.contributions),
+          role: contributor.login === "FrederickStempfle" ? "Creator" : getRoleByContributions(contributor.contributions),
           url: contributor.html_url
         }));
         
@@ -213,7 +222,7 @@ export default function Home() {
             name: "FrederickStempfle",
             avatar: "https://github.com/identicons/app/oauth_app/1234",
             contributions: 47,
-            role: "Project Lead",
+            role: "Creator",
             url: "https://github.com/FrederickStempfle"
           },
           {
@@ -356,7 +365,7 @@ export default function Home() {
       </section>
 
       {/* Contributors Section */}
-      <section className="w-full py-12 md:py-16 bg-muted/50">
+      <section className="w-full py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-2 mb-12">
             <UsersIcon className="w-6 h-6 text-primary" />
@@ -380,11 +389,11 @@ export default function Home() {
                           <AvatarFallback>{getInitials(contributor.name)}</AvatarFallback>
                         </Avatar>
                         <CardTitle className="text-center text-base">{contributor.name}</CardTitle>
-                        <p className="text-center text-sm text-muted-foreground">{contributor.role}</p>
+                        <p className={`text-center text-sm ${contributor.name === "FrederickStempfle" ? "text-primary font-bold" : "text-muted-foreground"}`}>{contributor.role}</p>
                       </div>
                     </CardHeader>
                     <CardContent className="p-4 pt-0 flex justify-center">
-                      <span className="text-sm font-medium">
+                      <span className={`text-sm font-medium ${getColorByContributions(contributor.contributions)}`}>
                         {contributor.contributions} contributions
                       </span>
                     </CardContent>

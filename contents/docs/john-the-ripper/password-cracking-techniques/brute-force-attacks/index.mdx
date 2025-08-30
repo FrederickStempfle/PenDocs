@@ -106,7 +106,7 @@ The example would try all 6-character passwords with 4 lowercase letters followe
 | `?l` | Lowercase | abcdefghijklmnopqrstuvwxyz |
 | `?u` | Uppercase | ABCDEFGHIJKLMNOPQRSTUVWXYZ |
 | `?d` | Digits | 0123456789 |
-| `?s` | Special | !@#$%^&*\(\)-_+=~`[]{}|\:;"'&lt;&gt;,.?/ |
+| `?s` | Special | !@#$%^&*-_+=~`[]{}|:;"',.?/ |
 | `?a` | All ASCII | All printable ASCII characters |
 | `?b` | Binary | All 256 possible byte values |
 
@@ -128,7 +128,7 @@ John supports Markov-chain-based brute force, which uses statistical models to p
 john --markov=100 hash.txt
 ```
 
-The number after `--markov=` represents the threshold level (0-100). Lower values try fewer but more likely passwords.
+The number after `--markov=` represents the threshold level from 0 to 100. Lower values try fewer but more likely passwords.
 
 ### Markov Mode Options
 
@@ -180,8 +180,8 @@ Brute force attacks grow exponentially with password length:
 
 Brute force attacks are most effective when:
 
-1. Passwords are short (8 characters or less)
-2. The character set is limited (e.g., only digits)
+1. Passwords are short - 8 characters or less
+2. The character set is limited, such as only digits
 3. Other methods (dictionary, rules) have failed
 4. You have significant computational resources
 
@@ -209,7 +209,7 @@ john --mask='?l?l?l?l?l?d?d?d' hash.txt
 ## Best Practices
 
 1. **Start with other methods** before resorting to brute force
-2. **Use targeted approaches** (masks, character set restrictions) when possible
+2. **Use targeted approaches** like masks and character set restrictions when possible
 3. **Monitor progress** to estimate completion time
 4. **Save session state** for long-running attacks
 5. **Use GPU acceleration** for significant performance improvements
@@ -217,5 +217,5 @@ john --mask='?l?l?l?l?l?d?d?d' hash.txt
 ## Next Steps
 
 After learning about brute force attacks, explore:
-- [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) - Learn how to use wordlists for more efficient password cracking
-- [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) - Discover how to apply transformation rules to wordlists
+- [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) — Learn how to use wordlists for more efficient password cracking
+- [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) — Discover how to apply transformation rules to wordlists

@@ -8,8 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Callout } from "@/components/markdown/callout"
 import { Steps } from "@/components/markdown/steps"
 
-# Burp Suite Proxy Tool
-
 The Proxy is Burp Suite's core intercepting proxy tool that lets you inspect and modify traffic between your browser and target applications. It serves as the central hub for most web application security testing activities.
 
 ## Overview
@@ -436,8 +434,8 @@ The Proxy is Burp Suite's core intercepting proxy tool that lets you inspect and
       
       Example of advanced regex with capture groups:
       ```
-      Match: (Authorization: Bearer )([a-zA-Z0-9\._\-]+)
-      Replace: $1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      Match: `(Authorization: Bearer )([a-zA-Z0-9\._\-]+)`
+      Replace: `\\$1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`
       ```
       
       This example replaces JWT tokens while preserving the "Authorization: Bearer " prefix.

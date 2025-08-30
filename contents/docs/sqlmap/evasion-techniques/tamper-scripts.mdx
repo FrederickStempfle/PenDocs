@@ -296,7 +296,7 @@ description: Learn how to use SQLMap's tamper scripts to evade detection and byp
           <tbody>
             <tr className="border-b">
               <td className="py-2"><code>space2comment</code></td>
-              <td className="py-2">Replaces spaces with comments (/**/)</td>
+              <td className="py-2">Replaces spaces with comments</td>
             </tr>
             <tr className="border-b">
               <td className="py-2"><code>space2dash</code></td>
@@ -619,26 +619,19 @@ description: Learn how to use SQLMap's tamper scripts to evade detection and byp
       
       __priority__ = PRIORITY.NORMAL
       
-      def dependencies():
-          pass
-      
-      def tamper(payload, **kwargs):
-          """Replace SELECT with SEL/**/ECT"""
-          retVal = payload
-          
-          if payload:
-              # Your transformation logic here
-              retVal = payload.replace("SELECT", "SEL/**/ECT")
-              retVal = retVal.replace("select", "sel/**/ect")
-          
-          return retVal
+      # Function to check dependencies
+      # Function to modify payload
+          # Replace SELECT with SEL/**/ECT
+          # Example transformation logic:
+          # - Replace SELECT with SEL/**/ECT
+          # - Replace select with sel/**/ect
+          # - Return the modified payload
       ```
       
       <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 mt-4">
         <h5 className="font-bold">Pro Tip</h5>
         <p className="text-sm">You can chain your custom tamper script with built-in scripts:</p>
-        <pre className="text-xs mt-1">sqlmap -u "http://example.com/vuln.php?id=1" \
-  --tamper=mytamper,randomcase,space2comment</pre>
+        <pre className="text-xs mt-1">sqlmap -u "http://example.com/vuln.php?id=1" --tamper=mytamper,randomcase,space2comment</pre>
       </div>
     </div>
   </div>

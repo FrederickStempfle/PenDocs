@@ -3,8 +3,6 @@ title: Other Evasion Methods
 description: Learn about additional evasion techniques in SQLMap to bypass security controls
 ---
 
-# Other Evasion Methods
-
 Beyond tamper scripts and WAF detection, SQLMap offers several additional methods to evade detection during security testing. These techniques can help bypass various security controls when used appropriately in authorized testing scenarios.
 
 ## HTTP Parameter Manipulation
@@ -134,7 +132,7 @@ This adds specific SQL comments before and after the injection payload.
 Adding custom strings before and after the payload:
 
 ```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --prefix="\)" --suffix="AND\(1=1"
+sqlmap -u "http://www.example.com/vuln.php?id=1" --prefix=")" --suffix="AND(1=1"
 ```
 
 This helps when the injection point is within a specific SQL context.

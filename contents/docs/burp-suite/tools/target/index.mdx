@@ -8,8 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Callout } from "@/components/markdown/callout"
 import { Steps } from "@/components/markdown/steps"
 
-# Burp Suite Target Tool
-
 The Target tool is a core component of Burp Suite that helps you organize, manage, and visualize the attack surface of web applications you're testing. It provides a structured view of your target applications and allows you to define the scope of your testing activities.
 
 ## Overview
@@ -85,12 +83,12 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - All requests/responses are automatically added
          - Links in responses are parsed but not followed
       
-      2. **Active crawling** (Professional Edition)
+      2. **Active crawling** - Professional Edition
          - Right-click on a branch and select "Spider this branch"
          - Burp automatically discovers and requests linked content
          - Follows links, submits forms, and explores the application
       
-      3. **Content discovery** (Professional Edition)
+      3. **Content discovery** - Professional Edition
          - Right-click and select "Engagement tools" > "Discover content"
          - Uses wordlists to discover hidden directories and files
          - Identifies resources not linked from visible content
@@ -125,9 +123,9 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Color coding indicates response codes and issues
       
       2. **Filtering options**
-         - Filter by request type (GET, POST, etc.)
-         - Filter by response code (200, 302, 404, etc.)
-         - Filter by MIME type (HTML, JSON, etc.)
+         - Filter by request type: GET, POST, etc.
+         - Filter by response code: 200, 302, 404, etc.
+         - Filter by MIME type: HTML, JSON, etc.
          - Show only in-scope items
          - Hide empty folders
       
@@ -160,18 +158,18 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Analyze headers, parameters, and body content
          - Switch between raw, parsed, and rendered views
       
-      2. **Inspector panel** (Professional Edition)
+      2. **Inspector panel** - Professional Edition
          - Detailed analysis of request components
          - Parameter tables with editable values
          - Header tables with name-value pairs
          - Cookie inspection and analysis
       
-      3. **Issue highlighting** (Professional Edition)
+      3. **Issue highlighting** - Professional Edition
          - Vulnerabilities marked with icons in the tree
          - Color coding indicates severity levels
          - Quick access to issue details
       
-      4. **Target analyzer** (Professional Edition)
+      4. **Target analyzer** - Professional Edition
          - Automatically analyzes site structure
          - Identifies technologies in use
          - Suggests attack vectors
@@ -207,7 +205,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Remove from scope: Exclude items from testing
          - Define advanced scope rules
       
-      3. **Engagement tools** (Professional Edition)
+      3. **Engagement tools** - Professional Edition
          - Discover content: Find hidden resources
          - Find references: Locate links to the selected item
          - Analyze target: Assess the selected branch
@@ -253,14 +251,14 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Useful for avoiding sensitive areas
          - Example: `https://example.com/admin/logout`
       
-      4. **Advanced options** (Professional Edition)
+      4. **Advanced options** - Professional Edition
          - File extension filtering
          - Protocol restrictions
          - Hostname resolution settings
          - Custom scope rules with complex conditions
       
       5. **Scope rule evaluation**
-         - Rules are evaluated in order (top to bottom)
+         - Rules are evaluated in order, from top to bottom
          - First matching rule determines inclusion/exclusion
          - More specific rules should come before general rules
       
@@ -295,7 +293,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Analysis focused on in-scope content
          - More efficient resource utilization
       
-      6. **Project-wide settings** (Professional Edition)
+      6. **Project-wide settings** - Professional Edition
          - Scope settings saved with project files
          - Consistent scope across sessions
          - Team collaboration with shared scope
@@ -309,7 +307,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
 
 <Accordion type="single" collapsible>
   <AccordionItem value="advanced-scope">
-    <AccordionTrigger>Advanced Scope Features (Professional Edition)</AccordionTrigger>
+    <AccordionTrigger>Advanced Scope Features - Professional Edition</AccordionTrigger>
     <AccordionContent>
       Professional edition offers enhanced scope control:
       
@@ -345,7 +343,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
   </AccordionItem>
 </Accordion>
 
-## Issue Definitions (Professional Edition)
+## Issue Definitions - Professional Edition
 
 <Accordion type="single" collapsible>
   <AccordionItem value="issue-tracking">
@@ -386,7 +384,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
   </AccordionItem>
 </Accordion>
 
-## Target Analyzer (Professional Edition)
+## Target Analyzer - Professional Edition
 
 <Accordion type="single" collapsible>
   <AccordionItem value="analyzer-features">
@@ -457,7 +455,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Identify frameworks and libraries
          - Determine server-side technologies
       
-      4. **Content discovery** (Professional Edition)
+      4. **Content discovery** - Professional Edition
          - Use content discovery to find hidden resources
          - Identify backup files and development artifacts
          - Discover admin interfaces and API endpoints
@@ -496,7 +494,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
         </Step>
         
         <Step title="Automated discovery">
-          Use Spider and content discovery (Professional Edition) to find additional resources.
+          Use Spider and content discovery to find additional resources (Professional Edition only).
         </Step>
         
         <Step title="Analyze findings">
@@ -587,7 +585,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Save and restore tool state for complex projects
       
       4. **Project management**
-         - Save projects regularly (Professional Edition)
+         - Save projects regularly - Professional Edition
          - Use meaningful project names and organization
          - Document testing progress and findings
          - Maintain consistent scope across team members
@@ -655,7 +653,7 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Confirm target is accessible
       
       2. **Missing content in Site Map**
-         - Check for client-side routing (SPA applications)
+         - Check for client-side routing in SPA applications
          - Verify JavaScript execution settings
          - Look for dynamically loaded content
          - Check for content loaded via AJAX
@@ -672,13 +670,13 @@ The Target tool is a core component of Burp Suite that helps you organize, manag
          - Close unused tool tabs
          - Increase memory allocation to Burp
       
-      5. **Spider not finding content** (Professional Edition)
+      5. **Spider not finding content** - Professional Edition
          - Check for JavaScript-heavy applications
          - Verify form submission settings
          - Review spider configuration
          - Consider manual exploration for complex apps
       
-      6. **Content discovery issues** (Professional Edition)
+      6. **Content discovery issues** - Professional Edition
          - Verify wordlist selection is appropriate
          - Check for rate limiting or blocking
          - Adjust thread count and timing

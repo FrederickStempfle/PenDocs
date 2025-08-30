@@ -3,9 +3,7 @@ title: Tamper Scripts
 description: Learn how to use SQLMap's tamper scripts to evade detection and bypass security controls
 ---
 
-# Tamper Scripts
-
-SQLMap's tamper scripts are powerful tools that modify SQL injection payloads to help evade detection by security mechanisms such as Web Application Firewalls \(WAFs\), Intrusion Detection Systems \(IDS\), and Intrusion Prevention Systems \(IPS\).
+SQLMap's tamper scripts are powerful tools that modify SQL injection payloads to help evade detection by security mechanisms such as Web Application Firewalls (WAFs), Intrusion Detection Systems (IDS), and Intrusion Prevention Systems (IPS).
 
 ## Understanding Tamper Scripts
 
@@ -124,7 +122,7 @@ You can create custom tamper scripts to address specific evasion needs:
 2. Define a `tamper` function that takes and returns a payload
 3. Implement your transformation logic
 
-Example custom tamper script (`mytamper.py`):
+Example custom tamper script (mytamper.py):
 
 ```python
 #!/usr/bin/env python
@@ -147,7 +145,7 @@ def tamper(payload, **kwargs):
 
 If you're having issues with tamper scripts:
 
-1. Use verbose mode (`-v`) to see the transformed payloads
+1. Use verbose mode (-v) to see the transformed payloads
 2. Try different combinations of tamper scripts
 3. Ensure the tamper scripts are compatible with your target DBMS
 4. Consider the order of tamper scripts, as it can affect the final payload

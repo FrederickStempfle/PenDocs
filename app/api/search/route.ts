@@ -29,7 +29,7 @@ async function getMdxFiles(dir: string): Promise<SearchResult[]> {
         const { data, content } = matter(fileContent);
         
         // Create the URL path
-        let urlPath = fullPath
+        const urlPath = fullPath
           .replace(/^.*?\/contents\//, '/')
           .replace(/\/index\.mdx$/, '')
           .replace(/\.mdx$/, '');

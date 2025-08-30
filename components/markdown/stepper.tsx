@@ -1,13 +1,15 @@
 import { cn } from "@/lib/utils";
 import clsx from "clsx";
-import { Children, PropsWithChildren } from "react";
+import React, { Children, PropsWithChildren } from "react";
 
 export function Stepper({ children }: PropsWithChildren) {
   const length = Children.count(children);
 
   return (
     <div className="flex flex-col">
-      {Children.map(children, (child: any, index) => {
+      {Children.map(children, (child, index) => {
+        // Skip non-element children
+        if (!React.isValidElement(child)) return null;
         // Get the custom number from the child props if available
         const displayNumber = child?.props?.number || (index + 1).toString();
         
@@ -36,7 +38,6 @@ export function Stepper({ children }: PropsWithChildren) {
 export function StepperItem({
   children,
   title,
-  number,
 }: PropsWithChildren & { title?: string; number?: string }) {
   return (
     <div className="pt-0.5">

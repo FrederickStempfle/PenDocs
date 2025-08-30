@@ -1,0 +1,105 @@
+---
+title: The Expert's XSS Guide
+description: A comprehensive guide to web application security testing with Cross-Site Scripting
+---
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Stepper, StepperItem } from "@/components/markdown/stepper"
+import { Callout } from "@/components/markdown/callout"
+
+Welcome to the comprehensive Cross-Site Scripting (XSS) guide. This documentation provides detailed instructions on understanding, identifying, exploiting, and mitigating XSS vulnerabilities, one of the most prevalent and dangerous web application security flaws in modern web applications.
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="features">Key Concepts</TabsTrigger>
+    <TabsTrigger value="versions">Historical Impact</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    Cross-Site Scripting (XSS) is a client-side code injection attack where malicious scripts are injected into trusted websites. These attacks occur when an application includes untrusted data in a web page without proper validation or encoding. XSS allows attackers to execute scripts in a victim's browser, which can hijack user sessions, deface websites, redirect users to malicious sites, or steal sensitive information.
+  </TabsContent>
+  <TabsContent value="features">
+    - **Three Main Types**: Reflected XSS, Stored XSS, and DOM-based XSS
+    - **Client-Side Execution**: Runs in the victim's browser context
+    - **Session Hijacking Capability**: Can steal cookies and authentication tokens
+    - **Payload Versatility**: From simple alerts to complex JavaScript exploitation
+    - **Bypass Techniques**: Methods to evade filters and WAFs
+    - **Cross-Browser Impact**: Affects most modern web browsers
+  </TabsContent>
+  <TabsContent value="versions">
+    - **2000**: First major XSS vulnerabilities documented
+    - **2005**: Ajax revolution increased XSS attack surface
+    - **2007**: XSS becomes part of OWASP Top 10
+    - **2010**: DOM-based XSS gains prominence
+    - **2015**: Content Security Policy (CSP) adoption begins
+    - **2020**: Client-side frameworks introduce new XSS vectors
+    - **2023**: XSS remains in OWASP Top 10 despite improved defenses
+  </TabsContent>
+</Tabs>
+
+## Why Study XSS?
+
+- **Prevalence**: Consistently ranks in OWASP Top 10 web application vulnerabilities
+- **High Impact**: Can lead to account takeover, data theft, and malware distribution
+- **Low Barrier to Entry**: Requires minimal tools compared to other vulnerabilities
+- **Wide Attack Surface**: Present in most web applications with user input
+- **Defense Evasion**: Modern XSS techniques can bypass many security controls
+- **Real-World Relevance**: Continues to affect major websites and applications
+
+## Getting Started with XSS Testing
+
+<Stepper>
+  <StepperItem title="Understand the Basics">
+    Before testing, understand the three main types of XSS:
+    
+    - **Reflected XSS**: Non-persistent attacks where malicious script is reflected off a web server
+    - **Stored XSS**: Persistent attacks where malicious script is stored on the target server
+    - **DOM-based XSS**: Attacks that manipulate the Document Object Model in the browser
+  </StepperItem>
+  <StepperItem title="Set Up Your Testing Environment">
+    Prepare your testing toolkit:
+    ```bash
+    # Install a proxy tool like Burp Suite Community Edition
+    # Install browser extensions for testing
+    # Firefox add-on: "HackTools" or "Tamper Data"
+    # Chrome extension: "XSS Rays" or "Hackbar"
+    ```
+    
+    <Callout type="warning" title="Warning">
+      Always perform XSS testing in controlled environments or with explicit permission. Unauthorized testing is illegal and unethical.
+    </Callout>
+  </StepperItem>
+  <StepperItem title="Basic XSS Detection">
+    Try simple payloads to detect XSS vulnerabilities:
+    ```javascript
+    <script>alert('XSS')</script>
+    <img src="x" onerror="alert('XSS')">
+    javascript:alert('XSS')
+    ```
+    Look for contexts where your input is reflected without proper encoding or sanitization.
+  </StepperItem>
+</Stepper>
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **XSS Fundamentals**: Types of XSS, attack vectors, and execution contexts
+2. **Identification Techniques**: Methods to discover XSS vulnerabilities
+3. **Exploitation Strategies**: Advanced payloads and attack scenarios
+4. **Evasion Techniques**: Bypassing filters, WAFs, and other protections
+5. **Defense and Mitigation**: Protecting applications against XSS attacks
+6. **Real-World Case Studies**: Analysis of notable XSS vulnerabilities
+
+Each section provides detailed explanations, code examples, and practical techniques to help you understand both the offensive and defensive aspects of Cross-Site Scripting.
+
+## Ethical Considerations
+
+The knowledge provided in this guide is for educational purposes and should be used responsibly. Always:
+
+- Obtain proper authorization before testing any website or application
+- Report vulnerabilities through responsible disclosure programs
+- Never exploit XSS vulnerabilities on production systems without permission
+- Follow ethical hacking principles and legal guidelines in your jurisdiction
+
+Let's begin with understanding the fundamentals of Cross-Site Scripting attacks.

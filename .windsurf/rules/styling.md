@@ -2,4 +2,6 @@
 trigger: always_on
 ---
 
-Please always check how to style a docs post properly. The SQLMap Guide is a good example on how to actually create on properly, with the right syntax. 
+Please always check how to style a docs post properly. The SQLMap Guide is a good example on how to actually create on properly, with the right syntax.
+NEVER use Accordion components
+NEVER use callout components

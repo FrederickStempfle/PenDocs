@@ -13,7 +13,6 @@ export const ROUTES: EachRoute[] = [
     title: "Burp Suite Guide",
     href: "/burp-suite",
     noLink: true,
-    tag: "New",
     items: [
       { title: "Introduction", href: "/introduction" },
       {
@@ -32,7 +31,7 @@ export const ROUTES: EachRoute[] = [
           { title: "Scanner", href: "/scanner" },
           { title: "Intruder", href: "/intruder" },
           { title: "Repeater", href: "/repeater" },
-          { title: "Decoder", href: "/decoder", tag: "New" },
+          { title: "Decoder", href: "/decoder" },
           { title: "Comparer", href: "/comparer" },
           { title: "Sequencer", href: "/sequencer" },
           { title: "Target", href: "/target" },
@@ -44,10 +43,22 @@ export const ROUTES: EachRoute[] = [
     ]
   },
   {
+    title: "XSS Guide",
+    href: "/xss",
+    noLink: true,
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      { title: "Fundamentals", href: "/fundamentals" },
+      { title: "Identification Techniques", href: "/identification-techniques" },
+      { title: "Exploitation Strategies", href: "/exploitation-strategies" },
+      { title: "Evasion Techniques", href: "/evasion-techniques" },
+      { title: "Defense and Mitigation", href: "/defense-mitigation" }
+    ]
+  },
+  {
     title: "SQLMap Guide",
     href: "/sqlmap",
     noLink: true,
-    tag: "New",
     items: [
       { title: "Introduction", href: "/introduction" },
       {
@@ -101,7 +112,6 @@ export const ROUTES: EachRoute[] = [
     title: "John the Ripper Guide",
     href: "/john-the-ripper",
     noLink: true,
-    tag: "New",
     items: [
       { title: "Introduction", href: "/introduction" },
       {

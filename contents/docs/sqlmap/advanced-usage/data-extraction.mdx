@@ -42,9 +42,6 @@ SQLMap provides powerful capabilities for extracting data from vulnerable databa
     
     This command identifies the database currently in use by the web application.
     
-    <Note title="Pro Tip" type="success">
-    Always start with enumeration to understand the database structure before attempting to extract specific data.
-    </Note>
   </TabsContent>
   <TabsContent value="tables">
     ## Table Extraction
@@ -67,9 +64,6 @@ SQLMap provides powerful capabilities for extracting data from vulnerable databa
     
     This command lists all columns in the specified table, which helps you identify which columns contain sensitive information.
     
-    <Note title="Security Note" type="warning">
-    Tables with names like "users", "accounts", "members", or "admin" often contain valuable information such as usernames, email addresses, and password hashes.
-    </Note>
   </TabsContent>
   <TabsContent value="dump">
     ## Data Dumping
@@ -98,9 +92,6 @@ SQLMap provides powerful capabilities for extracting data from vulnerable databa
     sqlmap -u "http://target.com/vuln.php?id=1" -D database_name --dump
     ```
     
-    <Note title="Warning" type="danger">
-    Dumping entire databases can generate a large amount of traffic and may trigger intrusion detection systems. Use this option with caution.
-    </Note>
   </TabsContent>
 </Tabs>
 
@@ -205,9 +196,6 @@ Different web applications organize their data in various ways. Here are some co
   </div>
 </div>
 
-<Note title="Ethical Reminder" type="note">
-Remember that unauthorized data extraction is illegal. Always obtain proper authorization before performing security testing on any system.
-</Note>
 
 ## Advanced Data Extraction Techniques
 
@@ -229,12 +217,3 @@ sqlmap -u "http://target.com/vuln.php?id=1" --sql-query "SELECT concat(username,
 
 This command executes a custom SQL query, allowing for more complex data extraction scenarios.
 
-<Note title="Performance Tip" type="success">
-When extracting large amounts of data, use the `--threads` parameter to speed up the process:
-
-```bash
-sqlmap -u "http://target.com/vuln.php?id=1" -D database_name -T large_table --dump --threads=10
-```
-
-This runs multiple threads in parallel, significantly reducing extraction time.
-</Note>

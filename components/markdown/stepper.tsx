@@ -7,7 +7,10 @@ export function Stepper({ children }: PropsWithChildren) {
 
   return (
     <div className="flex flex-col">
-      {Children.map(children, (child, index) => {
+      {Children.map(children, (child: any, index) => {
+        // Get the custom number from the child props if available
+        const displayNumber = child?.props?.number || (index + 1).toString();
+        
         return (
           <div
             className={cn(
@@ -18,7 +21,7 @@ export function Stepper({ children }: PropsWithChildren) {
             )}
           >
             <div className="bg-muted w-8 h-8 text-xs font-medium rounded-md border flex items-center justify-center absolute -left-4 font-code">
-              {index + 1}
+              {displayNumber}
             </div>
             <div className="prose-headings:mt-0 prose-p:mb-3 prose-p:mt-3 last:prose-p:mb-0">
               {child}
@@ -33,7 +36,8 @@ export function Stepper({ children }: PropsWithChildren) {
 export function StepperItem({
   children,
   title,
-}: PropsWithChildren & { title?: string }) {
+  number,
+}: PropsWithChildren & { title?: string; number?: string }) {
   return (
     <div className="pt-0.5">
       <h5 className="mt-0 font-semibold">{title}</h5>

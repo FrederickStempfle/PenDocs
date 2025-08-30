@@ -5,9 +5,6 @@ description: Learn how to execute operating system commands through SQL injectio
 
 # OS Command Execution
 
-<Note title="Security Warning" type="warning">
-The techniques described in this document are for educational purposes and authorized security testing only. Unauthorized use is illegal and unethical.
-</Note>
 
 SQLMap provides several methods to execute operating system commands on the target server through SQL injection vulnerabilities. These techniques depend on the database management system and the privileges available.
 
@@ -205,9 +202,6 @@ To create a custom backdoor:
 sqlmap -u "http://www.example.com/vuln.php?id=1" --os-smbrelay
 ```
 
-<Note title="Ethical and Legal Warning">
-OS command execution capabilities should only be used in authorized security testing scenarios. Unauthorized access to systems is illegal and unethical.
-</Note>
 
 ## Troubleshooting Command Execution
 
@@ -289,11 +283,3 @@ OS command execution capabilities should only be used in authorized security tes
   </TabsContent>
 </Tabs>
 
-<Note title="Success Factors" type="info">
-Command execution capabilities vary significantly based on:
-- The specific DBMS version and configuration
-- Database user privileges
-- Server security controls and hardening
-- Network segmentation and firewall rules
-- Web server configuration
-</Note>

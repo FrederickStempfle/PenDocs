@@ -68,10 +68,7 @@ SQLMap provides multiple ways to specify targets for testing. This section cover
 
     This searches for websites with a URL parameter named `id` with a value of `1`, which is a common indicator of potential SQL injection vulnerabilities.
 
-    <Note title="Warning" type="warning">
-    Use this feature responsibly. Overusing it may lead to your IP address being blocked by Google.
-    </Note>
-  </TabsContent>
+      </TabsContent>
   <TabsContent value="advanced">
     ### Specifying a Direct Database Connection
 
@@ -123,9 +120,6 @@ SQLMap provides multiple ways to specify targets for testing. This section cover
   </StepperItem>
 </Stepper>
 
-<Note title="Pro Tip" type="success">
-When targeting a website, always start with a single parameter and then expand your testing to other parameters if needed. This approach is more efficient and reduces the risk of triggering security mechanisms.
-</Note>
 
 ## Database Support
 
@@ -182,9 +176,6 @@ When targeting a website, always start with a single parameter and then expand y
   </TabsContent>
 </Tabs>
 
-<Note title="Compatibility Note" type="note">
-SQLMap automatically detects the backend database type during testing, but you can also specify it using the `--dbms` parameter if you already know which database system is being used.
-</Note>
 
 ## Advanced Targeting Options
 

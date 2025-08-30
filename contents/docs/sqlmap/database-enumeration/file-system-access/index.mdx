@@ -17,13 +17,6 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" --file-read="/etc/passwd"
 
 This attempts to read the specified file from the server's file system. The file content will be stored in the SQLMap output directory.
 
-<Note title="Database Support">
-File system access capabilities vary by DBMS:
-- MySQL: Requires FILE privilege
-- PostgreSQL: Limited to files in the database directory
-- Microsoft SQL Server: Requires appropriate permissions
-- Oracle: Requires specific privileges
-</Note>
 
 ## Writing Files (`--file-write` and `--file-dest`)
 
@@ -38,9 +31,6 @@ This command:
 2. Uploads it to the target server
 3. Saves it at the specified destination path (`/var/www/html/backdoor.php`)
 
-<Note title="Warning">
-Writing files to a server without proper authorization is illegal in most jurisdictions. This functionality should only be used in authorized penetration testing scenarios.
-</Note>
 
 ## OS Shell Access (`--os-shell`)
 
@@ -91,6 +81,3 @@ sqlmap -u "http://www.example.com/vuln.php?id=1" --reg-read --reg-key="HKEY_LOCA
 
 This reads the specified registry key from a Windows target system.
 
-<Note title="Ethical Considerations">
-File system access capabilities should only be used in authorized security testing scenarios. Unauthorized access to systems is illegal and unethical.
-</Note>

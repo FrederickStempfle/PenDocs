@@ -16,6 +16,7 @@ interface Commit {
   author: string;
   avatar: string;
   url: string;
+  number: number;
 }
 
 interface Contributor {
@@ -95,7 +96,27 @@ export default function Home() {
       setError(null);
       
       try {
-        // Fetch commits
+        // Fetch total commit count first
+        const repoResponse = await fetch('https://api.github.com/repos/FrederickStempfle/PenDocs/commits?per_page=1');
+        const linkHeader = repoResponse.headers.get('Link') || '';
+        
+        // Extract total commit count from Link header or fallback to API call
+        let totalCommits = 0;
+        const lastPageMatch = linkHeader.match(/page=([0-9]+)>; rel="last"/); 
+        
+        if (lastPageMatch && lastPageMatch[1]) {
+          totalCommits = parseInt(lastPageMatch[1], 10);
+        } else {
+          // If Link header doesn't contain the info, we need to count manually
+          // This is a fallback and might hit rate limits for large repos
+          const allCommitsResponse = await fetch('https://api.github.com/repos/FrederickStempfle/PenDocs/commits?per_page=100');
+          if (allCommitsResponse.ok) {
+            const allCommits = await allCommitsResponse.json();
+            totalCommits = allCommits.length;
+          }
+        }
+        
+        // Fetch the most recent 5 commits
         const commitsResponse = await fetch('https://api.github.com/repos/FrederickStempfle/PenDocs/commits?per_page=5');
         
         if (!commitsResponse.ok) {
@@ -104,13 +125,14 @@ export default function Home() {
         
         const commitsData: GitHubCommit[] = await commitsResponse.json();
         
-        const formattedCommits: Commit[] = commitsData.map(commit => ({
+        const formattedCommits: Commit[] = commitsData.map((commit, index) => ({
           sha: commit.sha,
           message: commit.commit.message.split('\n')[0], // Get first line of commit message
           date: formatDate(commit.commit.author.date),
           author: commit.author?.login || commit.commit.author.name,
           avatar: commit.author?.avatar_url || `https://github.com/identicons/${commit.commit.author.name}`,
-          url: commit.html_url
+          url: commit.html_url,
+          number: totalCommits - index // Calculate commit number (most recent = highest number)
         }));
         
         setCommits(formattedCommits);
@@ -145,7 +167,8 @@ export default function Home() {
             date: "2025-08-29",
             author: "FrederickStempfle",
             avatar: "https://github.com/identicons/app/oauth_app/1234",
-            url: "#"
+            url: "#",
+            number: 26
           },
           {
             sha: "e5f6g7h",
@@ -153,7 +176,8 @@ export default function Home() {
             date: "2025-08-27",
             author: "contributor1",
             avatar: "https://github.com/identicons/app/oauth_app/5678",
-            url: "#"
+            url: "#",
+            number: 25
           },
           {
             sha: "i9j0k1l",
@@ -161,7 +185,8 @@ export default function Home() {
             date: "2025-08-25",
             author: "contributor2",
             avatar: "https://github.com/identicons/app/oauth_app/9012",
-            url: "#"
+            url: "#",
+            number: 24
           },
           {
             sha: "m2n3o4p",
@@ -169,7 +194,8 @@ export default function Home() {
             date: "2025-08-23",
             author: "FrederickStempfle",
             avatar: "https://github.com/identicons/app/oauth_app/1234",
-            url: "#"
+            url: "#",
+            number: 23
           },
           {
             sha: "q5r6s7t",
@@ -177,7 +203,8 @@ export default function Home() {
             date: "2025-08-20",
             author: "FrederickStempfle",
             avatar: "https://github.com/identicons/app/oauth_app/1234",
-            url: "#"
+            url: "#",
+            number: 22
           }
         ]);
         
@@ -284,7 +311,7 @@ export default function Home() {
               ) : (
                 <Stepper>
                   {commits.map((commit) => (
-                    <StepperItem key={commit.sha} title={commit.message}>
+                    <StepperItem key={commit.sha} title={commit.message} number={commit.number.toString()}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">

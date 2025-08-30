@@ -5,82 +5,264 @@ description: Learn how to extract data from databases using SQLMap
 
 # Data Extraction Techniques
 
-After identifying the database structure, you can extract data from specific tables and columns of interest.
-
-## Dumping Table Data (`--dump`)
-
-To extract all data from a specific table:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T table_name --dump
-```
-
-This command retrieves all records from the specified table. For large tables, SQLMap will ask if you want to retrieve all entries or a subset.
-
-## Dumping Specific Columns (`-C`)
-
-To extract data from specific columns only:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T table_name -C "username,password,email" --dump
-```
-
-This is useful when you're only interested in certain columns, especially in tables with many columns or large amounts of data.
-
-## Conditional Data Extraction (`--where`)
-
-To extract records that match specific criteria:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T users -C "username,password" --dump --where "username='admin'"
-```
-
-This allows you to filter the data based on specific conditions, similar to a SQL WHERE clause.
-
-## Extracting a Range of Records (`--start` and `--stop`)
-
-For large tables, you can extract a specific range of records:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" -D database_name -T users --dump --start 1 --stop 100
-```
-
-This retrieves only records 1 through 100, which is useful for paginating through large datasets.
-
-## Dumping All Databases (`--dump-all`)
-
-To extract data from all tables in all databases:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --dump-all
-```
-
-<Note title="Warning">
-This can generate a massive amount of data and take a very long time to complete. Use with caution and only when necessary.
+<Note title="Ethical Reminder" type="warning">
+Data extraction should only be performed with proper authorization during security assessments. Unauthorized data extraction may violate privacy laws and regulations.
 </Note>
 
-## Password Cracking (`--passwords`)
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="strategy">Strategy</TabsTrigger>
+    <TabsTrigger value="best-practices">Best Practices</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    After identifying the database structure, you can extract data from specific tables and columns of interest. SQLMap provides powerful capabilities to retrieve, filter, and process database content efficiently.
+  </TabsContent>
+  <TabsContent value="strategy">
+    An effective data extraction strategy should:
+    
+    1. **Target specific data** - Focus on relevant tables and columns
+    2. **Use filtering** - Apply conditions to limit data retrieval
+    3. **Handle pagination** - Extract large datasets in manageable chunks
+    4. **Process sensitive data** - Identify and handle password hashes and PII
+    5. **Document findings** - Save extracted data in structured formats
+  </TabsContent>
+  <TabsContent value="best-practices">
+    <ul>
+      <li>Always specify columns of interest rather than dumping entire tables</li>
+      <li>Use conditional extraction to minimize data volume</li>
+      <li>Set reasonable limits when extracting from large tables</li>
+      <li>Save output to files for later analysis</li>
+      <li>Use threading carefully to balance speed and server load</li>
+      <li>Consider using CSV output for easier post-processing</li>
+    </ul>
+  </TabsContent>
+</Tabs>
 
-SQLMap can attempt to identify and crack password hashes:
+## Data Extraction Techniques
 
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --passwords
-```
+<Stepper>
+  <StepperItem title="Basic Table Extraction">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Complete Table Dump</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          -D database_name -T table_name --dump
+        ```
+        
+        <p className="text-sm mt-2">This command retrieves all records from the specified table. For large tables, SQLMap will ask if you want to retrieve all entries or a subset.</p>
+      </div>
+      <div>
+        <h4>When to Use</h4>
+        <ul>
+          <li>Small to medium-sized tables</li>
+          <li>When you need all data from a table</li>
+          <li>Initial exploration of table contents</li>
+          <li>When combined with output formatting options</li>
+        </ul>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Column-Specific Extraction">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Targeting Specific Columns</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          -D database_name -T table_name \
+          -C "username,password,email" --dump
+        ```
+        
+        <p className="text-sm mt-2">This extracts only the specified columns, reducing the amount of data retrieved.</p>
+      </div>
+      <div>
+        <h4>Benefits</h4>
+        <ul>
+          <li>Reduces data transfer volume</li>
+          <li>Focuses on relevant information</li>
+          <li>Improves extraction speed</li>
+          <li>Minimizes impact on target server</li>
+          <li>Easier to analyze specific data points</li>
+        </ul>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Conditional Extraction">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Filtering with WHERE Conditions</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          -D database_name -T users \
+          -C "username,password" --dump \
+          --where "username='admin'"
+        ```
+        
+        <p className="text-sm mt-2">This filters data based on specific conditions, similar to a SQL WHERE clause.</p>
+      </div>
+      <div>
+        <h4>Example Conditions</h4>
+        <ul>
+          <li><code>--where "id>100"</code> - Records with ID greater than 100</li>
+          <li><code>--where "role='admin'"</code> - Only admin users</li>
+          <li><code>--where "created_date>'2023-01-01'"</code> - Recent records</li>
+          <li><code>--where "active=1"</code> - Only active records</li>
+          <li><code>--where "email LIKE '%@company.com'"</code> - Company emails</li>
+        </ul>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Pagination Techniques">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Extracting Record Ranges</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          -D database_name -T users --dump \
+          --start 1 --stop 100
+        ```
+        
+        <p className="text-sm mt-2">This retrieves only records 1 through 100, useful for paginating through large datasets.</p>
+      </div>
+      <div>
+        <h4>Pagination Strategy</h4>
+        <ul>
+          <li>Use <code>--count</code> first to determine table size</li>
+          <li>Extract data in manageable chunks (100-500 records)</li>
+          <li>Use sequential ranges: 1-100, 101-200, etc.</li>
+          <li>Combine with <code>--where</code> for targeted pagination</li>
+          <li>Use <code>--output-dir</code> to save each chunk separately</li>
+        </ul>
+      </div>
+    </div>
+  </StepperItem>
+</Stepper>
 
-This command:
-1. Identifies tables that might contain password hashes
-2. Extracts the hashes
-3. Attempts to crack them using a dictionary attack or brute force
+## Advanced Extraction Features
 
-You can also specify a custom wordlist with `--passwords-file=/path/to/wordlist.txt`.
+<Tabs defaultValue="bulk-extraction" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="bulk-extraction">Bulk Extraction</TabsTrigger>
+    <TabsTrigger value="password-cracking">Password Cracking</TabsTrigger>
+    <TabsTrigger value="optimization">Optimization</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="bulk-extraction">
+    <div className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 mb-4">
+      <h4 className="font-bold">Warning: High Impact Operation</h4>
+      <p>Dumping all databases can generate massive amounts of data and take a very long time to complete. Use with caution and only when necessary.</p>
+    </div>
+    
+    <h4>Extracting All Databases</h4>
+    
+    ```bash
+    sqlmap -u "http://www.example.com/vuln.php?id=1" --dump-all
+    ```
+    
+    <p className="mt-2">This command extracts data from all tables in all accessible databases. To make this more manageable:</p>
+    
+    <ul className="mt-2">
+      <li>Use <code>--exclude-sysdbs</code> to skip system databases</li>
+      <li>Use <code>--dump-all --exclude-dbs=db1,db2</code> to exclude specific databases</li>
+      <li>Use <code>--dump-format=CSV</code> for more efficient output</li>
+      <li>Consider <code>--fresh-queries</code> to avoid caching issues with large extractions</li>
+    </ul>
+  </TabsContent>
+  
+  <TabsContent value="password-cracking">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Automatic Password Cracking</h4>
+        
+        ```bash
+        # Basic password cracking
+        sqlmap -u "http://www.example.com/vuln.php?id=1" --passwords
+        
+        # With custom wordlist
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --passwords --passwords-file=/path/to/wordlist.txt
+        ```
+        
+        <p className="mt-2">SQLMap will:</p>
+        <ol>
+          <li>Identify tables that might contain password hashes</li>
+          <li>Extract the hashes</li>
+          <li>Attempt to crack them using dictionary attack or brute force</li>
+        </ol>
+      </div>
+      <div>
+        <h4>Supported Hash Types</h4>
+        <ul>
+          <li>MD5</li>
+          <li>SHA1</li>
+          <li>SHA256</li>
+          <li>MySQL</li>
+          <li>MSSQL</li>
+          <li>Oracle</li>
+          <li>PostgreSQL</li>
+          <li>NTLM</li>
+          <li>And many others</li>
+        </ul>
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Pro Tip</h5>
+          <p>Use <code>--common-tables</code> with <code>--passwords</code> to check for common password table names even if they aren't detected in the schema enumeration.</p>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="optimization">
+    <h4>Performance Optimization Techniques</h4>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+      <div className="border p-4 rounded-md">
+        <h5 className="font-bold">Threading</h5>
+        <p><code>--threads=N</code> - Use multiple threads to speed up data extraction</p>
+        <div className="text-sm mt-2">
+          <strong>Example:</strong> <code>sqlmap --threads=10 -u "http://target.com/vuln.php?id=1" --dump</code>
+          <p className="mt-1">Start with 5-10 threads and adjust based on performance. Too many threads can overload the server.</p>
+        </div>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h5 className="font-bold">Output Formatting</h5>
+        <p><code>--dump-format=FORMAT</code> - Control output format (CSV, HTML, SQLITE)</p>
+        <div className="text-sm mt-2">
+          <strong>Example:</strong> <code>sqlmap -u "http://target.com/vuln.php?id=1" --dump --dump-format=CSV</code>
+          <p className="mt-1">CSV format is most efficient for large datasets and easier to process later.</p>
+        </div>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h5 className="font-bold">Binary Data Handling</h5>
+        <p><code>--binary-fields</code> and <code>--hex</code> - Handle binary data efficiently</p>
+        <div className="text-sm mt-2">
+          <strong>Example:</strong> <code>sqlmap -u "http://target.com/vuln.php?id=1" --binary-fields="image,blob" --hex</code>
+          <p className="mt-1">Specify binary fields to avoid corruption and use hex encoding for reliable extraction.</p>
+        </div>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h5 className="font-bold">Batch Mode</h5>
+        <p><code>--batch</code> - Non-interactive mode for automated extraction</p>
+        <div className="text-sm mt-2">
+          <strong>Example:</strong> <code>sqlmap -u "http://target.com/vuln.php?id=1" --dump --batch</code>
+          <p className="mt-1">Uses default answers for all prompts, ideal for scripted operations.</p>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+</Tabs>
 
-## Optimizing Data Extraction
-
-For large databases, consider these optimization techniques:
-
-- Use `--threads` to speed up data extraction
-- Use `--dump-format=CSV` to output data in a more manageable format
-- Use `--binary-fields` to specify which fields contain binary data
-- Use `--hex` to retrieve data in hexadecimal format for binary fields
-
-These options can significantly improve the efficiency of data extraction, especially for large databases with complex data types.
+<Note title="Best Practice" type="info">
+Always consider the impact of your data extraction activities on the target system. Use optimization techniques to minimize server load and network traffic. For large databases, targeted extraction is almost always preferable to bulk extraction.
+</Note>

@@ -5,12 +5,147 @@ description: Learn about SQLMap's evasion techniques for bypassing security cont
 
 # Evasion Techniques
 
-This section covers SQLMap's evasion techniques that can be used to bypass security controls during authorized security assessments.
+<Note title="Ethical Warning" type="warning">
+These evasion techniques should only be used in authorized security testing scenarios where the scope explicitly permits such activities. Unauthorized attempts to bypass security controls may violate laws and regulations.
+</Note>
 
-## In This Section
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="use-cases">Use Cases</TabsTrigger>
+    <TabsTrigger value="prerequisites">Prerequisites</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="overview">
+    <p>SQLMap includes sophisticated evasion capabilities designed to bypass various security controls during authorized penetration testing. These techniques help security professionals assess the true effectiveness of defensive measures by simulating advanced attack scenarios.</p>
+    
+    <p className="mt-2">Evasion techniques work by modifying SQL injection payloads, altering traffic patterns, or employing other methods to avoid detection by security systems like Web Application Firewalls (WAFs), Intrusion Detection Systems (IDS), and similar protective measures.</p>
+  </TabsContent>
+  
+  <TabsContent value="use-cases">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Security Assessments</h4>
+        <p>Evaluate the effectiveness of WAFs and other security controls by testing their detection capabilities against obfuscated payloads.</p>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Penetration Testing</h4>
+        <p>Simulate sophisticated attacks to provide a more realistic assessment of an organization's security posture.</p>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Defense Validation</h4>
+        <p>Verify that security controls can detect and block even sophisticated evasion attempts.</p>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Research</h4>
+        <p>Study evasion techniques to better understand attack methodologies and develop more effective defenses.</p>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="prerequisites">
+    <h4>Before Using Evasion Techniques</h4>
+    <ul className="mt-2">
+      <li><strong>Proper Authorization</strong> - Ensure you have explicit permission to test security controls</li>
+      <li><strong>Defined Scope</strong> - Clearly understand which systems you are authorized to test</li>
+      <li><strong>Risk Assessment</strong> - Be aware of potential impacts on target systems</li>
+      <li><strong>Documentation</strong> - Keep detailed records of all testing activities</li>
+      <li><strong>Legal Compliance</strong> - Ensure testing activities comply with relevant laws and regulations</li>
+    </ul>
+    
+    <div className="bg-muted p-4 rounded-md mt-4">
+      <h5 className="font-bold">Technical Requirements</h5>
+      <ul className="mt-2">
+        <li>SQLMap version 1.0 or higher</li>
+        <li>Basic understanding of SQL injection vulnerabilities</li>
+        <li>Knowledge of target security controls (WAF type, IDS/IPS systems)</li>
+        <li>Sufficient privileges to run SQLMap with evasion options</li>
+      </ul>
+    </div>
+  </TabsContent>
+</Tabs>
 
-- [WAF Detection](/docs/sqlmap/evasion-techniques/waf-detection) - Learn how to detect and bypass Web Application Firewalls
-- [Tamper Scripts](/docs/sqlmap/evasion-techniques/tamper-scripts) - Discover how to use SQLMap's tamper scripts for payload obfuscation
-- [Other Evasion Methods](/docs/sqlmap/evasion-techniques/other-evasion-methods) - Explore additional techniques for evading detection
+## Evasion Techniques
 
-These evasion techniques demonstrate how security controls can potentially be bypassed, highlighting the importance of defense-in-depth strategies. They should only be used in authorized security testing scenarios where the scope explicitly permits such activities.
+<Stepper>
+  <StepperItem title="WAF Detection & Bypass">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Web Application Firewall Handling</h4>
+        <p>Learn how to detect the presence of WAFs and implement techniques to bypass their protection mechanisms.</p>
+        
+        <div className="mt-4">
+          <a href="/docs/sqlmap/evasion-techniques/waf-detection" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            Explore WAF Detection
+          </a>
+        </div>
+      </div>
+      <div className="bg-muted p-4 rounded-md">
+        <h5 className="font-bold">Key Capabilities</h5>
+        <ul className="mt-2">
+          <li>Automatic WAF fingerprinting</li>
+          <li>Customized evasion strategies per WAF type</li>
+          <li>Payload modification to avoid signature detection</li>
+          <li>Traffic pattern alterations to evade behavioral analysis</li>
+        </ul>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Tamper Scripts">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Payload Obfuscation</h4>
+        <p>Discover SQLMap's extensive library of tamper scripts that modify payloads to evade detection while maintaining functionality.</p>
+        
+        <div className="mt-4">
+          <a href="/docs/sqlmap/evasion-techniques/tamper-scripts" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            Explore Tamper Scripts
+          </a>
+        </div>
+      </div>
+      <div className="bg-muted p-4 rounded-md">
+        <h5 className="font-bold">Available Techniques</h5>
+        <ul className="mt-2">
+          <li>Character encoding transformations</li>
+          <li>Comment injection and syntax manipulation</li>
+          <li>Case switching and whitespace manipulation</li>
+          <li>Logical expression equivalents</li>
+          <li>Database-specific obfuscation methods</li>
+        </ul>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Other Evasion Methods">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Advanced Techniques</h4>
+        <p>Explore additional methods for evading detection, including timing attacks, custom user-agents, and traffic manipulation.</p>
+        
+        <div className="mt-4">
+          <a href="/docs/sqlmap/evasion-techniques/other-evasion-methods" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            Explore Other Methods
+          </a>
+        </div>
+      </div>
+      <div className="bg-muted p-4 rounded-md">
+        <h5 className="font-bold">Additional Techniques</h5>
+        <ul className="mt-2">
+          <li>Request timing manipulation</li>
+          <li>HTTP header customization</li>
+          <li>Connection pooling evasion</li>
+          <li>Proxy rotation and traffic routing</li>
+          <li>Custom delivery techniques</li>
+        </ul>
+      </div>
+    </div>
+  </StepperItem>
+</Stepper>
+
+<Note title="Defense Implications" type="info">
+These evasion techniques demonstrate how security controls can potentially be bypassed, highlighting the importance of defense-in-depth strategies. Organizations should implement multiple layers of security rather than relying on a single protective measure.
+</Note>

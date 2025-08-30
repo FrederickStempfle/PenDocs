@@ -3,14 +3,72 @@ title: Database Enumeration
 description: Learn how to enumerate database structure and extract data using SQLMap
 ---
 
-# Database Enumeration
+# Database Enumeration and Data Extraction
 
-This section covers SQLMap's database enumeration capabilities, including how to discover database structure, extract data, and access the file system.
+<Note title="Information Gathering" type="info">
+Database enumeration is a critical phase in security assessments, allowing you to understand the structure and content of vulnerable databases. Always ensure you have proper authorization before performing these actions.
+</Note>
 
-## In This Section
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="workflow">Workflow</TabsTrigger>
+    <TabsTrigger value="commands">Key Commands</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    SQLMap provides comprehensive capabilities for enumerating database structures and extracting valuable information once a SQL injection vulnerability has been identified. These techniques allow for systematic exploration of the database environment while maintaining control over the scope and impact of your security assessment.
+  </TabsContent>
+  <TabsContent value="workflow">
+    A typical database enumeration workflow follows these steps:
+    
+    1. **Identify SQL injection vulnerability**
+    2. **Determine database type and version**
+    3. **List available databases**
+    4. **Enumerate tables in target databases**
+    5. **List columns in sensitive tables**
+    6. **Extract valuable data**
+    7. **Access file system (if needed and authorized)**
+    
+    This methodical approach ensures thorough exploration while minimizing unnecessary actions.
+  </TabsContent>
+  <TabsContent value="commands">
+    Essential SQLMap enumeration commands:
+    
+    ```bash
+    # Get current database name
+    sqlmap -u "http://target.com/vuln.php?id=1" --current-db
+    
+    # List all databases
+    sqlmap -u "http://target.com/vuln.php?id=1" --dbs
+    
+    # List tables in a database
+    sqlmap -u "http://target.com/vuln.php?id=1" -D dbname --tables
+    
+    # List columns in a table
+    sqlmap -u "http://target.com/vuln.php?id=1" -D dbname -T tablename --columns
+    
+    # Dump data from a table
+    sqlmap -u "http://target.com/vuln.php?id=1" -D dbname -T tablename --dump
+    ```
+  </TabsContent>
+</Tabs>
 
-- [Database Structure](/docs/sqlmap/database-enumeration/database-structure) - Learn how to enumerate databases, tables, and columns
-- [Data Extraction](/docs/sqlmap/database-enumeration/data-extraction) - Discover techniques for extracting data from databases
-- [File System Access](/docs/sqlmap/database-enumeration/file-system-access) - Learn how to access the file system through SQL injection vulnerabilities
+## Exploration Techniques
 
-SQLMap provides comprehensive capabilities for enumerating database structures and extracting valuable information once a SQL injection vulnerability has been identified. These techniques allow for systematic exploration of the database environment while maintaining control over the scope and impact of your security assessment.
+<Stepper>
+  <StepperItem title="Database Structure Analysis">
+    Learn how to enumerate databases, tables, and columns to map out the complete database structure.
+    
+    [Explore Database Structure →](/docs/sqlmap/database-enumeration/database-structure)
+  </StepperItem>
+  <StepperItem title="Data Extraction Methods">
+    Discover techniques for extracting data from databases, including filtering, optimizing, and handling large datasets.
+    
+    [Explore Data Extraction →](/docs/sqlmap/database-enumeration/data-extraction)
+  </StepperItem>
+  <StepperItem title="File System Access">
+    Learn how to access the file system through SQL injection vulnerabilities when database privileges permit.
+    
+    [Explore File System Access →](/docs/sqlmap/database-enumeration/file-system-access)
+  </StepperItem>
+</Stepper>

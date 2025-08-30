@@ -5,153 +5,685 @@ description: Learn how to use SQLMap's tamper scripts to evade detection and byp
 
 # Tamper Scripts
 
-SQLMap's tamper scripts are powerful tools that modify SQL injection payloads to help evade detection by security mechanisms such as Web Application Firewalls (WAFs), Intrusion Detection Systems (IDS), and Intrusion Prevention Systems (IPS).
-
-## Understanding Tamper Scripts
-
-Tamper scripts work by transforming the SQL injection payload before it's sent to the target. These transformations can include:
-
-- Character encoding
-- Case manipulation
-- Whitespace modification
-- Comment insertion
-- Syntax alterations
-- String concatenation
-
-## Using Tamper Scripts
-
-### Basic Usage
-
-To use a single tamper script:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=between
-```
-
-This applies the `between` tamper script, which replaces greater than and less than operators with equivalent BETWEEN expressions.
-
-### Chaining Multiple Scripts
-
-You can chain multiple tamper scripts, which will be applied in the specified order:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=between,space2comment,randomcase
-```
-
-This applies three tamper scripts in sequence:
-1. `between`: Replaces operators with BETWEEN expressions
-2. `space2comment`: Replaces spaces with comments
-3. `randomcase`: Randomizes the case of SQL keywords
-
-## Common Tamper Scripts
-
-### Character Encoding Scripts
-
-- `base64encode`: Encodes all characters in Base64
-- `charencode`: URL-encodes all characters in a payload
-- `charunicodeencode`: Unicode-encodes characters
-- `hex2char`: Replaces hexadecimal encoded characters with their actual character
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=charencode
-```
-
-### Whitespace Manipulation Scripts
-
-- `space2comment`: Replaces spaces with comments
-- `space2dash`: Replaces spaces with dashes followed by a comment
-- `space2hash`: Replaces spaces with hashes followed by a random string and a new line
-- `space2plus`: Replaces spaces with plus signs
-- `space2randomblank`: Replaces spaces with random whitespace characters
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=space2comment
-```
-
-### Case Manipulation Scripts
-
-- `randomcase`: Randomizes the case of SQL keywords
-- `lowercase`: Converts all uppercase characters to lowercase
-- `uppercase`: Converts all lowercase characters to uppercase
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=randomcase
-```
-
-### Syntax Modification Scripts
-
-- `between`: Replaces greater than and less than operators with BETWEEN expressions
-- `equaltolike`: Replaces equal operators with LIKE operators
-- `greatest`: Replaces greater than operator with GREATEST function
-- `ifnull2ifisnull`: Replaces IFNULL with IF(IS NULL)
-- `modsecurityversioned`: Adds versioned MySQL comment
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=between,equaltolike
-```
-
-## WAF-Specific Tamper Scripts
-
-### ModSecurity
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=modsecurityversioned,space2comment,space2hash,charunicodeencode,securesphere
-```
-
-### Cloudflare
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=cloudflare
-```
-
-### F5 BIG-IP ASM
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=charunicodeencode,space2randomblank,apostrophemask,randomcase
-```
-
-### Imperva SecureSphere
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=securesphere
-```
-
-## Creating Custom Tamper Scripts
-
-You can create custom tamper scripts to address specific evasion needs:
-
-1. Create a Python file in the SQLMap `tamper` directory
-2. Define a `tamper` function that takes and returns a payload
-3. Implement your transformation logic
-
-Example custom tamper script (`mytamper.py`):
-
-```python
-#!/usr/bin/env python
-
-def tamper(payload, **kwargs):
-    """
-    Description of your tamper script
-    """
-    retVal = payload
-    
-    if payload:
-        # Your transformation logic here
-        retVal = payload.replace("SELECT", "SEL/**/ECT")
-    
-    return retVal
-```
-
-<Note title="Performance Impact">
-Using multiple tamper scripts can significantly slow down the testing process. Only use the tamper scripts necessary for your specific scenario.
+<Note title="Security Warning" type="warning">
+Tamper scripts should only be used in authorized security testing scenarios. Unauthorized attempts to bypass security controls are illegal and unethical.
 </Note>
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="how-they-work">How They Work</TabsTrigger>
+    <TabsTrigger value="when-to-use">When To Use</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="overview">
+    <p>SQLMap's tamper scripts are powerful tools that modify SQL injection payloads to help evade detection by security mechanisms such as Web Application Firewalls (WAFs), Intrusion Detection Systems (IDS), and Intrusion Prevention Systems (IPS).</p>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Key Benefits</h4>
+        <ul>
+          <li>Bypass WAF detection mechanisms</li>
+          <li>Evade pattern-based filters</li>
+          <li>Maintain payload functionality while altering appearance</li>
+          <li>Target specific security products</li>
+          <li>Chain multiple evasion techniques</li>
+        </ul>
+      </div>
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Common Use Cases</h4>
+        <ul>
+          <li>Testing WAF effectiveness</li>
+          <li>Penetration testing hardened environments</li>
+          <li>Security research and validation</li>
+          <li>Bypassing known filter patterns</li>
+          <li>Demonstrating false sense of security</li>
+        </ul>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="how-they-work">
+    <p>Tamper scripts work by transforming the SQL injection payload before it's sent to the target. Each script applies specific modifications to evade detection patterns.</p>
+    
+    <div className="mt-4">
+      <h4 className="font-bold">Transformation Process</h4>
+      <ol>
+        <li>SQLMap generates the initial SQL injection payload</li>
+        <li>The payload passes through each specified tamper script in sequence</li>
+        <li>Each script applies its transformation to the payload</li>
+        <li>The final modified payload is sent to the target</li>
+        <li>SQLMap interprets the response based on the original payload logic</li>
+      </ol>
+      
+      <div className="bg-muted p-3 rounded-md mt-4">
+        <h5 className="font-bold">Technical Detail</h5>
+        <p>Each tamper script is a Python module with a <code>tamper(payload, **kwargs)</code> function that takes the payload string as input and returns the modified version.</p>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="when-to-use">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4 className="font-bold">Use Tamper Scripts When:</h4>
+        <ul>
+          <li>Standard SQLMap payloads are being blocked</li>
+          <li>You've identified a specific WAF or security product</li>
+          <li>You need to bypass specific filtering patterns</li>
+          <li>Testing the effectiveness of security controls</li>
+          <li>Other evasion techniques have failed</li>
+        </ul>
+      </div>
+      <div>
+        <h4 className="font-bold">Start With:</h4>
+        <ol>
+          <li>Identify if a WAF is present (<code>--identify-waf</code>)</li>
+          <li>Try basic tamper scripts first (<code>randomcase</code>, <code>space2comment</code>)</li>
+          <li>Use WAF-specific scripts if you know the WAF product</li>
+          <li>Chain multiple scripts only if necessary</li>
+          <li>Monitor verbosity output to see transformed payloads</li>
+        </ol>
+      </div>
+    </div>
+    
+    <div className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 mt-4">
+      <h5 className="font-bold">Important</h5>
+      <p>Using too many tamper scripts can slow down testing and may break payload functionality. Start with minimal modifications and add more only as needed.</p>
+    </div>
+  </TabsContent>
+</Tabs>
+
+## Tamper Script Usage Guide
+
+<Stepper>
+  <StepperItem title="Select Appropriate Tamper Scripts">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Transformation Categories</h4>
+        <p className="text-sm mb-2">Tamper scripts apply various transformations to SQL payloads:</p>
+        <ul className="text-sm">
+          <li><strong>Character encoding</strong> - URL, Unicode, Base64, etc.</li>
+          <li><strong>Case manipulation</strong> - Randomize, uppercase, lowercase</li>
+          <li><strong>Whitespace modification</strong> - Replace spaces with comments, dashes, etc.</li>
+          <li><strong>Comment insertion</strong> - Add comments to break up SQL keywords</li>
+          <li><strong>Syntax alterations</strong> - Replace operators with equivalent expressions</li>
+          <li><strong>String concatenation</strong> - Split strings into concatenated parts</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Script Selection Tips</h4>
+        <ul className="text-sm">
+          <li>Use <code>--list-tampers</code> to see all available scripts</li>
+          <li>Choose scripts based on the WAF/IDS you're testing against</li>
+          <li>Start with simpler transformations before complex ones</li>
+          <li>Consider the target DBMS compatibility</li>
+          <li>Use verbose mode to see transformed payloads</li>
+        </ul>
+        
+        ```bash
+        # List all available tamper scripts
+        sqlmap --list-tampers
+        ```
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Apply Single Tamper Script">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Basic Usage</h4>
+        
+        ```bash
+        # Apply a single tamper script
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=between
+        ```
+        
+        <p className="text-sm mt-2">This applies the <code>between</code> tamper script, which replaces greater than and less than operators with equivalent BETWEEN expressions.</p>
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Example Transformation</h5>
+          <p className="text-sm"><strong>Original:</strong> <code>id > 1</code></p>
+          <p className="text-sm"><strong>Transformed:</strong> <code>id BETWEEN 2 AND 9999999</code></p>
+        </div>
+      </div>
+      <div>
+        <h4>Popular Single Scripts</h4>
+        <ul className="text-sm">
+          <li><code>randomcase</code> - <code>SELECT</code> becomes <code>SeLeCt</code></li>
+          <li><code>space2comment</code> - <code>SELECT id</code> becomes <code>SELECT/**/id</code></li>
+          <li><code>charencode</code> - URL-encodes characters</li>
+          <li><code>base64encode</code> - Base64-encodes the payload</li>
+          <li><code>equaltolike</code> - <code>=</code> becomes <code>LIKE</code></li>
+        </ul>
+        
+        <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 mt-4">
+          <h5 className="font-bold">Pro Tip</h5>
+          <p className="text-sm">Use <code>-v 3</code> to see the actual transformed payload being sent:</p>
+          <pre className="text-xs mt-1">sqlmap -u "http://example.com/vuln.php?id=1" \
+  --tamper=randomcase -v 3</pre>
+        </div>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Chain Multiple Tamper Scripts">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Chaining Syntax</h4>
+        
+        ```bash
+        # Chain multiple tamper scripts
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=between,space2comment,randomcase
+        ```
+        
+        <p className="text-sm mt-2">This applies three tamper scripts in sequence:</p>
+        <ol className="text-sm">
+          <li><code>between</code>: Replaces operators with BETWEEN expressions</li>
+          <li><code>space2comment</code>: Replaces spaces with comments</li>
+          <li><code>randomcase</code>: Randomizes the case of SQL keywords</li>
+        </ol>
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Example Transformation Chain</h5>
+          <p className="text-sm"><strong>Original:</strong> <code>SELECT id WHERE id > 1</code></p>
+          <p className="text-sm"><strong>After between:</strong> <code>SELECT id WHERE id BETWEEN 2 AND 9999999</code></p>
+          <p className="text-sm"><strong>After space2comment:</strong> <code>SELECT/**/id/**/WHERE/**/id/**/BETWEEN/**/2/**/AND/**/9999999</code></p>
+          <p className="text-sm"><strong>After randomcase:</strong> <code>SeLeCt/**/iD/**/wHeRe/**/Id/**/bEtWeEn/**/2/**/aNd/**/9999999</code></p>
+        </div>
+      </div>
+      <div>
+        <h4>Chaining Best Practices</h4>
+        <ul className="text-sm">
+          <li><strong>Order matters</strong> - Scripts are applied sequentially</li>
+          <li><strong>Compatibility</strong> - Not all scripts work well together</li>
+          <li><strong>Start simple</strong> - Begin with 2-3 scripts and add more if needed</li>
+          <li><strong>Test combinations</strong> - Different WAFs require different combinations</li>
+          <li><strong>Performance impact</strong> - More scripts = slower testing</li>
+        </ul>
+        
+        <div className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 mt-4">
+          <h5 className="font-bold">Important</h5>
+          <p className="text-sm">Some tamper scripts may conflict with each other or break the payload functionality. If you encounter errors, try different combinations or reduce the number of scripts.</p>
+        </div>
+      </div>
+    </div>
+  </StepperItem>
+</Stepper>
+
+## Common Tamper Script Categories
+
+<Tabs defaultValue="encoding" className="pt-2 pb-1">
+  <TabsList>
+    <TabsTrigger value="encoding">Character Encoding</TabsTrigger>
+    <TabsTrigger value="whitespace">Whitespace Manipulation</TabsTrigger>
+    <TabsTrigger value="case">Case Manipulation</TabsTrigger>
+    <TabsTrigger value="syntax">Syntax Modification</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="encoding">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Character Encoding Scripts</h4>
+        <p className="text-sm mb-2">These scripts encode characters in various formats to bypass pattern matching:</p>
+        
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left py-2">Script</th>
+              <th className="text-left py-2">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b">
+              <td className="py-2"><code>base64encode</code></td>
+              <td className="py-2">Encodes all characters in Base64</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>charencode</code></td>
+              <td className="py-2">URL-encodes all characters in a payload</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>charunicodeencode</code></td>
+              <td className="py-2">Unicode-encodes characters</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>hex2char</code></td>
+              <td className="py-2">Replaces hex encoded characters with actual characters</td>
+            </tr>
+            <tr>
+              <td className="py-2"><code>percentage</code></td>
+              <td className="py-2">Adds a percentage sign after each character</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Example Usage</h4>
+        
+        ```bash
+        # URL encode all characters
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=charencode
+        
+        # Unicode encode characters
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=charunicodeencode
+        ```
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Example Transformation</h5>
+          <p className="text-sm"><strong>Original:</strong> <code>SELECT * FROM users</code></p>
+          <p className="text-sm"><strong>charencode:</strong> <code>%53%45%4C%45%43%54%20%2A%20%46%52%4F%4D%20%75%73%65%72%73</code></p>
+          <p className="text-sm"><strong>base64encode:</strong> <code>U0VMRUNUICogRlJPTSB1c2Vycw==</code></p>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="whitespace">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Whitespace Manipulation Scripts</h4>
+        <p className="text-sm mb-2">These scripts modify spaces to bypass filters that look for specific patterns:</p>
+        
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left py-2">Script</th>
+              <th className="text-left py-2">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b">
+              <td className="py-2"><code>space2comment</code></td>
+              <td className="py-2">Replaces spaces with comments (/**/)</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>space2dash</code></td>
+              <td className="py-2">Replaces spaces with dashes and comments</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>space2hash</code></td>
+              <td className="py-2">Replaces spaces with # and random strings</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>space2plus</code></td>
+              <td className="py-2">Replaces spaces with plus signs</td>
+            </tr>
+            <tr>
+              <td className="py-2"><code>space2randomblank</code></td>
+              <td className="py-2">Replaces spaces with random whitespace</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Example Usage</h4>
+        
+        ```bash
+        # Replace spaces with comments
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=space2comment
+        
+        # Replace spaces with random whitespace
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=space2randomblank
+        ```
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Example Transformation</h5>
+          <p className="text-sm"><strong>Original:</strong> <code>SELECT * FROM users</code></p>
+          <p className="text-sm"><strong>space2comment:</strong> <code>SELECT/**/FROM/**/users</code></p>
+          <p className="text-sm"><strong>space2hash:</strong> <code>SELECT#randomstring\nFROM#randomstring\nusers</code></p>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="case">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Case Manipulation Scripts</h4>
+        <p className="text-sm mb-2">These scripts modify the case of SQL keywords to bypass case-sensitive filters:</p>
+        
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left py-2">Script</th>
+              <th className="text-left py-2">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b">
+              <td className="py-2"><code>randomcase</code></td>
+              <td className="py-2">Randomizes the case of SQL keywords</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>lowercase</code></td>
+              <td className="py-2">Converts all uppercase characters to lowercase</td>
+            </tr>
+            <tr>
+              <td className="py-2"><code>uppercase</code></td>
+              <td className="py-2">Converts all lowercase characters to uppercase</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 mt-4">
+          <h5 className="font-bold">Pro Tip</h5>
+          <p className="text-sm">Case manipulation is particularly effective against WAFs that use simple keyword matching without accounting for case variations.</p>
+        </div>
+      </div>
+      <div>
+        <h4>Example Usage</h4>
+        
+        ```bash
+        # Randomize case of SQL keywords
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=randomcase
+        
+        # Convert all to uppercase
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=uppercase
+        ```
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Example Transformation</h5>
+          <p className="text-sm"><strong>Original:</strong> <code>SELECT * FROM users WHERE id=1</code></p>
+          <p className="text-sm"><strong>randomcase:</strong> <code>sElEcT * FrOm users WhErE id=1</code></p>
+          <p className="text-sm"><strong>uppercase:</strong> <code>SELECT * FROM USERS WHERE ID=1</code></p>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="syntax">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Syntax Modification Scripts</h4>
+        <p className="text-sm mb-2">These scripts replace SQL syntax with equivalent expressions to bypass pattern matching:</p>
+        
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left py-2">Script</th>
+              <th className="text-left py-2">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b">
+              <td className="py-2"><code>between</code></td>
+              <td className="py-2">Replaces > and < with BETWEEN expressions</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>equaltolike</code></td>
+              <td className="py-2">Replaces = with LIKE operators</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>greatest</code></td>
+              <td className="py-2">Replaces > with GREATEST function</td>
+            </tr>
+            <tr className="border-b">
+              <td className="py-2"><code>ifnull2ifisnull</code></td>
+              <td className="py-2">Replaces IFNULL with IF(IS NULL)</td>
+            </tr>
+            <tr>
+              <td className="py-2"><code>modsecurityversioned</code></td>
+              <td className="py-2">Adds versioned MySQL comment</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Example Usage</h4>
+        
+        ```bash
+        # Replace operators with BETWEEN
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=between
+        
+        # Replace equals with LIKE
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --tamper=equaltolike
+        ```
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Example Transformation</h5>
+          <p className="text-sm"><strong>Original:</strong> <code>SELECT * FROM users WHERE id = 1</code></p>
+          <p className="text-sm"><strong>equaltolike:</strong> <code>SELECT * FROM users WHERE id LIKE 1</code></p>
+          <p className="text-sm"><strong>between (for id > 1):</strong> <code>SELECT * FROM users WHERE id BETWEEN 2 AND 9999999</code></p>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+</Tabs>
+
+<StepperItem title="WAF-Specific Bypass Techniques">
+  <Tabs defaultValue="commercial" className="pt-2 pb-1">
+    <TabsList>
+      <TabsTrigger value="commercial">Commercial WAFs</TabsTrigger>
+      <TabsTrigger value="opensource">Open Source WAFs</TabsTrigger>
+      <TabsTrigger value="cloud">Cloud WAFs</TabsTrigger>
+    </TabsList>
+    
+    <TabsContent value="commercial">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">F5 BIG-IP ASM</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=charunicodeencode,space2randomblank,\
+            apostrophemask,randomcase
+          ```
+          
+          <p className="text-sm mt-2">F5 BIG-IP ASM focuses on parameter validation and SQL keyword detection. Unicode encoding and randomized whitespace are particularly effective.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">Imperva SecureSphere</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=securesphere,apostrophemask,\
+            equaltolike,between
+          ```
+          
+          <p className="text-sm mt-2">Imperva has strong signature detection. The <code>securesphere</code> tamper script was specifically designed to bypass this WAF.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">Fortinet FortiWeb</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=space2comment,randomcase,\
+            versionedkeywords,charencode
+          ```
+          
+          <p className="text-sm mt-2">FortiWeb often looks for SQL keywords and suspicious patterns. Versioned keywords and comment injection can help bypass detection.</p>
+        </div>
+      </div>
+    </TabsContent>
+    
+    <TabsContent value="opensource">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">ModSecurity</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=modsecurityversioned,space2comment,\
+            space2hash,charunicodeencode
+          ```
+          
+          <p className="text-sm mt-2">ModSecurity with OWASP CRS is particularly sensitive to SQL keywords. The <code>modsecurityversioned</code> tamper script was specifically designed for it.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">NAXSI</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=between,charencode,randomcase \
+            --technique=T
+          ```
+          
+          <p className="text-sm mt-2">NAXSI uses a scoring system based on suspicious patterns. Character encoding and using time-based techniques can help stay under detection thresholds.</p>
+        </div>
+      </div>
+    </TabsContent>
+    
+    <TabsContent value="cloud">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">Cloudflare WAF</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=cloudflare,randomcase,charencode \
+            --delay=2
+          ```
+          
+          <p className="text-sm mt-2">Cloudflare has specific signatures for SQLi. The <code>cloudflare</code> tamper script was designed specifically to bypass some of these rules.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">AWS WAF</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=space2comment,charunicodeencode,\
+            randomcase --technique=BT
+          ```
+          
+          <p className="text-sm mt-2">AWS WAF uses both signature and behavioral detection. Combining unicode encoding with boolean and time-based techniques can be effective.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">Akamai Kona</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=apostrophemask,charencode,equaltolike \
+            --random-agent --delay=1
+          ```
+          
+          <p className="text-sm mt-2">Akamai has sophisticated pattern matching. Apostrophe masking and replacing equals with LIKE can help evade detection.</p>
+        </div>
+      </div>
+    </TabsContent>
+  </Tabs>
+</StepperItem>
+
+<StepperItem title="Create Custom Tamper Scripts">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <h4>Custom Tamper Script Development</h4>
+      <p className="text-sm mb-4">You can create custom tamper scripts to address specific evasion needs:</p>
+      
+      <ol className="text-sm">
+        <li>Create a Python file in the SQLMap <code>tamper</code> directory</li>
+        <li>Define a <code>tamper</code> function that takes and returns a payload</li>
+        <li>Implement your transformation logic</li>
+        <li>Optionally implement <code>dependencies</code> function if needed</li>
+        <li>Add documentation in the docstring</li>
+      </ol>
+      
+      <div className="bg-muted p-3 rounded-md mt-4">
+        <h5 className="font-bold">Script Location</h5>
+        <p className="text-sm">Custom tamper scripts should be placed in:</p>
+        <ul className="text-sm">
+          <li>Linux/macOS: <code>~/.local/share/sqlmap/tamper/</code></li>
+          <li>Windows: <code>C:\Users\[username]\.sqlmap\tamper\</code></li>
+          <li>Or in the SQLMap installation directory: <code>sqlmap/tamper/</code></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h4>Example Custom Tamper Script</h4>
+      
+      ```python
+      #!/usr/bin/env python
+      
+      """
+      Description: Replaces SELECT keyword with SEL/**/ECT to evade detection
+      Author: Your Name
+      
+      Notes:
+        * Useful against WAFs that look for the SELECT keyword
+        * Compatible with all database types
+      """
+      
+      from lib.core.enums import PRIORITY
+      
+      __priority__ = PRIORITY.NORMAL
+      
+      def dependencies():
+          pass
+      
+      def tamper(payload, **kwargs):
+          """Replace SELECT with SEL/**/ECT"""
+          retVal = payload
+          
+          if payload:
+              # Your transformation logic here
+              retVal = payload.replace("SELECT", "SEL/**/ECT")
+              retVal = retVal.replace("select", "sel/**/ect")
+          
+          return retVal
+      ```
+      
+      <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 mt-4">
+        <h5 className="font-bold">Pro Tip</h5>
+        <p className="text-sm">You can chain your custom tamper script with built-in scripts:</p>
+        <pre className="text-xs mt-1">sqlmap -u "http://example.com/vuln.php?id=1" \
+  --tamper=mytamper,randomcase,space2comment</pre>
+      </div>
+    </div>
+  </div>
+</StepperItem>
 
 ## Troubleshooting Tamper Scripts
 
-If you're having issues with tamper scripts:
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+  <div className="border p-4 rounded-md">
+    <h4 className="font-bold">Common Issues</h4>
+    <ul className="mt-2 text-sm">
+      <li>Script not found errors</li>
+      <li>Syntax errors after transformation</li>
+      <li>Payload no longer works after tampering</li>
+      <li>Performance degradation</li>
+      <li>Conflicts between tamper scripts</li>
+    </ul>
+  </div>
+  
+  <div className="border p-4 rounded-md">
+    <h4 className="font-bold">Diagnostic Steps</h4>
+    <ol className="mt-2 text-sm">
+      <li>Use verbose mode (<code>-v 3</code>) to see transformed payloads</li>
+      <li>Try scripts individually to isolate issues</li>
+      <li>Check script compatibility with your DBMS</li>
+      <li>Review the order of chained scripts</li>
+      <li>Test with simpler payloads first</li>
+    </ol>
+  </div>
+  
+  <div className="border p-4 rounded-md">
+    <h4 className="font-bold">Best Practices</h4>
+    <ul className="mt-2 text-sm">
+      <li>Start with minimal transformations</li>
+      <li>Add scripts one at a time</li>
+      <li>Document successful combinations</li>
+      <li>Consider performance impact</li>
+      <li>Test in a controlled environment first</li>
+    </ul>
+  </div>
+</div>
 
-1. Use verbose mode (`-v`) to see the transformed payloads
-2. Try different combinations of tamper scripts
-3. Ensure the tamper scripts are compatible with your target DBMS
-4. Consider the order of tamper scripts, as it can affect the final payload
-5. Some tamper scripts may break the syntax for certain injection types
+<Note title="Performance Impact" type="warning">
+Using multiple tamper scripts can significantly slow down the testing process. Each script adds processing time as it transforms the payload. Only use the tamper scripts necessary for your specific scenario.
+</Note>

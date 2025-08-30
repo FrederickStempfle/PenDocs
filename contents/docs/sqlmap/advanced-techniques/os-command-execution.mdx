@@ -5,7 +5,46 @@ description: Learn how to execute operating system commands through SQL injectio
 
 # OS Command Execution
 
+<Note title="Security Warning" type="warning">
+The techniques described in this document are for educational purposes and authorized security testing only. Unauthorized use is illegal and unethical.
+</Note>
+
 SQLMap provides several methods to execute operating system commands on the target server through SQL injection vulnerabilities. These techniques depend on the database management system and the privileges available.
+
+<Tabs defaultValue="basics" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="basics">Basics</TabsTrigger>
+    <TabsTrigger value="requirements">Requirements</TabsTrigger>
+    <TabsTrigger value="limitations">Limitations</TabsTrigger>
+  </TabsList>
+  <TabsContent value="basics">
+    OS command execution allows you to run commands on the target operating system through SQL injection vulnerabilities. This can be used to:
+    
+    - Gather system information
+    - Access sensitive files
+    - Establish persistent access
+    - Pivot to other systems on the network
+  </TabsContent>
+  <TabsContent value="requirements">
+    For successful OS command execution, you typically need:
+    
+    - A confirmed SQL injection vulnerability
+    - Sufficient database user privileges
+    - A database feature that allows command execution
+    - No security controls blocking execution
+    - Write access to the file system (for some techniques)
+  </TabsContent>
+  <TabsContent value="limitations">
+    Common limitations include:
+    
+    - Restricted database user permissions
+    - Disabled dangerous database functions
+    - Web Application Firewalls (WAFs)
+    - Network segmentation
+    - Command filtering
+    - Execution timeouts
+  </TabsContent>
+</Tabs>
 
 ## Basic OS Command Execution
 
@@ -31,48 +70,100 @@ This provides an interactive command prompt where you can execute multiple comma
 
 ## DBMS-Specific Techniques
 
-Different database systems have different mechanisms for command execution:
-
-### MySQL
-
-For MySQL, SQLMap typically uses:
-- `SELECT ... INTO OUTFILE` to write a web shell
-- User-defined functions (UDFs) if the database user has sufficient privileges
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --os-shell --dbms=mysql
-```
-
-### Microsoft SQL Server
-
-For SQL Server, SQLMap uses:
-- `xp_cmdshell` extended stored procedure
-- CLR assemblies if `xp_cmdshell` is disabled
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --os-shell --dbms=mssql
-```
-
-### PostgreSQL
-
-For PostgreSQL, SQLMap uses:
-- `COPY TO/FROM PROGRAM` functionality
-- Custom user-defined functions
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --os-shell --dbms=postgresql
-```
-
-### Oracle
-
-For Oracle, SQLMap uses:
-- Java stored procedures
-- External tables
-- PL/SQL packages
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --os-shell --dbms=oracle
-```
+<Stepper>
+  <StepperItem title="MySQL Command Execution">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Techniques Used</h4>
+        <ul>
+          <li><code>SELECT ... INTO OUTFILE</code> to write a web shell</li>
+          <li>User-defined functions (UDFs) if sufficient privileges exist</li>
+          <li>MOD_SQL Apache module if available</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Example Command</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --os-shell --dbms=mysql
+        ```
+        
+        <p className="text-sm mt-2">This attempts to establish an OS shell through MySQL.</p>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Microsoft SQL Server Command Execution">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Techniques Used</h4>
+        <ul>
+          <li><code>xp_cmdshell</code> extended stored procedure</li>
+          <li>CLR assemblies if <code>xp_cmdshell</code> is disabled</li>
+          <li>OLE Automation procedures as fallback</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Example Command</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --os-shell --dbms=mssql
+        ```
+        
+        <p className="text-sm mt-2">SQL Server often provides the easiest path to command execution.</p>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="PostgreSQL Command Execution">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Techniques Used</h4>
+        <ul>
+          <li><code>COPY TO/FROM PROGRAM</code> functionality</li>
+          <li>Custom user-defined functions</li>
+          <li>Large object manipulation</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Example Command</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --os-shell --dbms=postgresql
+        ```
+        
+        <p className="text-sm mt-2">PostgreSQL 9.3+ offers direct command execution capabilities.</p>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Oracle Command Execution">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Techniques Used</h4>
+        <ul>
+          <li>Java stored procedures</li>
+          <li>External tables</li>
+          <li>PL/SQL packages</li>
+          <li>DBMS_SCHEDULER jobs</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Example Command</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --os-shell --dbms=oracle
+        ```
+        
+        <p className="text-sm mt-2">Oracle typically requires DBA privileges for command execution.</p>
+      </div>
+    </div>
+  </StepperItem>
+</Stepper>
 
 ## Advanced Command Execution Options
 
@@ -120,16 +211,89 @@ OS command execution capabilities should only be used in authorized security tes
 
 ## Troubleshooting Command Execution
 
-If command execution fails, try these approaches:
+<Tabs defaultValue="common-issues" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="common-issues">Common Issues</TabsTrigger>
+    <TabsTrigger value="solutions">Solutions</TabsTrigger>
+    <TabsTrigger value="advanced">Advanced Troubleshooting</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="common-issues">
+    <h3>Common Command Execution Issues</h3>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Permission Denied</h4>
+        <p>Database user lacks sufficient privileges to execute commands or create necessary objects.</p>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Function Disabled</h4>
+        <p>Required functions like <code>xp_cmdshell</code> or <code>INTO OUTFILE</code> are disabled.</p>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">Write Access Denied</h4>
+        <p>Cannot write to file system directories needed for shell creation.</p>
+      </div>
+      
+      <div className="border p-4 rounded-md">
+        <h4 className="font-bold">WAF Blocking</h4>
+        <p>Web Application Firewall detecting and blocking command execution attempts.</p>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="solutions">
+    <h3>Troubleshooting Steps</h3>
+    
+    <ol className="space-y-4 mt-4">
+      <li>
+        <strong>Verify database privileges</strong> - Use <code>--current-user</code> and <code>--privileges</code> to check available permissions
+      </li>
+      <li>
+        <strong>Try different techniques</strong> - Use <code>--technique=BEUSTQ</code> to try all available injection techniques
+      </li>
+      <li>
+        <strong>Use stacked queries</strong> - If supported, they may allow more complex operations
+      </li>
+      <li>
+        <strong>Specify temporary directory</strong> - Use <code>--tmp-path</code> to specify a writable directory
+      </li>
+      <li>
+        <strong>Try different output methods</strong> - Use <code>--file-write</code> and <code>--file-dest</code> for manual file operations
+      </li>
+    </ol>
+  </TabsContent>
+  
+  <TabsContent value="advanced">
+    <h3>Advanced Troubleshooting</h3>
+    
+    <div className="mt-4">
+      <p>For difficult cases, try these advanced approaches:</p>
+      
+      <ul className="space-y-2 mt-2">
+        <li>Use <code>--force-dns</code> for DNS exfiltration when other methods fail</li>
+        <li>Try <code>--second-url</code> to specify an alternative URL for command output retrieval</li>
+        <li>Use <code>--proxy</code> to bypass network restrictions</li>
+        <li>Try <code>--tamper</code> scripts to evade WAF detection</li>
+        <li>Use <code>--suffix</code> or <code>--prefix</code> to adjust injection payloads</li>
+      </ul>
+      
+      <div className="bg-muted p-4 rounded-md mt-4">
+        <h4 className="font-bold">Expert Tip</h4>
+        <p>When all else fails, try blind command execution with time delays to verify execution without output:</p>
+        <pre><code>sqlmap -u "http://target.com/vuln.php?id=1" --os-cmd="ping -c 10 127.0.0.1" --technique=T</code></pre>
+      </div>
+    </div>
+  </TabsContent>
+</Tabs>
 
-1. Verify the database user has sufficient privileges
-2. Try different command execution techniques with `--technique`
-3. Use stacked queries if supported by the injection point
-4. Try different output retrieval methods with `--tmp-path`
-5. Check if antivirus or security controls are blocking execution
-
-Remember that command execution capabilities vary significantly based on:
-- The specific DBMS version
+<Note title="Success Factors" type="info">
+Command execution capabilities vary significantly based on:
+- The specific DBMS version and configuration
 - Database user privileges
-- Server configuration
-- Security controls in place
+- Server security controls and hardening
+- Network segmentation and firewall rules
+- Web server configuration
+</Note>

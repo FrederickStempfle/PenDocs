@@ -3,9 +3,7 @@ title: Basic Syntax and Targeting
 description: Learn the fundamental SQLMap commands and targeting methods
 ---
 
-# Core SQLMap Operations and Targeting
-
-## Basic Syntax and Target Specification
+# Basic Syntax and Target Specification
 
 SQLMap provides multiple ways to specify targets for testing. This section covers the most common methods for targeting websites and databases.
 
@@ -131,21 +129,85 @@ When targeting a website, always start with a single parameter and then expand y
 
 ## Database Support
 
-SQLMap supports a wide range of database management systems:
-
-- MySQL
-- Oracle
-- PostgreSQL
-- Microsoft SQL Server
-- SQLite
-- IBM DB2
-- Microsoft Access
-- Firebird
-- Sybase
-- SAP MaxDB
-- HSQLDB
-- Informix
+<Tabs defaultValue="common" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="common">Common Databases</TabsTrigger>
+    <TabsTrigger value="enterprise">Enterprise Databases</TabsTrigger>
+    <TabsTrigger value="specialized">Specialized Systems</TabsTrigger>
+  </TabsList>
+  <TabsContent value="common">
+    ### Common Database Systems
+    
+    These are the most frequently encountered database systems in web applications:
+    
+    - **MySQL/MariaDB**: `--dbms=mysql`
+    - **PostgreSQL**: `--dbms=postgresql`
+    - **Microsoft SQL Server**: `--dbms=mssql`
+    - **SQLite**: `--dbms=sqlite`
+    
+    ```bash
+    # Example for MySQL
+    sqlmap -u "http://target.com/page.php?id=1" --dbms=mysql --batch
+    ```
+  </TabsContent>
+  <TabsContent value="enterprise">
+    ### Enterprise Database Systems
+    
+    These database systems are commonly found in enterprise environments:
+    
+    - **Oracle**: `--dbms=oracle`
+    - **IBM DB2**: `--dbms=db2`
+    - **SAP MaxDB**: `--dbms=maxdb`
+    - **Sybase**: `--dbms=sybase`
+    
+    ```bash
+    # Example for Oracle
+    sqlmap -u "http://target.com/page.php?id=1" --dbms=oracle --batch
+    ```
+  </TabsContent>
+  <TabsContent value="specialized">
+    ### Specialized Database Systems
+    
+    These are less common but still supported by SQLMap:
+    
+    - **Microsoft Access**: `--dbms=access`
+    - **Firebird**: `--dbms=firebird`
+    - **HSQLDB**: `--dbms=hsqldb`
+    - **Informix**: `--dbms=informix`
+    
+    ```bash
+    # Example for Microsoft Access
+    sqlmap -u "http://target.com/page.php?id=1" --dbms=access --batch
+    ```
+  </TabsContent>
+</Tabs>
 
 <Note title="Compatibility Note" type="note">
 SQLMap automatically detects the backend database type during testing, but you can also specify it using the `--dbms` parameter if you already know which database system is being used.
 </Note>
+
+## Advanced Targeting Options
+
+<Stepper>
+  <StepperItem title="Specify Test Parameters">
+    You can specify which parameters to test using the `-p` flag:
+    ```bash
+    sqlmap -u "http://target.com/page.php?id=1&user=admin" -p id
+    ```
+    This tells SQLMap to only test the `id` parameter, ignoring others.
+  </StepperItem>
+  <StepperItem title="Custom Injection Points">
+    Use an asterisk (*) to mark a custom injection point:
+    ```bash
+    sqlmap -u "http://target.com/page.php?id=1*" --batch
+    ```
+    This is useful when you want to test a specific part of a parameter.
+  </StepperItem>
+  <StepperItem title="Testing JSON Parameters">
+    For APIs that accept JSON data:
+    ```bash
+    sqlmap -u "http://target.com/api/endpoint" --data="{\"id\":1}" --batch
+    ```
+    SQLMap will automatically detect and test JSON parameters.
+  </StepperItem>
+</Stepper>

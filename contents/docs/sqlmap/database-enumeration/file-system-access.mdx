@@ -5,92 +5,321 @@ description: Learn how to access the file system through SQL injection vulnerabi
 
 # File System Access
 
-SQLMap can leverage SQL injection vulnerabilities to interact with the underlying file system of the database server. This capability varies depending on the database management system (DBMS) and the privileges of the database user.
-
-## Reading Files (`--file-read`)
-
-To read files from the database server's file system:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --file-read="/etc/passwd"
-```
-
-This attempts to read the specified file from the server's file system. The file content will be stored in the SQLMap output directory.
-
-<Note title="Database Support">
-File system access capabilities vary by DBMS:
-- MySQL: Requires FILE privilege
-- PostgreSQL: Limited to files in the database directory
-- Microsoft SQL Server: Requires appropriate permissions
-- Oracle: Requires specific privileges
-</Note>
-
-## Writing Files (`--file-write` and `--file-dest`)
-
-To write files to the database server's file system:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --file-write="local_file.php" --file-dest="/var/www/html/backdoor.php"
-```
-
-This command:
-1. Takes a local file (`local_file.php`)
-2. Uploads it to the target server
-3. Saves it at the specified destination path (`/var/www/html/backdoor.php`)
-
-<Note title="Warning">
-Writing files to a server without proper authorization is illegal in most jurisdictions. This functionality should only be used in authorized penetration testing scenarios.
-</Note>
-
-## OS Shell Access (`--os-shell`)
-
-SQLMap can attempt to gain operating system shell access:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --os-shell
-```
-
-This tries to leverage the SQL injection vulnerability to spawn a shell on the target system. SQLMap will attempt various techniques based on the DBMS:
-
-- For MySQL: Uses `INTO OUTFILE` to write a web shell
-- For Microsoft SQL Server: Uses `xp_cmdshell`
-- For PostgreSQL: Uses `COPY TO/FROM` or UDF injection
-- For Oracle: Uses Java or external table features
-
-## OS Command Execution (`--os-cmd`)
-
-To execute a single operating system command:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --os-cmd="id"
-```
-
-This executes the specified command on the target system and returns the output.
-
-## Privilege Escalation
-
-Some database systems allow for privilege escalation:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --privileges --is-dba
-```
-
-This checks if the current database user has administrative privileges. If not, SQLMap can sometimes attempt privilege escalation:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --priv-esc
-```
-
-## Registry Access (Windows)
-
-On Windows systems, SQLMap can access the registry:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --reg-read --reg-key="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
-```
-
-This reads the specified registry key from a Windows target system.
-
-<Note title="Ethical Considerations">
+<Note title="Security Warning" type="warning">
 File system access capabilities should only be used in authorized security testing scenarios. Unauthorized access to systems is illegal and unethical.
+</Note>
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="requirements">Requirements</TabsTrigger>
+    <TabsTrigger value="dbms-support">DBMS Support</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    SQLMap can leverage SQL injection vulnerabilities to interact with the underlying file system of the database server. This capability enables security professionals to assess the full impact of SQL injection vulnerabilities beyond just database access.
+  </TabsContent>
+  <TabsContent value="requirements">
+    <h4>Prerequisites for File System Access</h4>
+    <ul>
+      <li><strong>Confirmed SQL injection vulnerability</strong> - Must be exploitable and stable</li>
+      <li><strong>Appropriate database user privileges</strong> - Often requires elevated permissions</li>
+      <li><strong>Stacked queries support</strong> - Many techniques require multiple statements</li>
+      <li><strong>Appropriate DBMS features</strong> - Database must support file operations</li>
+      <li><strong>No restrictive security controls</strong> - WAFs or security modules may block access</li>
+    </ul>
+  </TabsContent>
+  <TabsContent value="dbms-support">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>MySQL</h4>
+        <ul>
+          <li>Requires <code>FILE</code> privilege</li>
+          <li>Uses <code>LOAD_FILE()</code> for reading</li>
+          <li>Uses <code>INTO OUTFILE/DUMPFILE</code> for writing</li>
+          <li>Limited to directories with write permissions</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Microsoft SQL Server</h4>
+        <ul>
+          <li>Uses <code>xp_cmdshell</code> for command execution</li>
+          <li>Uses <code>BULK INSERT</code> and <code>OpenRowset</code></li>
+          <li>OLE Automation procedures</li>
+          <li>Often has more extensive file system access</li>
+        </ul>
+      </div>
+      <div>
+        <h4>PostgreSQL</h4>
+        <ul>
+          <li>Limited to database directory by default</li>
+          <li>Uses <code>COPY FROM/TO</code> statements</li>
+          <li>Can use large objects for file operations</li>
+          <li>May require custom functions</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Oracle</h4>
+        <ul>
+          <li>Uses Java integration features</li>
+          <li>External tables functionality</li>
+          <li>UTL_FILE package if available</li>
+          <li>Requires specific privileges</li>
+        </ul>
+      </div>
+    </div>
+  </TabsContent>
+</Tabs>
+
+## File System Operations
+
+<Stepper>
+  <StepperItem title="Reading Files from Server">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Command Syntax</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --file-read="/etc/passwd"
+        ```
+        
+        <p className="text-sm mt-2">This attempts to read the specified file from the server's file system. The file content will be stored in the SQLMap output directory.</p>
+      </div>
+      <div>
+        <h4>Common Target Files</h4>
+        <ul>
+          <li><code>/etc/passwd</code> - User accounts on Linux/Unix</li>
+          <li><code>/etc/shadow</code> - Password hashes on Linux/Unix</li>
+          <li><code>C:\Windows\win.ini</code> - Windows configuration</li>
+          <li><code>/var/www/config.php</code> - Web application configs</li>
+          <li><code>web.config</code> or <code>.env</code> - Application secrets</li>
+        </ul>
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Pro Tip</h5>
+          <p>Use <code>--file-read</code> with <code>--batch</code> to automate reading multiple files.</p>
+        </div>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Writing Files to Server">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Command Syntax</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --file-write="local_file.php" \
+          --file-dest="/var/www/html/file.php"
+        ```
+        
+        <p className="text-sm mt-2">This uploads a local file to the target server at the specified destination path.</p>
+      </div>
+      <div>
+        <h4>Process</h4>
+        <ol>
+          <li>SQLMap reads the local file (<code>local_file.php</code>)</li>
+          <li>Converts it to a format suitable for SQL injection</li>
+          <li>Uploads it through the SQL injection vulnerability</li>
+          <li>Reconstructs it at the destination (<code>/var/www/html/file.php</code>)</li>
+        </ol>
+        
+        <div className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 mt-4">
+          <h5 className="font-bold">Warning</h5>
+          <p>Writing files to a server without proper authorization is illegal. Only use in authorized security testing.</p>
+        </div>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Common Write Locations">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Linux/Unix Paths</h4>
+        <ul>
+          <li><code>/var/www/html/</code> - Default web root (Apache)</li>
+          <li><code>/tmp/</code> - Temporary directory (usually writable)</li>
+          <li><code>/var/tmp/</code> - Another common writable directory</li>
+          <li><code>/var/log/</code> - Log files directory</li>
+          <li><code>~/.ssh/</code> - SSH configuration (for key files)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Windows Paths</h4>
+        <ul>
+          <li><code>C:\inetpub\wwwroot\</code> - Default IIS web root</li>
+          <li><code>C:\Windows\Temp\</code> - Temporary directory</li>
+          <li><code>C:\Users\[username]\AppData\Local\Temp\</code> - User temp</li>
+          <li><code>C:\xampp\htdocs\</code> - XAMPP web root</li>
+          <li><code>C:\Program Files\</code> - Program installation directory</li>
+        </ul>
+      </div>
+    </div>
+  </StepperItem>
+</Stepper>
+
+## Advanced System Access
+
+<Tabs defaultValue="shell-access" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="shell-access">OS Shell Access</TabsTrigger>
+    <TabsTrigger value="command-exec">Command Execution</TabsTrigger>
+    <TabsTrigger value="privilege">Privilege Escalation</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="shell-access">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Interactive Shell Access</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" --os-shell
+        ```
+        
+        <p>This attempts to spawn an interactive shell on the target system, allowing execution of multiple commands.</p>
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Shell Types</h5>
+          <ul className="mt-2">
+            <li><code>--os-shell</code> - Basic command shell</li>
+            <li><code>--os-pwn</code> - Meterpreter session (requires Metasploit)</li>
+            <li><code>--os-smbrelay</code> - One-click SMB relay attack</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h4>DBMS-Specific Techniques</h4>
+        <ul>
+          <li><strong>MySQL</strong>: Uses <code>INTO OUTFILE</code> to write a web shell</li>
+          <li><strong>SQL Server</strong>: Uses <code>xp_cmdshell</code> stored procedure</li>
+          <li><strong>PostgreSQL</strong>: Uses <code>COPY TO/FROM</code> or UDF injection</li>
+          <li><strong>Oracle</strong>: Uses Java integration or external tables</li>
+          <li><strong>SQLite</strong>: Limited capabilities, uses load_extension</li>
+        </ul>
+        
+        <div className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 mt-4">
+          <h5 className="font-bold">Security Warning</h5>
+          <p>OS shell access should only be used in authorized security testing scenarios.</p>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="command-exec">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Single Command Execution</h4>
+        
+        ```bash
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --os-cmd="id"
+        ```
+        
+        <p>This executes a single command on the target system and returns the output.</p>
+        
+        <h5 className="mt-4">Useful Commands</h5>
+        <ul>
+          <li><code>id</code> or <code>whoami</code> - Check current user</li>
+          <li><code>uname -a</code> or <code>ver</code> - System information</li>
+          <li><code>netstat -an</code> - Network connections</li>
+          <li><code>ps -ef</code> or <code>tasklist</code> - Running processes</li>
+          <li><code>ifconfig</code> or <code>ipconfig</code> - Network configuration</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Command Execution Options</h4>
+        
+        ```bash
+        # Execute with specific technique
+        sqlmap -u "http://example.com/vuln.php?id=1" \
+          --os-cmd="whoami" --technique=S
+        
+        # Execute with custom output directory
+        sqlmap -u "http://example.com/vuln.php?id=1" \
+          --os-cmd="ls -la" --output-dir=/tmp/results
+        ```
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Pro Tip</h5>
+          <p>If direct command execution fails, try using <code>--file-write</code> to upload a script, then execute it with <code>--os-cmd</code>.</p>
+        </div>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="privilege">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Checking Privileges</h4>
+        
+        ```bash
+        # Check if current user is a database admin
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --is-dba
+        
+        # List all privileges
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --privileges
+        ```
+        
+        <p>These commands help determine the current privilege level and available capabilities.</p>
+      </div>
+      <div>
+        <h4>Privilege Escalation</h4>
+        
+        ```bash
+        # Attempt automatic privilege escalation
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --priv-esc
+        ```
+        
+        <p>SQLMap will attempt various techniques to escalate privileges based on the DBMS:</p>
+        <ul>
+          <li><strong>MySQL</strong>: UDF injection, MOD_SQL</li>
+          <li><strong>SQL Server</strong>: Impersonation, registry manipulation</li>
+          <li><strong>PostgreSQL</strong>: Custom functions, SECURITY DEFINER</li>
+          <li><strong>Oracle</strong>: PL/SQL injection, known vulnerabilities</li>
+        </ul>
+      </div>
+    </div>
+  </TabsContent>
+</Tabs>
+
+## Windows-Specific Features
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+  <div className="border p-4 rounded-md">
+    <h4 className="font-bold">Registry Access</h4>
+    
+    ```bash
+    # Read registry key
+    sqlmap -u "http://www.example.com/vuln.php?id=1" \
+      --reg-read --reg-key="HKEY_LOCAL_MACHINE\SOFTWARE\
+      Microsoft\Windows\CurrentVersion\Run"
+    ```
+    
+    <p className="mt-2">This reads the specified registry key from a Windows target system.</p>
+    <p className="text-sm">Common registry locations to check include startup items, installed software, and system configuration.</p>
+  </div>
+  
+  <div className="border p-4 rounded-md">
+    <h4 className="font-bold">Windows Shares Enumeration</h4>
+    
+    ```bash
+    # List available shares
+    sqlmap -u "http://www.example.com/vuln.php?id=1" \
+      --os-cmd="net share"
+    
+    # Check accessible directories
+    sqlmap -u "http://www.example.com/vuln.php?id=1" \
+      --os-cmd="dir C:\\"
+    ```
+    
+    <p className="mt-2">These commands help enumerate Windows-specific resources like shares and drives.</p>
+  </div>
+</div>
+
+<Note title="Ethical Reminder" type="warning">
+All system access capabilities should only be used in authorized security testing scenarios with proper scope and permissions. Unauthorized access to systems is illegal and unethical.
 </Note>

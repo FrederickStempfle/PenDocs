@@ -3,859 +3,773 @@ title: Burp Suite Extender Tool
 description: Comprehensive guide to using Burp Suite's Extender tool for adding and managing extensions
 ---
 
-import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Callout } from "@/components/markdown/callout"
-import { Steps } from "@/components/markdown/steps"
 
 The Extender tool is a powerful component of Burp Suite that allows you to add functionality through extensions. These extensions can enhance Burp's capabilities, automate tasks, and integrate with other tools to create a customized testing environment.
 
 ## Overview
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="extender-purpose">
-    <AccordionTrigger>Purpose and Functionality</AccordionTrigger>
-    <AccordionContent>
-      The Extender tool serves several key purposes:
-      
-      - Allows loading and managing third-party extensions
-      - Provides access to the BApp Store (Burp App Store)
-      - Enables customization of Burp's functionality
-      - Supports automation of repetitive tasks
-      - Facilitates integration with other security tools
-      - Allows development of custom testing capabilities
-      
-      It's the gateway to expanding Burp Suite's capabilities beyond its core functionality, allowing you to tailor the tool to your specific testing needs.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="edition-differences">
-    <AccordionTrigger>Community vs. Professional Edition</AccordionTrigger>
-    <AccordionContent>
-      The Extender tool has significant differences between editions:
-      
-      **Community Edition:**
-      - Limited extension support
-      - Can load Java extensions
-      - No BApp Store access
-      - Limited number of extensions can be loaded
-      - Basic extension management
-      
-      **Professional Edition:**
-      - Full extension support
-      - Access to the BApp Store
-      - Support for Java, Python, and Ruby extensions
-      - Unlimited extensions
-      - Advanced extension management
-      - Extension development API
-      - Custom extension settings
-      
-      While the Community Edition allows basic extension functionality, the Professional Edition provides a much more robust extension ecosystem.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Purpose and Functionality
+
+The Extender tool serves several key purposes:
+
+- Allows loading and managing third-party extensions
+- Provides access to the BApp Store (Burp App Store)
+- Enables customization of Burp's functionality
+- Supports automation of repetitive tasks
+- Facilitates integration with other security tools
+- Allows development of custom testing capabilities
+
+It's the gateway to expanding Burp Suite's capabilities beyond its core functionality, allowing you to tailor the tool to your specific testing needs.
+
+### Community vs. Professional Edition
+
+The Extender tool has significant differences between editions:
+
+**Community Edition:**
+- Limited extension support
+- Can load Java extensions
+- No BApp Store access
+- Limited number of extensions can be loaded
+- Basic extension management
+
+**Professional Edition:**
+- Full extension support
+- Access to the BApp Store
+- Support for Java, Python, and Ruby extensions
+- Unlimited extensions
+- Advanced extension management
+- Extension development API
+- Custom extension settings
+
+While the Community Edition allows basic extension functionality, the Professional Edition provides a much more robust extension ecosystem.
 
 ## Extensions Management
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="extensions-tab">
-    <AccordionTrigger>Extensions Tab</AccordionTrigger>
-    <AccordionContent>
-      The Extensions tab provides a central interface for managing extensions:
-      
-      1. **Installed Extensions**
-         - Lists all currently installed extensions
-         - Shows extension name, type, and status
-         - Provides options to unload or remove extensions
-         - Displays extension errors and output
-      
-      2. **Extension Details**
-         - Shows detailed information about selected extensions
-         - Displays extension description and version
-         - Shows author information and website
-         - Lists extension capabilities and permissions
-      
-      3. **Extension Controls**
-         - Load extension: Add a new extension
-         - Unload: Temporarily disable an extension
-         - Remove: Completely remove an extension
-         - Up/Down: Change extension loading order
-      
-      4. **Output and Errors**
-         - Standard output from extensions
-         - Error messages and exceptions
-         - Debugging information
-         - Extension activity logs
-      
-      The Extensions tab is your primary interface for managing the extensions that enhance Burp's functionality.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="loading-extensions">
-    <AccordionTrigger>Loading Extensions</AccordionTrigger>
-    <AccordionContent>
-      Methods for adding extensions to Burp:
-      
-      1. **Manual Loading**
-         - Click "Add" in the Extensions tab
-         - Select extension type (Java, Python, Ruby)
-         - Browse to extension file
-         - Configure extension settings
-         - Click "Next" to load
-      
-      2. **BApp Store** (Professional Edition)
-         - Access the BApp Store tab
-         - Browse available extensions
-         - Click "Install" for desired extensions
-         - Extensions are automatically configured
-      
-      3. **Extension Types**
-         - Java JAR files (.jar)
-         - Python modules (.py) with Jython
-         - Ruby scripts (.rb) with JRuby
-      
-      4. **Loading Requirements**
-         - Java: No additional requirements
-         - Python: Requires Jython standalone JAR
-         - Ruby: Requires JRuby JAR
-      
-      5. **Configuration Options**
-         - Extension type selection
-         - File path specification
-         - Extension-specific settings
-         - Loading order configuration
-      
-      Loading extensions properly ensures they function correctly and integrate seamlessly with Burp Suite.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Extensions Tab
 
-### BApp Store (Professional Edition)
+The Extensions tab provides a central interface for managing extensions:
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="bapp-store">
-    <AccordionTrigger>BApp Store Overview</AccordionTrigger>
-    <AccordionContent>
-      The BApp Store provides access to official and community extensions:
-      
-      1. **Store Interface**
-         - Browse available extensions
-         - Search by name or functionality
-         - Sort by various criteria
-         - View detailed extension information
-      
-      2. **Extension Categories**
-         - Scan enhancement
-         - Custom scanners
-         - Information gathering
-         - Intruder payloads
-         - OAuth and authentication
-         - Utility tools
-         - Reporting and visualization
-      
-      3. **Extension Details**
-         - Description and purpose
-         - Author information
-         - Version history
-         - User ratings and reviews
-         - Installation count
-      
-      4. **Installation Process**
-         - One-click installation
-         - Automatic dependency resolution
-         - Progress tracking
-         - Immediate availability after installation
-      
-      5. **Updates**
-         - Notification of available updates
-         - One-click update process
-         - Version history and changelog
-         - Automatic compatibility checking
-      
-      The BApp Store makes it easy to discover, install, and update extensions that enhance Burp's functionality.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="popular-extensions">
-    <AccordionTrigger>Popular and Essential Extensions</AccordionTrigger>
-    <AccordionContent>
-      Some of the most useful extensions available in the BApp Store:
-      
-      1. **Security Testing Enhancements**
-         - **Active Scan++**: Enhanced active scanning checks
-         - **Backslash Powered Scanner**: Additional payload testing
-         - **Software Vulnerability Scanner**: Checks for known vulnerabilities
-         - **JWT Token Attacker**: Tests JWT implementation security
-      
-      2. **Authentication Testing**
-         - **AuthMatrix**: Advanced authorization testing
-         - **OAuth Tester**: OAuth flow testing
-         - **SAML Raider**: SAML message manipulation
-         - **Session Auth**: Session handling automation
-      
-      3. **Information Gathering**
-         - **JS Miner**: JavaScript analysis
-         - **Retire.js**: Detects vulnerable JavaScript libraries
-         - **Software Version Reporter**: Identifies software versions
-         - **Wsdler**: WSDL/SOAP parsing and testing
-      
-      4. **Utility Extensions**
-         - **Turbo Intruder**: Advanced intruder functionality
-         - **Logger++**: Enhanced HTTP logging
-         - **Collaborator Everywhere**: Out-of-band testing
-         - **JSON Beautifier**: Formats JSON responses
-      
-      5. **Reporting and Visualization**
-         - **Issue Poster**: Enhanced reporting
-         - **HUNT**: Highlights potentially vulnerable parameters
-         - **Attack Surface Detector**: Maps application attack surface
-         - **Site Map Extractor**: Exports site map data
-      
-      These extensions significantly enhance Burp's capabilities for specific testing scenarios and general workflow improvements.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+1. **Installed Extensions**
+   - Lists all currently installed extensions
+   - Shows extension name, type, and status
+   - Provides options to unload or remove extensions
+   - Displays extension errors and output
 
-### Extension Settings
+2. **Extension Details**
+   - Shows detailed information about selected extensions
+   - Displays extension description and version
+   - Shows author information and website
+   - Lists extension capabilities and permissions
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="settings-tab">
-    <AccordionTrigger>Settings Tab</AccordionTrigger>
-    <AccordionContent>
-      Configure how Burp handles extensions:
-      
-      1. **Java Environment**
-         - JVM options configuration
-         - Memory allocation settings
-         - Class path configuration
-         - Java version information
-      
-      2. **Python Environment** (Professional Edition)
-         - Jython standalone JAR location
-         - Python module path configuration
-         - Python library settings
-         - Jython version information
-      
-      3. **Ruby Environment** (Professional Edition)
-         - JRuby JAR location
-         - Ruby load path configuration
-         - Gem settings
-         - JRuby version information
-      
-      4. **Extension Settings**
-         - Default extension loading behavior
-         - Extension thread pool settings
-         - Extension timeout configuration
-         - Error handling preferences
-      
-      5. **Security Settings**
-         - Extension permissions
-         - API access restrictions
-         - Sandbox configuration
-         - Data access controls
-      
-      Proper configuration of extension settings ensures optimal performance and security when using extensions.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="extension-apis">
-    <AccordionTrigger>Extension APIs</AccordionTrigger>
-    <AccordionContent>
-      APIs available for extension development:
-      
-      1. **Core APIs**
-         - HTTP request/response handling
-         - Proxy interception
-         - Scanner integration
-         - Intruder integration
-         - UI customization
-      
-      2. **Data Models**
-         - HTTP message representation
-         - Parameter handling
-         - Cookie management
-         - Session handling
-         - Authentication data
-      
-      3. **Tool Integration**
-         - Register with specific Burp tools
-         - Extend tool functionality
-         - Process tool-specific data
-         - Add custom UI components
-      
-      4. **Utility APIs**
-         - Encoding/decoding functions
-         - Cryptographic operations
-         - Text processing
-         - Pattern matching
-         - Data transformation
-      
-      5. **UI APIs**
-         - Create custom tabs
-         - Add context menu items
-         - Display custom messages
-         - Create interactive components
-         - Integrate with Burp's UI
-      
-      Understanding available APIs helps when selecting extensions or developing custom extensions to meet specific needs.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+3. **Extension Controls**
+   - Load extension: Add a new extension
+   - Unload: Temporarily disable an extension
+   - Remove: Completely remove an extension
+   - Up/Down: Change extension loading order
+
+4. **Output and Errors**
+   - Standard output from extensions
+   - Error messages and exceptions
+   - Debugging information
+   - Extension activity logs
+
+The Extensions tab is your primary interface for managing the extensions that enhance Burp's functionality.
+
+### Loading Extensions
+
+Methods for adding extensions to Burp:
+
+1. **Manual Loading**
+   - Click "Add" in the Extensions tab
+   - Select extension type (Java, Python, Ruby)
+   - Browse to extension file
+   - Configure extension settings
+   - Click "Next" to load
+
+2. **BApp Store** - Professional Edition
+   - Access the BApp Store tab
+   - Browse available extensions
+   - Click "Install" for desired extensions
+   - Extensions are automatically configured
+
+3. **Extension Types**
+   - Java JAR files (.jar)
+   - Python modules (.py) with Jython
+   - Ruby scripts (.rb) with JRuby
+
+4. **Loading Requirements**
+   - Java: No additional requirements
+   - Python: Requires Jython standalone JAR
+   - Ruby: Requires JRuby JAR
+
+5. **Configuration Options**
+   - Extension type selection
+   - File path specification
+   - Extension-specific settings
+   - Loading order configuration
+
+Loading extensions properly ensures they function correctly and integrate seamlessly with Burp Suite.
+
+## BApp Store - Professional Edition
+
+### BApp Store Overview
+
+The BApp Store provides access to official and community extensions:
+
+1. **Store Interface**
+   - Browse available extensions
+   - Search by name or functionality
+   - Sort by various criteria
+   - View detailed extension information
+
+2. **Extension Categories**
+   - Scan enhancement
+   - Custom scanners
+   - Information gathering
+   - Intruder payloads
+   - OAuth and authentication
+   - Utility tools
+   - Reporting and visualization
+
+3. **Extension Details**
+   - Description and purpose
+   - Author information
+   - Version history
+   - User ratings and reviews
+   - Installation count
+
+4. **Installation Process**
+   - One-click installation
+   - Automatic dependency resolution
+   - Progress tracking
+   - Immediate availability after installation
+
+5. **Updates**
+   - Notification of available updates
+   - One-click update process
+   - Version history and changelog
+   - Automatic compatibility checking
+
+The BApp Store makes it easy to discover, install, and update extensions that enhance Burp's functionality.
+
+### Popular and Essential Extensions
+
+Some of the most useful extensions available in the BApp Store:
+
+1. **Security Testing Enhancements**
+   - **Active Scan++**: Enhanced active scanning checks
+   - **Backslash Powered Scanner**: Additional payload testing
+   - **Software Vulnerability Scanner**: Checks for known vulnerabilities
+   - **JWT Token Attacker**: Tests JWT implementation security
+
+2. **Authentication Testing**
+   - **AuthMatrix**: Advanced authorization testing
+   - **OAuth Tester**: OAuth flow testing
+   - **SAML Raider**: SAML message manipulation
+   - **Session Auth**: Session handling automation
+
+3. **Information Gathering**
+   - **JS Miner**: JavaScript analysis
+   - **Retire.js**: Detects vulnerable JavaScript libraries
+   - **Software Version Reporter**: Identifies software versions
+   - **Wsdler**: WSDL/SOAP parsing and testing
+
+4. **Utility Extensions**
+   - **Turbo Intruder**: Advanced intruder functionality
+   - **Logger++**: Enhanced HTTP logging
+   - **Collaborator Everywhere**: Out-of-band testing
+   - **JSON Beautifier**: Formats JSON responses
+
+5. **Reporting and Visualization**
+   - **Issue Poster**: Enhanced reporting
+   - **HUNT**: Highlights potentially vulnerable parameters
+   - **Attack Surface Detector**: Maps application attack surface
+   - **Site Map Extractor**: Exports site map data
+
+These extensions significantly enhance Burp's capabilities for specific testing scenarios and general workflow improvements.
+
+## Extension Settings
+
+### Settings Tab
+
+Configure how Burp handles extensions:
+
+1. **Java Environment**
+   - JVM options configuration
+   - Memory allocation settings
+   - Class path configuration
+   - Java version information
+
+2. **Python Environment** - Professional Edition
+   - Jython standalone JAR location
+   - Python module path configuration
+   - Python library settings
+   - Jython version information
+
+3. **Ruby Environment** - Professional Edition
+   - JRuby JAR location
+   - Ruby load path configuration
+   - Gem settings
+   - JRuby version information
+
+4. **Extension Settings**
+   - Default extension loading behavior
+   - Extension thread pool settings
+   - Extension timeout configuration
+   - Error handling preferences
+
+5. **Security Settings**
+   - Extension permissions
+   - API access restrictions
+   - Sandbox configuration
+   - Data access controls
+
+Proper configuration of extension settings ensures optimal performance and security when using extensions.
+
+### Extension APIs
+
+APIs available for extension development:
+
+1. **Core APIs**
+   - HTTP request/response handling
+   - Proxy interception
+   - Scanner integration
+   - Intruder integration
+   - UI customization
+
+2. **Data Models**
+   - HTTP message representation
+   - Parameter handling
+   - Cookie management
+   - Session handling
+   - Authentication data
+
+3. **Tool Integration**
+   - Register with specific Burp tools
+   - Extend tool functionality
+   - Process tool-specific data
+   - Add custom UI components
+
+4. **Utility APIs**
+   - Encoding/decoding functions
+   - Cryptographic operations
+   - Text processing
+   - Pattern matching
+   - Data transformation
+
+5. **UI APIs**
+   - Create custom tabs
+   - Add context menu items
+   - Display custom messages
+   - Create interactive components
+   - Integrate with Burp's UI
+
+Understanding available APIs helps when selecting extensions or developing custom extensions to meet specific needs.
 
 ## Using Extensions
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="extension-workflow">
-    <AccordionTrigger>Extension Workflow Integration</AccordionTrigger>
-    <AccordionContent>
-      How extensions integrate with your testing workflow:
-      
-      1. **Tool Extensions**
-         - Add tabs to existing Burp tools
-         - Enhance tool functionality
-         - Process tool-specific data
-         - Provide additional options in tool interfaces
-      
-      2. **Custom Tabs**
-         - Add new tabs to Burp's interface
-         - Provide specialized functionality
-         - Offer custom data visualization
-         - Create tool-specific workflows
-      
-      3. **Context Menu Integration**
-         - Add options to right-click menus
-         - Process selected data
-         - Perform custom actions
-         - Send data to external tools
-      
-      4. **Automated Processing**
-         - Passively analyze traffic
-         - Automatically modify requests/responses
-         - Perform background tasks
-         - Generate alerts for specific conditions
-      
-      5. **Reporting Integration**
-         - Enhance vulnerability reporting
-         - Provide custom report formats
-         - Add additional finding details
-         - Generate specialized documentation
-      
-      Extensions can significantly enhance your testing workflow by automating repetitive tasks and providing specialized functionality.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="extension-configuration">
-    <AccordionTrigger>Configuring Individual Extensions</AccordionTrigger>
-    <AccordionContent>
-      Managing settings for specific extensions:
-      
-      1. **Extension-Specific Tabs**
-         - Many extensions add their own configuration tabs
-         - Access via the main Burp tabs
-         - Configure extension-specific settings
-         - Save and load extension configurations
-      
-      2. **Extension Options**
-         - Configure behavior and features
-         - Set default values
-         - Enable/disable specific functionality
-         - Customize extension appearance
-      
-      3. **Integration Settings**
-         - Configure how extensions interact with Burp tools
-         - Set up data sharing between extensions
-         - Configure external tool integration
-         - Set up automated workflows
-      
-      4. **Performance Settings**
-         - Thread allocation
-         - Processing priorities
-         - Memory usage
-         - Timeout values
-      
-      5. **Saving Configurations**
-         - Save settings with Burp project (Professional Edition)
-         - Export/import extension configurations
-         - Create configuration profiles
-         - Share settings between team members
-      
-      Properly configuring extensions ensures they work effectively and efficiently within your testing environment.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Extension Workflow Integration
 
-### Common Extension Use Cases
+How extensions integrate with your testing workflow:
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="scan-enhancement">
-    <AccordionTrigger>Scan Enhancement Extensions</AccordionTrigger>
-    <AccordionContent>
-      Extensions that improve Burp's scanning capabilities:
-      
-      1. **Additional Scan Checks**
-         - Add checks for specific vulnerabilities
-         - Enhance existing scan logic
-         - Provide specialized testing for frameworks
-         - Add checks for new vulnerability types
-      
-      2. **Custom Scan Logic**
-         - Implement advanced detection algorithms
-         - Add business logic vulnerability detection
-         - Provide context-aware scanning
-         - Implement custom validation checks
-      
-      3. **Scan Optimization**
-         - Reduce false positives
-         - Improve scan efficiency
-         - Prioritize high-risk issues
-         - Filter scan results
-      
-      4. **Technology-Specific Scanning**
-         - Framework-specific vulnerability checks
-         - Language-specific security testing
-         - CMS-specific security analysis
-         - API-specific security validation
-      
-      5. **Integration Examples**
-         - Active Scan++: Adds numerous additional scan checks
-         - Software Vulnerability Scanner: Checks for known CVEs
-         - J2EEScan: Java-specific vulnerability detection
-         - WordPress Scanner: CMS-specific security checks
-      
-      Scan enhancement extensions significantly improve Burp's ability to detect various types of vulnerabilities.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="workflow-automation">
-    <AccordionTrigger>Workflow Automation Extensions</AccordionTrigger>
-    <AccordionContent>
-      Extensions that automate repetitive testing tasks:
-      
-      1. **Authentication Automation**
-         - Maintain active sessions
-         - Handle complex authentication flows
-         - Manage multi-factor authentication
-         - Automate login processes
-      
-      2. **Data Processing**
-         - Transform request/response data
-         - Extract specific information
-         - Format data for reporting
-         - Analyze patterns in responses
-      
-      3. **Testing Sequence Automation**
-         - Automate multi-step testing processes
-         - Chain multiple requests
-         - Validate complex workflows
-         - Test state-dependent functionality
-      
-      4. **Reporting Automation**
-         - Generate custom reports
-         - Export findings in various formats
-         - Create evidence documentation
-         - Produce compliance-specific reports
-      
-      5. **Integration Examples**
-         - Autorize: Automates authorization testing
-         - Logger++: Enhanced logging and analysis
-         - Session Auth: Automated session handling
-         - Burp Notes: Automated documentation
-      
-      Workflow automation extensions save time and ensure consistency in testing processes.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="specialized-testing">
-    <AccordionTrigger>Specialized Testing Extensions</AccordionTrigger>
-    <AccordionContent>
-      Extensions for specific testing scenarios:
-      
-      1. **API Testing**
-         - Parse API specifications
-         - Generate API test cases
-         - Validate API responses
-         - Test API security controls
-      
-      2. **Authentication Testing**
-         - Test OAuth implementations
-         - Analyze JWT tokens
-         - Test SAML configurations
-         - Validate SSO implementations
-      
-      3. **Mobile App Backend Testing**
-         - Analyze mobile API communications
-         - Test mobile authentication
-         - Validate mobile-specific endpoints
-         - Check mobile security controls
-      
-      4. **Cloud Service Testing**
-         - Test AWS/Azure/GCP service configurations
-         - Validate cloud API security
-         - Check serverless function security
-         - Test cloud storage security
-      
-      5. **Integration Examples**
-         - JWT Token Attacker: Tests JWT implementation security
-         - GraphQL Raider: GraphQL API testing
-         - Cloud Storage Tester: Tests cloud storage security
-         - Mobile Assistant: Mobile backend testing
-      
-      Specialized extensions provide targeted functionality for specific technologies and testing scenarios.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+1. **Tool Extensions**
+   - Add tabs to existing Burp tools
+   - Enhance tool functionality
+   - Process tool-specific data
+   - Provide additional options in tool interfaces
 
-## Extension Development (Professional Edition)
+2. **Custom Tabs**
+   - Add new tabs to Burp's interface
+   - Provide specialized functionality
+   - Offer custom data visualization
+   - Create tool-specific workflows
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="dev-basics">
-    <AccordionTrigger>Development Basics</AccordionTrigger>
-    <AccordionContent>
-      Fundamentals of creating Burp extensions:
-      
-      1. **Supported Languages**
-         - Java: Native support
-         - Python: Via Jython
-         - Ruby: Via JRuby
-      
-      2. **Development Environment**
-         - IDE setup (Eclipse, IntelliJ, etc.)
-         - Burp Extender API
-         - Build and packaging tools
-         - Testing framework
-      
-      3. **Extension Structure**
-         - Main extension class
-         - Burp interfaces implementation
-         - UI components
-         - Helper classes
-         - Resource files
-      
-      4. **API Implementation**
-         - IBurpExtender interface (required)
-         - Additional interfaces for specific functionality
-         - Event handlers
-         - Custom UI components
-         - Data processing logic
-      
-      5. **Development Resources**
-         - Official Burp Extender API documentation
-         - Sample extensions
-         - Community forums and discussions
-         - GitHub repositories with example code
-      
-      Understanding these basics is essential for developing effective Burp Suite extensions.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="extension-capabilities">
-    <AccordionTrigger>Extension Capabilities</AccordionTrigger>
-    <AccordionContent>
-      What you can accomplish with custom extensions:
-      
-      1. **HTTP Processing**
-         - Modify requests and responses
-         - Add custom headers
-         - Transform message bodies
-         - Implement custom protocols
-      
-      2. **Scanner Integration**
-         - Add custom scan checks
-         - Process scan results
-         - Implement specialized vulnerability detection
-         - Create custom issue definitions
-      
-      3. **UI Customization**
-         - Add custom tabs
-         - Create context menu items
-         - Display custom messages
-         - Implement interactive components
-      
-      4. **Data Analysis**
-         - Process HTTP traffic
-         - Analyze authentication tokens
-         - Detect patterns in responses
-         - Identify security issues
-      
-      5. **External Integration**
-         - Connect to external tools
-         - Import/export data
-         - Integrate with other security tools
-         - Implement custom reporting
-      
-      Custom extensions can significantly extend Burp's capabilities to meet specific testing requirements.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+3. **Context Menu Integration**
+   - Add options to right-click menus
+   - Process selected data
+   - Perform custom actions
+   - Send data to external tools
 
-### Development Best Practices
+4. **Automated Processing**
+   - Passively analyze traffic
+   - Automatically modify requests/responses
+   - Perform background tasks
+   - Generate alerts for specific conditions
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="dev-practices">
-    <AccordionTrigger>Extension Development Best Practices</AccordionTrigger>
-    <AccordionContent>
-      Guidelines for creating effective extensions:
-      
-      1. **Performance Considerations**
-         - Use efficient algorithms
-         - Implement proper threading
-         - Minimize memory usage
-         - Avoid blocking operations
-      
-      2. **Error Handling**
-         - Implement comprehensive error handling
-         - Provide meaningful error messages
-         - Gracefully handle exceptions
-         - Log errors for troubleshooting
-      
-      3. **User Interface Design**
-         - Create intuitive interfaces
-         - Follow Burp's UI patterns
-         - Provide appropriate feedback
-         - Implement responsive designs
-      
-      4. **Code Organization**
-         - Use modular design
-         - Separate concerns
-         - Document code thoroughly
-         - Follow language-specific best practices
-      
-      5. **Testing and Validation**
-         - Test with various input types
-         - Validate against edge cases
-         - Ensure compatibility with different Burp versions
-         - Perform security testing on the extension itself
-      
-      Following these best practices helps create reliable, efficient, and user-friendly extensions.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="publishing">
-    <AccordionTrigger>Publishing Extensions</AccordionTrigger>
-    <AccordionContent>
-      Steps for sharing your extensions with the community:
-      
-      1. **BApp Store Submission**
-         - Review BApp Store guidelines
-         - Prepare extension documentation
-         - Package extension properly
-         - Submit for review
-      
-      2. **Documentation Requirements**
-         - Clear description of functionality
-         - Installation instructions
-         - Configuration guidance
-         - Usage examples
-         - Known limitations
-      
-      3. **Code Quality Standards**
-         - Clean, well-documented code
-         - Efficient implementation
-         - Proper error handling
-         - Security considerations
-         - Performance optimization
-      
-      4. **Alternative Distribution**
-         - GitHub or other repositories
-         - Personal website
-         - Security community forums
-         - Direct sharing with clients or team
-      
-      5. **Maintenance Considerations**
-         - Version control
-         - Bug fixing process
-         - Feature enhancement plans
-         - Compatibility updates
-         - User support
-      
-      Publishing extensions allows you to contribute to the security community and share specialized tools with other testers.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+5. **Reporting Integration**
+   - Enhance vulnerability reporting
+   - Provide custom report formats
+   - Add additional finding details
+   - Generate specialized documentation
+
+Extensions can significantly enhance your testing workflow by automating repetitive tasks and providing specialized functionality.
+
+### Configuring Individual Extensions
+
+Managing settings for specific extensions:
+
+1. **Extension-Specific Tabs**
+   - Many extensions add their own configuration tabs
+   - Access via the main Burp tabs
+   - Configure extension-specific settings
+   - Save and load extension configurations
+
+2. **Extension Options**
+   - Configure behavior and features
+   - Set default values
+   - Enable/disable specific functionality
+   - Customize extension appearance
+
+3. **Integration Settings**
+   - Configure how extensions interact with Burp tools
+   - Set up data sharing between extensions
+   - Configure external tool integration
+   - Set up automated workflows
+
+4. **Performance Settings**
+   - Thread allocation
+   - Processing priorities
+   - Memory usage
+   - Timeout values
+
+5. **Saving Configurations**
+   - Save settings with Burp project - Professional Edition
+   - Export/import extension configurations
+   - Create configuration profiles
+   - Share settings between team members
+
+Properly configuring extensions ensures they work effectively and efficiently within your testing environment.
+
+## Common Extension Use Cases
+
+### Scan Enhancement Extensions
+
+Extensions that improve Burp's scanning capabilities:
+
+1. **Additional Scan Checks**
+   - Add checks for specific vulnerabilities
+   - Enhance existing scan logic
+   - Provide specialized testing for frameworks
+   - Add checks for new vulnerability types
+
+2. **Custom Scan Logic**
+   - Implement advanced detection algorithms
+   - Add business logic vulnerability detection
+   - Provide context-aware scanning
+   - Implement custom validation checks
+
+3. **Scan Optimization**
+   - Reduce false positives
+   - Improve scan efficiency
+   - Prioritize high-risk issues
+   - Filter scan results
+
+4. **Technology-Specific Scanning**
+   - Framework-specific vulnerability checks
+   - Language-specific security testing
+   - CMS-specific security analysis
+   - API-specific security validation
+
+5. **Integration Examples**
+   - Active Scan++: Adds numerous additional scan checks
+   - Software Vulnerability Scanner: Checks for known CVEs
+   - J2EEScan: Java-specific vulnerability detection
+   - WordPress Scanner: CMS-specific security checks
+
+Scan enhancement extensions significantly improve Burp's ability to detect various types of vulnerabilities.
+
+### Workflow Automation Extensions
+
+Extensions that automate repetitive testing tasks:
+
+1. **Authentication Automation**
+   - Maintain active sessions
+   - Handle complex authentication flows
+   - Manage multi-factor authentication
+   - Automate login processes
+
+2. **Data Processing**
+   - Transform request/response data
+   - Extract specific information
+   - Format data for reporting
+   - Analyze patterns in responses
+
+3. **Testing Sequence Automation**
+   - Automate multi-step testing processes
+   - Chain multiple requests
+   - Validate complex workflows
+   - Test state-dependent functionality
+
+4. **Reporting Automation**
+   - Generate custom reports
+   - Export findings in various formats
+   - Create evidence documentation
+   - Produce compliance-specific reports
+
+5. **Integration Examples**
+   - Autorize: Automates authorization testing
+   - Logger++: Enhanced logging and analysis
+   - Session Auth: Automated session handling
+   - Burp Notes: Automated documentation
+
+Workflow automation extensions save time and ensure consistency in testing processes.
+
+### Specialized Testing Extensions
+
+Extensions for specific testing scenarios:
+
+1. **API Testing**
+   - Parse API specifications
+   - Generate API test cases
+   - Validate API responses
+   - Test API security controls
+
+2. **Authentication Testing**
+   - Test OAuth implementations
+   - Analyze JWT tokens
+   - Test SAML configurations
+   - Validate SSO implementations
+
+3. **Mobile App Backend Testing**
+   - Analyze mobile API communications
+   - Test mobile authentication
+   - Validate mobile-specific endpoints
+   - Check mobile security controls
+
+4. **Cloud Service Testing**
+   - Test AWS/Azure/GCP service configurations
+   - Validate cloud API security
+   - Check serverless function security
+   - Test cloud storage security
+
+5. **Integration Examples**
+   - JWT Token Attacker: Tests JWT implementation security
+   - GraphQL Raider: GraphQL API testing
+   - Cloud Storage Tester: Tests cloud storage security
+   - Mobile Assistant: Mobile backend testing
+
+Specialized extensions provide targeted functionality for specific technologies and testing scenarios.
+
+## Extension Development - Professional Edition
+
+### Development Basics
+
+Fundamentals of creating Burp extensions:
+
+1. **Supported Languages**
+   - Java: Native support
+   - Python: Via Jython
+   - Ruby: Via JRuby
+
+2. **Development Environment**
+   - IDE setup (Eclipse, IntelliJ, etc.)
+   - Burp Extender API
+   - Build and packaging tools
+   - Testing framework
+
+3. **Extension Structure**
+   - Main extension class
+   - Burp interfaces implementation
+   - UI components
+   - Helper classes
+   - Resource files
+
+4. **API Implementation**
+   - IBurpExtender interface (required)
+   - Additional interfaces for specific functionality
+   - Event handlers
+   - Custom UI components
+   - Data processing logic
+
+5. **Development Resources**
+   - Official Burp Extender API documentation
+   - Sample extensions
+   - Community forums and discussions
+   - GitHub repositories with example code
+
+Understanding these basics is essential for developing effective Burp Suite extensions.
+
+### Extension Capabilities
+
+What you can accomplish with custom extensions:
+
+1. **HTTP Processing**
+   - Modify requests and responses
+   - Add custom headers
+   - Transform message bodies
+   - Implement custom protocols
+
+2. **Scanner Integration**
+   - Add custom scan checks
+   - Process scan results
+   - Implement specialized vulnerability detection
+   - Create custom issue definitions
+
+3. **UI Customization**
+   - Add custom tabs
+   - Create context menu items
+   - Display custom messages
+   - Implement interactive components
+
+4. **Data Analysis**
+   - Process HTTP traffic
+   - Analyze authentication tokens
+   - Detect patterns in responses
+   - Identify security issues
+
+5. **External Integration**
+   - Connect to external tools
+   - Import/export data
+   - Integrate with other security tools
+   - Implement custom reporting
+
+Custom extensions can significantly extend Burp's capabilities to meet specific testing requirements.
+
+## Development Best Practices
+
+### Extension Development Best Practices
+
+Guidelines for creating effective extensions:
+
+1. **Performance Considerations**
+   - Use efficient algorithms
+   - Implement proper threading
+   - Minimize memory usage
+   - Avoid blocking operations
+
+2. **Error Handling**
+   - Implement comprehensive error handling
+   - Provide meaningful error messages
+   - Gracefully handle exceptions
+   - Log errors for troubleshooting
+
+3. **User Interface Design**
+   - Create intuitive interfaces
+   - Follow Burp's UI patterns
+   - Provide appropriate feedback
+   - Implement responsive designs
+
+4. **Code Organization**
+   - Use modular design
+   - Separate concerns
+   - Document code thoroughly
+   - Follow language-specific best practices
+
+5. **Testing and Validation**
+   - Test with various input types
+   - Validate against edge cases
+   - Ensure compatibility with different Burp versions
+   - Perform security testing on the extension itself
+
+Following these best practices helps create reliable, efficient, and user-friendly extensions.
+
+### Publishing Extensions
+
+Steps for sharing your extensions with the community:
+
+1. **BApp Store Submission**
+   - Review BApp Store guidelines
+   - Prepare extension documentation
+   - Package extension properly
+   - Submit for review
+
+2. **Documentation Requirements**
+   - Clear description of functionality
+   - Installation instructions
+   - Configuration guidance
+   - Usage examples
+   - Known limitations
+
+3. **Code Quality Standards**
+   - Clean, well-documented code
+   - Efficient implementation
+   - Proper error handling
+   - Security considerations
+   - Performance optimization
+
+4. **Alternative Distribution**
+   - GitHub or other repositories
+   - Personal website
+   - Security community forums
+   - Direct sharing with clients or team
+
+5. **Maintenance Considerations**
+   - Version control
+   - Bug fixing process
+   - Feature enhancement plans
+   - Compatibility updates
+   - User support
+
+Publishing extensions allows you to contribute to the security community and share specialized tools with other testers.
 
 ## Best Practices
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="extension-management">
-    <AccordionTrigger>Extension Management</AccordionTrigger>
-    <AccordionContent>
-      Best practices for managing Burp extensions:
-      
-      1. **Extension Selection**
-         - Choose extensions from trusted sources
-         - Review extension ratings and feedback
-         - Verify author reputation
-         - Check for recent updates
-         - Test in isolated environment first
-      
-      2. **Performance Optimization**
-         - Load only necessary extensions
-         - Disable unused extensions
-         - Monitor memory usage
-         - Configure extension-specific performance settings
-         - Restart Burp periodically during long testing sessions
-      
-      3. **Update Management**
-         - Regularly check for updates
-         - Review changelog before updating
-         - Test updated extensions
-         - Maintain version compatibility
-         - Report issues to extension developers
-      
-      4. **Configuration Management**
-         - Document extension configurations
-         - Back up extension settings
-         - Create configuration profiles for different testing scenarios
-         - Share configurations with team members
-         - Maintain consistent settings across projects
-      
-      5. **Security Considerations**
-         - Review extension permissions
-         - Be cautious with extensions that send data externally
-         - Verify extension behavior
-         - Monitor extension activity
-         - Isolate sensitive testing environments
-      
-      Proper extension management ensures optimal performance, security, and effectiveness of your testing environment.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="workflow-integration">
-    <AccordionTrigger>Workflow Integration</AccordionTrigger>
-    <AccordionContent>
-      Effectively integrating extensions into your testing workflow:
-      
-      1. **Testing Methodology Integration**
-         - Align extensions with testing methodology
-         - Incorporate extension capabilities into test plans
-         - Document extension-specific procedures
-         - Train team members on extension usage
-         - Standardize extension workflows
-      
-      2. **Automation Strategy**
-         - Identify repetitive tasks for automation
-         - Select appropriate extensions for automation
-         - Configure automated workflows
-         - Validate automation results
-         - Balance automation with manual testing
-      
-      3. **Team Collaboration**
-         - Standardize extension usage across team
-         - Share extension configurations
-         - Document extension-specific processes
-         - Train team members on extension capabilities
-         - Establish extension usage guidelines
-      
-      4. **Reporting Integration**
-         - Configure extensions to enhance reporting
-         - Standardize finding documentation
-         - Integrate extension results into reports
-         - Validate extension findings
-         - Provide context for extension-generated results
-      
-      5. **Continuous Improvement**
-         - Regularly evaluate extension effectiveness
-         - Seek feedback from team members
-         - Explore new extensions for emerging needs
-         - Refine extension configurations
-         - Contribute improvements to extension developers
-      
-      Strategic integration of extensions into your workflow maximizes their value and improves testing efficiency.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Extension Management
+
+Best practices for managing Burp extensions:
+
+1. **Extension Selection**
+   - Choose extensions from trusted sources
+   - Review extension ratings and feedback
+   - Verify author reputation
+   - Check for recent updates
+   - Test in isolated environment first
+
+2. **Performance Optimization**
+   - Load only necessary extensions
+   - Disable unused extensions
+   - Monitor memory usage
+   - Configure extension-specific performance settings
+   - Restart Burp periodically during long testing sessions
+
+3. **Update Management**
+   - Regularly check for updates
+   - Review changelog before updating
+   - Test updated extensions
+   - Maintain version compatibility
+   - Report issues to extension developers
+
+4. **Configuration Management**
+   - Document extension configurations
+   - Back up extension settings
+   - Create configuration profiles for different testing scenarios
+   - Share configurations with team members
+   - Maintain consistent settings across projects
+
+5. **Security Considerations**
+   - Review extension permissions
+   - Be cautious with extensions that send data externally
+   - Verify extension behavior
+   - Monitor extension activity
+   - Isolate sensitive testing environments
+
+Proper extension management ensures optimal performance, security, and effectiveness of your testing environment.
+
+### Workflow Integration
+
+Effectively integrating extensions into your testing workflow:
+
+1. **Testing Methodology Integration**
+   - Align extensions with testing methodology
+   - Incorporate extension capabilities into test plans
+   - Document extension-specific procedures
+   - Train team members on extension usage
+   - Standardize extension workflows
+
+2. **Automation Strategy**
+   - Identify repetitive tasks for automation
+   - Select appropriate extensions for automation
+   - Configure automated workflows
+   - Validate automation results
+   - Balance automation with manual testing
+
+3. **Team Collaboration**
+   - Standardize extension usage across team
+   - Share extension configurations
+   - Document extension-specific processes
+   - Train team members on extension capabilities
+   - Establish extension usage guidelines
+
+4. **Reporting Integration**
+   - Configure extensions to enhance reporting
+   - Standardize finding documentation
+   - Integrate extension results into reports
+   - Validate extension findings
+   - Provide context for extension-generated results
+
+5. **Continuous Improvement**
+   - Regularly evaluate extension effectiveness
+   - Seek feedback from team members
+   - Explore new extensions for emerging needs
+   - Refine extension configurations
+   - Contribute improvements to extension developers
+
+Strategic integration of extensions into your workflow maximizes their value and improves testing efficiency.
 
 ## Troubleshooting
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="common-issues">
-    <AccordionTrigger>Common Extension Issues</AccordionTrigger>
-    <AccordionContent>
-      Solutions to frequently encountered extension problems:
-      
-      1. **Loading Failures**
-         - Verify extension compatibility with Burp version
-         - Check for missing dependencies
-         - Ensure correct environment configuration
-         - Review extension error output
-         - Check Java/Python/Ruby environment settings
-      
-      2. **Performance Problems**
-         - Identify resource-intensive extensions
-         - Adjust thread and memory settings
-         - Disable unnecessary extension features
-         - Update to latest extension versions
-         - Consider alternative extensions
-      
-      3. **Compatibility Issues**
-         - Test with different Burp versions
-         - Check for known compatibility problems
-         - Review extension documentation for requirements
-         - Contact extension developers for support
-         - Look for alternative extensions
-      
-      4. **Functionality Problems**
-         - Verify correct configuration
-         - Check extension documentation
-         - Test with simple use cases
-         - Review extension output and logs
-         - Report issues to extension developers
-      
-      5. **UI Issues**
-         - Adjust display settings
-         - Restart Burp Suite
-         - Check for UI-related bugs in extension
-         - Verify Java/Swing compatibility
-         - Update to latest extension version
-      
-      Understanding common issues helps quickly resolve problems and maintain an effective testing environment.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="debugging">
-    <AccordionTrigger>Extension Debugging</AccordionTrigger>
-    <AccordionContent>
-      Techniques for troubleshooting extension issues:
-      
-      1. **Output Monitoring**
-         - Check extension output in Extender tab
-         - Review error messages
-         - Monitor standard output
-         - Look for exception stack traces
-         - Check for warning messages
-      
-      2. **Environment Validation**
-         - Verify Java version compatibility
-         - Check Python/Ruby environment configuration
-         - Validate dependency availability
-         - Test with minimal configuration
-         - Isolate extension-specific issues
-      
-      3. **Logging Enhancement**
-         - Enable debug logging if available
-         - Add custom logging extensions
-         - Monitor extension activity
-         - Track resource usage
-         - Log extension API calls
-      
-      4. **Controlled Testing**
-         - Test with simple, predictable inputs
-         - Isolate functionality components
-         - Compare behavior with expected results
-         - Test in clean Burp installation
-         - Verify against extension documentation
-      
-      5. **Community Resources**
-         - Check extension GitHub issues
-         - Review Burp Suite forums
-         - Contact extension developers
-         - Search for known issues
-         - Consult with other users
-      
-      Effective debugging techniques help identify and resolve extension issues quickly.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Common Extension Issues
+
+Solutions to frequently encountered extension problems:
+
+1. **Loading Failures**
+   - Verify extension compatibility with Burp version
+   - Check for missing dependencies
+   - Ensure correct environment configuration
+   - Review extension error output
+   - Check Java/Python/Ruby environment settings
+
+2. **Performance Problems**
+   - Identify resource-intensive extensions
+   - Adjust thread and memory settings
+   - Disable unnecessary extension features
+   - Update to latest extension versions
+   - Consider alternative extensions
+
+3. **Compatibility Issues**
+   - Test with different Burp versions
+   - Check for known compatibility problems
+   - Review extension documentation for requirements
+   - Contact extension developers for support
+   - Look for alternative extensions
+
+4. **Functionality Problems**
+   - Verify correct configuration
+   - Check extension documentation
+   - Test with simple use cases
+   - Review extension output and logs
+   - Report issues to extension developers
+
+5. **UI Issues**
+   - Adjust display settings
+   - Restart Burp Suite
+   - Check for UI-related bugs in extension
+   - Verify Java/Swing compatibility
+   - Update to latest extension version
+
+Understanding common issues helps quickly resolve problems and maintain an effective testing environment.
+
+### Extension Debugging
+
+Techniques for troubleshooting extension issues:
+
+1. **Output Monitoring**
+   - Check extension output in Extender tab
+   - Review error messages
+   - Monitor standard output
+   - Look for exception stack traces
+   - Check for warning messages
+
+2. **Environment Validation**
+   - Verify Java version compatibility
+   - Check Python/Ruby environment configuration
+   - Validate dependency availability
+   - Test with minimal configuration
+   - Isolate extension-specific issues
+
+3. **Logging Enhancement**
+   - Enable debug logging if available
+   - Add custom logging extensions
+   - Monitor extension activity
+   - Track resource usage
+   - Log extension API calls
+
+4. **Controlled Testing**
+   - Test with simple, predictable inputs
+   - Isolate functionality components
+   - Compare behavior with expected results
+   - Test in clean Burp installation
+   - Verify against extension documentation
+
+5. **Community Resources**
+   - Check extension GitHub issues
+   - Review Burp Suite forums
+   - Contact extension developers
+   - Search for known issues
+   - Consult with other users
+
+Effective debugging techniques help identify and resolve extension issues quickly.
 
 <Callout type="info">
   While basic extension functionality is available in the Community Edition, the BApp Store and support for Python/Ruby extensions are exclusive to the Professional Edition. The Community Edition also has limitations on the number and types of extensions that can be loaded.

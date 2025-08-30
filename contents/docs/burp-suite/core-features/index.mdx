@@ -3,228 +3,175 @@ title: Burp Suite Core Features
 description: Detailed comparison of features between Burp Suite Community Edition and Professional Edition
 ---
 
-import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Callout } from "@/components/markdown/callout"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 This page provides a comprehensive comparison between the free Community Edition and the paid Professional Edition of Burp Suite, helping you understand the differences and make an informed decision about which version best suits your needs.
 
 ## Edition Comparison
 
-<Tabs defaultValue="comparison">
-  <TabsList>
-    <TabsTrigger value="comparison">Feature Comparison</TabsTrigger>
-    <TabsTrigger value="community">Community Edition</TabsTrigger>
-    <TabsTrigger value="professional">Professional Edition</TabsTrigger>
-  </TabsList>
-  
-  <TabsContent value="comparison">
-    ### Side-by-Side Comparison
-    
-    | Feature | Community Edition | Professional Edition |
-    |---------|------------------|----------------------|
-    | **Proxy** | Basic interception | Advanced interception with match/replace rules |
-    | **Scanner** | Not available | Full automated vulnerability scanning |
-    | **Intruder** | Rate-limited | Unlimited speed with advanced attack types |
-    | **Repeater** | Full functionality | Full functionality with improved workflow |
-    | **Sequencer** | Basic analysis | Advanced analysis |
-    | **Decoder** | Full functionality | Full functionality |
-    | **Comparer** | Full functionality | Full functionality |
-    | **Project Saving** | Not available | Full project saving and restoration |
-    | **Extensions** | Not supported | Full extension support |
-    | **Session Handling** | Basic | Advanced with macros |
-    | **Target Scope** | Basic | Advanced with detailed configuration |
-    | **Collaborator** | Limited | Full functionality |
-    | **Scheduled Tasks** | Not available | Available |
-    | **REST API** | Not available | Available |
-    | **Support** | Community forums | Professional support |
-    | **Updates** | Manual | Automatic |
-    | **License** | Free | Paid subscription |
-  </TabsContent>
-  
-  <TabsContent value="community">
-    ### Community Edition Features
-    
-    The free Community Edition includes:
-    
-    #### Core Tools
-    - **Proxy**: Basic HTTP/S traffic interception and modification
-    - **Repeater**: Manual request manipulation and response analysis
-    - **Intruder**: Rate-limited automated request manipulation
-    - **Decoder**: Encoding/decoding of application data
-    - **Comparer**: Comparison of application data
-    - **Sequencer**: Basic analysis of randomness in session tokens
-    
-    #### Limitations
-    - No automated vulnerability scanning
-    - Rate-limited Intruder tool (significantly slower)
-    - No project saving capability
-    - No extension support
-    - Limited target scope definition
-    - Basic session handling
-    - No Collaborator functionality for OAST testing
-    - Manual updates only
-    
-    <Callout type="info">
-      The Community Edition is ideal for learning web security testing fundamentals, educational purposes, and basic manual testing.
-    </Callout>
-  </TabsContent>
-  
-  <TabsContent value="professional">
-    ### Professional Edition Features
-    
-    The Professional Edition includes everything in Community Edition plus:
-    
-    #### Enhanced Core Tools
-    - **Proxy**: Advanced interception with match/replace rules, automatic matching
-    - **Intruder**: Unlimited speed, additional attack types (Cluster bomb, Pitchfork)
-    - **Scanner**: Fully automated vulnerability detection
-    - **Repeater**: Enhanced workflow with tabs and history
-    - **Sequencer**: Advanced token analysis
-    
-    #### Additional Features
-    - **Project Saving**: Save and restore your work
-    - **Extensions**: Support for BApp Store extensions
-    - **Advanced Target Scope**: Detailed scope configuration
-    - **Session Handling Rules**: Complex authentication handling
-    - **Macros**: Record and replay sequences of requests
-    - **Collaborator**: Full OAST (Out-of-band Application Security Testing)
-    - **Scheduled Tasks**: Automate scans and tasks
-    - **REST API**: Programmatic control of Burp Suite
-    - **Professional Support**: Direct support from PortSwigger
-    - **Automatic Updates**: Stay current with the latest features
-    
-    <Callout type="info">
-      The Professional Edition is designed for security professionals, penetration testers, and organizations requiring comprehensive web application security testing capabilities.
-    </Callout>
-  </TabsContent>
-</Tabs>
+### Side-by-Side Comparison
+
+| Feature | Community Edition | Professional Edition |
+|---------|------------------|----------------------|
+| **Proxy** | Basic interception | Advanced interception with match/replace rules |
+| **Scanner** | Not available | Full automated vulnerability scanning |
+| **Intruder** | Rate-limited | Unlimited speed with advanced attack types |
+| **Repeater** | Full functionality | Full functionality with improved workflow |
+| **Sequencer** | Basic analysis | Advanced analysis |
+| **Decoder** | Full functionality | Full functionality |
+| **Comparer** | Full functionality | Full functionality |
+| **Project Saving** | Not available | Full project saving and restoration |
+| **Extensions** | Not supported | Full extension support |
+| **Session Handling** | Basic | Advanced with macros |
+| **Target Scope** | Basic | Advanced with detailed configuration |
+| **Collaborator** | Limited | Full functionality |
+| **Scheduled Tasks** | Not available | Available |
+| **REST API** | Not available | Available |
+| **Support** | Community forums | Professional support |
+| **Updates** | Manual | Automatic |
+| **License** | Free | Paid subscription |
+
+### Community Edition Features
+
+The free Community Edition includes:
+
+#### Core Tools
+- **Proxy**: Basic HTTP/S traffic interception and modification
+- **Repeater**: Manual request manipulation and response analysis
+- **Intruder**: Rate-limited automated request manipulation
+- **Decoder**: Encoding/decoding of application data
+- **Comparer**: Comparison of application data
+- **Sequencer**: Basic analysis of randomness in session tokens
+
+#### Limitations
+- No automated vulnerability scanning
+- Rate-limited Intruder tool - significantly slower
+- No project saving capability
+- No extension support
+- Limited target scope definition
+- Basic session handling
+- No Collaborator functionality for OAST testing
+- Manual updates only
+
+<Callout type="info">
+  The Community Edition is ideal for learning web security testing fundamentals, educational purposes, and basic manual testing.
+</Callout>
+
+### Professional Edition Features
+
+The Professional Edition includes everything in Community Edition plus:
+
+#### Enhanced Core Tools
+- **Proxy**: Advanced interception with match/replace rules, automatic matching
+- **Intruder**: Unlimited speed, additional attack types - Cluster bomb, Pitchfork
+- **Scanner**: Fully automated vulnerability detection
+- **Repeater**: Enhanced workflow with tabs and history
+- **Sequencer**: Advanced token analysis
+
+#### Additional Features
+- **Project Saving**: Save and restore your work
+- **Extensions**: Support for BApp Store extensions
+- **Advanced Target Scope**: Detailed scope configuration
+- **Session Handling Rules**: Complex authentication handling
+- **Macros**: Record and replay sequences of requests
+- **Collaborator**: Full OAST - Out-of-band Application Security Testing
+- **Scheduled Tasks**: Automate scans and tasks
+- **REST API**: Programmatic control of Burp Suite
+- **Professional Support**: Direct support from PortSwigger
+- **Automatic Updates**: Stay current with the latest features
+
+<Callout type="info">
+  The Professional Edition is designed for security professionals, penetration testers, and organizations requiring comprehensive web application security testing capabilities.
+</Callout>
 
 ## Key Differentiators
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="scanner">
-    <AccordionTrigger>Vulnerability Scanner</AccordionTrigger>
-    <AccordionContent>
-      The most significant difference between the editions is the automated vulnerability scanner, which is only available in the Professional Edition. The scanner can automatically discover various types of vulnerabilities including:
-      
-      - SQL injection
-      - Cross-site scripting (XSS)
-      - XML external entity (XXE) injection
-      - Server-side request forgery (SSRF)
-      - Cross-site request forgery (CSRF)
-      - Insecure deserialization
-      - Command injection
-      - Path traversal
-      - And many more...
-      
-      The scanner uses both passive and active scanning techniques, with minimal false positives compared to other automated tools.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="intruder">
-    <AccordionTrigger>Intruder Performance</AccordionTrigger>
-    <AccordionContent>
-      While both editions include the Intruder tool, the Community Edition is significantly rate-limited. This means:
-      
-      - Community Edition: Approximately 1 request per second
-      - Professional Edition: Unlimited request rate (server/network capacity dependent)
-      
-      Additionally, the Professional Edition includes advanced attack types like Cluster Bomb and Pitchfork, which are essential for complex testing scenarios.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="project">
-    <AccordionTrigger>Project Management</AccordionTrigger>
-    <AccordionContent>
-      The Professional Edition allows you to save your work as project files, which is crucial for:
-      
-      - Maintaining state between testing sessions
-      - Collaborative testing with team members
-      - Documentation and evidence for reports
-      - Historical comparison of application security posture
-      
-      The Community Edition does not support project saving, meaning all work is lost when you close the application.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="extensions">
-    <AccordionTrigger>Extensions and BApp Store</AccordionTrigger>
-    <AccordionContent>
-      The Professional Edition supports extensions from the Burp App Store (BApp Store), which significantly extends functionality:
-      
-      - Custom scan checks
-      - Specialized tools for specific technologies
-      - Reporting enhancements
-      - Workflow improvements
-      - Integration with other security tools
-      
-      Popular extensions include:
-      - JWT Decoder
-      - Autorize (authorization testing)
-      - Turbo Intruder
-      - CSRF Scanner
-      - Software Vulnerability Scanner
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="collaborator">
-    <AccordionTrigger>Burp Collaborator</AccordionTrigger>
-    <AccordionContent>
-      Burp Collaborator is a service that helps detect vulnerabilities that are not immediately visible in the application's response, such as:
-      
-      - Blind SQL injection
-      - Server-side request forgery (SSRF)
-      - XML external entity (XXE) injection
-      - Out-of-band (OOB) vulnerabilities
-      
-      The Professional Edition includes full access to this service, while the Community Edition has limited functionality.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Vulnerability Scanner
+
+The most significant difference between the editions is the automated vulnerability scanner, which is only available in the Professional Edition. The scanner can automatically discover various types of vulnerabilities including:
+
+- SQL injection
+- Cross-site scripting - XSS
+- XML external entity - XXE injection
+- Server-side request forgery - SSRF
+- Cross-site request forgery - CSRF
+- Insecure deserialization
+- Command injection
+- Path traversal
+- And many more...
+
+The scanner uses both passive and active scanning techniques, with minimal false positives compared to other automated tools.
+
+### Intruder Performance
+
+While both editions include the Intruder tool, the Community Edition is significantly rate-limited. This means:
+
+- Community Edition: Approximately 1 request per second
+- Professional Edition: Unlimited request rate - server/network capacity dependent
+
+Additionally, the Professional Edition includes advanced attack types like Cluster Bomb and Pitchfork, which are essential for complex testing scenarios.
+
+### Project Management
+
+The Professional Edition allows you to save your work as project files, which is crucial for:
+
+- Maintaining state between testing sessions
+- Collaborative testing with team members
+- Documentation and evidence for reports
+- Historical comparison of application security posture
+
+The Community Edition does not support project saving, meaning all work is lost when you close the application.
+
+### Extensions and BApp Store
+
+The Professional Edition supports extensions from the Burp App Store - BApp Store, which significantly extends functionality:
+
+- Custom scan checks
+- Specialized tools for specific technologies
+- Reporting enhancements
+- Workflow improvements
+- Integration with other security tools
+
+Popular extensions include:
+- JWT Decoder
+- Autorize - authorization testing
+- Turbo Intruder
+- CSRF Scanner
+- Software Vulnerability Scanner
+
+### Burp Collaborator
+
+Burp Collaborator is a service that helps detect vulnerabilities that are not immediately visible in the application's response, such as:
+
+- Blind SQL injection
+- Server-side request forgery - SSRF
+- XML external entity - XXE injection
+- Out-of-band (OOB) vulnerabilities
+
+The Professional Edition includes full access to this service, while the Community Edition has limited functionality.
 
 ## Use Cases
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <Card>
-    <CardHeader>
-      <CardTitle><a href="/docs/burp-suite/core-features/professional-edition">Security Professionals</a></CardTitle>
-    </CardHeader>
-    <CardContent>
-      Security consultants and penetration testers benefit from the Professional Edition's comprehensive feature set, which enables efficient and thorough security assessments.
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle><a href="/docs/burp-suite/core-features/free-edition">Students & Beginners</a></CardTitle>
-    </CardHeader>
-    <CardContent>
-      Those learning web security can start with the Community Edition to understand core concepts before investing in the Professional Edition.
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle><a href="/docs/burp-suite/core-features/professional-edition">Development Teams</a></CardTitle>
-    </CardHeader>
-    <CardContent>
-      Development teams integrating security testing into their workflow will find the Professional Edition's automation features and project saving capabilities essential.
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle><a href="/docs/burp-suite/core-features/professional-edition">Bug Bounty Hunters</a></CardTitle>
-    </CardHeader>
-    <CardContent>
-      Bug bounty hunters rely on the Professional Edition's advanced features to efficiently discover vulnerabilities in target applications.
-    </CardContent>
-  </Card>
-</div>
+### Security Professionals
+
+Security consultants and penetration testers benefit from the Professional Edition's comprehensive feature set, which enables efficient and thorough security assessments.
+
+### Students & Beginners
+
+Those learning web security can start with the Community Edition to understand core concepts before investing in the Professional Edition.
+
+### Development Teams
+
+Development teams integrating security testing into their workflow will find the Professional Edition's automation features and project saving capabilities essential.
+
+### Bug Bounty Hunters
+
+Bug bounty hunters rely on the Professional Edition's advanced features to efficiently discover vulnerabilities in target applications.
 
 ## Licensing and Pricing
 
 <Callout type="info">
-  Pricing information may change over time. Always check the [PortSwigger website](https://portswigger.net/burp/pricing) for the most current pricing details.
+  Pricing information may change over time. Always check the PortSwigger website at https://portswigger.net/burp/pricing for the most current pricing details.
 </Callout>
 
 ### Community Edition
@@ -233,7 +180,7 @@ This page provides a comprehensive comparison between the free Community Edition
 - **Restrictions**: For personal, non-commercial use only
 
 ### Professional Edition
-- **Cost**: Annual subscription (check website for current pricing)
+- **Cost**: Annual subscription - check website for current pricing
 - **License Types**:
   - Individual user license
   - Enterprise licenses for teams

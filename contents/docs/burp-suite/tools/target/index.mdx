@@ -3,771 +3,662 @@ title: Burp Suite Target Tool
 description: Comprehensive guide to using Burp Suite's Target tool for organizing and managing your web application security testing scope
 ---
 
-import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Callout } from "@/components/markdown/callout"
-import { Steps } from "@/components/markdown/steps"
 
 The Target tool is a core component of Burp Suite that helps you organize, manage, and visualize the attack surface of web applications you're testing. It provides a structured view of your target applications and allows you to define the scope of your testing activities.
 
 ## Overview
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="target-purpose">
-    <AccordionTrigger>Purpose and Functionality</AccordionTrigger>
-    <AccordionContent>
-      The Target tool serves several key purposes:
-      
-      - Provides a hierarchical view of all discovered content
-      - Allows you to define and manage testing scope
-      - Organizes information about target applications
-      - Serves as a central repository for application data
-      - Enables quick access to key functionality
-      
-      It's the organizational hub of Burp Suite, helping you maintain focus on relevant targets while filtering out noise from out-of-scope items.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="edition-differences">
-    <AccordionTrigger>Community vs. Professional Edition</AccordionTrigger>
-    <AccordionContent>
-      The Target tool has some differences between editions:
-      
-      **Community Edition:**
-      - Basic Site Map functionality
-      - Manual scope definition
-      - Limited site map filtering options
-      - No automated crawling capabilities
-      
-      **Professional Edition:**
-      - Enhanced Site Map with advanced filtering
-      - Detailed issue definitions in site tree
-      - Live task monitoring for crawls and scans
-      - Advanced scope control options
-      - Content discovery features
-      - Target analyzer for quick assessment
-      - Project-level scope settings
-      
-      While the core functionality exists in both editions, the Professional edition offers more advanced features for managing complex testing projects.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Purpose and Functionality
+
+The Target tool serves several key purposes:
+
+- Provides a hierarchical view of all discovered content
+- Allows you to define and manage testing scope
+- Organizes information about target applications
+- Serves as a central repository for application data
+- Enables quick access to key functionality
+
+It's the organizational hub of Burp Suite, helping you maintain focus on relevant targets while filtering out noise from out-of-scope items.
+
+### Community vs. Professional Edition
+
+The Target tool has some differences between editions:
+
+**Community Edition:**
+- Basic Site Map functionality
+- Manual scope definition
+- Limited site map filtering options
+- No automated crawling capabilities
+
+**Professional Edition:**
+- Enhanced Site Map with advanced filtering
+- Detailed issue definitions in site tree
+- Live task monitoring for crawls and scans
+- Advanced scope control options
+- Content discovery features
+- Target analyzer for quick assessment
+- Project-level scope settings
+
+While the core functionality exists in both editions, the Professional edition offers more advanced features for managing complex testing projects.
 
 ## Site Map
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="site-map-overview">
-    <AccordionTrigger>Site Map Overview</AccordionTrigger>
-    <AccordionContent>
-      The Site Map is a central feature of the Target tool:
-      
-      - Displays a hierarchical tree of all discovered URLs
-      - Automatically populated as you browse through Proxy
-      - Organizes content by host and URL path
-      - Shows request types, response codes, and sizes
-      - Provides context menu access to other Burp tools
-      - Stores all requests and responses for later analysis
-      - Allows filtering and searching of discovered content
-      
-      It serves as both a visualization of the application structure and a repository of all HTTP traffic that Burp has observed.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="site-map-population">
-    <AccordionTrigger>Populating the Site Map</AccordionTrigger>
-    <AccordionContent>
-      There are several ways to populate the Site Map:
-      
-      1. **Passive population**
-         - Browse the application through Burp Proxy
-         - All requests/responses are automatically added
-         - Links in responses are parsed but not followed
-      
-      2. **Active crawling** - Professional Edition
-         - Right-click on a branch and select "Spider this branch"
-         - Burp automatically discovers and requests linked content
-         - Follows links, submits forms, and explores the application
-      
-      3. **Content discovery** - Professional Edition
-         - Right-click and select "Engagement tools" > "Discover content"
-         - Uses wordlists to discover hidden directories and files
-         - Identifies resources not linked from visible content
-      
-      4. **Manual addition**
-         - Right-click in Site Map and select "Add item"
-         - Manually specify URLs to include
-         - Import from a file or clipboard
-      
-      5. **From other tools**
-         - Scanner discovered content
-         - Intruder discovered endpoints
-         - Imported target lists
-      
-      A comprehensive Site Map is essential for understanding the application structure and planning your testing approach.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Site Map Overview
+
+The Site Map is a central feature of the Target tool:
+
+- Displays a hierarchical tree of all discovered URLs
+- Automatically populated as you browse through Proxy
+- Organizes content by host and URL path
+- Shows request types, response codes, and sizes
+- Provides context menu access to other Burp tools
+- Stores all requests and responses for later analysis
+- Allows filtering and searching of discovered content
+
+It serves as both a visualization of the application structure and a repository of all HTTP traffic that Burp has observed.
+
+### Populating the Site Map
+
+There are several ways to populate the Site Map:
+
+1. **Passive population**
+   - Browse the application through Burp Proxy
+   - All requests/responses are automatically added
+   - Links in responses are parsed but not followed
+
+2. **Active crawling** - Professional Edition
+   - Right-click on a branch and select "Spider this branch"
+   - Burp automatically discovers and requests linked content
+   - Follows links, submits forms, and explores the application
+
+3. **Content discovery** - Professional Edition
+   - Right-click and select "Engagement tools" > "Discover content"
+   - Uses wordlists to discover hidden directories and files
+   - Identifies resources not linked from visible content
+
+4. **Manual addition**
+   - Right-click in Site Map and select "Add item"
+   - Manually specify URLs to include
+   - Import from a file or clipboard
+
+5. **From other tools**
+   - Scanner discovered content
+   - Intruder discovered endpoints
+   - Imported target lists
+
+A comprehensive Site Map is essential for understanding the application structure and planning your testing approach.
 
 ### Site Map Navigation and Analysis
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="navigation">
-    <AccordionTrigger>Navigating the Site Map</AccordionTrigger>
-    <AccordionContent>
-      Effective ways to navigate and use the Site Map:
-      
-      1. **Tree structure navigation**
-         - Expand/collapse branches to focus on specific areas
-         - Hosts are top-level nodes
-         - Directories and files are organized hierarchically
-         - Color coding indicates response codes and issues
-      
-      2. **Filtering options**
-         - Filter by request type: GET, POST, etc.
-         - Filter by response code: 200, 302, 404, etc.
-         - Filter by MIME type: HTML, JSON, etc.
-         - Show only in-scope items
-         - Hide empty folders
-      
-      3. **Search functionality**
-         - Search by URL, parameter names, or file types
-         - Find specific content within responses
-         - Locate items with particular characteristics
-      
-      4. **View options**
-         - Tree view: Hierarchical structure
-         - Table view: Tabular listing with sortable columns
-         - Selection details: Information about selected items
-      
-      5. **Keyboard navigation**
-         - Arrow keys to move through the tree
-         - Enter to expand/collapse branches
-         - Context menu key for additional options
-      
-      Efficient navigation helps you quickly locate relevant content and focus your testing efforts.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="analysis-features">
-    <AccordionTrigger>Analysis Features</AccordionTrigger>
-    <AccordionContent>
-      Tools and features for analyzing Site Map content:
-      
-      1. **Request/response viewer**
-         - View full HTTP requests and responses
-         - Analyze headers, parameters, and body content
-         - Switch between raw, parsed, and rendered views
-      
-      2. **Inspector panel** - Professional Edition
-         - Detailed analysis of request components
-         - Parameter tables with editable values
-         - Header tables with name-value pairs
-         - Cookie inspection and analysis
-      
-      3. **Issue highlighting** - Professional Edition
-         - Vulnerabilities marked with icons in the tree
-         - Color coding indicates severity levels
-         - Quick access to issue details
-      
-      4. **Target analyzer** - Professional Edition
-         - Automatically analyzes site structure
-         - Identifies technologies in use
-         - Suggests attack vectors
-      
-      5. **Content type analysis**
-         - Identifies file types and technologies
-         - Highlights interesting content for testing
-         - Flags potential security issues
-      
-      These analysis features help you understand the application structure and identify potential security issues.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+Effective ways to navigate and use the Site Map:
+
+1. **Tree structure navigation**
+   - Expand/collapse branches to focus on specific areas
+   - Hosts are top-level nodes
+   - Directories and files are organized hierarchically
+   - Color coding indicates response codes and issues
+
+2. **Filtering options**
+   - Filter by request type: GET, POST, etc.
+   - Filter by response code: 200, 302, 404, etc.
+   - Filter by MIME type: HTML, JSON, etc.
+   - Show only in-scope items
+   - Hide empty folders
+
+3. **Search functionality**
+   - Search by URL, parameter names, or file types
+   - Find specific content within responses
+   - Locate items with particular characteristics
+
+4. **View options**
+   - Tree view: Hierarchical structure
+   - Table view: Tabular listing with sortable columns
+   - Selection details: Information about selected items
+
+5. **Keyboard navigation**
+   - Arrow keys to move through the tree
+   - Enter to expand/collapse branches
+   - Context menu key for additional options
+
+Efficient navigation helps you quickly locate relevant content and focus your testing efforts.
+
+### Analysis Features
+
+Tools and features for analyzing Site Map content:
+
+1. **Request/response viewer**
+   - View full HTTP requests and responses
+   - Analyze headers, parameters, and body content
+   - Switch between raw, parsed, and rendered views
+
+2. **Inspector panel** - Professional Edition
+   - Detailed analysis of request components
+   - Parameter tables with editable values
+   - Header tables with name-value pairs
+   - Cookie inspection and analysis
+
+3. **Issue highlighting** - Professional Edition
+   - Vulnerabilities marked with icons in the tree
+   - Color coding indicates severity levels
+   - Quick access to issue details
+
+4. **Target analyzer** - Professional Edition
+   - Automatically analyzes site structure
+   - Identifies technologies in use
+   - Suggests attack vectors
+
+5. **Content type analysis**
+   - Identifies file types and technologies
+   - Highlights interesting content for testing
+   - Flags potential security issues
+
+These analysis features help you understand the application structure and identify potential security issues.
 
 ### Context Menu Options
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="context-menu">
-    <AccordionTrigger>Site Map Context Menu</AccordionTrigger>
-    <AccordionContent>
-      The Site Map context menu provides quick access to key functionality:
-      
-      1. **Tool integration**
-         - Send to Spider: Crawl the selected branch
-         - Send to Scanner: Scan for vulnerabilities
-         - Send to Intruder: Set up automated attacks
-         - Send to Repeater: Manually modify and resend requests
-         - Send to Sequencer: Analyze token randomness
-         - Send to Decoder/Comparer: Analyze specific content
-      
-      2. **Scope control**
-         - Add to scope: Include the selected items in scope
-         - Remove from scope: Exclude items from testing
-         - Define advanced scope rules
-      
-      3. **Engagement tools** - Professional Edition
-         - Discover content: Find hidden resources
-         - Find references: Locate links to the selected item
-         - Analyze target: Assess the selected branch
-         - Schedule task: Set up automated tasks
-      
-      4. **Visualization options**
-         - Expand/collapse branches
-         - Reveal in site map
-         - Copy URL
-         - Show response in browser
-      
-      5. **Testing shortcuts**
-         - Scan checks: Select specific vulnerability checks
-         - Request in browser: Open the URL in your browser
-         - Engagement tools: Access specialized testing features
-      
-      The context menu makes it easy to perform common tasks and integrate with other Burp tools.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+The Site Map context menu provides quick access to key functionality:
+
+1. **Tool integration**
+   - Send to Spider: Crawl the selected branch
+   - Send to Scanner: Scan for vulnerabilities
+   - Send to Intruder: Set up automated attacks
+   - Send to Repeater: Manually modify and resend requests
+   - Send to Sequencer: Analyze token randomness
+   - Send to Decoder/Comparer: Analyze specific content
+
+2. **Scope control**
+   - Add to scope: Include the selected items in scope
+   - Remove from scope: Exclude items from testing
+   - Define advanced scope rules
+
+3. **Engagement tools** - Professional Edition
+   - Discover content: Find hidden resources
+   - Find references: Locate links to the selected item
+   - Analyze target: Assess the selected branch
+   - Schedule task: Set up automated tasks
+
+4. **Visualization options**
+   - Expand/collapse branches
+   - Reveal in site map
+   - Copy URL
+   - Show response in browser
+
+5. **Testing shortcuts**
+   - Scan checks: Select specific vulnerability checks
+   - Request in browser: Open the URL in your browser
+   - Engagement tools: Access specialized testing features
+
+The context menu makes it easy to perform common tasks and integrate with other Burp tools.
 
 ## Scope Control
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="scope-definition">
-    <AccordionTrigger>Defining Target Scope</AccordionTrigger>
-    <AccordionContent>
-      How to define and manage your testing scope:
-      
-      1. **Accessing scope settings**
-         - Select the "Scope" tab in the Target tool
-         - Or right-click items in Site Map and use "Add to scope"
-      
-      2. **Include rules**
-         - Define URL patterns to include in scope
-         - Use protocol, host, port, and file path
-         - Support for wildcards and regex patterns
-         - Example: `https://example.com/admin/*`
-      
-      3. **Exclude rules**
-         - Define URL patterns to exclude from scope
-         - Override include rules for specific exclusions
-         - Useful for avoiding sensitive areas
-         - Example: `https://example.com/admin/logout`
-      
-      4. **Advanced options** - Professional Edition
-         - File extension filtering
-         - Protocol restrictions
-         - Hostname resolution settings
-         - Custom scope rules with complex conditions
-      
-      5. **Scope rule evaluation**
-         - Rules are evaluated in order, from top to bottom
-         - First matching rule determines inclusion/exclusion
-         - More specific rules should come before general rules
-      
-      Properly defining scope is crucial for focusing your testing efforts and avoiding unintended targets.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="scope-effects">
-    <AccordionTrigger>Effects of Scope Settings</AccordionTrigger>
-    <AccordionContent>
-      How scope settings impact Burp Suite's behavior:
-      
-      1. **Proxy behavior**
-         - Option to highlight in-scope items
-         - Option to intercept only in-scope requests
-         - Out-of-scope items can be dimmed or hidden
-      
-      2. **Site Map display**
-         - Option to show only in-scope items
-         - Out-of-scope items can be filtered out
-         - Visual distinction between in/out of scope
-      
-      3. **Scanner limitations**
-         - Active scanning limited to in-scope items
-         - Prevents accidental scanning of out-of-scope targets
-      
-      4. **Spider behavior**
-         - Crawling can be restricted to in-scope items
-         - Prevents crawling outside intended targets
-      
-      5. **Target analyzer**
-         - Analysis focused on in-scope content
-         - More efficient resource utilization
-      
-      6. **Project-wide settings** - Professional Edition
-         - Scope settings saved with project files
-         - Consistent scope across sessions
-         - Team collaboration with shared scope
-      
-      Scope settings help prevent accidental testing of unintended targets and focus your efforts on authorized systems.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Defining Target Scope
+
+How to define and manage your testing scope:
+
+1. **Accessing scope settings**
+   - Select the "Scope" tab in the Target tool
+   - Or right-click items in Site Map and use "Add to scope"
+
+2. **Include rules**
+   - Define URL patterns to include in scope
+   - Use protocol, host, port, and file path
+   - Support for wildcards and regex patterns
+   - Example: `https://example.com/admin/*`
+
+3. **Exclude rules**
+   - Define URL patterns to exclude from scope
+   - Override include rules for specific exclusions
+   - Useful for avoiding sensitive areas
+   - Example: `https://example.com/admin/logout`
+
+4. **Advanced options** - Professional Edition
+   - File extension filtering
+   - Protocol restrictions
+   - Hostname resolution settings
+   - Custom scope rules with complex conditions
+
+5. **Scope rule evaluation**
+   - Rules are evaluated in order, from top to bottom
+   - First matching rule determines inclusion/exclusion
+   - More specific rules should come before general rules
+
+Properly defining scope is crucial for focusing your testing efforts and avoiding unintended targets.
+
+### Effects of Scope Settings
+
+How scope settings impact Burp Suite's behavior:
+
+1. **Proxy behavior**
+   - Option to highlight in-scope items
+   - Option to intercept only in-scope requests
+   - Out-of-scope items can be dimmed or hidden
+
+2. **Site Map display**
+   - Option to show only in-scope items
+   - Out-of-scope items can be filtered out
+   - Visual distinction between in/out of scope
+
+3. **Scanner limitations**
+   - Active scanning limited to in-scope items
+   - Prevents accidental scanning of out-of-scope targets
+
+4. **Spider behavior**
+   - Crawling can be restricted to in-scope items
+   - Prevents crawling outside intended targets
+
+5. **Target analyzer**
+   - Analysis focused on in-scope content
+   - More efficient resource utilization
+
+6. **Project-wide settings** - Professional Edition
+   - Scope settings saved with project files
+   - Consistent scope across sessions
+   - Team collaboration with shared scope
+
+Scope settings help prevent accidental testing of unintended targets and focus your efforts on authorized systems.
 
 ### Advanced Scope Control
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="advanced-scope">
-    <AccordionTrigger>Advanced Scope Features - Professional Edition</AccordionTrigger>
-    <AccordionContent>
-      Professional edition offers enhanced scope control:
-      
-      1. **Advanced matching rules**
-         - Regex-based URL matching
-         - File extension filtering
-         - Protocol restrictions
-         - Port-specific rules
-      
-      2. **Scope file management**
-         - Export scope settings to file
-         - Import scope from file
-         - Share scope configurations between team members
-         - Maintain consistent scope across projects
-      
-      3. **Target scope vs. project scope**
-         - Target scope: Specific to the Target tool
-         - Project scope: Applies across all Burp tools
-         - Synchronized settings for consistency
-      
-      4. **Scope-based tool behavior**
-         - Configure tools to respect scope settings
-         - Customize behavior for in-scope vs. out-of-scope items
-         - Prevent accidental testing of out-of-scope targets
-      
-      5. **Dynamic scope updates**
-         - Update scope during testing
-         - Automatically apply changes to all tools
-         - Refine scope as you discover new content
-      
-      Advanced scope control helps manage complex testing projects and ensures consistent behavior across all Burp tools.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+Professional edition offers enhanced scope control:
+
+1. **Advanced matching rules**
+   - Regex-based URL matching
+   - File extension filtering
+   - Protocol restrictions
+   - Port-specific rules
+
+2. **Scope file management**
+   - Export scope settings to file
+   - Import scope from file
+   - Share scope configurations between team members
+   - Maintain consistent scope across projects
+
+3. **Target scope vs. project scope**
+   - Target scope: Specific to the Target tool
+   - Project scope: Applies across all Burp tools
+   - Synchronized settings for consistency
+
+4. **Scope-based tool behavior**
+   - Configure tools to respect scope settings
+   - Customize behavior for in-scope vs. out-of-scope items
+   - Prevent accidental testing of out-of-scope targets
+
+5. **Dynamic scope updates**
+   - Update scope during testing
+   - Automatically apply changes to all tools
+   - Refine scope as you discover new content
+
+Advanced scope control helps manage complex testing projects and ensures consistent behavior across all Burp tools.
 
 ## Issue Definitions - Professional Edition
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="issue-tracking">
-    <AccordionTrigger>Vulnerability Tracking</AccordionTrigger>
-    <AccordionContent>
-      How vulnerabilities are tracked in the Target tool:
-      
-      1. **Issue detection sources**
-         - Scanner automated findings
-         - Manually added issues
-         - Imported vulnerability reports
-      
-      2. **Issue representation**
-         - Icons in the Site Map tree
-         - Color coding by severity
-         - Detailed issue information
-      
-      3. **Issue management**
-         - View all issues in the Issues panel
-         - Filter by type, severity, or confidence
-         - Mark issues as false positives
-         - Add notes and custom descriptions
-      
-      4. **Issue details**
-         - Vulnerability type and description
-         - Affected URLs and parameters
-         - Technical details and evidence
-         - Remediation advice
-         - References to security standards
-      
-      5. **Reporting integration**
-         - Issues feed into Burp's reporting system
-         - Generate comprehensive vulnerability reports
-         - Export findings in various formats
-      
-      The issue tracking system helps organize and document security findings throughout your testing process.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Vulnerability Tracking
+
+How vulnerabilities are tracked in the Target tool:
+
+1. **Issue detection sources**
+   - Scanner automated findings
+   - Manually added issues
+   - Imported vulnerability reports
+
+2. **Issue representation**
+   - Icons in the Site Map tree
+   - Color coding by severity
+   - Detailed issue information
+
+3. **Issue management**
+   - View all issues in the Issues panel
+   - Filter by type, severity, or confidence
+   - Mark issues as false positives
+   - Add notes and custom descriptions
+
+4. **Issue details**
+   - Vulnerability type and description
+   - Affected URLs and parameters
+   - Technical details and evidence
+   - Remediation advice
+   - References to security standards
+
+5. **Reporting integration**
+   - Issues feed into Burp's reporting system
+   - Generate comprehensive vulnerability reports
+   - Export findings in various formats
+
+The issue tracking system helps organize and document security findings throughout your testing process.
 
 ## Target Analyzer - Professional Edition
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="analyzer-features">
-    <AccordionTrigger>Target Analysis Features</AccordionTrigger>
-    <AccordionContent>
-      The Target Analyzer provides automated assessment of web applications:
-      
-      1. **Technology identification**
-         - Detects web servers, frameworks, and CMS
-         - Identifies programming languages
-         - Recognizes common libraries and components
-         - Detects client-side technologies
-      
-      2. **Structure analysis**
-         - Maps application architecture
-         - Identifies key functional areas
-         - Highlights potential entry points
-         - Detects authentication mechanisms
-      
-      3. **Security feature detection**
-         - Identifies security headers
-         - Detects CSRF protections
-         - Analyzes cookie security settings
-         - Evaluates content security policies
-      
-      4. **Attack surface mapping**
-         - Identifies input vectors
-         - Highlights file upload functionality
-         - Detects API endpoints
-         - Maps authentication and access control points
-      
-      5. **Reporting and visualization**
-         - Summary of findings
-         - Visual representation of application structure
-         - Prioritized testing recommendations
-         - Integration with other Burp tools
-      
-      The Target Analyzer helps you quickly understand complex applications and focus your testing efforts on the most promising areas.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Target Analysis Features
+
+The Target Analyzer provides automated assessment of web applications:
+
+1. **Technology identification**
+   - Detects web servers, frameworks, and CMS
+   - Identifies programming languages
+   - Recognizes common libraries and components
+   - Detects client-side technologies
+
+2. **Structure analysis**
+   - Maps application architecture
+   - Identifies key functional areas
+   - Highlights potential entry points
+   - Detects authentication mechanisms
+
+3. **Security feature detection**
+   - Identifies security headers
+   - Detects CSRF protections
+   - Analyzes cookie security settings
+   - Evaluates content security policies
+
+4. **Attack surface mapping**
+   - Identifies input vectors
+   - Highlights file upload functionality
+   - Detects API endpoints
+   - Maps authentication and access control points
+
+5. **Reporting and visualization**
+   - Summary of findings
+   - Visual representation of application structure
+   - Prioritized testing recommendations
+   - Integration with other Burp tools
+
+The Target Analyzer helps you quickly understand complex applications and focus your testing efforts on the most promising areas.
 
 ## Practical Applications
 
 ### Reconnaissance and Mapping
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="recon-techniques">
-    <AccordionTrigger>Application Reconnaissance</AccordionTrigger>
-    <AccordionContent>
-      Using the Target tool for initial reconnaissance:
-      
-      1. **Initial exploration**
-         - Browse the application through Burp Proxy
-         - Allow Site Map to populate automatically
-         - Identify main functional areas
-         - Note authentication mechanisms
-      
-      2. **Structure analysis**
-         - Examine the URL hierarchy
-         - Identify naming conventions
-         - Detect patterns in application structure
-         - Map relationships between components
-      
-      3. **Technology identification**
-         - Analyze HTTP headers
-         - Check for technology fingerprints
-         - Identify frameworks and libraries
-         - Determine server-side technologies
-      
-      4. **Content discovery** - Professional Edition
-         - Use content discovery to find hidden resources
-         - Identify backup files and development artifacts
-         - Discover admin interfaces and API endpoints
-         - Locate documentation and information leakage
-      
-      5. **Attack surface mapping**
-         - Identify input vectors
-         - Locate file upload functionality
-         - Find authentication and authorization points
-         - Detect API endpoints and data processing
-      
-      Thorough reconnaissance helps you understand the application and plan your testing approach.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="mapping-workflow">
-    <AccordionTrigger>Mapping Workflow</AccordionTrigger>
-    <AccordionContent>
-      A systematic approach to mapping applications:
-      
-      <Steps>
-        <Step title="Define initial scope">
-          Set up basic scope rules based on the target domain and known paths.
-        </Step>
-        
-        <Step title="Manual exploration">
-          Browse the application through Burp Proxy to populate the Site Map with main functionality.
-        </Step>
-        
-        <Step title="Analyze structure">
-          Review the Site Map to understand the application architecture and identify key areas.
-        </Step>
-        
-        <Step title="Refine scope">
-          Update scope settings based on discovered content and testing requirements.
-        </Step>
-        
-        <Step title="Automated discovery">
-          Use Spider and content discovery to find additional resources (Professional Edition only).
-        </Step>
-        
-        <Step title="Analyze findings">
-          Review newly discovered content and update your understanding of the application.
-        </Step>
-        
-        <Step title="Identify test targets">
-          Mark interesting functionality and potential vulnerability points for testing.
-        </Step>
-        
-        <Step title="Prioritize testing">
-          Focus on high-value targets and sensitive functionality first.
-        </Step>
-      </Steps>
-      
-      This systematic approach ensures comprehensive coverage and efficient use of testing time.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+Using the Target tool for initial reconnaissance:
+
+1. **Initial exploration**
+   - Browse the application through Burp Proxy
+   - Allow Site Map to populate automatically
+   - Identify main functional areas
+   - Note authentication mechanisms
+
+2. **Structure analysis**
+   - Examine the URL hierarchy
+   - Identify naming conventions
+   - Detect patterns in application structure
+   - Map relationships between components
+
+3. **Technology identification**
+   - Analyze HTTP headers
+   - Check for technology fingerprints
+   - Identify frameworks and libraries
+   - Determine server-side technologies
+
+4. **Content discovery** - Professional Edition
+   - Use content discovery to find hidden resources
+   - Identify backup files and development artifacts
+   - Discover admin interfaces and API endpoints
+   - Locate documentation and information leakage
+
+5. **Attack surface mapping**
+   - Identify input vectors
+   - Locate file upload functionality
+   - Find authentication and authorization points
+   - Detect API endpoints and data processing
+
+Thorough reconnaissance helps you understand the application and plan your testing approach.
+
+### Mapping Workflow
+
+A systematic approach to mapping applications:
+
+1. **Define initial scope**
+   - Set up basic scope rules based on the target domain and known paths
+
+2. **Manual exploration**
+   - Browse the application through Burp Proxy to populate the Site Map with main functionality
+
+3. **Analyze structure**
+   - Review the Site Map to understand the application architecture and identify key areas
+
+4. **Refine scope**
+   - Update scope settings based on discovered content and testing requirements
+
+5. **Automated discovery**
+   - Use Spider and content discovery to find additional resources - Professional Edition only
+
+6. **Analyze findings**
+   - Review newly discovered content and update your understanding of the application
+
+7. **Identify test targets**
+   - Mark interesting functionality and potential vulnerability points for testing
+
+8. **Prioritize testing**
+   - Focus on high-value targets and sensitive functionality first
+
+This systematic approach ensures comprehensive coverage and efficient use of testing time.
 
 ### Testing Workflow Integration
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="workflow-integration">
-    <AccordionTrigger>Integrating with Testing Workflow</AccordionTrigger>
-    <AccordionContent>
-      How the Target tool fits into your overall testing process:
-      
-      1. **Planning phase**
-         - Define scope in Target tool
-         - Map application structure
-         - Identify key testing areas
-      
-      2. **Reconnaissance phase**
-         - Populate Site Map through browsing
-         - Use Spider for automated discovery
-         - Analyze application structure
-      
-      3. **Testing phase**
-         - Launch specific tests from Site Map
-         - Track progress through the application
-         - Document findings in real-time
-      
-      4. **Vulnerability validation**
-         - Use Site Map to access specific endpoints
-         - Verify issues across related functionality
-         - Test similar patterns throughout the application
-      
-      5. **Reporting phase**
-         - Review all discovered issues
-         - Organize findings by severity and location
-         - Generate comprehensive reports
-      
-      6. **Retesting phase**
-         - Use saved Site Map for efficient retesting
-         - Compare before/after states
-         - Verify remediation effectiveness
-      
-      The Target tool serves as the central hub for organizing and tracking your testing activities throughout the entire process.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+How the Target tool fits into your overall testing process:
+
+1. **Planning phase**
+   - Define scope in Target tool
+   - Map application structure
+   - Identify key testing areas
+
+2. **Reconnaissance phase**
+   - Populate Site Map through browsing
+   - Use Spider for automated discovery
+   - Analyze application structure
+
+3. **Testing phase**
+   - Launch specific tests from Site Map
+   - Track progress through the application
+   - Document findings in real-time
+
+4. **Vulnerability validation**
+   - Use Site Map to access specific endpoints
+   - Verify issues across related functionality
+   - Test similar patterns throughout the application
+
+5. **Reporting phase**
+   - Review all discovered issues
+   - Organize findings by severity and location
+   - Generate comprehensive reports
+
+6. **Retesting phase**
+   - Use saved Site Map for efficient retesting
+   - Compare before/after states
+   - Verify remediation effectiveness
+
+The Target tool serves as the central hub for organizing and tracking your testing activities throughout the entire process.
 
 ## Best Practices
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="organization-tips">
-    <AccordionTrigger>Organization and Efficiency</AccordionTrigger>
-    <AccordionContent>
-      Tips for effectively using the Target tool:
-      
-      1. **Scope definition**
-         - Define scope precisely at the beginning
-         - Update scope as you discover new content
-         - Use specific rules rather than overly broad patterns
-         - Document scope decisions and rationale
-      
-      2. **Site Map organization**
-         - Use comments to mark important areas
-         - Color-code items based on testing status
-         - Hide irrelevant or noisy content
-         - Use filters to focus on specific content types
-      
-      3. **Workflow optimization**
-         - Use keyboard shortcuts for common actions
-         - Set up custom context menu items for frequent tasks
-         - Configure display options to show relevant information
-         - Save and restore tool state for complex projects
-      
-      4. **Project management**
-         - Save projects regularly - Professional Edition
-         - Use meaningful project names and organization
-         - Document testing progress and findings
-         - Maintain consistent scope across team members
-      
-      5. **Resource management**
-         - Filter out high-volume, low-value items
-         - Focus on security-critical functionality
-         - Prioritize testing based on risk assessment
-         - Balance automated and manual testing
-      
-      Effective organization helps you maintain focus and ensure comprehensive coverage during testing.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="scope-best-practices">
-    <AccordionTrigger>Scope Management Best Practices</AccordionTrigger>
-    <AccordionContent>
-      Guidelines for effective scope management:
-      
-      1. **Clear documentation**
-         - Document scope decisions and rationale
-         - Maintain a list of in-scope and out-of-scope targets
-         - Record any special considerations or restrictions
-      
-      2. **Precision vs. coverage**
-         - Balance between precise targeting and comprehensive coverage
-         - Avoid overly broad scope that includes unintended targets
-         - Ensure all relevant functionality is included
-      
-      3. **Scope rule organization**
-         - Order rules from specific to general
-         - Group related rules together
-         - Use clear naming conventions for rule sets
-         - Document the purpose of complex rules
-      
-      4. **Regular review and updates**
-         - Review scope as new content is discovered
-         - Update rules to include new functionality
-         - Remove unnecessary or redundant rules
-         - Adjust scope based on testing findings
-      
-      5. **Team coordination**
-         - Share scope settings with all team members
-         - Ensure consistent scope application
-         - Communicate scope changes promptly
-         - Document scope decisions for future reference
-      
-      Proper scope management is essential for focused, efficient, and authorized security testing.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Organization and Efficiency
+
+Tips for effectively using the Target tool:
+
+1. **Scope definition**
+   - Define scope precisely at the beginning
+   - Update scope as you discover new content
+   - Use specific rules rather than overly broad patterns
+   - Document scope decisions and rationale
+
+2. **Site Map organization**
+   - Use comments to mark important areas
+   - Color-code items based on testing status
+   - Hide irrelevant or noisy content
+   - Use filters to focus on specific content types
+
+3. **Workflow optimization**
+   - Use keyboard shortcuts for common actions
+   - Set up custom context menu items for frequent tasks
+   - Configure display options to show relevant information
+   - Save and restore tool state for complex projects
+
+4. **Project management**
+   - Save projects regularly - Professional Edition
+   - Use meaningful project names and organization
+   - Document testing progress and findings
+   - Maintain consistent scope across team members
+
+5. **Resource management**
+   - Filter out high-volume, low-value items
+   - Focus on security-critical functionality
+   - Prioritize testing based on risk assessment
+   - Balance automated and manual testing
+
+Effective organization helps you maintain focus and ensure comprehensive coverage during testing.
+
+### Scope Management Best Practices
+
+Guidelines for effective scope management:
+
+1. **Clear documentation**
+   - Document scope decisions and rationale
+   - Maintain a list of in-scope and out-of-scope targets
+   - Record any special considerations or restrictions
+
+2. **Precision vs. coverage**
+   - Balance between precise targeting and comprehensive coverage
+   - Avoid overly broad scope that includes unintended targets
+   - Ensure all relevant functionality is included
+
+3. **Scope rule organization**
+   - Order rules from specific to general
+   - Group related rules together
+   - Use clear naming conventions for rule sets
+   - Document the purpose of complex rules
+
+4. **Regular review and updates**
+   - Review scope as new content is discovered
+   - Update rules to include new functionality
+   - Remove unnecessary or redundant rules
+   - Adjust scope based on testing findings
+
+5. **Team coordination**
+   - Share scope settings with all team members
+   - Ensure consistent scope application
+   - Communicate scope changes promptly
+   - Document scope decisions for future reference
+
+Proper scope management is essential for focused, efficient, and authorized security testing.
 
 ## Troubleshooting
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="common-issues">
-    <AccordionTrigger>Common Issues and Solutions</AccordionTrigger>
-    <AccordionContent>
-      Solutions to frequently encountered problems:
-      
-      1. **Site Map not populating**
-         - Verify Proxy is correctly configured
-         - Check browser proxy settings
-         - Ensure SSL interception is working
-         - Confirm target is accessible
-      
-      2. **Missing content in Site Map**
-         - Check for client-side routing in SPA applications
-         - Verify JavaScript execution settings
-         - Look for dynamically loaded content
-         - Check for content loaded via AJAX
-      
-      3. **Scope rules not working as expected**
-         - Review rule order and precedence
-         - Check for conflicting include/exclude rules
-         - Verify regex patterns are correct
-         - Test rules with specific examples
-      
-      4. **Performance issues with large Site Maps**
-         - Use filters to focus on relevant content
-         - Hide empty folders and out-of-scope items
-         - Close unused tool tabs
-         - Increase memory allocation to Burp
-      
-      5. **Spider not finding content** - Professional Edition
-         - Check for JavaScript-heavy applications
-         - Verify form submission settings
-         - Review spider configuration
-         - Consider manual exploration for complex apps
-      
-      6. **Content discovery issues** - Professional Edition
-         - Verify wordlist selection is appropriate
-         - Check for rate limiting or blocking
-         - Adjust thread count and timing
-         - Review file extension handling
-      
-      Understanding these common issues helps you troubleshoot problems and maintain an effective testing workflow.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Common Issues and Solutions
 
-## Advanced Topics (Professional Edition)
+Solutions to frequently encountered problems:
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="content-discovery">
-    <AccordionTrigger>Content Discovery</AccordionTrigger>
-    <AccordionContent>
-      Using the content discovery feature effectively:
-      
-      1. **Access and configuration**
-         - Right-click in Site Map and select "Engagement tools" > "Discover content"
-         - Configure discovery settings
-         - Select appropriate wordlists
-         - Set file extensions to check
-      
-      2. **Discovery strategies**
-         - Start with common directories and files
-         - Use application-specific wordlists
-         - Target technology-specific resources
-         - Look for backup files and development artifacts
-      
-      3. **Wordlist selection**
-         - Built-in wordlists for common scenarios
-         - Custom wordlists for specific technologies
-         - Industry-specific terminology
-         - Project-specific terms and naming conventions
-      
-      4. **Performance optimization**
-         - Adjust thread count based on target response
-         - Set appropriate request rate
-         - Use recursive discovery selectively
-         - Focus on promising directories first
-      
-      5. **Result analysis**
-         - Review discovered content
-         - Look for patterns in findings
-         - Identify sensitive information
-         - Prioritize further testing
-      
-      Content discovery helps find hidden resources that might not be linked from the visible application.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="target-analyzer">
-    <AccordionTrigger>Target Analyzer</AccordionTrigger>
-    <AccordionContent>
-      Getting the most from the Target Analyzer:
-      
-      1. **Running the analyzer**
-         - Right-click in Site Map and select "Engagement tools" > "Analyze target"
-         - Select the scope for analysis
-         - Configure analysis options
-         - Review results in the report window
-      
-      2. **Technology identification**
-         - Review detected technologies
-         - Research known vulnerabilities
-         - Identify outdated components
-         - Adjust testing based on technology stack
-      
-      3. **Structure analysis**
-         - Review application architecture
-         - Identify key functional areas
-         - Note authentication and access control mechanisms
-         - Map data flow through the application
-      
-      4. **Attack surface assessment**
-         - Identify input vectors
-         - Note file upload functionality
-         - Locate authentication points
-         - Map API endpoints and data processing
-      
-      5. **Testing prioritization**
-         - Focus on high-risk areas first
-         - Target known-vulnerable technologies
-         - Prioritize sensitive functionality
-         - Plan testing based on analyzer findings
-      
-      The Target Analyzer provides valuable insights that help you understand the application and focus your testing efforts.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+1. **Site Map not populating**
+   - Verify Proxy is correctly configured
+   - Check browser proxy settings
+   - Ensure SSL interception is working
+   - Confirm target is accessible
+
+2. **Missing content in Site Map**
+   - Check for client-side routing in SPA applications
+   - Verify JavaScript execution settings
+   - Look for dynamically loaded content
+   - Check for content loaded via AJAX
+
+3. **Scope rules not working as expected**
+   - Review rule order and precedence
+   - Check for conflicting include/exclude rules
+   - Verify regex patterns are correct
+   - Test rules with specific examples
+
+4. **Performance issues with large Site Maps**
+   - Use filters to focus on relevant content
+   - Hide empty folders and out-of-scope items
+   - Close unused tool tabs
+   - Increase memory allocation to Burp
+
+5. **Spider not finding content** - Professional Edition
+   - Check for JavaScript-heavy applications
+   - Verify form submission settings
+   - Review spider configuration
+   - Consider manual exploration for complex apps
+
+6. **Content discovery issues** - Professional Edition
+   - Verify wordlist selection is appropriate
+   - Check for rate limiting or blocking
+   - Adjust thread count and timing
+   - Review file extension handling
+
+Understanding these common issues helps you troubleshoot problems and maintain an effective testing workflow.
+
+## Advanced Topics - Professional Edition
+
+### Content Discovery
+
+Using the content discovery feature effectively:
+
+1. **Access and configuration**
+   - Right-click in Site Map and select "Engagement tools" > "Discover content"
+   - Configure discovery settings
+   - Select appropriate wordlists
+   - Set file extensions to check
+
+2. **Discovery strategies**
+   - Start with common directories and files
+   - Use application-specific wordlists
+   - Target technology-specific resources
+   - Look for backup files and development artifacts
+
+3. **Wordlist selection**
+   - Built-in wordlists for common scenarios
+   - Custom wordlists for specific technologies
+   - Industry-specific terminology
+   - Project-specific terms and naming conventions
+
+4. **Performance optimization**
+   - Adjust thread count based on target response
+   - Set appropriate request rate
+   - Use recursive discovery selectively
+   - Focus on promising directories first
+
+5. **Result analysis**
+   - Review discovered content
+   - Look for patterns in findings
+   - Identify sensitive information
+   - Prioritize further testing
+
+Content discovery helps find hidden resources that might not be linked from the visible application.
+
+### Target Analyzer
+
+Getting the most from the Target Analyzer:
+
+1. **Running the analyzer**
+   - Right-click in Site Map and select "Engagement tools" > "Analyze target"
+   - Select the scope for analysis
+   - Configure analysis options
+   - Review results in the report window
+
+2. **Technology identification**
+   - Review detected technologies
+   - Research known vulnerabilities
+   - Identify outdated components
+   - Adjust testing based on technology stack
+
+3. **Structure analysis**
+   - Review application architecture
+   - Identify key functional areas
+   - Note authentication and access control mechanisms
+   - Map data flow through the application
+
+4. **Attack surface assessment**
+   - Identify input vectors
+   - Note file upload functionality
+   - Locate authentication points
+   - Map API endpoints and data processing
+
+5. **Testing prioritization**
+   - Focus on high-risk areas first
+   - Target known-vulnerable technologies
+   - Prioritize sensitive functionality
+   - Plan testing based on analyzer findings
+
+The Target Analyzer provides valuable insights that help you understand the application and focus your testing efforts.
 
 <Callout type="info">
   While the basic Site Map functionality is available in both Community and Professional editions, features like content discovery, target analyzer, and advanced scope control are exclusive to the Professional edition.

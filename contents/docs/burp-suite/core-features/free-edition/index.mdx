@@ -3,248 +3,187 @@ title: Burp Suite Community Edition
 description: Detailed overview of Burp Suite's free edition, its features, limitations, and use cases
 ---
 
-import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Callout } from "@/components/markdown/callout"
 
 The Burp Suite Community Edition is a free version of the popular web application security testing tool. While it has limitations compared to the Professional Edition, it still provides powerful functionality for manual testing and is an excellent starting point for those learning web application security.
 
 ## Available Tools
 
-### Proxy
+### Proxy Features
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="proxy-features">
-    <AccordionTrigger>Proxy Features</AccordionTrigger>
-    <AccordionContent>
-      The Proxy tool in the Community Edition allows you to:
-      
-      - Intercept HTTP/S requests and responses
-      - Modify intercepted traffic before forwarding
-      - View and analyze web traffic history
-      - Use basic match and replace rules
-      - Filter traffic based on URL, file type, etc.
-      - Support HTTP/1, HTTP/2, and WebSockets
-      
-      The Community Edition proxy lacks some advanced features found in the Professional Edition, such as:
-      - Advanced match and replace rules
-      - Automatic matching
-      - Custom response interception rules
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="proxy-usage">
-    <AccordionTrigger>Basic Proxy Usage</AccordionTrigger>
-    <AccordionContent>
-      To use the Burp Proxy:
-      
-      1. Configure your browser to use Burp as a proxy (default: 127.0.0.1:8080)
-      2. Install the Burp CA certificate in your browser to handle HTTPS
-      3. Toggle interception on/off using the button in the Proxy tab
-      4. View intercepted requests and responses in the Intercept tab
-      5. Forward, drop, or modify requests as needed
-      6. Review all traffic in the HTTP history tab
-      
-      ```bash
-      # Example browser proxy configuration
-      Proxy Host: 127.0.0.1
-      Proxy Port: 8080
-      ```
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+The Proxy tool in the Community Edition allows you to:
 
-### Repeater
+- Intercept HTTP/S requests and responses
+- Modify intercepted traffic before forwarding
+- View and analyze web traffic history
+- Use basic match and replace rules
+- Filter traffic based on URL, file type, etc.
+- Support HTTP/1, HTTP/2, and WebSockets
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="repeater-features">
-    <AccordionTrigger>Repeater Features</AccordionTrigger>
-    <AccordionContent>
-      The Repeater tool is fully functional in the Community Edition and allows you to:
-      
-      - Manually modify and resend individual HTTP requests
-      - Compare responses from different requests
-      - Test how applications respond to modified inputs
-      - Analyze response headers, body, and rendering
-      - Work with various content types (JSON, XML, etc.)
-      
-      Unlike some other tools, Repeater has essentially the same functionality in both Community and Professional editions.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="repeater-usage">
-    <AccordionTrigger>Basic Repeater Usage</AccordionTrigger>
-    <AccordionContent>
-      To use Repeater effectively:
-      
-      1. Send requests to Repeater from the Proxy or other tools
-      2. Modify any part of the request (headers, parameters, body)
-      3. Click "Send" to transmit the modified request
-      4. Analyze the response in the various view options
-      5. Make further modifications and repeat as needed
-      
-      Repeater is particularly useful for:
-      - Testing parameter manipulation
-      - Exploring API endpoints
-      - Testing for injection vulnerabilities
-      - Analyzing application logic
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+The Community Edition proxy lacks some advanced features found in the Professional Edition, such as:
 
-### Intruder (Rate-Limited)
+- Advanced match and replace rules
+- Automatic matching
+- Custom response interception rules
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="intruder-features">
-    <AccordionTrigger>Intruder Features and Limitations</AccordionTrigger>
-    <AccordionContent>
-      The Intruder tool in Community Edition is functional but severely rate-limited:
-      
-      - Limited to approximately 1 request per second
-      - Includes only the "Sniper" and "Battering ram" attack types
-      - Missing "Cluster bomb" and "Pitchfork" attack types
-      - Basic payload options only
-      - Limited result analysis capabilities
-      
-      <Callout type="warning">
-        The rate limitation makes the Community Edition's Intruder impractical for many real-world testing scenarios that require processing numerous requests.
-      </Callout>
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="intruder-usage">
-    <AccordionTrigger>Basic Intruder Usage</AccordionTrigger>
-    <AccordionContent>
-      Despite its limitations, you can still use Intruder for:
-      
-      1. Small-scale brute force attacks
-      2. Testing a limited set of payloads
-      3. Learning how automated testing works
-      4. Simple fuzzing of parameters
-      
-      Basic workflow:
-      1. Send a request to Intruder from Proxy
-      2. Mark insertion points (parameters to test)
-      3. Select attack type (Sniper or Battering ram)
-      4. Configure payloads
-      5. Start the attack
-      
-      For larger tests, consider using alternative tools or upgrading to Professional.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Basic Proxy Usage
 
-### Decoder
+To use the Burp Proxy:
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="decoder-features">
-    <AccordionTrigger>Decoder Features</AccordionTrigger>
-    <AccordionContent>
-      The Decoder tool is fully functional in the Community Edition and provides:
-      
-      - Encoding and decoding of application data
-      - Support for multiple encoding schemes:
-        - URL encoding
-        - HTML encoding
-        - Base64
-        - ASCII hex
-        - Binary
-        - Gzip
-        - Deflate
-      - Hashing functions (MD5, SHA-1, SHA-256, etc.)
-      - Smart decode feature to automatically detect encoding
-      
-      Decoder has identical functionality in both Community and Professional editions.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="decoder-usage">
-    <AccordionTrigger>Basic Decoder Usage</AccordionTrigger>
-    <AccordionContent>
-      To use Decoder:
-      
-      1. Input text or copy data from other Burp tools
-      2. Select the desired encoding or decoding operation
-      3. Chain multiple operations as needed
-      4. View the results in various formats (hex, text, etc.)
-      
-      Common use cases:
-      - Decoding values from cookies or tokens
-      - Encoding payloads for injection tests
-      - Analyzing obfuscated JavaScript
-      - Working with binary data
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+1. Configure your browser to use Burp as a proxy (default: 127.0.0.1:8080)
+2. Install the Burp CA certificate in your browser to handle HTTPS
+3. Toggle interception on/off using the button in the Proxy tab
+4. View intercepted requests and responses in the Intercept tab
+5. Forward, drop, or modify requests as needed
+6. Review all traffic in the HTTP history tab
 
-### Comparer
+```bash
+# Example browser proxy configuration
+Proxy Host: 127.0.0.1
+Proxy Port: 8080
+```
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="comparer-features">
-    <AccordionTrigger>Comparer Features</AccordionTrigger>
-    <AccordionContent>
-      The Comparer tool is fully functional in the Community Edition and allows you to:
-      
-      - Compare two items (requests, responses, or any text)
-      - View differences in text or binary format
-      - Highlight differences between items
-      - Analyze subtle changes in responses
-      
-      Like Decoder, Comparer has identical functionality in both Community and Professional editions.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="comparer-usage">
-    <AccordionTrigger>Basic Comparer Usage</AccordionTrigger>
-    <AccordionContent>
-      To use Comparer effectively:
-      
-      1. Send items to Comparer from other Burp tools
-      2. Or paste content directly into the Comparer tabs
-      3. Select "Words" or "Bytes" comparison mode
-      4. Review the highlighted differences
-      
-      Comparer is particularly useful for:
-      - Identifying changes in responses after parameter manipulation
-      - Comparing error messages
-      - Detecting subtle differences in seemingly identical responses
-      - Analyzing token patterns
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+### Repeater Features
 
-### Sequencer
+The Repeater tool is fully functional in the Community Edition and allows you to:
 
-<Accordion type="single" collapsible>
-  <AccordionItem value="sequencer-features">
-    <AccordionTrigger>Sequencer Features</AccordionTrigger>
-    <AccordionContent>
-      The Sequencer tool in Community Edition provides:
-      
-      - Analysis of randomness in session tokens and other important values
-      - Basic statistical tests for entropy
-      - Live capture of tokens from application traffic
-      - Manual token loading for offline analysis
-      
-      The Community Edition has limited analysis capabilities compared to the Professional Edition, which offers more comprehensive statistical tests.
-    </AccordionContent>
-  </AccordionItem>
-  
-  <AccordionItem value="sequencer-usage">
-    <AccordionTrigger>Basic Sequencer Usage</AccordionTrigger>
-    <AccordionContent>
-      To use Sequencer:
-      
-      1. Identify a request that returns a token (e.g., session cookie)
-      2. Configure Sequencer to extract the token from responses
-      3. Start the live capture
-      4. Collect a sufficient sample size (typically 100+ tokens)
-      5. Analyze the results to assess randomness
-      
-      This helps identify weak token generation that could lead to session prediction vulnerabilities.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
+- Manually modify and resend individual HTTP requests
+- Compare responses from different requests
+- Test how applications respond to modified inputs
+- Analyze response headers, body, and rendering
+- Work with various content types (JSON, XML, etc.)
+
+Unlike some other tools, Repeater has essentially the same functionality in both Community and Professional editions.
+
+### Basic Repeater Usage
+
+To use Repeater effectively:
+
+1. Send requests to Repeater from the Proxy or other tools
+2. Modify any part of the request (headers, parameters, body)
+3. Click "Send" to transmit the modified request
+4. Analyze the response in the various view options
+5. Make further modifications and repeat as needed
+
+Repeater is particularly useful for:
+- Testing parameter manipulation
+- Exploring API endpoints
+- Testing for injection vulnerabilities
+- Analyzing application logic
+
+### Intruder Features and Limitations
+
+The Intruder tool in Community Edition is functional but severely rate-limited:
+
+- Limited to approximately 1 request per second
+- Includes only the "Sniper" and "Battering ram" attack types
+- Missing "Cluster bomb" and "Pitchfork" attack types
+- Basic payload options only
+- Limited result analysis capabilities
+
+<Callout type="warning">
+  The rate limitation makes the Community Edition's Intruder impractical for many real-world testing scenarios that require processing numerous requests.
+</Callout>
+
+### Basic Intruder Usage
+
+Despite its limitations, you can still use Intruder for:
+
+1. Small-scale brute force attacks
+2. Testing a limited set of payloads
+3. Learning how automated testing works
+4. Simple fuzzing of parameters
+
+Basic workflow:
+1. Send a request to Intruder from Proxy
+2. Mark insertion points (parameters to test)
+3. Select attack type (Sniper or Battering ram)
+4. Configure payloads
+5. Start the attack
+
+For larger tests, consider using alternative tools or upgrading to Professional.
+
+### Decoder Features
+
+The Decoder tool is fully functional in the Community Edition and provides:
+
+- Encoding and decoding of application data
+- Support for multiple encoding schemes:
+  - URL encoding
+  - HTML encoding
+  - Base64
+  - ASCII hex
+  - Binary
+  - Gzip
+  - Deflate
+- Hashing functions (MD5, SHA-1, SHA-256, etc.)
+- Smart decode feature to automatically detect encoding
+
+Decoder has identical functionality in both Community and Professional editions.
+
+### Basic Decoder Usage
+
+To use Decoder:
+
+1. Input text or copy data from other Burp tools
+2. Select the desired encoding or decoding operation
+3. Chain multiple operations as needed
+4. View the results in various formats (hex, text, etc.)
+
+Common use cases:
+- Decoding values from cookies or tokens
+- Encoding payloads for injection tests
+- Analyzing obfuscated JavaScript
+- Working with binary data
+
+### Comparer Features
+
+The Comparer tool is fully functional in the Community Edition and allows you to:
+
+- Compare two items (requests, responses, or any text)
+- View differences in text or binary format
+- Highlight differences between items
+- Analyze subtle changes in responses
+
+Like Decoder, Comparer has identical functionality in both Community and Professional editions.
+
+### Basic Comparer Usage
+
+To use Comparer effectively:
+
+1. Send items to Comparer from other Burp tools
+2. Or paste content directly into the Comparer tabs
+3. Select "Words" or "Bytes" comparison mode
+4. Review the highlighted differences
+
+Comparer is particularly useful for:
+- Identifying changes in responses after parameter manipulation
+- Comparing error messages
+- Detecting subtle differences in seemingly identical responses
+- Analyzing token patterns
+
+### Sequencer Features
+
+The Sequencer tool in Community Edition provides:
+
+- Analysis of randomness in session tokens and other important values
+- Basic statistical tests for entropy
+- Live capture of tokens from application traffic
+- Manual token loading for offline analysis
+
+The Community Edition has limited analysis capabilities compared to the Professional Edition, which offers more comprehensive statistical tests.
+
+### Basic Sequencer Usage
+
+To use Sequencer:
+
+1. Identify a request that returns a token (e.g., session cookie)
+2. Configure Sequencer to extract the token from responses
+3. Start the live capture
+4. Collect a sufficient sample size (typically 100+ tokens)
+5. Analyze the results to assess randomness
+
+This helps identify weak token generation that could lead to session prediction vulnerabilities.
 
 ## Key Limitations
 

@@ -1,0 +1,170 @@
+---
+title: Introduction to Burp Suite
+description: A comprehensive overview of Burp Suite, a leading web application security testing platform
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+
+# Introduction to Burp Suite
+
+## What is Burp Suite?
+
+Burp Suite is an integrated platform for performing security testing of web applications. It was designed and developed by PortSwigger, a company founded by Dafydd Stuttard (also known as "The Web Application Hacker's Handbook" author).
+
+The suite contains various tools that work seamlessly together to support the entire testing process, from initial mapping and analysis of an application's attack surface to finding and exploiting security vulnerabilities.
+
+## Editions Overview
+
+Burp Suite is available in three different editions, each catering to different user needs and budgets:
+
+<Tabs defaultValue="community">
+  <TabsList>
+    <TabsTrigger value="community">Community Edition</TabsTrigger>
+    <TabsTrigger value="professional">Professional Edition</TabsTrigger>
+    <TabsTrigger value="enterprise">Enterprise Edition</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="community">
+    ### Burp Suite Community Edition
+    
+    The Community Edition is a free version that provides essential manual tools for security testing:
+    
+    - **Core Features**: Proxy, Repeater, Intruder (limited), Decoder, Sequencer (limited), Comparer
+    - **Limitations**: No automated scanning, rate-limited Intruder, no project saving, no extensions
+    - **Ideal for**: Students, hobbyists, and those new to web security testing
+  </TabsContent>
+  
+  <TabsContent value="professional">
+    ### Burp Suite Professional Edition
+    
+    The Professional Edition is a comprehensive solution for security professionals:
+    
+    - **All Community Features**: Unrestricted access to all manual tools
+    - **Advanced Capabilities**: Automated vulnerability scanner, advanced Intruder functionality
+    - **Additional Tools**: Project saving, session handling, macros, extensions support
+    - **Ideal for**: Security professionals, penetration testers, and consultants
+    - **Pricing**: Annual subscription (check PortSwigger website for current pricing)
+  </TabsContent>
+  
+  <TabsContent value="enterprise">
+    ### Burp Suite Enterprise Edition
+    
+    The Enterprise Edition is designed for large organizations:
+    
+    - **Automated Scanning**: Continuous, scheduled scanning of web applications
+    - **CI/CD Integration**: Seamless integration with development workflows
+    - **Scalability**: Multiple scanning agents for large application portfolios
+    - **Reporting**: Advanced reporting and compliance features
+    - **Ideal for**: Large organizations, development teams, and security teams
+    - **Pricing**: Contact PortSwigger for custom pricing
+  </TabsContent>
+</Tabs>
+
+## Key Features
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="intercepting-proxy">
+    <AccordionTrigger>Intercepting Proxy</AccordionTrigger>
+    <AccordionContent>
+      The Burp Proxy operates as a man-in-the-middle between your browser and target applications. It allows you to intercept, inspect, and modify requests and responses, giving you complete control over your interactions with the target application.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="scanner">
+    <AccordionTrigger>Vulnerability Scanner</AccordionTrigger>
+    <AccordionContent>
+      Available in Professional and Enterprise editions, the scanner automatically discovers security vulnerabilities in web applications using advanced techniques to minimize false positives.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="intruder">
+    <AccordionTrigger>Intruder</AccordionTrigger>
+    <AccordionContent>
+      A powerful tool for automating customized attacks against web applications. It can be used for everything from fuzzing to brute-forcing login credentials.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="repeater">
+    <AccordionTrigger>Repeater</AccordionTrigger>
+    <AccordionContent>
+      Allows manual manipulation and resending of individual HTTP requests, with full control over their contents. This is invaluable for testing how an application responds to modified inputs.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="extensions">
+    <AccordionTrigger>Extensions</AccordionTrigger>
+    <AccordionContent>
+      The Professional edition supports a wide range of extensions that add functionality to the core Burp Suite tools. These can be developed by PortSwigger or the community.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Getting Started
+
+<Callout type="info">
+  This documentation covers both the free Community Edition and the paid Professional Edition of Burp Suite. Features exclusive to the Professional Edition will be clearly marked.
+</Callout>
+
+### System Requirements
+
+Burp Suite runs on Windows, macOS, and Linux systems with the following minimum requirements:
+
+- Java Runtime Environment (JRE) 1.8 or later
+- 4GB RAM (8GB+ recommended for Professional Edition)
+- 2GHz+ processor
+- 1GB free disk space
+
+### Installation
+
+<Tabs defaultValue="windows">
+  <TabsList>
+    <TabsTrigger value="windows">Windows</TabsTrigger>
+    <TabsTrigger value="macos">macOS</TabsTrigger>
+    <TabsTrigger value="linux">Linux</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="windows">
+    1. Download the installer from the [PortSwigger website](https://portswigger.net/burp/releases)
+    2. Run the installer executable (.exe)
+    3. Follow the installation wizard instructions
+    4. Launch Burp Suite from the Start menu or desktop shortcut
+  </TabsContent>
+  
+  <TabsContent value="macos">
+    1. Download the installer from the [PortSwigger website](https://portswigger.net/burp/releases)
+    2. Open the disk image (.dmg) file
+    3. Drag the Burp Suite icon to the Applications folder
+    4. Launch Burp Suite from the Applications folder or Launchpad
+  </TabsContent>
+  
+  <TabsContent value="linux">
+    1. Download the installer from the [PortSwigger website](https://portswigger.net/burp/releases)
+    2. Make the installer executable: `chmod +x burpsuite_community_linux_v2023_x_x.sh`
+    3. Run the installer: `./burpsuite_community_linux_v2023_x_x.sh`
+    4. Follow the installation wizard instructions
+    5. Launch Burp Suite from the installation directory or application menu
+  </TabsContent>
+</Tabs>
+
+## Browser Configuration
+
+To use Burp Suite effectively, you need to configure your browser to send traffic through Burp's proxy:
+
+1. Burp Suite listens on `127.0.0.1:8080` by default
+2. Configure your browser's proxy settings to use this address and port
+3. Install the PortSwigger CA certificate in your browser to intercept HTTPS traffic
+
+<Callout type="warning">
+  Always use Burp Suite ethically and legally. Only test applications you own or have explicit permission to test.
+</Callout>
+
+## Next Steps
+
+Now that you understand what Burp Suite is and how to install it, you can explore the specific tools and features in more detail:
+
+- [Core Features](/docs/burp-suite/core-features) - Compare free and paid features
+- [Proxy Tool](/docs/burp-suite/tools/proxy) - Learn how to intercept and modify HTTP/S traffic
+- [Scanner](/docs/burp-suite/tools/scanner) - Discover vulnerabilities automatically (Professional Edition)
+- [Best Practices](/docs/burp-suite/best-practices) - Tips for effective web application testing

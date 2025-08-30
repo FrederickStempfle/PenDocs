@@ -1,0 +1,64 @@
+---
+title: Nmap Practical Applications
+description: Discover real-world applications of Nmap in network security, vulnerability assessment, and network management
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap Practical Applications
+
+This section explores practical, real-world applications of Nmap in network security, vulnerability assessment, and network management. Learn how to apply Nmap's powerful features to solve common networking challenges and security tasks.
+
+## Section Overview
+
+Nmap is not just a port scanner; it's a versatile network utility that can be applied to a wide range of practical scenarios. This section demonstrates how to use Nmap effectively in real-world situations, from network inventory to security assessments and penetration testing.
+
+## In This Section
+
+- [Network Inventory](/docs/nmap/practical-applications/network-inventory) - Using Nmap for asset discovery and management
+- [Vulnerability Assessment](/docs/nmap/practical-applications/vulnerability-assessment) - Identifying potential security weaknesses
+- [Firewall Evasion](/docs/nmap/practical-applications/firewall-evasion) - Techniques for bypassing network security controls
+
+## Key Application Areas
+
+### Network Security Assessment
+
+Nmap is an essential tool for security professionals conducting network assessments:
+
+```bash
+# Comprehensive security scan of a subnet
+nmap -A -T4 192.168.1.0/24 -oA security_assessment
+```
+
+This type of scan provides detailed information about hosts, services, and potential vulnerabilities.
+
+### System Administration
+
+System administrators use Nmap for network maintenance and troubleshooting:
+
+```bash
+# Check which services are running on a server
+nmap -sV -p 1-65535 server.example.com
+```
+
+This helps verify that only authorized services are accessible.
+
+### Penetration Testing
+
+Penetration testers rely on Nmap during the reconnaissance phase:
+
+```bash
+# Stealthy scan to avoid detection
+nmap -sS -T2 --script=vuln target.example.com
+```
+
+This provides valuable information about potential attack vectors.
+
+## Next Steps
+
+After exploring these practical applications, you may want to review:
+
+- [Best Practices](/docs/nmap/best-practices) - Guidelines for effective and responsible use of Nmap
+- [Core Operations](/docs/nmap/core-operations) - Revisit the fundamental operations of Nmap

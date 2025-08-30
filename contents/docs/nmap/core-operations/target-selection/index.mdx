@@ -1,0 +1,251 @@
+---
+title: Nmap Target Selection
+description: Learn how to effectively specify targets for Nmap scans using various methods and notations
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap Target Selection
+
+Effective target selection is crucial for successful network scanning. Nmap provides multiple methods for specifying targets, from simple hostnames to complex network ranges. This guide covers all the target specification options available in Nmap.
+
+## Basic Target Specification
+
+<Tabs defaultValue="single" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="single">Single Targets</TabsTrigger>
+    <TabsTrigger value="multiple">Multiple Targets</TabsTrigger>
+    <TabsTrigger value="ranges">IP Ranges</TabsTrigger>
+  </TabsList>
+  <TabsContent value="single">
+    **Hostname**
+    ```bash
+    nmap example.com
+    ```
+    Scans the host specified by the domain name.
+    
+    **IP Address**
+    ```bash
+    nmap 192.168.1.1
+    ```
+    Scans the host with the specified IP address.
+    
+    **IPv6 Address**
+    ```bash
+    nmap -6 2001:db8::1
+    ```
+    Scans the IPv6 host (requires `-6` flag).
+  </TabsContent>
+  <TabsContent value="multiple">
+    **Multiple Hostnames**
+    ```bash
+    nmap example.com example2.com
+    ```
+    Scans multiple hosts specified by domain names.
+    
+    **Multiple IP Addresses**
+    ```bash
+    nmap 192.168.1.1 192.168.1.2 192.168.1.3
+    ```
+    Scans multiple hosts with the specified IP addresses.
+    
+    **Mixed Specification**
+    ```bash
+    nmap 192.168.1.1 example.com 10.0.0.5
+    ```
+    Scans hosts specified by both IP addresses and domain names.
+  </TabsContent>
+  <TabsContent value="ranges">
+    **CIDR Notation**
+    ```bash
+    nmap 192.168.1.0/24
+    ```
+    Scans all 256 IP addresses in the 192.168.1.0 subnet.
+    
+    **IP Range with Hyphen**
+    ```bash
+    nmap 192.168.1.1-50
+    ```
+    Scans IP addresses from 192.168.1.1 to 192.168.1.50.
+    
+    **Multiple Octets**
+    ```bash
+    nmap 192.168.1-10.1-254
+    ```
+    Scans IP addresses from 192.168.1.1 to 192.168.10.254.
+  </TabsContent>
+</Tabs>
+
+## Advanced Target Specification
+
+### Input from File (`-iL`)
+
+You can specify targets in a text file, with one target per line:
+
+**Example file (targets.txt):**
+```
+192.168.1.1
+192.168.1.2
+example.com
+10.0.0.0/24
+```
+
+**Command:**
+```bash
+nmap -iL targets.txt
+```
+
+This is useful for:
+- Scanning large numbers of targets
+- Automating scans with pre-defined target lists
+- Integrating with other tools that generate target lists
+
+### Random Target Selection (`-iR`)
+
+Nmap can randomly select targets from the entire IPv4 address space:
+
+```bash
+nmap -iR 10
+```
+
+This command randomly selects and scans 10 IP addresses from the Internet.
+
+**Note:** This should be used with caution as scanning random Internet hosts may:
+- Violate laws or policies in some jurisdictions
+- Trigger alerts from intrusion detection systems
+- Result in complaints to your ISP
+
+### Excluding Targets (`--exclude`, `--excludefile`)
+
+You can exclude specific hosts or networks from your scan:
+
+**Exclude specific hosts:**
+```bash
+nmap 192.168.1.0/24 --exclude 192.168.1.5,192.168.1.10
+```
+
+**Exclude from file:**
+```bash
+nmap 192.168.1.0/24 --excludefile exclude.txt
+```
+
+This is useful when:
+- Certain hosts should not be scanned (e.g., critical infrastructure)
+- You want to avoid triggering specific security systems
+- You need to respect scope boundaries in penetration tests
+
+## Target Specification Techniques
+
+### Using DNS Names and Wildcards
+
+Nmap supports DNS names and limited wildcard usage:
+
+```bash
+# Scan a specific subdomain
+nmap server1.example.com
+
+# Scan multiple subdomains
+nmap server1.example.com server2.example.com
+```
+
+### Combining Different Notations
+
+You can combine different target specification methods in a single command:
+
+```bash
+nmap 192.168.1.1-100 10.0.0.0/24 example.com
+```
+
+This scans:
+- IP addresses from 192.168.1.1 to 192.168.1.100
+- All 256 IP addresses in the 10.0.0.0/24 subnet
+- The host specified by the domain name example.com
+
+### Scan Order
+
+By default, Nmap scans targets in a random order to distribute the load. You can change this behavior:
+
+```bash
+# Scan in sequential order
+nmap --randomize-hosts 192.168.1.0/24
+
+# Scan in sequential order
+nmap --scan-delay 500ms 192.168.1.0/24
+```
+
+## Best Practices for Target Selection
+
+1. **Be Precise**: Specify only the targets you need to scan to minimize network impact
+2. **Use CIDR Notation**: For subnets, CIDR notation is more concise than listing individual IPs
+3. **Consider Using Files**: For large scans, use input files to manage target lists
+4. **Exclude Sensitive Systems**: Always exclude critical systems that might be negatively affected
+5. **Verify Target Lists**: Use the list scan (`-sL`) to verify your target selection before running full scans
+
+## Practical Examples
+
+<Tabs defaultValue="network" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="network">Network Mapping</TabsTrigger>
+    <TabsTrigger value="targeted">Targeted Assessment</TabsTrigger>
+    <TabsTrigger value="complex">Complex Scenarios</TabsTrigger>
+  </TabsList>
+  <TabsContent value="network">
+    **Scan an entire corporate subnet:**
+    ```bash
+    nmap -sn 192.168.0.0/16
+    ```
+    
+    **Scan multiple office networks:**
+    ```bash
+    nmap 10.1.0.0/24 10.2.0.0/24 10.3.0.0/24
+    ```
+    
+    **Scan all servers in a DMZ:**
+    ```bash
+    nmap 203.0.113.0/24 --exclude 203.0.113.10,203.0.113.11
+    ```
+  </TabsContent>
+  <TabsContent value="targeted">
+    **Scan specific server types from a file:**
+    ```bash
+    nmap -iL web_servers.txt -p 80,443,8080
+    ```
+    
+    **Target only the critical infrastructure:**
+    ```bash
+    nmap -iL critical_servers.txt -p 1-65535
+    ```
+    
+    **Scan a specific application server and its database:**
+    ```bash
+    nmap app-server.example.com db-server.example.com
+    ```
+  </TabsContent>
+  <TabsContent value="complex">
+    **Comprehensive enterprise scan:**
+    ```bash
+    nmap -iL office_networks.txt --excludefile critical_systems.txt
+    ```
+    
+    **Scan multiple network segments with different port ranges:**
+    ```bash
+    for net in 192.168.1.0/24 192.168.2.0/24; do
+      nmap -p 1-1000 $net -oA scan_$net
+    done
+    ```
+    
+    **Targeted scan with custom port selection:**
+    ```bash
+    nmap -iL target_list.txt -p T:80,443,8080,U:53,161
+    ```
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand how to effectively select targets for your Nmap scans, you can explore:
+
+- [Advanced Techniques](/docs/nmap/advanced-techniques) - Learn about service detection, OS fingerprinting, and the Nmap Scripting Engine
+- [Practical Applications](/docs/nmap/practical-applications) - Discover real-world applications of Nmap in network security

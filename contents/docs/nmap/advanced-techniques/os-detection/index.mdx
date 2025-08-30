@@ -1,0 +1,266 @@
+---
+title: Nmap OS Detection
+description: Learn how to identify operating systems of target hosts using Nmap's OS fingerprinting capabilities
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap OS Detection
+
+Operating System (OS) detection is one of Nmap's advanced features that allows you to identify the operating system running on target hosts. This information is valuable for security assessments, network inventory, and tailoring further testing to specific platforms.
+
+## Basic OS Detection
+
+<Tabs defaultValue="basic" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="basic">Basic Usage</TabsTrigger>
+    <TabsTrigger value="combined">Combined Scans</TabsTrigger>
+    <TabsTrigger value="options">Additional Options</TabsTrigger>
+  </TabsList>
+  <TabsContent value="basic">
+    **Standard OS Detection**
+    ```bash
+    nmap -O 192.168.1.1
+    ```
+    Performs OS detection on the target host.
+    
+    **OS Detection with Increased Verbosity**
+    ```bash
+    nmap -O -v 192.168.1.1
+    ```
+    Shows more detailed information about the OS detection process.
+    
+    **OS Detection with Timing Template**
+    ```bash
+    nmap -O -T4 192.168.1.1
+    ```
+    Performs OS detection with aggressive timing for faster results.
+  </TabsContent>
+  <TabsContent value="combined">
+    **OS and Version Detection**
+    ```bash
+    nmap -O -sV 192.168.1.1
+    ```
+    Combines OS detection with service version detection.
+    
+    **Comprehensive Scan**
+    ```bash
+    nmap -A 192.168.1.1
+    ```
+    Enables OS detection, version detection, script scanning, and traceroute.
+    
+    **OS Detection with Script Scanning**
+    ```bash
+    nmap -O -sC 192.168.1.1
+    ```
+    Combines OS detection with default NSE script scanning.
+  </TabsContent>
+  <TabsContent value="options">
+    **OS Detection with Maximum Information**
+    ```bash
+    nmap -O --osscan-guess 192.168.1.1
+    ```
+    Makes Nmap guess more aggressively about OS detection results.
+    
+    **OS Detection with Limited Ports**
+    ```bash
+    nmap -O --osscan-limit 192.168.1.1
+    ```
+    Only performs OS detection against targets with at least one open and one closed port.
+    
+    **OS Detection with IPv6**
+    ```bash
+    nmap -6 -O 2001:db8::1
+    ```
+    Performs OS detection against an IPv6 target.
+  </TabsContent>
+</Tabs>
+
+## How OS Detection Works
+
+### The Detection Process
+
+Nmap's OS detection uses a technique called TCP/IP stack fingerprinting:
+
+1. **Probe Generation**: Nmap sends a series of specially crafted packets to the target
+
+2. **Response Analysis**: The responses are analyzed for various TCP/IP implementation details
+
+3. **Fingerprint Creation**: Nmap creates a fingerprint based on these responses
+
+4. **Database Comparison**: The fingerprint is compared against Nmap's database of known OS fingerprints
+
+5. **Result Classification**: Nmap provides the closest matching OS(es) with confidence levels
+
+The process relies on subtle differences in how different operating systems implement the TCP/IP stack, such as:
+- Initial TCP sequence numbers
+- TCP options support and ordering
+- TCP window sizes
+- ICMP error message handling
+- IP ID sequence generation
+
+### Requirements for Accurate Detection
+
+For OS detection to work effectively, Nmap needs:
+
+1. **At least one open port**: To analyze how the OS responds to valid connections
+
+2. **At least one closed port**: To analyze how the OS handles connection attempts to unavailable services
+
+3. **No firewalls or packet filters**: These can alter packet characteristics and interfere with fingerprinting
+
+4. **Privileged access**: OS detection requires the ability to send raw packets, which typically requires root/administrator privileges
+
+If these conditions aren't met, OS detection accuracy will be reduced or may fail entirely. When using the `--osscan-limit` option, Nmap will only attempt OS detection if at least one open and one closed port are found.
+
+### Accuracy and Confidence Levels
+
+Nmap reports OS detection results with confidence levels:
+
+```
+OS details: Linux 3.2 - 4.9 (95%)
+```
+
+The percentage indicates Nmap's confidence in the match. Several factors affect accuracy:
+
+- **Network conditions**: Latency, packet loss, and network congestion can affect results
+
+- **Firewall presence**: Firewalls can alter packet characteristics or block probes
+
+- **OS customization**: Custom kernels or TCP/IP stack modifications can change fingerprints
+
+- **Virtualization**: Virtual machines may exhibit characteristics of both the host and guest OS
+
+- **Database coverage**: Nmap may not have fingerprints for very new or obscure operating systems
+
+When Nmap is uncertain, it may provide multiple possible matches with different confidence levels.
+
+## Advanced OS Detection Techniques
+
+### Improving Detection Accuracy
+
+```bash
+# More aggressive OS detection guessing
+nmap -O --osscan-guess 192.168.1.1
+
+# Scan with more open/closed ports for better fingerprinting
+nmap -O -p 1-1000 192.168.1.1
+
+# Maximum verbosity to see detailed OS detection information
+nmap -O -vv 192.168.1.1
+```
+
+### OS Detection Output
+
+```bash
+# Save OS detection results to XML for further analysis
+nmap -O -oX os_results.xml 192.168.1.1
+
+# Output in all formats (normal, XML, grepable)
+nmap -O -oA os_scan 192.168.1.1
+```
+
+### Combining with Other Techniques
+
+```bash
+# Comprehensive scan with OS detection, version detection, and scripts
+nmap -A -T4 192.168.1.1
+
+# OS detection with specific NSE scripts
+nmap -O --script=smb-os-discovery 192.168.1.1
+```
+
+## Interpreting OS Detection Results
+
+OS detection results typically include:
+
+1. **OS Class**: General category (e.g., Linux, Windows, Cisco IOS)
+2. **OS Generation**: Version range or specific version
+3. **Device Type**: Router, general purpose, printer, etc.
+4. **CPE (Common Platform Enumeration)**: Standardized identifier for the platform
+5. **Network Distance**: Number of hops to the target
+6. **Confidence Level**: Percentage indicating match certainty
+
+Example output:
+```
+Device type: general purpose
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.2 - 4.9 (95%)
+Network Distance: 2 hops
+```
+
+## Best Practices for OS Detection
+
+1. **Ensure sufficient open/closed ports**: Scan more ports if OS detection fails
+2. **Consider network conditions**: Results may be less accurate over high-latency links
+3. **Be aware of virtualization**: Virtual machines may produce mixed or confusing results
+4. **Account for firewalls**: Firewalls can significantly impact OS detection accuracy
+5. **Use with other techniques**: Combine OS detection with service detection for better results
+
+## Practical Examples
+
+<Tabs defaultValue="servers" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="servers">Server Environments</TabsTrigger>
+    <TabsTrigger value="network">Network Devices</TabsTrigger>
+    <TabsTrigger value="mixed">Mixed Networks</TabsTrigger>
+  </TabsList>
+  <TabsContent value="servers">
+    **Basic Server OS Detection**
+    ```bash
+    nmap -O 192.168.1.0/24 --open
+    ```
+    
+    **Detailed Server Analysis**
+    ```bash
+    nmap -O -sV --script=banner -p 22,80,443 192.168.1.1
+    ```
+    
+    **Windows Server Detection**
+    ```bash
+    nmap -O --script=smb-os-discovery 192.168.1.1
+    ```
+  </TabsContent>
+  <TabsContent value="network">
+    **Router/Switch OS Detection**
+    ```bash
+    nmap -O -sV -p 22,23,80,443 192.168.1.1
+    ```
+    
+    **Network Device Inventory**
+    ```bash
+    nmap -O -sV --open 192.168.1.0/24 -oX network_devices.xml
+    ```
+    
+    **IoT Device Detection**
+    ```bash
+    nmap -O -sV -p 80,443,8080,8443 192.168.1.0/24
+    ```
+  </TabsContent>
+  <TabsContent value="mixed">
+    **Enterprise Network Scan**
+    ```bash
+    nmap -O -sV --open -T4 10.0.0.0/16 -oA enterprise_scan
+    ```
+    
+    **Targeted Subnet Analysis**
+    ```bash
+    nmap -A 192.168.1.0/24 --exclude 192.168.1.254
+    ```
+    
+    **Critical Infrastructure Assessment**
+    ```bash
+    nmap -O -sV -p 22,23,80,443,502,1911,20000 192.168.1.0/24 -T2
+    ```
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand how to perform OS detection with Nmap, you can explore:
+
+- [Scripting Engine](/docs/nmap/advanced-techniques/scripting-engine) - Learn how to extend Nmap's capabilities with scripts
+- [Timing and Performance](/docs/nmap/advanced-techniques/timing-performance) - Discover how to optimize scan speed and accuracy

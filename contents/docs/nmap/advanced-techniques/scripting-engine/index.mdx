@@ -1,0 +1,320 @@
+---
+title: Nmap Scripting Engine (NSE)
+description: Learn how to leverage Nmap's powerful scripting capabilities for advanced network reconnaissance and vulnerability assessment
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap Scripting Engine (NSE)
+
+The Nmap Scripting Engine (NSE) is a powerful feature that extends Nmap's functionality beyond basic port scanning. It allows users to write and share scripts that automate a wide variety of networking tasks, from advanced service detection to vulnerability scanning and exploitation.
+
+## Basic NSE Usage
+
+<Tabs defaultValue="basic" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="basic">Basic Usage</TabsTrigger>
+    <TabsTrigger value="categories">Script Categories</TabsTrigger>
+    <TabsTrigger value="specific">Specific Scripts</TabsTrigger>
+  </TabsList>
+  <TabsContent value="basic">
+    **Default Script Scan**
+    ```bash
+    nmap -sC 192.168.1.1
+    ```
+    Runs the default set of scripts against the target.
+    
+    **Script Scan with Version Detection**
+    ```bash
+    nmap -sC -sV 192.168.1.1
+    ```
+    Combines script scanning with service version detection.
+    
+    **Aggressive Scan**
+    ```bash
+    nmap -A 192.168.1.1
+    ```
+    Enables OS detection, version detection, script scanning, and traceroute.
+  </TabsContent>
+  <TabsContent value="categories">
+    **Safe Scripts**
+    ```bash
+    nmap --script=safe 192.168.1.1
+    ```
+    Runs scripts that are considered safe and non-intrusive.
+    
+    **Discovery Scripts**
+    ```bash
+    nmap --script=discovery 192.168.1.1
+    ```
+    Runs scripts that help discover more information about the network.
+    
+    **Vulnerability Scripts**
+    ```bash
+    nmap --script=vuln 192.168.1.1
+    ```
+    Runs scripts that check for known vulnerabilities.
+  </TabsContent>
+  <TabsContent value="specific">
+    **Single Script**
+    ```bash
+    nmap --script=http-title 192.168.1.1
+    ```
+    Runs a specific script to retrieve the title of web pages.
+    
+    **Multiple Scripts**
+    ```bash
+    nmap --script=http-headers,http-methods 192.168.1.1
+    ```
+    Runs multiple specified scripts.
+    
+    **Wildcard Script Selection**
+    ```bash
+    nmap --script=ssl-* 192.168.1.1
+    ```
+    Runs all scripts whose names start with "ssl-".
+  </TabsContent>
+</Tabs>
+
+## Understanding NSE
+
+### NSE Architecture
+
+The Nmap Scripting Engine is built on the Lua programming language and consists of:
+
+1. **Script Files**: Individual `.nse` files containing Lua code
+
+2. **Libraries**: Shared Lua functions for common tasks
+
+3. **Categories**: Organizational groups for scripts based on functionality
+
+4. **Script Database**: Information about available scripts
+
+5. **Runtime Environment**: The execution environment within Nmap
+
+Scripts are executed at specific times during a scan, based on their type:
+
+- **Pre-scanning scripts**: Run before the scan starts
+- **Host discovery scripts**: Run during host discovery
+- **Service detection scripts**: Run during service detection
+- **Post-scanning scripts**: Run after the main scan completes
+
+This architecture allows for flexible and powerful extensions to Nmap's core functionality.
+
+### Script Categories
+
+NSE scripts are organized into categories based on their functionality and potential impact:
+
+- **auth**: Authentication related scripts
+- **broadcast**: Network discovery via broadcast
+- **brute**: Brute force authentication attacks
+- **default**: Scripts run by default with `-sC`
+- **discovery**: Network/host/service discovery
+- **dos**: Denial of Service testing
+- **exploit**: Exploitation of vulnerabilities
+- **external**: Scripts that use external resources
+- **fuzzer**: Scripts for fuzzing applications
+- **intrusive**: Scripts that might crash services or be considered intrusive
+- **malware**: Detection of malware or backdoors
+- **safe**: Non-intrusive scripts
+- **version**: Version detection enhancement scripts
+- **vuln**: Vulnerability detection scripts
+
+You can run scripts from specific categories using:
+```bash
+nmap --script=category 192.168.1.1
+```
+
+For example:
+```bash
+nmap --script=discovery,safe 192.168.1.1
+```
+
+### Script Arguments
+
+Many NSE scripts accept arguments to customize their behavior. Arguments are passed using the `--script-args` option:
+
+```bash
+nmap --script=http-brute --script-args userdb=users.txt,passdb=passwords.txt 192.168.1.1
+```
+
+Multiple arguments are separated by commas. For complex arguments, you can use:
+
+```bash
+nmap --script=http-form-brute --script-args 'http-form-brute.path=/login.php,http-form-brute.uservar=user,http-form-brute.passvar=pass' 192.168.1.1
+```
+
+To see what arguments a script accepts, you can use:
+
+```bash
+nmap --script-help script-name
+```
+
+For example:
+```bash
+nmap --script-help http-brute
+```
+
+## Popular NSE Scripts by Category
+
+### Discovery Scripts
+
+```bash
+# Host discovery
+nmap --script=broadcast-ping 192.168.1.0/24
+
+# Service discovery
+nmap --script=dns-service-discovery 192.168.1.1
+
+# Network mapping
+nmap --script=broadcast-dhcp-discover 192.168.1.0/24
+```
+
+### Information Gathering Scripts
+
+```bash
+# HTTP information
+nmap --script=http-enum,http-headers,http-title -p 80,443 192.168.1.1
+
+# SMB information
+nmap --script=smb-os-discovery,smb-enum-shares -p 445 192.168.1.1
+
+# SSL/TLS information
+nmap --script=ssl-enum-ciphers -p 443 192.168.1.1
+```
+
+### Vulnerability Assessment Scripts
+
+```bash
+# General vulnerability scan
+nmap --script=vuln 192.168.1.1
+
+# Specific vulnerability check
+nmap --script=ssl-heartbleed -p 443 192.168.1.1
+
+# Web application vulnerabilities
+nmap --script=http-vuln* -p 80,443 192.168.1.1
+```
+
+### Authentication Testing Scripts
+
+```bash
+# SSH authentication
+nmap --script=ssh-auth-methods -p 22 192.168.1.1
+
+# HTTP basic authentication
+nmap --script=http-auth -p 80,443 192.168.1.1
+
+# Brute force attacks
+nmap --script=ftp-brute -p 21 192.168.1.1
+```
+
+## Advanced NSE Usage
+
+### Script Selection Techniques
+
+```bash
+# Combine categories and specific scripts
+nmap --script="default,safe,http-title" 192.168.1.1
+
+# Exclude scripts
+nmap --script="default,!http-enum" 192.168.1.1
+
+# Use expressions
+nmap --script="(http-*) and not (http-brute or http-slowloris)" 192.168.1.1
+```
+
+### Script Timing and Performance
+
+```bash
+# Control script timeout
+nmap --script=http-enum --script-timeout 30s 192.168.1.1
+
+# Limit concurrent scripts
+nmap --script=vuln --max-parallelism 10 192.168.1.1
+```
+
+### Output Management
+
+```bash
+# Save script output to XML
+nmap --script=vuln -oX script_results.xml 192.168.1.1
+
+# Increase verbosity for more script information
+nmap --script=discovery -v 192.168.1.1
+```
+
+## Practical NSE Examples
+
+<Tabs defaultValue="web" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="web">Web Applications</TabsTrigger>
+    <TabsTrigger value="network">Network Infrastructure</TabsTrigger>
+    <TabsTrigger value="security">Security Assessment</TabsTrigger>
+  </TabsList>
+  <TabsContent value="web">
+    **Web Server Enumeration**
+    ```bash
+    nmap --script=http-enum,http-headers,http-methods,http-title -p 80,443,8080 192.168.1.1
+    ```
+    
+    **WordPress Site Analysis**
+    ```bash
+    nmap --script=http-wordpress-enum,http-wordpress-users -p 80,443 wordpress-site.com
+    ```
+    
+    **Web Application Vulnerability Scan**
+    ```bash
+    nmap --script="http-vuln*" -p 80,443,8080 192.168.1.1
+    ```
+  </TabsContent>
+  <TabsContent value="network">
+    **Network Device Discovery**
+    ```bash
+    nmap --script="broadcast-*" 192.168.1.0/24
+    ```
+    
+    **SNMP Analysis**
+    ```bash
+    nmap --script="snmp-*" -p 161 192.168.1.0/24
+    ```
+    
+    **DNS Server Testing**
+    ```bash
+    nmap --script="dns-*" -p 53 dns-server.local
+    ```
+  </TabsContent>
+  <TabsContent value="security">
+    **Comprehensive Security Scan**
+    ```bash
+    nmap -A --script="vuln,safe,discovery" 192.168.1.1
+    ```
+    
+    **SSL/TLS Security Assessment**
+    ```bash
+    nmap --script="ssl-*" -p 443,8443 192.168.1.1
+    ```
+    
+    **Database Security Check**
+    ```bash
+    nmap --script="mysql-*,ms-sql-*,oracle-*" -p 1433,3306,1521 192.168.1.1
+    ```
+  </TabsContent>
+</Tabs>
+
+## Best Practices for Using NSE
+
+1. **Start with safe scripts**: Begin with non-intrusive scripts before running potentially disruptive ones
+2. **Understand script impact**: Read script documentation to understand potential consequences
+3. **Use appropriate timing**: Adjust script timing based on network conditions and target sensitivity
+4. **Target specific ports**: Run scripts only against relevant ports to improve efficiency
+5. **Save and analyze results**: Always save script output for later analysis and documentation
+
+## Next Steps
+
+Now that you understand how to use the Nmap Scripting Engine, you can explore:
+
+- [Timing and Performance](/docs/nmap/advanced-techniques/timing-performance) - Learn how to optimize scan speed and accuracy
+- [Practical Applications](/docs/nmap/practical-applications) - Discover real-world applications of Nmap in network security

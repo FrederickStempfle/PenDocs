@@ -1,0 +1,263 @@
+---
+title: Nmap Service Detection
+description: Learn how to identify services running on open ports using Nmap's version detection capabilities
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap Service Detection
+
+Service detection is one of Nmap's most powerful features, allowing you to identify the specific applications and their versions running on open ports. This information is crucial for security assessments, as it helps identify potentially vulnerable services.
+
+## Basic Service Detection
+
+<Tabs defaultValue="basic" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="basic">Basic Usage</TabsTrigger>
+    <TabsTrigger value="intensity">Intensity Levels</TabsTrigger>
+    <TabsTrigger value="targeted">Targeted Detection</TabsTrigger>
+  </TabsList>
+  <TabsContent value="basic">
+    **Standard Version Detection**
+    ```bash
+    nmap -sV 192.168.1.1
+    ```
+    Performs service detection on all open ports found during the scan.
+    
+    **Combined with SYN Scan**
+    ```bash
+    nmap -sS -sV 192.168.1.1
+    ```
+    Performs a SYN scan followed by version detection on open ports.
+    
+    **With OS Detection**
+    ```bash
+    nmap -sV -O 192.168.1.1
+    ```
+    Combines service and operating system detection.
+  </TabsContent>
+  <TabsContent value="intensity">
+    **Light Version Detection**
+    ```bash
+    nmap -sV --version-intensity 0 192.168.1.1
+    ```
+    Performs minimal probes for faster but less accurate results.
+    
+    **Normal Version Detection**
+    ```bash
+    nmap -sV --version-intensity 5 192.168.1.1
+    ```
+    Default intensity level, balancing speed and accuracy.
+    
+    **Aggressive Version Detection**
+    ```bash
+    nmap -sV --version-intensity 9 192.168.1.1
+    ```
+    Uses all available probes for maximum accuracy but slower scanning.
+  </TabsContent>
+  <TabsContent value="targeted">
+    **Specific Port Service Detection**
+    ```bash
+    nmap -sV -p 80,443,8080 192.168.1.1
+    ```
+    Performs version detection only on the specified ports.
+    
+    **Service Detection with Light Scan**
+    ```bash
+    nmap -sV -F 192.168.1.1
+    ```
+    Fast scan mode that checks fewer ports but still performs version detection.
+    
+    **Service Detection with Script Scanning**
+    ```bash
+    nmap -sV -sC 192.168.1.1
+    ```
+    Combines version detection with default NSE scripts for more information.
+  </TabsContent>
+</Tabs>
+
+## How Service Detection Works
+
+### The Detection Process
+
+Nmap's service detection follows a systematic approach:
+
+1. **Port Scanning**: First, Nmap identifies open ports using techniques like SYN, Connect, or UDP scanning
+
+2. **Probe Selection**: For each open port, Nmap selects appropriate probes based on the port number and previous responses
+
+3. **Probe Sending**: Nmap sends these probes to the target service and analyzes the responses
+
+4. **Pattern Matching**: Responses are compared against Nmap's database of service signatures
+
+5. **Result Classification**: Based on the match quality, Nmap assigns confidence levels to its findings
+
+The entire process is guided by the `nmap-service-probes` file, which contains patterns for identifying thousands of services.
+
+### Version Intensity Levels
+
+The `--version-intensity` option controls how aggressive Nmap is when performing service detection:
+
+- **Level 0**: Only uses the most basic probes, typically just TCP/IP handshakes
+- **Level 1-2**: Uses a small number of common probes
+- **Level 3-4**: Uses a moderate number of probes
+- **Level 5**: Default level, balances accuracy and speed
+- **Level 6-8**: Uses more probes, including some that might be intrusive
+- **Level 9**: Uses all available probes, maximum accuracy but slowest
+
+Higher intensity levels increase accuracy but also:
+- Take longer to complete
+- Generate more network traffic
+- May trigger intrusion detection systems
+- Could potentially disrupt unstable services
+
+### Confidence Levels
+
+Nmap assigns confidence levels to its service detection results:
+
+- **Service name**: How confident Nmap is about the service type (e.g., HTTP, SSH)
+- **Version number**: How confident Nmap is about the specific version
+
+In the output, you might see:
+
+```
+80/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
+```
+
+Or with less certainty:
+
+```
+80/tcp open  http?
+```
+
+The question mark indicates lower confidence in the service identification.
+
+## Advanced Service Detection Techniques
+
+### Customizing Service Detection
+
+```bash
+# Limit the number of probes sent to each port
+nmap -sV --version-limit 2 192.168.1.1
+
+# Scan all ports for services
+nmap -sV -p- 192.168.1.1
+
+# Aggressive detection with all scripts
+nmap -sV -A 192.168.1.1
+```
+
+### Service Detection Output
+
+```bash
+# Save detailed service information to XML
+nmap -sV -oX services.xml 192.168.1.1
+
+# Grep-friendly output format
+nmap -sV -oG services.txt 192.168.1.1
+```
+
+### Combining with Other Techniques
+
+```bash
+# Comprehensive scan with service and OS detection
+nmap -sS -sV -O -T4 192.168.1.1
+
+# Service detection with specific NSE scripts
+nmap -sV --script=banner,version 192.168.1.1
+```
+
+## Interpreting Service Detection Results
+
+Service detection results typically include:
+
+1. **Port number and protocol**: e.g., `80/tcp`
+2. **Port state**: Usually `open`, `closed`, or `filtered`
+3. **Service name**: e.g., `http`, `ssh`, `ftp`
+4. **Application name**: e.g., `Apache httpd`, `OpenSSH`, `vsftpd`
+5. **Version number**: e.g., `2.4.29`, `7.6p1`
+6. **Additional details**: Platform information, configurations, etc.
+
+Example output:
+```
+PORT     STATE SERVICE       VERSION
+22/tcp   open  ssh           OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+80/tcp   open  http          Apache httpd 2.4.29 ((Ubuntu))
+443/tcp  open  ssl/http      Apache httpd 2.4.29 ((Ubuntu))
+3306/tcp open  mysql         MySQL 5.7.33-0ubuntu0.18.04.1
+```
+
+## Best Practices for Service Detection
+
+1. **Start with lower intensity**: Begin with default settings and increase intensity only if needed
+2. **Target specific ports**: When possible, specify ports of interest to reduce scan time
+3. **Consider the environment**: Use lower intensity in sensitive environments
+4. **Combine with scripts**: Use NSE scripts to gather additional service information
+5. **Save results**: Always save scan results for later analysis and comparison
+
+## Practical Examples
+
+<Tabs defaultValue="web" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="web">Web Servers</TabsTrigger>
+    <TabsTrigger value="database">Database Servers</TabsTrigger>
+    <TabsTrigger value="network">Network Devices</TabsTrigger>
+  </TabsList>
+  <TabsContent value="web">
+    **Basic Web Server Scan**
+    ```bash
+    nmap -sV -p 80,443,8080,8443 192.168.1.0/24
+    ```
+    
+    **Detailed Web Server Analysis**
+    ```bash
+    nmap -sV --script=http-enum,http-headers,http-title -p 80,443 192.168.1.1
+    ```
+    
+    **Web Server Version with Banner Grabbing**
+    ```bash
+    nmap -sV --script=banner -p 80,443 192.168.1.1
+    ```
+  </TabsContent>
+  <TabsContent value="database">
+    **Database Server Detection**
+    ```bash
+    nmap -sV -p 1433,3306,5432,27017 192.168.1.0/24
+    ```
+    
+    **MySQL Server Analysis**
+    ```bash
+    nmap -sV --script=mysql-info -p 3306 192.168.1.1
+    ```
+    
+    **Complete Database Server Scan**
+    ```bash
+    nmap -sV --version-intensity 9 -p 1433,3306,5432,27017,6379 192.168.1.1
+    ```
+  </TabsContent>
+  <TabsContent value="network">
+    **Network Device Scan**
+    ```bash
+    nmap -sV -p 22,23,161,443,8443 192.168.1.0/24
+    ```
+    
+    **Router/Switch Analysis**
+    ```bash
+    nmap -sV --script=snmp-info -p 161 192.168.1.1
+    ```
+    
+    **Comprehensive Network Device Scan**
+    ```bash
+    nmap -sV -O --script=snmp-* -p 22,23,161,443,8443 192.168.1.1
+    ```
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand how to perform service detection with Nmap, you can explore:
+
+- [OS Detection](/docs/nmap/advanced-techniques/os-detection) - Learn how to identify operating systems
+- [Scripting Engine](/docs/nmap/advanced-techniques/scripting-engine) - Discover how to extend Nmap's capabilities with scripts

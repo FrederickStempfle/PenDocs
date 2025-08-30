@@ -1,0 +1,236 @@
+---
+title: Nmap Scan Types
+description: Explore the various scanning techniques available in Nmap for different network assessment scenarios
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap Scan Types
+
+Nmap offers a variety of scan types, each designed for specific scenarios and security requirements. Understanding these scan types is crucial for effective network reconnaissance and vulnerability assessment.
+
+## TCP Scan Types
+
+### TCP SYN Scan (`-sS`)
+
+**TCP SYN Scan** is Nmap's default and most popular scan type. It's often referred to as a "half-open" scan because it doesn't complete the TCP three-way handshake.
+
+**How it works:**
+1. Nmap sends a SYN packet to the target port
+2. If the port is open, the target responds with SYN/ACK
+3. Instead of completing the connection with an ACK, Nmap sends an RST to terminate
+
+**Advantages:**
+- Fast and efficient
+- Relatively stealthy (doesn't complete connections)
+- Can scan thousands of ports per second on a fast network
+
+**Example:**
+```bash
+nmap -sS 192.168.1.1
+```
+
+### TCP Connect Scan (`-sT`)
+
+**TCP Connect Scan** completes the full TCP three-way handshake with each target port. It's the default scan when SYN scan is unavailable (typically when a user doesn't have raw packet privileges).
+
+**How it works:**
+1. Nmap sends a SYN packet to the target port
+2. If the port is open, the target responds with SYN/ACK
+3. Nmap completes the connection with an ACK
+4. Nmap immediately closes the connection with RST
+
+**Advantages:**
+- Doesn't require special privileges
+- More accurate in some cases
+
+**Disadvantages:**
+- Slower than SYN scan
+- More likely to be logged by the target
+
+**Example:**
+```bash
+nmap -sT 192.168.1.1
+```
+
+### FIN, XMAS, and NULL Scans (`-sF`, `-sX`, `-sN`)
+
+These scan types exploit a loophole in the TCP RFC specification. According to the RFC, closed ports should respond to these unusual packet types with an RST, while open ports should ignore them.
+
+**FIN Scan (`-sF`)**: Sends a packet with just the FIN flag set
+
+**XMAS Scan (`-sX`)**: Sends a packet with FIN, PSH, and URG flags set (lit up like a Christmas tree)
+
+**NULL Scan (`-sN`)**: Sends a packet with no flags set
+
+**Advantages:**
+- May bypass certain non-stateful firewalls and packet filters
+- More stealthy than SYN or Connect scans
+
+**Disadvantages:**
+- Doesn't work reliably on Windows systems
+- Less accurate than SYN scans
+
+**Example:**
+```bash
+nmap -sF 192.168.1.1  # FIN scan
+nmap -sX 192.168.1.1  # XMAS scan
+nmap -sN 192.168.1.1  # NULL scan
+```
+
+### ACK Scan (`-sA`)
+
+**ACK Scan** is primarily used to map firewall rulesets. It can help determine if a firewall is stateful or stateless and which ports are filtered.
+
+**How it works:**
+- Sends a packet with only the ACK flag set
+- Doesn't determine if ports are open or closed, only if they are filtered or unfiltered
+
+**Advantages:**
+- Useful for firewall rule mapping
+- Can bypass some firewall restrictions
+
+**Example:**
+```bash
+nmap -sA 192.168.1.1
+```
+
+## UDP and Other Scan Types
+
+### UDP Scan (`-sU`)
+
+**UDP Scan** is used to find open UDP ports. Since UDP is connectionless, scanning is more challenging and typically slower than TCP scanning.
+
+**How it works:**
+- Sends a UDP packet to each target port
+- If the port is closed, an ICMP "port unreachable" message is returned
+- If no response is received, the port is considered open|filtered
+
+**Advantages:**
+- Identifies UDP services (DNS, SNMP, DHCP, etc.)
+- Complements TCP scans for complete network mapping
+
+**Disadvantages:**
+- Very slow (can take hours for a full scan)
+- Less accurate due to packet loss
+
+**Example:**
+```bash
+nmap -sU 192.168.1.1
+```
+
+**Tip:** Combine with TCP SYN scan for comprehensive coverage:
+```bash
+nmap -sS -sU 192.168.1.1
+```
+
+### IP Protocol Scan (`-sO`)
+
+**IP Protocol Scan** determines which IP protocols (TCP, UDP, ICMP, etc.) the target host supports.
+
+**How it works:**
+- Sends IP packets with different protocol numbers
+- Analyzes responses to determine which protocols are supported
+
+**Example:**
+```bash
+nmap -sO 192.168.1.1
+```
+
+### Idle Scan (`-sI`)
+
+**Idle Scan** is an advanced, completely blind scanning technique that bounces scan traffic off an idle "zombie" host.
+
+**How it works:**
+1. Exploits predictable IP ID sequence generation
+2. Uses a third-party "zombie" host to indirectly scan the target
+3. The scan appears to come from the zombie host, not from your system
+
+**Advantages:**
+- Extremely stealthy (your IP never touches the target)
+- Useful for advanced penetration testing
+
+**Requirements:**
+- Needs an idle "zombie" host with predictable IP ID sequence
+
+**Example:**
+```bash
+nmap -sI zombie_host target_host
+```
+
+## Host Discovery Scans
+
+### Ping Scan (`-sn`)
+
+**Ping Scan** (formerly known as `-sP`) is used to determine which hosts are online without performing a port scan.
+
+**How it works:**
+- Sends ICMP echo requests, TCP SYN to port 443, TCP ACK to port 80, and ICMP timestamp request
+- Any response indicates the host is up
+
+**Advantages:**
+- Fast network host discovery
+- Minimal network traffic
+- Less intrusive than port scanning
+
+**Example:**
+```bash
+nmap -sn 192.168.1.0/24
+```
+
+### List Scan (`-sL`)
+
+**List Scan** simply lists the targets that would be scanned without actually scanning them.
+
+**Advantages:**
+- Useful for verifying target selection
+- No packets sent to target hosts
+
+**Example:**
+```bash
+nmap -sL 192.168.1.0/24
+```
+
+### No Port Scan (`-sn`)
+
+**No Port Scan** performs host discovery but skips the port scanning phase. It's identical to the Ping Scan.
+
+**Example:**
+```bash
+nmap -sn 192.168.1.0/24
+```
+
+## Combining Scan Types
+
+Nmap's power comes from combining different scan types to gather comprehensive information:
+
+```bash
+# Comprehensive scan with TCP SYN and UDP
+nmap -sS -sU 192.168.1.1
+
+# Stealthy scan using FIN scan with timing template
+nmap -sF -T2 192.168.1.1
+
+# Network sweep with ping scan followed by TCP scan on live hosts
+nmap -sn 192.168.1.0/24 && nmap -sS 192.168.1.1-50
+```
+
+## Scan Type Selection Guidelines
+
+| Scenario | Recommended Scan Type |
+|----------|----------------------|
+| Default scanning | TCP SYN Scan (`-sS`) |
+| No root/admin privileges | TCP Connect Scan (`-sT`) |
+| Firewall evasion | FIN, NULL, or XMAS Scan (`-sF`, `-sN`, `-sX`) |
+| UDP service discovery | UDP Scan (`-sU`) |
+| Network mapping | Ping Scan (`-sn`) |
+| Maximum stealth | Idle Scan (`-sI`) |
+
+## Next Steps
+
+Now that you understand the various scan types available in Nmap, you can explore:
+
+- [Target Selection](/docs/nmap/core-operations/target-selection) - Learn how to specify targets for scanning
+- [Service Detection](/docs/nmap/advanced-techniques/service-detection) - Discover how to identify services running on open ports

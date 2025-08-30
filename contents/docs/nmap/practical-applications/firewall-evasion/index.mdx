@@ -1,0 +1,351 @@
+---
+title: Nmap Firewall Evasion Techniques
+description: Learn advanced techniques for bypassing firewalls and IDS/IPS systems during network scanning
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap Firewall Evasion Techniques
+
+Network security controls like firewalls, IDS/IPS systems, and packet filters can interfere with network scanning. This guide explores Nmap's capabilities for bypassing these controls to perform thorough network reconnaissance and security assessments.
+
+## Understanding Firewall Detection
+
+<Tabs defaultValue="detection" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="detection">Detection Methods</TabsTrigger>
+    <TabsTrigger value="signatures">Scan Signatures</TabsTrigger>
+    <TabsTrigger value="countermeasures">Countermeasures</TabsTrigger>
+  </TabsList>
+  <TabsContent value="detection">
+    Network security controls typically detect scans through:
+    
+    - **Pattern matching**: Identifying known scan patterns
+    - **Anomaly detection**: Flagging unusual network behavior
+    - **Connection tracking**: Monitoring incomplete connections
+    - **Rate limiting**: Blocking excessive connection attempts
+    - **Protocol analysis**: Detecting non-standard protocol usage
+  </TabsContent>
+  <TabsContent value="signatures">
+    Common scan signatures that trigger detection:
+    
+    - **SYN floods**: Many SYN packets without completion
+    - **Port sweeps**: Scanning multiple ports on a single host
+    - **Host sweeps**: Scanning the same port across multiple hosts
+    - **ICMP activity**: Excessive ping or ICMP traffic
+    - **Unusual flags**: TCP packets with invalid flag combinations
+    - **Fragmentation**: Abnormally fragmented packets
+  </TabsContent>
+  <TabsContent value="countermeasures">
+    Security systems employ these countermeasures:
+    
+    - **Connection blocking**: Dropping suspicious packets
+    - **Rate limiting**: Throttling excessive connection attempts
+    - **Dynamic rules**: Adapting firewall rules based on traffic
+    - **Session tracking**: Validating legitimate connection states
+    - **Deep packet inspection**: Examining packet contents
+    - **Blacklisting**: Temporarily or permanently blocking source IPs
+  </TabsContent>
+</Tabs>
+
+## Basic Evasion Techniques
+
+### Timing Manipulation
+
+Adjusting scan timing can help evade detection systems that look for rapid connection attempts:
+
+**Slow Scan**
+```bash
+nmap -T0 192.168.1.1
+```
+Uses the "paranoid" timing template, which serializes scans and waits 5 minutes between sending packets.
+
+**Custom Timing**
+```bash
+nmap --scan-delay 500ms 192.168.1.1
+```
+Adds a 500 millisecond delay between probe packets.
+
+**Random Timing**
+```bash
+nmap --scan-delay 1-10s 192.168.1.1
+```
+Adds a random delay between 1 and 10 seconds between probes.
+
+**Parallel Reduction**
+```bash
+nmap --max-parallelism 1 192.168.1.1
+```
+Reduces the number of parallel probes to avoid triggering rate-based detection.
+
+Timing adjustments are most effective against:
+- Rate-based detection systems
+- Traffic anomaly detection
+- Connection flood protection
+
+### Packet Fragmentation
+
+Fragmenting packets can bypass simple packet filters and some IDS systems:
+
+**Fragment TCP Packets**
+```bash
+nmap -f 192.168.1.1
+```
+Splits TCP packets into 8-byte fragments.
+
+**Smaller Fragments**
+```bash
+nmap -ff 192.168.1.1
+```
+Uses even smaller fragments (16 bytes).
+
+**Custom Fragment Size**
+```bash
+nmap --mtu 16 192.168.1.1
+```
+Specifies a custom Maximum Transmission Unit size for fragmentation.
+
+**Combining with Other Techniques**
+```bash
+nmap -f -sS -T2 192.168.1.1
+```
+Combines fragmentation with SYN scanning and slower timing.
+
+Fragmentation works by:
+- Splitting TCP headers across multiple packets
+- Making pattern matching more difficult
+- Potentially bypassing simple stateless filters
+- Confusing some older or basic IDS systems
+
+Note that modern security systems often reassemble fragments before analysis.
+
+### Decoy Scanning
+
+Decoy scanning obscures the true source of the scan by mixing it with decoy sources:
+
+**Basic Decoy Scan**
+```bash
+nmap -D 10.0.0.1,10.0.0.2,ME,10.0.0.3 192.168.1.1
+```
+Sends scans that appear to come from 10.0.0.1, 10.0.0.2, your actual IP (ME), and 10.0.0.3.
+
+**Random Decoys**
+```bash
+nmap -D RND:10 192.168.1.1
+```
+Uses 10 random IP addresses as decoys.
+
+**Specific Position**
+```bash
+nmap -D 10.0.0.1,10.0.0.2,ME,10.0.0.3 --source-port 53 192.168.1.1
+```
+Combines decoys with source port spoofing.
+
+Decoy scanning works by:
+- Making it difficult to determine the true source of the scan
+- Generating multiple identical scan patterns from different sources
+- Potentially causing confusion in logs and alerts
+
+For decoy scanning to be effective:
+- Decoy IPs should be live hosts
+- They should not be firewalled from the target
+- They should be on similar network paths to avoid timing discrepancies
+
+### Source Port Manipulation
+
+Many firewalls allow traffic from certain source ports that are typically associated with trusted services:
+
+**DNS Source Port**
+```bash
+nmap --source-port 53 192.168.1.1
+```
+Sends packets from source port 53 (DNS), which is often allowed through firewalls.
+
+**Web Source Port**
+```bash
+nmap --source-port 80 192.168.1.1
+```
+Uses source port 80 (HTTP), which may bypass egress filtering.
+
+**Multiple Scans with Different Ports**
+```bash
+for port in 53 80 443; do nmap --source-port $port -p 1-1000 192.168.1.1; done
+```
+Tries multiple commonly allowed source ports.
+
+Common source ports that may bypass filters:
+- 53 (DNS)
+- 80 (HTTP)
+- 443 (HTTPS)
+- 20 (FTP data)
+- 67 (DHCP)
+
+This technique works because:
+- Some firewalls only filter based on destination port
+- Stateless firewalls may allow return traffic to privileged ports
+- Some misconfigured firewalls trust traffic from certain source ports
+
+## Advanced Evasion Techniques
+
+### Alternative Scanning Methods
+
+```bash
+# TCP ACK scan (may bypass simple firewalls)
+nmap -sA 192.168.1.1
+
+# FIN scan (sends FIN packets instead of SYN)
+nmap -sF 192.168.1.1
+
+# Xmas scan (sets FIN, PSH, and URG flags)
+nmap -sX 192.168.1.1
+
+# NULL scan (sends packets with no flags set)
+nmap -sN 192.168.1.1
+
+# Maimon scan (FIN/ACK probe)
+nmap -sM 192.168.1.1
+
+# Custom flags (using --scanflags)
+nmap --scanflags URGACKPSHRSTSYNFIN 192.168.1.1
+```
+
+### Data Payload Manipulation
+
+```bash
+# Append random data to packets
+nmap --data-length 25 192.168.1.1
+
+# Append custom data
+nmap --data 0xdeadbeef 192.168.1.1
+
+# Append random data with custom length
+nmap --data-length 200-500 192.168.1.1
+```
+
+### IP and MAC Address Spoofing
+
+```bash
+# Spoof source IP address (requires privileged access)
+nmap -S 10.0.0.1 192.168.1.1
+
+# Spoof MAC address (local network only)
+nmap --spoof-mac 00:11:22:33:44:55 192.168.1.1
+
+# Use random MAC address
+nmap --spoof-mac 0 192.168.1.1
+
+# Spoof specific vendor MAC
+nmap --spoof-mac Cisco 192.168.1.1
+```
+
+## Practical Evasion Scenarios
+
+<Tabs defaultValue="ids" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="ids">IDS Evasion</TabsTrigger>
+    <TabsTrigger value="firewall">Firewall Bypass</TabsTrigger>
+    <TabsTrigger value="combined">Combined Techniques</TabsTrigger>
+  </TabsList>
+  <TabsContent value="ids">
+    **Evading Signature-Based IDS**
+    ```bash
+    # Fragmentation with timing control
+    nmap -f -T1 --data-length 25 192.168.1.1
+    
+    # Decoy scan with fragmentation
+    nmap -D RND:5 -f 192.168.1.1
+    
+    # Non-standard scan with random data
+    nmap -sF --data-length 40 --scan-delay 500ms 192.168.1.1
+    ```
+    
+    **Evading Anomaly-Based IDS**
+    ```bash
+    # Very slow scan with minimal packets
+    nmap -T0 -sS -p 80,443,22,21,25 192.168.1.1
+    
+    # Limited port scan with delays
+    nmap --scan-delay 2s -p 80,443 192.168.1.1
+    
+    # Scan over extended period
+    nmap -T0 --max-retries 1 -p 1-1000 192.168.1.1
+    ```
+  </TabsContent>
+  <TabsContent value="firewall">
+    **Stateless Firewall Bypass**
+    ```bash
+    # ACK scan to map firewall rules
+    nmap -sA 192.168.1.1
+    
+    # NULL scan with fragmentation
+    nmap -sN -f 192.168.1.1
+    
+    # Source port manipulation
+    nmap --source-port 53 192.168.1.1
+    ```
+    
+    **Stateful Firewall Bypass**
+    ```bash
+    # FTP bounce scan (if available)
+    nmap -b username:password@ftp-server:21 192.168.1.1
+    
+    # Idle scan using zombie host
+    nmap -sI zombie-host:port 192.168.1.1
+    
+    # Fragmented packets with decoys
+    nmap -f -D RND:10 192.168.1.1
+    ```
+  </TabsContent>
+  <TabsContent value="combined">
+    **Maximum Stealth Scan**
+    ```bash
+    nmap -sS -T0 -f -D RND:10 --data-length 56 --source-port 53 -p 80,443,22 --scan-delay 5s 192.168.1.1
+    ```
+    This combines:
+    - SYN scan (-sS)
+    - Paranoid timing (-T0)
+    - Fragmentation (-f)
+    - Random decoys (-D RND:10)
+    - Random data payload (--data-length 56)
+    - Trusted source port (--source-port 53)
+    - Limited port selection (-p 80,443,22)
+    - Significant delay between probes (--scan-delay 5s)
+    
+    **Balanced Evasion Scan**
+    ```bash
+    nmap -sS -T2 -f --data-length 24 --source-port 80 -p 1-1000 --max-retries 1 192.168.1.1
+    ```
+    This combines:
+    - SYN scan (-sS)
+    - Polite timing (-T2)
+    - Fragmentation (-f)
+    - Random data payload (--data-length 24)
+    - Web traffic source port (--source-port 80)
+    - Limited retry attempts (--max-retries 1)
+  </TabsContent>
+</Tabs>
+
+## Ethical and Legal Considerations
+
+1. **Authorization**: Always ensure you have explicit permission to perform scans, especially when using evasion techniques
+2. **Legal implications**: Evasion techniques may violate terms of service, security policies, or laws in some jurisdictions
+3. **Documentation**: Maintain detailed records of all scanning activities, including the techniques used
+4. **Scope limitations**: Clearly define and adhere to the scope of authorized scanning
+5. **Responsible disclosure**: Report any vulnerabilities discovered through evasion techniques through proper channels
+
+## Limitations of Evasion Techniques
+
+- **Modern security systems**: Advanced security solutions can detect most evasion attempts
+- **Network visibility**: Next-generation firewalls and IDS/IPS systems often have visibility across multiple layers
+- **Correlation engines**: Security information and event management (SIEM) systems can correlate events to detect evasion
+- **False negatives**: Evasion techniques may cause you to miss important information about the target
+- **Increased scan time**: Most evasion techniques significantly increase the time required to complete scans
+
+## Next Steps
+
+Now that you understand Nmap's firewall evasion techniques, you can explore:
+
+- [Best Practices](/docs/nmap/best-practices) - Learn guidelines for effective and responsible use of Nmap
+- [Advanced Techniques](/docs/nmap/advanced-techniques) - Explore other advanced Nmap capabilities

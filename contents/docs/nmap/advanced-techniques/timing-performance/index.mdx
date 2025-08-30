@@ -1,0 +1,277 @@
+---
+title: Nmap Timing and Performance
+description: Learn how to optimize Nmap scan speed and accuracy for different network environments
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap Timing and Performance
+
+Optimizing Nmap's timing and performance is crucial for balancing scan speed, accuracy, and network impact. This guide covers Nmap's timing controls and performance optimization techniques for different scanning scenarios.
+
+## Timing Templates
+
+<Tabs defaultValue="templates" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="templates">Timing Templates</TabsTrigger>
+    <TabsTrigger value="usage">Template Usage</TabsTrigger>
+    <TabsTrigger value="comparison">Template Comparison</TabsTrigger>
+  </TabsList>
+  <TabsContent value="templates">
+    Nmap provides six timing templates, ranging from slowest (most stealthy) to fastest (most aggressive):
+    
+    - **T0 (Paranoid)**: Extremely slow, serialized scanning
+    - **T1 (Sneaky)**: Slow scan to avoid detection
+    - **T2 (Polite)**: Slows down to consume less bandwidth
+    - **T3 (Normal)**: Default timing, balances speed with accuracy
+    - **T4 (Aggressive)**: Faster scanning assuming a reliable network
+    - **T5 (Insane)**: Very fast scanning that sacrifices accuracy for speed
+  </TabsContent>
+  <TabsContent value="usage">
+    **Slow, Stealthy Scan**
+    ```bash
+    nmap -T1 192.168.1.1
+    ```
+    
+    **Default Scan**
+    ```bash
+    nmap -T3 192.168.1.1
+    ```
+    
+    **Fast Scan**
+    ```bash
+    nmap -T4 192.168.1.1
+    ```
+    
+    **Very Fast Scan**
+    ```bash
+    nmap -T5 192.168.1.1
+    ```
+  </TabsContent>
+  <TabsContent value="comparison">
+    | Template | Speed | Stealth | Accuracy | Network Impact | Use Case |
+    |----------|-------|---------|----------|----------------|----------|
+    | T0 | Extremely slow | Maximum | High | Minimal | IDS evasion, critical systems |
+    | T1 | Very slow | Very high | High | Very low | Sensitive environments |
+    | T2 | Slow | High | High | Low | Production networks |
+    | T3 | Medium | Medium | High | Medium | General scanning (default) |
+    | T4 | Fast | Low | Medium | High | Internal networks, testing |
+    | T5 | Very fast | Minimal | Lower | Very high | Lab environments |
+  </TabsContent>
+</Tabs>
+
+## Advanced Timing Controls
+
+### Scan Delay (`--scan-delay`, `--max-scan-delay`)
+
+These options control the minimum and maximum delay between probe packets:
+
+**Minimum Delay**
+```bash
+nmap --scan-delay 100ms 192.168.1.1
+```
+Waits at least 100 milliseconds between each probe.
+
+**Maximum Delay**
+```bash
+nmap --max-scan-delay 1s 192.168.1.1
+```
+Ensures probes are sent at least once per second.
+
+**When to use:**
+- Use `--scan-delay` to slow down scans for IDS evasion or on unstable networks
+- Use `--max-scan-delay` to ensure scans don't slow down too much due to adaptive timing
+
+**Impact:**
+- Increasing scan delay makes scans more stealthy but slower
+- Decreasing maximum scan delay makes scans faster but potentially less reliable
+
+### Host Timeout (`--host-timeout`)
+
+This option specifies how long Nmap will continue trying to scan a host before giving up:
+
+```bash
+nmap --host-timeout 30m 192.168.1.0/24
+```
+Gives up on hosts that don't respond within 30 minutes.
+
+**When to use:**
+- Large network scans where some hosts might be unreachable
+- When you want to ensure the scan completes within a certain timeframe
+
+**Impact:**
+- Shorter timeouts speed up overall scan completion but might miss slow hosts
+- Longer timeouts ensure more thorough scanning but may significantly increase total scan time
+
+**Tip:** For large networks, use a reasonable timeout to avoid getting stuck on unresponsive hosts.
+
+### Minimum Rate (`--min-rate`, `--max-rate`)
+
+These options control how many packets Nmap sends per second:
+
+**Minimum Rate**
+```bash
+nmap --min-rate 100 192.168.1.0/24
+```
+Ensures Nmap sends at least 100 packets per second.
+
+**Maximum Rate**
+```bash
+nmap --max-rate 200 192.168.1.0/24
+```
+Limits Nmap to sending at most 200 packets per second.
+
+**When to use:**
+- Use `--min-rate` to speed up scans when you know the network can handle it
+- Use `--max-rate` to limit bandwidth usage and reduce network impact
+
+**Impact:**
+- Higher rates complete scans faster but increase network load and potential for missed responses
+- Lower rates are gentler on the network but take longer to complete
+
+**Warning:** Setting very high minimum rates can overwhelm networks and produce unreliable results.
+
+### Parallelism (`--min-parallelism`, `--max-parallelism`)
+
+These options control how many probes Nmap has outstanding at once:
+
+```bash
+nmap --min-parallelism 10 --max-parallelism 30 192.168.1.0/24
+```
+Keeps between 10 and 30 probes running in parallel.
+
+**When to use:**
+- Increase parallelism when scanning large networks with reliable connections
+- Decrease parallelism when scanning sensitive systems or unstable networks
+
+**Impact:**
+- Higher parallelism speeds up scans but increases resource usage and network impact
+- Lower parallelism is more gentle but significantly slower
+
+**Note:** These options override Nmap's adaptive behavior, so use them only when necessary.
+
+## Performance Optimization Techniques
+
+### Optimizing Port Selection
+
+```bash
+# Scan only the most common ports
+nmap --top-ports 100 192.168.1.0/24
+
+# Scan specific ports of interest
+nmap -p 22,80,443,3306,3389 192.168.1.0/24
+
+# Fast port scan mode
+nmap -F 192.168.1.0/24
+```
+
+### Optimizing Host Discovery
+
+```bash
+# Skip host discovery (assume all hosts are up)
+nmap -Pn 192.168.1.0/24
+
+# Use only ping scan for host discovery
+nmap -sn 192.168.1.0/24
+
+# Use specific host discovery methods
+nmap -PS22,80,443 -PA80,443 -PE 192.168.1.0/24
+```
+
+### Optimizing Service and OS Detection
+
+```bash
+# Limit version detection intensity
+nmap -sV --version-intensity 2 192.168.1.0/24
+
+# Skip OS detection
+nmap -sV --osscan-limit 192.168.1.0/24
+
+# Limit script execution
+nmap --script=default --script-timeout 30s 192.168.1.0/24
+```
+
+## Balancing Speed and Accuracy
+
+<Tabs defaultValue="local" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="local">Local Network</TabsTrigger>
+    <TabsTrigger value="wan">WAN/Internet</TabsTrigger>
+    <TabsTrigger value="sensitive">Sensitive Environments</TabsTrigger>
+  </TabsList>
+  <TabsContent value="local">
+    **Fast Local Network Scan**
+    ```bash
+    nmap -T4 --min-rate 300 192.168.1.0/24
+    ```
+    
+    **Comprehensive Local Network Scan**
+    ```bash
+    nmap -T4 -A -p- --max-rate 500 192.168.1.0/24
+    ```
+    
+    **Quick Network Inventory**
+    ```bash
+    nmap -T4 -F -sV 192.168.1.0/24 -oA quick_inventory
+    ```
+  </TabsContent>
+  <TabsContent value="wan">
+    **Internet Host Scan**
+    ```bash
+    nmap -T3 -sS -Pn example.com
+    ```
+    
+    **Multiple Remote Targets**
+    ```bash
+    nmap -T2 -sS -Pn --top-ports 1000 --max-retries 2 example1.com example2.com
+    ```
+    
+    **Remote Service Enumeration**
+    ```bash
+    nmap -T2 -sV -p 80,443,8080,8443 --max-rate 100 example.com
+    ```
+  </TabsContent>
+  <TabsContent value="sensitive">
+    **Critical Infrastructure Scan**
+    ```bash
+    nmap -T2 --scan-delay 500ms -sS -p 22,23,80,443,502 192.168.1.0/24
+    ```
+    
+    **Production Database Servers**
+    ```bash
+    nmap -T1 -sS -p 1433,3306,5432,27017 --host-timeout 20m 192.168.1.0/24
+    ```
+    
+    **Medical/SCADA Devices**
+    ```bash
+    nmap -T1 --max-rate 50 -sT -Pn -p 80,443,8080,102 192.168.1.0/24
+    ```
+  </TabsContent>
+</Tabs>
+
+## Best Practices for Timing and Performance
+
+1. **Match timing to the environment**: Use slower timing templates for sensitive environments and faster ones for robust networks
+2. **Start conservative**: Begin with more conservative settings and increase speed if the network proves reliable
+3. **Consider network conditions**: Adjust timing based on latency, packet loss, and congestion
+4. **Monitor scan progress**: Use the `-v` option to monitor progress and adjust parameters if needed
+5. **Test timing settings**: Experiment with different settings in a controlled environment before scanning production systems
+
+## Common Performance Issues and Solutions
+
+| Issue | Symptoms | Solution |
+|-------|----------|----------|
+| Scan too slow | Scan taking hours or days | Increase timing template, use `--min-rate`, limit port selection |
+| Missed hosts/ports | Inconsistent results between scans | Decrease timing template, add `--max-retries`, use `--scan-delay` |
+| Network congestion | Complaints from network team, packet loss | Use `--max-rate` to limit bandwidth usage |
+| Timeouts | Many timeout messages in verbose output | Increase `--host-timeout`, decrease parallelism |
+| High resource usage | High CPU/memory on scanning machine | Decrease parallelism, scan smaller batches |
+
+## Next Steps
+
+Now that you understand how to optimize Nmap's timing and performance, you can explore:
+
+- [Practical Applications](/docs/nmap/practical-applications) - Discover real-world applications of Nmap in network security
+- [Best Practices](/docs/nmap/best-practices) - Learn guidelines for effective and responsible use of Nmap

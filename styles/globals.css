@@ -229,3 +229,9 @@ pre>code {
 td>code {
   word-break: keep-all !important;
 }
+
+/* Active tab highlight in light green */
+.active-tab-highlight {
+  color: hsl(142 70% 70%) !important;
+  font-weight: 600;
+}

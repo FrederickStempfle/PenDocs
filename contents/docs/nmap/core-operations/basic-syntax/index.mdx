@@ -1,0 +1,148 @@
+---
+title: Nmap Basic Syntax
+description: Learn the fundamental command structure and syntax of Nmap for effective network scanning
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nmap Basic Syntax
+
+Understanding Nmap's command structure and basic syntax is essential for effective network scanning. This guide covers the fundamental syntax patterns and command-line options that form the foundation of all Nmap operations.
+
+## Command Structure
+
+Nmap commands follow a consistent structure:
+
+```bash
+nmap [Scan Type] [Options] [Target Specification]
+```
+
+Each component serves a specific purpose:
+
+- **Scan Type**: Determines how Nmap probes the target (e.g., `-sS` for SYN scan)
+- **Options**: Modify scan behavior, output format, timing, etc.
+- **Target Specification**: Defines which hosts to scan
+
+## Basic Command Examples
+
+<Tabs defaultValue="simple" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="simple">Simple Scans</TabsTrigger>
+    <TabsTrigger value="multiple">Multiple Targets</TabsTrigger>
+    <TabsTrigger value="output">Output Options</TabsTrigger>
+  </TabsList>
+  <TabsContent value="simple">
+    **Default Scan**
+    ```bash
+    nmap example.com
+    ```
+    Performs a basic scan showing open ports on the target.
+    
+    **Specific Port Scan**
+    ```bash
+    nmap -p 80,443 example.com
+    ```
+    Scans only ports 80 and 443.
+    
+    **Port Range Scan**
+    ```bash
+    nmap -p 1-1000 example.com
+    ```
+    Scans ports 1 through 1000.
+  </TabsContent>
+  <TabsContent value="multiple">
+    **Multiple IP Addresses**
+    ```bash
+    nmap 192.168.1.1 192.168.1.2 192.168.1.3
+    ```
+    Scans three specific IP addresses.
+    
+    **CIDR Notation**
+    ```bash
+    nmap 192.168.1.0/24
+    ```
+    Scans all 256 IP addresses in the 192.168.1.0 subnet.
+    
+    **IP Range**
+    ```bash
+    nmap 192.168.1.1-50
+    ```
+    Scans IP addresses from 192.168.1.1 to 192.168.1.50.
+  </TabsContent>
+  <TabsContent value="output">
+    **Normal Output to File**
+    ```bash
+    nmap -oN scan_results.txt example.com
+    ```
+    Saves results in normal format to scan_results.txt.
+    
+    **XML Output**
+    ```bash
+    nmap -oX scan_results.xml example.com
+    ```
+    Saves results in XML format for parsing by other tools.
+    
+    **All Output Formats**
+    ```bash
+    nmap -oA scan_results example.com
+    ```
+    Saves results in normal, XML, and grepable formats with the prefix "scan_results".
+  </TabsContent>
+</Tabs>
+
+## Common Options
+
+### Verbosity and Debugging
+
+- **`-v`**: Increases verbosity level
+- **`-vv`**: Even more verbose
+- **`-d`**: Debugging mode
+- **`-dd`**: More debugging information
+
+### Output Options
+
+- **`-oN <file>`**: Normal output to file
+- **`-oX <file>`**: XML output to file
+- **`-oG <file>`**: Grepable output to file
+- **`-oA <prefix>`**: Output in all formats
+
+### Scan Timing
+
+- **`-T0`**: Paranoid (very slow, for IDS evasion)
+- **`-T1`**: Sneaky
+- **`-T2`**: Polite
+- **`-T3`**: Normal (default)
+- **`-T4`**: Aggressive
+- **`-T5`**: Insane (very fast, but potentially less accurate)
+
+## Combining Options
+
+Nmap's power comes from combining various options to create customized scans:
+
+```bash
+nmap -sS -T4 -p 1-1000 -oN results.txt 192.168.1.0/24
+```
+
+This command:
+- Uses a SYN scan (`-sS`)
+- Sets aggressive timing (`-T4`)
+- Scans ports 1-1000 (`-p 1-1000`)
+- Saves results to results.txt (`-oN results.txt`)
+- Scans the entire 192.168.1.0/24 subnet
+
+## Best Practices
+
+1. **Start Simple**: Begin with basic scans and add complexity as needed
+2. **Use Appropriate Timing**: Match scan speed to network conditions
+3. **Save Your Results**: Always output to a file for later analysis
+4. **Respect Privacy**: Only scan networks you have permission to scan
+5. **Consider Network Impact**: Be aware that scanning can affect network performance
+
+## Next Steps
+
+Now that you understand the basic syntax of Nmap, you can explore:
+
+- [Scan Types](/docs/nmap/core-operations/scan-types) - Learn about different scanning techniques
+- [Target Selection](/docs/nmap/core-operations/target-selection) - Discover advanced ways to specify targets

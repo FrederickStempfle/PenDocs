@@ -1,0 +1,108 @@
+---
+title: The Expert's Nmap Guide
+description: A comprehensive guide to network discovery and security auditing with Nmap
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+Welcome to the comprehensive Nmap guide. This documentation provides detailed instructions on using Nmap (Network Mapper), one of the most powerful and versatile network scanning and security auditing tools available for penetration testing and network administration.
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="features">Key Features</TabsTrigger>
+    <TabsTrigger value="versions">Version History</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    Nmap is an open-source utility for network discovery and security auditing. It uses raw IP packets in novel ways to determine what hosts are available on a network, what services (application name and version) those hosts are offering, what operating systems they are running, what type of packet filters/firewalls are in use, and dozens of other characteristics. While Nmap is commonly used for security audits, many systems and network administrators find it valuable for routine tasks such as network inventory, managing service upgrade schedules, and monitoring host or service uptime.
+  </TabsContent>
+  <TabsContent value="features">
+    - **Powerful host discovery**: Identify devices running on a network without sending packets to the hosts themselves
+    - **Port scanning**: Examine which ports on a target machine are open and determine what services are running
+    - **Version detection**: Identify application names and versions of services running on remote ports
+    - **OS detection**: Determine the operating system and hardware characteristics of network devices
+    - **Scriptable interaction**: The Nmap Scripting Engine (NSE) allows users to write and share scripts to automate a wide variety of networking tasks
+    - **Output formats**: Results can be saved in multiple formats including normal, XML, grepable, and JSON
+    - **Timing templates**: Adjust scan speed and aggressiveness based on network conditions and stealth requirements
+  </TabsContent>
+  <TabsContent value="versions">
+    - **Nmap 7.94** (2023): Latest stable release with improved performance and bug fixes
+    - **Nmap 7.80** (2019): Added new NSE scripts and improved service detection
+    - **Nmap 7.70** (2018): Enhanced IPv6 support and better OS detection
+    - **Nmap 7.60** (2017): Added more NSE scripts and improved version detection
+    - **Nmap 7.50** (2017): Better performance and reduced memory usage
+    - **Nmap 7.00** (2015): Major version update with significant improvements to the NSE
+    - **Nmap 6.00** (2012): Added Nping echo mode and IPv6 support for OS detection
+    - **Nmap 5.00** (2009): Introduced service version detection improvements
+    - **Nmap 4.00** (2006): Added the Zenmap GUI and Nmap Scripting Engine
+    - **Nmap 3.00** (2003): Improved performance and added new scan types
+    - **Nmap 1.0** (1997): Initial public release by Gordon "Fyodor" Lyon
+  </TabsContent>
+</Tabs>
+
+## Why Use Nmap?
+
+- **Comprehensive Network Visibility**: Provides detailed information about hosts, services, and vulnerabilities on your network
+- **Versatility**: Works across all major operating systems and can scan virtually any type of network
+- **Efficiency**: Rapidly scans large networks while providing accurate results
+- **Customizability**: Offers numerous options to tailor scans to specific requirements and network conditions
+- **Active Community**: Maintained by a large community that regularly updates the tool with new features and scripts
+- **Free and Open Source**: Available to everyone with extensive documentation and community support
+- **Industry Standard**: Widely recognized and used by security professionals worldwide
+
+## Getting Started with Nmap
+
+<Steps>
+  <Step title="Install Nmap">
+    Nmap is available for all major operating systems:
+    
+    **Linux**:
+    ```bash
+    # Debian/Ubuntu
+    sudo apt install nmap
+    
+    # Fedora/RHEL/CentOS
+    sudo dnf install nmap
+    ```
+    
+    **macOS**:
+    ```bash
+    # Using Homebrew
+    brew install nmap
+    ```
+    
+    **Windows**:
+    Download the installer from [nmap.org/download.html](https://nmap.org/download.html)
+  </Step>
+  <Step title="Verify Installation">
+    Test your installation by running:
+    ```bash
+    nmap -V
+    ```
+    This should display the current version of Nmap.
+  </Step>
+  <Step title="Run Your First Scan">
+    Try a basic scan against a target (replace example.com with your authorized target):
+    ```bash
+    nmap example.com
+    ```
+    This performs a basic scan showing open ports on the target.
+    
+    **Note**: Always ensure you have permission to scan the target network or system.
+  </Step>
+</Steps>
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **Core Operations**: Basic syntax, scan types, and target selection methods
+2. **Advanced Techniques**: Service detection, OS fingerprinting, timing options, and the Nmap Scripting Engine
+3. **Practical Applications**: Network inventory, vulnerability assessment, and firewall evasion techniques
+4. **Best Practices**: Optimization tips, ethical considerations, and recommended workflows
+
+Each section provides detailed explanations, command examples, and real-world use cases to help you master Nmap for ethical network scanning and security assessment.
+
+Let's begin with understanding the core operations and scanning techniques in Nmap.

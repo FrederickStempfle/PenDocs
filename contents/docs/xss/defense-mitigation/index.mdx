@@ -4,7 +4,6 @@ description: Comprehensive strategies to protect web applications against Cross-
 ---
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Callout } from "@/components/markdown/callout"
 
 
 Protecting web applications against Cross-Site Scripting (XSS) attacks requires a multi-layered approach. This section covers comprehensive defense strategies that can be implemented at various levels of the application stack.
@@ -54,9 +53,7 @@ A robust XSS defense strategy implements multiple layers of protection:
     }
     ```
     
-    <Callout type="info" title="Important Note">
-      Input validation alone is not sufficient protection against XSS. It should be combined with output encoding and other defenses.
-    </Callout>
+    **Important Note**: Input validation alone is not sufficient protection against XSS. It should be combined with output encoding and other defenses.
   </TabsContent>
   <TabsContent value="output-encoding">
     ### Output Encoding
@@ -91,9 +88,7 @@ A robust XSS defense strategy implements multiple layers of protection:
     $url = urlencode($userInput);
     ```
     
-    <Callout type="warning" title="Context Matters">
-      Always use the appropriate encoding function for the context where the data will be used. HTML encoding is not sufficient for JavaScript contexts, and vice versa.
-    </Callout>
+    **Context Matters**: Always use the appropriate encoding function for the context where the data will be used. HTML encoding is not sufficient for JavaScript contexts, and vice versa.
   </TabsContent>
   <TabsContent value="csp">
     ### Content Security Policy
@@ -128,12 +123,10 @@ A robust XSS defense strategy implements multiple layers of protection:
     - `base-uri`: Controls the base URI for relative URLs
     - `form-action`: Controls where forms can be submitted
     
-    <Callout type="info" title="CSP Reporting">
-      Enable CSP reporting to monitor violations and potential attacks:
+    **CSP Reporting**: Enable CSP reporting to monitor violations and potential attacks:
       ```
       Content-Security-Policy-Report-Only: ...; report-uri /csp-report-endpoint
       ```
-    </Callout>
   </TabsContent>
   <TabsContent value="framework">
     ### Framework Protections
@@ -180,9 +173,7 @@ A robust XSS defense strategy implements multiple layers of protection:
     <div v-html="sanitizedContent"></div>
     ```
     
-    <Callout type="warning" title="Framework Limitations">
-      Even with framework protections, developers must understand the security model and avoid unsafe practices like bypassing built-in sanitization.
-    </Callout>
+    **Framework Limitations**: Even with framework protections, developers must understand the security model and avoid unsafe practices like bypassing built-in sanitization.
   </TabsContent>
 </Tabs>
 
@@ -549,9 +540,7 @@ Even with robust protections, XSS vulnerabilities may still be discovered. Havin
    - Update security practices
    - Improve testing procedures to prevent similar issues
 
-<Callout type="info" title="Security Disclosure">
-  Maintain a responsible disclosure policy that allows security researchers to report vulnerabilities safely. This can help identify issues before they are exploited maliciously.
-</Callout>
+**Security Disclosure**: Maintain a responsible disclosure policy that allows security researchers to report vulnerabilities safely. This can help identify issues before they are exploited maliciously.
 
 ## Emerging XSS Defense Techniques
 

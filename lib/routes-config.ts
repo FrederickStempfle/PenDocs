@@ -49,9 +49,15 @@ export const ROUTES: EachRoute[] = [
     items: [
       { title: "Introduction", href: "/introduction" },
       { title: "Fundamentals", href: "/fundamentals" },
-      { title: "Identification Techniques", href: "/identification-techniques" },
-      { title: "Exploitation Strategies", href: "/exploitation-strategies" },
-      { title: "Evasion Techniques", href: "/evasion-techniques" },
+      {
+        title: "Attack Techniques",
+        href: "/attack-techniques",
+        items: [
+          { title: "Identification Techniques", href: "/identification-techniques" },
+          { title: "Exploitation Strategies", href: "/exploitation-strategies" },
+          { title: "Evasion Techniques", href: "/evasion-techniques" },
+        ]
+      },
       { title: "Defense and Mitigation", href: "/defense-mitigation" }
     ]
   },
@@ -109,6 +115,19 @@ export const ROUTES: EachRoute[] = [
     ],
   },
   {
+    title: "Reverse Shells Guide",
+    href: "/reverse-shells",
+    noLink: true,
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      { title: "Core Concepts", href: "/core-concepts" },
+      { title: "Types of Reverse Shells", href: "/types" },
+      { title: "Advanced Techniques", href: "/advanced-techniques" },
+      { title: "Evasion Techniques", href: "/evasion-techniques" },
+      { title: "Best Practices", href: "/best-practices" }
+    ]
+  },
+  {
     title: "John the Ripper Guide",
     href: "/john-the-ripper",
     noLink: true,
@@ -142,30 +161,76 @@ export const ROUTES: EachRoute[] = [
         ],
       },
       {
+        title: "Penetration Testing Workflow",
+        href: "/penetration-testing-workflow",
+        items: [
+          { title: "Pre-Engagement", href: "/pre-engagement" },
+          { title: "Reconnaissance", href: "/reconnaissance" },
+          { title: "Vulnerability Analysis", href: "/vulnerability-analysis" },
+          { title: "Exploitation", href: "/exploitation" },
+          { title: "Post-Exploitation", href: "/post-exploitation" },
+        ],
+      },
+      {
         title: "Optimization Best Practices",
         href: "/optimization-best-practices",
+        items: [
+          { title: "Best Practices", href: "/best-practices" },
+        ],
       },
-      { title: "Pre-Engagement", href: "/pre-engagement" },
-      { title: "Reconnaissance", href: "/reconnaissance" },
-      { title: "Vulnerability Analysis", href: "/vulnerability-analysis" },
-      { title: "Exploitation", href: "/exploitation" },
-      { title: "Post-Exploitation", href: "/post-exploitation" },
+    ],
+  },
+  {
+    title: "Nmap Guide",
+    href: "/nmap",
+    noLink: true,
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      {
+        title: "Core Operations",
+        href: "/core-operations",
+        items: [
+          { title: "Basic Syntax", href: "/basic-syntax" },
+          { title: "Scan Types", href: "/scan-types" },
+          { title: "Target Selection", href: "/target-selection" },
+        ],
+      },
+      {
+        title: "Advanced Techniques",
+        href: "/advanced-techniques",
+        items: [
+          { title: "Service Detection", href: "/service-detection" },
+          { title: "OS Detection", href: "/os-detection" },
+          { title: "Timing and Performance", href: "/timing-performance" },
+          { title: "Scripting Engine", href: "/scripting-engine" },
+        ],
+      },
+      {
+        title: "Practical Applications",
+        href: "/practical-applications",
+        items: [
+          { title: "Network Inventory", href: "/network-inventory" },
+          { title: "Vulnerability Assessment", href: "/vulnerability-assessment" },
+          { title: "Firewall Evasion", href: "/firewall-evasion" },
+        ],
+      },
+      { title: "Best Practices", href: "/best-practices" },
     ],
   },
 ];
 
 type Page = { title: string; href: string };
 
-function getRecurrsiveAllLinks(node: EachRoute) {
+function getRecursiveAllLinks(node: EachRoute) {
   const ans: Page[] = [];
   if (!node.noLink) {
     ans.push({ title: node.title, href: node.href });
   }
   node.items?.forEach((subNode) => {
     const temp = { ...subNode, href: `${node.href}${subNode.href}` };
-    ans.push(...getRecurrsiveAllLinks(temp));
+    ans.push(...getRecursiveAllLinks(temp));
   });
   return ans;
 }
 
-export const page_routes = ROUTES.map((it) => getRecurrsiveAllLinks(it)).flat();
+export const page_routes = ROUTES.map((it) => getRecursiveAllLinks(it)).flat();

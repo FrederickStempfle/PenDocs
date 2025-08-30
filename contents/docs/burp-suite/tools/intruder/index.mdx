@@ -3,7 +3,6 @@ title: Burp Suite Intruder Tool
 description: Comprehensive guide to using Burp Suite's Intruder tool for automated request manipulation and testing
 ---
 
-import { Callout } from "@/components/markdown/callout"
 
 The Intruder tool is Burp Suite's automated request manipulation engine. It allows you to perform customized attacks against web applications by sending multiple variations of requests and analyzing the responses.
 
@@ -39,9 +38,7 @@ The Intruder tool has significant differences between editions:
 - Enhanced results analysis
 - Resource pool management
 
-<Callout type="warning">
-  The rate limitation in the Community Edition makes it impractical for many real-world testing scenarios that require processing numerous requests.
-</Callout>
+**Warning**: The rate limitation in the Community Edition makes it impractical for many real-world testing scenarios that require processing numerous requests.
 
 ## Attack Types
 
@@ -123,9 +120,7 @@ The Cluster Bomb attack tries all combinations of payloads:
 - Testing all possible combinations
 - Comprehensive parameter testing
 
-<Callout type="warning">
-  Cluster Bomb attacks can generate a very large number of requests. Calculate the total before starting to avoid unintentional denial of service.
-</Callout>
+**Warning**: Cluster Bomb attacks can generate a very large number of requests. Calculate the total before starting to avoid unintentional denial of service.
 
 ## Getting Started
 
@@ -526,9 +521,7 @@ Testing authentication mechanisms:
    - Look for CAPTCHA triggers
    - Test IP-based vs. account-based limits
 
-<Callout type="warning">
-  Always ensure you have proper authorization before performing brute force attacks. Many jurisdictions consider unauthorized brute forcing illegal.
-</Callout>
+**Warning**: Always ensure you have proper authorization before performing brute force attacks. Many jurisdictions consider unauthorized brute forcing illegal.
 
 ### Injection Testing
 
@@ -772,9 +765,7 @@ Responsible use of Intruder:
    - Document authorization
    - Stay within agreed boundaries
 
-<Callout type="warning">
-  Unauthorized use of Intruder may violate computer crime laws and could result in civil or criminal penalties.
-</Callout>
+**Warning**: Unauthorized use of Intruder may violate computer crime laws and could result in civil or criminal penalties.
 
 ## Troubleshooting
 
@@ -808,9 +799,7 @@ Solutions to frequently encountered problems:
    - Split large attacks into smaller ones
    - Increase JVM memory allocation
 
-<Callout type="warning">
-  Always use Burp Suite Intruder ethically and legally. Only test applications you own or have explicit permission to test. Unauthorized testing may violate laws and regulations.
-</Callout>
+**Warning**: Always use Burp Suite Intruder ethically and legally. Only test applications you own or have explicit permission to test. Unauthorized testing may violate laws and regulations.
 
 ## Next Steps
 

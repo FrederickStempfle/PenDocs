@@ -1,0 +1,60 @@
+---
+title: Nmap Core Operations
+description: Learn about the core operations and functionality of Nmap for effective network scanning
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Core Operations in Nmap
+
+This section covers the fundamental operations and commands in Nmap that form the basis of all network scanning activities. Understanding these core concepts is essential for effectively using Nmap for network discovery and security assessment.
+
+## Section Overview
+
+Nmap's core operations include specifying targets, selecting scan types, and configuring basic scan parameters. These operations determine what hosts are scanned, how they are scanned, and what information is gathered during the scanning process.
+
+## In This Section
+
+- [Basic Syntax](/docs/nmap/core-operations/basic-syntax) - Learn the fundamental command structure and syntax of Nmap
+- [Scan Types](/docs/nmap/core-operations/scan-types) - Explore the various scanning techniques available in Nmap
+- [Target Selection](/docs/nmap/core-operations/target-selection) - Understand how to specify and select targets for scanning
+
+## Key Concepts
+
+### Command Structure
+
+Nmap commands follow a consistent structure:
+
+```bash
+nmap [Scan Type] [Options] [Target Specification]
+```
+
+Understanding this structure is crucial for building effective scan commands.
+
+### Scan Types
+
+Nmap offers various scan types, each with specific purposes:
+
+- **TCP SYN scan** (`-sS`): The default and most popular scan type
+- **TCP connect scan** (`-sT`): The default when SYN scan is unavailable
+- **UDP scan** (`-sU`): For discovering UDP services
+- **FIN, XMAS, and NULL scans** (`-sF`, `-sX`, `-sN`): Stealthy scan types that might bypass some firewalls
+
+### Target Specification
+
+Targets can be specified in multiple formats:
+
+- Individual IP addresses: `192.168.1.1`
+- Hostnames: `example.com`
+- CIDR notation: `192.168.1.0/24`
+- IP ranges: `192.168.1.1-50`
+- From a file: `-iL targets.txt`
+
+## Next Steps
+
+After mastering the core operations, you may want to explore:
+
+- [Advanced Techniques](/docs/nmap/advanced-techniques) - Learn about service detection, OS fingerprinting, and the Nmap Scripting Engine
+- [Practical Applications](/docs/nmap/practical-applications) - Discover real-world applications of Nmap in network security

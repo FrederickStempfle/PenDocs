@@ -21,7 +21,7 @@ export default function SubLink({
   tag,
 }: EachRoute & { level: number; isSheet: boolean }) {
   const path = usePathname();
-  const [isOpen, setIsOpen] = useState(level == 0);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (path == href || path.includes(href)) setIsOpen(true);
@@ -29,7 +29,7 @@ export default function SubLink({
 
   const Comp = (
     <Anchor
-      activeClassName="text-primary dark:font-medium font-semibold"
+      activeClassName="active-tab-highlight"
       href={href}
     >
       {title}

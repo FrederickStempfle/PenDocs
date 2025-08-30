@@ -1,0 +1,80 @@
+---
+title: Nmap Advanced Techniques
+description: Explore advanced Nmap techniques including service detection, OS fingerprinting, and the Nmap Scripting Engine
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Advanced Nmap Techniques
+
+This section covers advanced Nmap techniques that go beyond basic port scanning. These techniques enable deeper network reconnaissance, service identification, operating system detection, and automated vulnerability assessment.
+
+## Section Overview
+
+Advanced Nmap techniques allow security professionals to gather detailed information about target systems, including service versions, operating systems, and potential vulnerabilities. These techniques leverage Nmap's powerful features like version detection, OS fingerprinting, and the Nmap Scripting Engine (NSE).
+
+## In This Section
+
+- [Service Detection](/docs/nmap/advanced-techniques/service-detection) - Identify services running on open ports
+- [OS Detection](/docs/nmap/advanced-techniques/os-detection) - Determine the operating system of target hosts
+- [Scripting Engine](/docs/nmap/advanced-techniques/scripting-engine) - Leverage the Nmap Scripting Engine for automated tasks
+- [Timing and Performance](/docs/nmap/advanced-techniques/timing-performance) - Optimize scan speed and accuracy
+
+## Key Advanced Features
+
+### Version Detection
+
+Version detection allows Nmap to determine what specific service (application and version) is running on an open port:
+
+```bash
+nmap -sV 192.168.1.1
+```
+
+This provides valuable information for security assessments, as specific versions may have known vulnerabilities.
+
+### Operating System Detection
+
+OS detection attempts to identify the operating system running on target hosts:
+
+```bash
+nmap -O 192.168.1.1
+```
+
+This information helps tailor further testing to the specific operating system and can reveal outdated or vulnerable systems.
+
+### Nmap Scripting Engine (NSE)
+
+The NSE extends Nmap's functionality with hundreds of scripts for various tasks:
+
+```bash
+# Run default scripts
+nmap -sC 192.168.1.1
+
+# Run specific script
+nmap --script=ssl-heartbleed 192.168.1.1
+```
+
+Scripts can perform tasks like vulnerability detection, advanced service enumeration, and brute-force attacks.
+
+### Timing Templates
+
+Nmap offers timing templates to balance speed and reliability:
+
+```bash
+# Slower, more reliable scan
+nmap -T2 192.168.1.1
+
+# Faster, more aggressive scan
+nmap -T4 192.168.1.1
+```
+
+Proper timing settings are crucial for accurate results, especially in environments with latency or packet loss.
+
+## Next Steps
+
+After mastering these advanced techniques, you may want to explore:
+
+- [Practical Applications](/docs/nmap/practical-applications) - Real-world applications of Nmap in network security
+- [Best Practices](/docs/nmap/best-practices) - Guidelines for effective and responsible use of Nmap

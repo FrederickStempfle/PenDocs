@@ -1,4 +1,3 @@
-import { CommandIcon } from "lucide-react";
 import Link from "next/link";
 import Anchor from "./anchor";
 import { SheetLeftbar } from "./leftbar";
@@ -45,9 +44,8 @@ export function Navbar() {
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2.5">
-      <CommandIcon className="w-6 h-6 text-muted-foreground" strokeWidth={2} />
-      <h2 className="text-md font-bold font-code">Docs</h2>
+    <Link href="/" className="flex items-center gap-1 sm:text-sm text-[14.5px] dark:text-stone-300/85 text-stone-800">
+      Home
     </Link>
   );
 }
@@ -59,7 +57,7 @@ export function NavMenu({ isSheet = false }) {
         const Comp = (
           <Anchor
             key={item.title + item.href}
-            activeClassName="!text-primary dark:font-medium font-semibold"
+            activeClassName="active-tab-highlight"
             absolute
             className="flex items-center gap-1 sm:text-sm text-[14.5px] dark:text-stone-300/85 text-stone-800"
             href={item.href}

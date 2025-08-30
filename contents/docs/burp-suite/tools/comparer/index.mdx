@@ -1,0 +1,715 @@
+---
+title: Burp Suite Comparer Tool
+description: Comprehensive guide to using Burp Suite's Comparer tool for analyzing differences between requests and responses
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Steps } from "@/components/markdown/steps"
+
+# Burp Suite Comparer Tool
+
+The Comparer tool is a utility within Burp Suite that allows you to perform visual and textual comparisons between any two items of data. It's available in both Community and Professional editions with identical functionality.
+
+## Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="comparer-purpose">
+    <AccordionTrigger>Purpose and Functionality</AccordionTrigger>
+    <AccordionContent>
+      Comparer serves as Burp Suite's data comparison utility:
+      
+      - Compare two requests or responses side-by-side
+      - Identify subtle differences between similar items
+      - Highlight changes in both text and binary data
+      - Support for word-by-word and byte-by-byte comparison
+      - Analyze differences in application behavior
+      
+      It's an essential tool for security testing, helping you identify how applications respond differently to various inputs and conditions.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="common-uses">
+    <AccordionTrigger>Common Use Cases</AccordionTrigger>
+    <AccordionContent>
+      Comparer is useful in many testing scenarios:
+      
+      1. **Response analysis**
+         - Compare responses to different inputs
+         - Identify subtle changes in output
+         - Detect information leakage
+      
+      2. **Authentication testing**
+         - Compare responses to valid vs. invalid credentials
+         - Identify differences in error messages
+         - Detect username enumeration vulnerabilities
+      
+      3. **Access control testing**
+         - Compare responses with different user privileges
+         - Identify unauthorized access opportunities
+         - Detect privilege escalation vectors
+      
+      4. **Blind vulnerability detection**
+         - Compare responses to identify blind SQL injection
+         - Detect time-based vulnerabilities
+         - Identify blind XSS conditions
+      
+      5. **Parameter analysis**
+         - Compare responses with different parameter values
+         - Identify sensitive parameters
+         - Detect hidden functionality
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Interface Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="interface-elements">
+    <AccordionTrigger>Key Interface Elements</AccordionTrigger>
+    <AccordionContent>
+      Understanding the Comparer interface:
+      
+      1. **Comparison panels**
+         - Left and right panels showing the two items being compared
+         - Synchronized scrolling between panels
+         - Highlighting of differences
+      
+      2. **View options**
+         - Text view: For comparing text content
+         - Hex view: For comparing binary data
+         - Words: Compare word by word
+         - Bytes: Compare byte by byte
+      
+      3. **Navigation controls**
+         - Prev/Next difference buttons
+         - Jump between identified differences
+         - Difference counter showing current/total
+      
+      4. **Data selection**
+         - Paste data directly
+         - Load from file
+         - Receive data from other Burp tools
+      
+      The interface is designed for efficient comparison and analysis of differences between similar data items.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Basic Operations
+
+### Adding Data for Comparison
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="adding-data">
+    <AccordionTrigger>Methods for Adding Data</AccordionTrigger>
+    <AccordionContent>
+      There are several ways to add data to Comparer:
+      
+      1. **From other Burp tools**
+         - Right-click on a request or response in any tool
+         - Select "Send to Comparer"
+         - Choose whether to send to left or right panel
+      
+      2. **Direct pasting**
+         - Copy data from any source
+         - Click in the desired panel
+         - Paste using Ctrl+V or right-click and select Paste
+      
+      3. **Loading from file**
+         - Click "Paste" button
+         - Select "Load from file"
+         - Choose the file to load
+      
+      4. **From clipboard**
+         - Copy data to clipboard
+         - Click "Paste" button
+         - Select "Paste from clipboard"
+      
+      The flexibility in adding data allows you to compare items from various sources, both within and outside of Burp Suite.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="comparison-workflow">
+    <AccordionTrigger>Basic Comparison Workflow</AccordionTrigger>
+    <AccordionContent>
+      Steps for comparing two items:
+      
+      1. **Add data to both panels**
+         - Send or paste data to the left panel
+         - Send or paste data to the right panel
+      
+      2. **Select comparison type**
+         - Choose between Words and Bytes
+         - Select based on the type of data being compared
+      
+      3. **Review highlighted differences**
+         - Differences are automatically highlighted
+         - Added content typically shown in green
+         - Removed content typically shown in red
+      
+      4. **Navigate differences**
+         - Use Prev/Next buttons to jump between differences
+         - Focus on relevant changes
+      
+      5. **Switch views if needed**
+         - Toggle between Text and Hex views
+         - Use appropriate view for the data type
+      
+      This workflow allows for efficient identification and analysis of differences between similar items.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Comparison Types
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="words-vs-bytes">
+    <AccordionTrigger>Words vs. Bytes Comparison</AccordionTrigger>
+    <AccordionContent>
+      Understanding the two comparison modes:
+      
+      1. **Words comparison**
+         - Compares data word by word
+         - Words defined by whitespace and punctuation
+         - Better for human-readable text
+         - Highlights semantic differences
+         - Ignores insignificant whitespace differences
+      
+      2. **Bytes comparison**
+         - Compares data byte by byte
+         - Every character difference is highlighted
+         - Better for binary data or exact matching
+         - Shows all differences, including whitespace
+         - More precise but can be noisier
+      
+      3. **When to use each**
+         - Words: For comparing HTML, JSON, text responses
+         - Bytes: For comparing binary data, exact matches, or when whitespace matters
+      
+      4. **Switching between modes**
+         - Toggle using the Words/Bytes buttons
+         - Compare in both modes for thorough analysis
+      
+      Choosing the appropriate comparison mode helps focus on relevant differences while filtering out noise.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="text-hex-views">
+    <AccordionTrigger>Text vs. Hex Views</AccordionTrigger>
+    <AccordionContent>
+      Different ways to visualize the data:
+      
+      1. **Text view**
+         - Displays data as text characters
+         - Good for human-readable content
+         - May show unexpected characters for binary data
+         - Default view for most comparisons
+      
+      2. **Hex view**
+         - Displays data as hexadecimal bytes
+         - Essential for binary data
+         - Shows non-printable characters
+         - Reveals hidden bytes and encoding differences
+      
+      3. **When to use each**
+         - Text: For comparing readable content (HTML, JSON, text)
+         - Hex: For binary data, encoded content, or when investigating character encoding issues
+      
+      4. **Switching between views**
+         - Toggle using the Text/Hex buttons
+         - Can switch views without losing comparison results
+      
+      The ability to switch between text and hex views is crucial when working with different data types and formats.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Features
+
+### Navigation and Analysis
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="navigating-differences">
+    <AccordionTrigger>Navigating Between Differences</AccordionTrigger>
+    <AccordionContent>
+      Efficiently explore identified differences:
+      
+      1. **Navigation controls**
+         - Prev button: Jump to previous difference
+         - Next button: Jump to next difference
+         - Difference counter: Shows current/total differences
+      
+      2. **Synchronized scrolling**
+         - Both panels scroll together
+         - Keeps corresponding content aligned
+         - Makes visual comparison easier
+      
+      3. **Keyboard shortcuts**
+         - Ctrl+Left Arrow: Previous difference
+         - Ctrl+Right Arrow: Next difference
+         - Ctrl+Home: First difference
+         - Ctrl+End: Last difference
+      
+      4. **Manual navigation**
+         - Click in either panel to set focus
+         - Scroll manually to explore context
+         - Differences remain highlighted
+      
+      Effective navigation helps you quickly assess the nature and significance of differences between items.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="highlighting">
+    <AccordionTrigger>Understanding Difference Highlighting</AccordionTrigger>
+    <AccordionContent>
+      How to interpret the highlighted differences:
+      
+      1. **Color coding**
+         - Added content: Typically highlighted in green
+         - Removed content: Typically highlighted in red
+         - Modified content: Shown as combination of additions and removals
+      
+      2. **Alignment indicators**
+         - Lines connect corresponding sections
+         - Help visualize where content was inserted or removed
+      
+      3. **Context display**
+         - Surrounding content provides context
+         - Helps understand the significance of changes
+      
+      4. **Difference types**
+         - Character differences: Single character changes
+         - Word differences: Changes in complete words
+         - Block differences: Larger sections of changed content
+         - Structural differences: Changes in data structure
+      
+      Understanding how differences are highlighted helps you quickly assess the nature and impact of changes between items.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Working with Binary Data
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="binary-comparison">
+    <AccordionTrigger>Comparing Binary Content</AccordionTrigger>
+    <AccordionContent>
+      Techniques for analyzing binary differences:
+      
+      1. **Hex view essentials**
+         - Switch to Hex view for binary data
+         - Displays byte values in hexadecimal
+         - Shows ASCII representation alongside
+      
+      2. **Byte comparison mode**
+         - Use Bytes comparison for binary data
+         - Every byte difference is highlighted
+         - More precise than Words comparison
+      
+      3. **Binary data types**
+         - Images and media files
+         - Compiled code
+         - Encrypted or encoded content
+         - File format headers
+      
+      4. **Analysis techniques**
+         - Look for pattern changes
+         - Identify modified headers
+         - Detect encoding differences
+         - Find embedded data
+      
+      Binary comparison is essential when working with non-text data or when exact byte-level differences matter.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Practical Applications
+
+### Response Analysis
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="auth-testing">
+    <AccordionTrigger>Authentication Testing</AccordionTrigger>
+    <AccordionContent>
+      Using Comparer for authentication vulnerability detection:
+      
+      1. **Username enumeration**
+         - Compare responses to valid vs. invalid usernames
+         - Look for subtle differences in error messages
+         - Identify timing differences
+         - Example: "Invalid username" vs. "Invalid password"
+      
+      2. **Password testing**
+         - Compare responses to correct vs. incorrect passwords
+         - Identify information leakage in error messages
+         - Detect account lockout behaviors
+      
+      3. **Multi-factor authentication**
+         - Compare responses to valid vs. invalid MFA codes
+         - Identify bypass opportunities
+         - Detect implementation flaws
+      
+      4. **Session management**
+         - Compare valid vs. expired session tokens
+         - Identify session validation patterns
+         - Detect insecure session handling
+      
+      Comparing authentication responses helps identify vulnerabilities that might not be immediately obvious.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="access-control">
+    <AccordionTrigger>Access Control Testing</AccordionTrigger>
+    <AccordionContent>
+      Identifying authorization issues:
+      
+      1. **Horizontal privilege escalation**
+         - Compare responses when accessing resources of different users
+         - Identify unauthorized access opportunities
+         - Detect insufficient access controls
+      
+      2. **Vertical privilege escalation**
+         - Compare responses between user roles (admin vs. regular)
+         - Identify admin functionality accessible to regular users
+         - Detect privilege boundary issues
+      
+      3. **Hidden functionality**
+         - Compare responses with and without specific parameters
+         - Identify hidden features or debug modes
+         - Detect developer backdoors
+      
+      4. **Analysis techniques**
+         - Look for presence/absence of admin controls
+         - Identify different error messages
+         - Detect content that should be restricted
+      
+      Comparing responses across different privilege levels helps identify access control vulnerabilities.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Vulnerability Detection
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="blind-vulnerabilities">
+    <AccordionTrigger>Detecting Blind Vulnerabilities</AccordionTrigger>
+    <AccordionContent>
+      Using comparison to identify non-obvious vulnerabilities:
+      
+      1. **Blind SQL injection**
+         - Compare responses to true vs. false conditions
+         - Look for subtle differences in content or timing
+         - Example: `x' AND 1=1--` vs. `x' AND 1=2--`
+      
+      2. **Blind XSS**
+         - Compare responses with different XSS payloads
+         - Identify changes in rendering or behavior
+         - Look for filtered characters or scripts
+      
+      3. **Server-side request forgery (SSRF)**
+         - Compare responses to different internal URLs
+         - Identify timing differences
+         - Detect content variations
+      
+      4. **Out-of-band vulnerabilities**
+         - Compare responses with and without out-of-band triggers
+         - Identify subtle indicators of vulnerability
+      
+      Blind vulnerabilities often produce subtle differences that are easily missed without careful comparison.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="information-leakage">
+    <AccordionTrigger>Information Leakage Detection</AccordionTrigger>
+    <AccordionContent>
+      Identifying sensitive information disclosure:
+      
+      1. **Error message analysis**
+         - Compare error responses across different inputs
+         - Identify verbose error messages
+         - Detect stack traces or system information
+      
+      2. **Hidden comments**
+         - Compare source code of different pages
+         - Identify developer comments
+         - Detect hidden API endpoints or credentials
+      
+      3. **User enumeration**
+         - Compare responses for existing vs. non-existing users
+         - Identify information disclosure in responses
+         - Detect timing differences
+      
+      4. **Version information**
+         - Compare headers across different requests
+         - Identify software versions
+         - Detect server information
+      
+      Comparing responses helps identify subtle information leakage that might lead to more serious vulnerabilities.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Integration with Other Tools
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="tool-workflow">
+    <AccordionTrigger>Comparer in the Burp Workflow</AccordionTrigger>
+    <AccordionContent>
+      How Comparer integrates with other Burp tools:
+      
+      1. **Proxy to Comparer**
+         - Intercept two similar requests/responses
+         - Send both to Comparer
+         - Analyze differences
+      
+      2. **Repeater to Comparer**
+         - Make variations of a request in Repeater
+         - Send responses to Comparer
+         - Identify how changes affect the response
+      
+      3. **Intruder to Comparer**
+         - Select interesting responses from an Intruder attack
+         - Send to Comparer for detailed analysis
+         - Identify patterns and anomalies
+      
+      4. **Scanner to Comparer**
+         - Analyze Scanner findings
+         - Compare vulnerable vs. non-vulnerable responses
+         - Understand vulnerability patterns
+      
+      5. **Sequencer to Comparer**
+         - Compare token structures
+         - Identify patterns in token generation
+         - Detect predictability issues
+      
+      This integration creates a powerful workflow for detailed analysis of application behavior and security issues.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="context-menu">
+    <AccordionTrigger>Context Menu Integration</AccordionTrigger>
+    <AccordionContent>
+      Quick access to Comparer functionality:
+      
+      1. **Send to Comparer option**
+         - Available in context menus throughout Burp
+         - Right-click on requests or responses
+         - Select "Send to Comparer"
+         - Choose left or right panel
+      
+      2. **Multiple item selection**
+         - Select multiple items in Proxy history or Site map
+         - Right-click and send to Comparer
+         - First item goes to left panel, second to right
+      
+      3. **Partial selection**
+         - Select portion of text in any tool
+         - Right-click and send to Comparer
+         - Compare specific parts of requests or responses
+      
+      4. **Use cases**
+         - Quick comparison of similar requests
+         - Detailed analysis of specific response sections
+         - Streamlining the testing workflow
+      
+      Context menu integration makes Comparer functionality available throughout Burp Suite without switching tabs.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Best Practices
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="workflow-tips">
+    <AccordionTrigger>Efficient Workflow Tips</AccordionTrigger>
+    <AccordionContent>
+      Maximize your productivity with Comparer:
+      
+      1. **Consistent positioning**
+         - Always put the "control" or baseline item on the left
+         - Put the "test" or variant item on the right
+         - Maintain this pattern for consistent analysis
+      
+      2. **Use appropriate comparison mode**
+         - Words for human-readable content
+         - Bytes for binary data or exact matching
+         - Try both modes for thorough analysis
+      
+      3. **Focus on relevant sections**
+         - Send only relevant portions to Comparer when possible
+         - Use partial selection to focus on specific areas
+         - Filter out noise like timestamps or random tokens
+      
+      4. **Document findings**
+         - Save important comparisons
+         - Take screenshots of significant differences
+         - Include in testing reports
+      
+      5. **Combine with other tools**
+         - Use Decoder to normalize encoded content before comparison
+         - Use Repeater to generate variations for comparison
+         - Use Intruder to identify candidates for detailed comparison
+      
+      An efficient workflow helps you quickly identify and analyze significant differences.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="analysis-techniques">
+    <AccordionTrigger>Advanced Analysis Techniques</AccordionTrigger>
+    <AccordionContent>
+      Strategies for effective difference analysis:
+      
+      1. **Baseline comparison**
+         - Establish a "normal" response as baseline
+         - Compare variations against this baseline
+         - Identify deviations from expected behavior
+      
+      2. **Minimal difference testing**
+         - Make minimal changes between requests
+         - Isolate the exact trigger for different responses
+         - Understand precise cause-effect relationships
+      
+      3. **Pattern recognition**
+         - Look for patterns in differences
+         - Identify consistent changes across multiple comparisons
+         - Detect algorithmic behaviors
+      
+      4. **Context analysis**
+         - Consider the context of differences
+         - Understand the significance of changed content
+         - Evaluate security implications
+      
+      5. **Noise filtering**
+         - Identify and ignore expected differences (timestamps, CSRF tokens)
+         - Focus on unexpected or security-relevant differences
+         - Use pre-processing to normalize dynamic content
+      
+      Advanced analysis techniques help extract meaningful insights from complex comparisons.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Troubleshooting
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="common-issues">
+    <AccordionTrigger>Common Issues and Solutions</AccordionTrigger>
+    <AccordionContent>
+      Solutions to frequently encountered problems:
+      
+      1. **Too many differences highlighted**
+         - Switch between Words and Bytes comparison
+         - Focus on specific sections
+         - Filter out dynamic content
+         - Pre-process data to normalize format
+      
+      2. **Misaligned content**
+         - Try both Words and Bytes comparison
+         - Check for hidden characters or whitespace
+         - Look for structural changes that affect alignment
+      
+      3. **Performance with large data**
+         - Compare smaller, relevant sections
+         - Use text editors for very large files
+         - Close other Burp tools to free memory
+      
+      4. **Binary data challenges**
+         - Always use Hex view for binary data
+         - Use Bytes comparison mode
+         - Look for patterns rather than specific values
+         - Consider encoding/decoding before comparison
+      
+      5. **Dynamic content handling**
+         - Identify and ignore expected dynamic elements
+         - Use regex search/replace to normalize before comparison
+         - Focus on structural rather than content differences
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Use Case Examples
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="sql-injection">
+    <AccordionTrigger>SQL Injection Detection</AccordionTrigger>
+    <AccordionContent>
+      Step-by-step example of using Comparer for SQL injection testing:
+      
+      1. **Prepare test cases**
+         - Original request: `id=123`
+         - Test case 1: `id=123'` \(likely to cause error\)
+         - Test case 2: `id=123 AND 1=1` \(true condition\)
+         - Test case 3: `id=123 AND 1=2` \(false condition\)
+      
+      2. **Generate responses**
+         - Send each request using Repeater
+         - Send responses to Comparer
+      
+      3. **Compare responses**
+         - Compare original vs. error case
+         - Compare true vs. false condition
+         - Look for differences in content, structure, or error messages
+      
+      4. **Analyze differences**
+         - Error messages indicating SQL syntax issues
+         - Different content between true and false conditions
+         - Timing differences between requests
+      
+      5. **Refine testing**
+         - Based on initial findings, create more specific tests
+         - Compare additional variations
+         - Confirm vulnerability and determine type
+      
+      This methodical comparison approach helps identify SQL injection vulnerabilities even when they're not immediately obvious.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="access-control-example">
+    <AccordionTrigger>Access Control Testing Example</AccordionTrigger>
+    <AccordionContent>
+      Using Comparer to identify privilege escalation vulnerabilities:
+      
+      1. **Prepare test cases**
+         - Request resource as admin user
+         - Request same resource as regular user
+         - Request resource with manipulated parameters
+      
+      2. **Generate responses**
+         - Send each request using Repeater
+         - Ensure proper authentication for each user type
+         - Send responses to Comparer
+      
+      3. **Compare responses**
+         - Compare admin vs. regular user view
+         - Look for admin controls or sensitive data
+         - Identify access control indicators
+      
+      4. **Analyze differences**
+         - Presence/absence of admin functionality
+         - Hidden fields or options
+         - Different data visibility
+         - Authorization checks in JavaScript
+      
+      5. **Exploit verification**
+         - Attempt to access admin functions as regular user
+         - Compare responses to confirm access
+         - Document the vulnerability
+      
+      This comparison approach helps identify subtle access control issues that might be missed during manual testing.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+<Callout type="info">
+  The Comparer tool is identical in both Community and Professional editions, making it fully accessible to all Burp Suite users without limitations.
+</Callout>
+
+## Next Steps
+
+- [Decoder Tool Documentation](/docs/burp-suite/tools/decoder)
+- [Sequencer Tool Documentation](/docs/burp-suite/tools/sequencer)
+- [Intruder Tool Documentation](/docs/burp-suite/tools/intruder)
+- [Advanced Comparison Techniques](/docs/burp-suite/advanced-techniques)
+- [Best Practices for Web Application Security Testing](/docs/burp-suite/best-practices)

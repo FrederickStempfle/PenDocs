@@ -1,0 +1,800 @@
+---
+title: Burp Suite Options
+description: Comprehensive guide to configuring Burp Suite through Project Options and User Options
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Steps } from "@/components/markdown/steps"
+
+# Burp Suite Options
+
+Burp Suite provides extensive configuration capabilities through two main options interfaces: Project Options and User Options. These settings allow you to customize Burp's behavior to suit your specific testing needs and preferences.
+
+## Overview
+
+<Tabs defaultValue="project">
+  <TabsList>
+    <TabsTrigger value="project">Project Options</TabsTrigger>
+    <TabsTrigger value="user">User Options</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="project">
+    Project Options control settings specific to the current testing project:
+    
+    - Apply to the current project only
+    - Saved with project files (Professional Edition)
+    - Reset when starting a new project
+    - Include target-specific configurations
+    - Control testing behavior for the current target
+  </TabsContent>
+  
+  <TabsContent value="user">
+    User Options control Burp's general behavior:
+    
+    - Apply across all projects
+    - Persist between Burp sessions
+    - Control UI, display, and general behavior
+    - Configure global tool settings
+    - Manage user-specific preferences
+  </TabsContent>
+</Tabs>
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="edition-differences">
+    <AccordionTrigger>Community vs. Professional Edition</AccordionTrigger>
+    <AccordionContent>
+      Options availability differs between editions:
+      
+      **Community Edition:**
+      - Basic configuration options
+      - Limited customization capabilities
+      - No project saving functionality
+      - Core settings for essential tools
+      
+      **Professional Edition:**
+      - Full range of configuration options
+      - Advanced customization capabilities
+      - Project saving and loading
+      - Extensive tool-specific settings
+      - Advanced scanning and automation options
+      - Custom extension configuration
+      
+      While both editions provide essential configuration options, the Professional edition offers more advanced customization and project management capabilities.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Project Options
+
+### Connections
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="connection-settings">
+    <AccordionTrigger>Connection Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure how Burp handles network connections:
+      
+      1. **Platform Authentication**
+         - Configure NTLM, Negotiate, or basic authentication
+         - Set up authentication for specific URL prefixes
+         - Use system credentials or custom username/password
+      
+      2. **Upstream Proxy Servers**
+         - Configure Burp to use another proxy
+         - Set up proxy chains
+         - Define proxy exclusions
+         - Configure authentication for upstream proxies
+      
+      3. **SOCKS Proxy**
+         - Route traffic through a SOCKS proxy
+         - Configure DNS resolution through SOCKS
+         - Set up authentication for SOCKS proxy
+      
+      4. **Timeouts**
+         - Configure connection timeout
+         - Set response timeout
+         - Adjust timeout for specific hosts
+      
+      5. **Hostname Resolution**
+         - Override DNS resolution for specific hosts
+         - Define custom hostname mappings
+         - Useful for testing internal applications
+      
+      These settings allow you to control how Burp connects to target applications and handle various network configurations.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="tls-options">
+    <AccordionTrigger>TLS Options</AccordionTrigger>
+    <AccordionContent>
+      Configure TLS/SSL handling:
+      
+      1. **Client TLS Certificates**
+         - Configure client certificates for mutual TLS
+         - Select certificate from file or Windows store
+         - Set up certificates for specific hosts
+      
+      2. **TLS Protocols**
+         - Enable/disable specific TLS versions
+         - Configure protocol selection behavior
+         - Set up protocol preferences
+      
+      3. **Java SSL Options**
+         - Configure Java SSL implementation behavior
+         - Enable/disable specific cipher suites
+         - Set up advanced SSL parameters
+      
+      4. **Server SSL Certificates**
+         - Configure how Burp generates SSL certificates
+         - Customize certificate details
+         - Import custom CA certificate
+      
+      TLS configuration is crucial for testing secure applications and handling various certificate requirements.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### HTTP
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="http-settings">
+    <AccordionTrigger>HTTP Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure how Burp handles HTTP requests and responses:
+      
+      1. **Redirections**
+         - Control how Burp handles redirections
+         - Configure automatic following of redirections
+         - Set up interception of redirections
+      
+      2. **Streaming Responses**
+         - Configure handling of streaming responses
+         - Set up thresholds for response size
+         - Control behavior for large responses
+      
+      3. **Status 100 Responses**
+         - Configure handling of HTTP 100 Continue
+         - Control automatic handling of interim responses
+      
+      4. **HTTP/2**
+         - Enable/disable HTTP/2 support
+         - Configure HTTP/2 connection settings
+         - Control protocol negotiation
+      
+      These settings allow you to customize how Burp handles various HTTP protocol features and behaviors.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="request-headers">
+    <AccordionTrigger>Request Headers</AccordionTrigger>
+    <AccordionContent>
+      Configure how Burp handles HTTP request headers:
+      
+      1. **Set Headers**
+         - Add custom headers to all requests
+         - Modify existing headers
+         - Set up conditional header rules
+      
+      2. **Update Content-Length**
+         - Control automatic updating of Content-Length
+         - Configure behavior for modified requests
+      
+      3. **Match and Replace**
+         - Set up rules to modify request headers
+         - Use regex patterns for matching
+         - Configure replacement values
+      
+      4. **Match and Replace Body**
+         - Set up rules to modify request bodies
+         - Use regex patterns for matching
+         - Configure replacement values
+      
+      These settings allow you to customize HTTP requests for various testing scenarios and handle application-specific requirements.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### WebSockets
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="websocket-settings">
+    <AccordionTrigger>WebSocket Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure how Burp handles WebSocket connections:
+      
+      1. **Connections**
+         - Control WebSocket connection handling
+         - Configure connection timeout
+         - Set up connection limits
+      
+      2. **Frame Settings**
+         - Configure handling of WebSocket frames
+         - Control frame size limits
+         - Set up frame processing options
+      
+      3. **Message Modifications**
+         - Set up rules to modify WebSocket messages
+         - Use regex patterns for matching
+         - Configure replacement values
+      
+      WebSocket configuration is important for testing modern web applications that use real-time communication.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Sessions
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="session-handling">
+    <AccordionTrigger>Session Handling Rules (Professional Edition)</AccordionTrigger>
+    <AccordionContent>
+      Configure automated session handling:
+      
+      1. **Session Handling Rules**
+         - Create rules for maintaining sessions
+         - Configure scope for each rule
+         - Set up rule actions and conditions
+      
+      2. **Rule Actions**
+         - Add cookies from session jar
+         - Run macro to obtain session tokens
+         - Run macro to validate session
+         - Extract session tokens from responses
+      
+      3. **Rule Conditions**
+         - URL scope conditions
+         - Tool scope conditions
+         - Parameter conditions
+         - Header conditions
+      
+      4. **Macros**
+         - Record sequences of requests
+         - Configure macro parameters
+         - Set up custom parameter extraction
+         - Configure macro playback behavior
+      
+      Session handling rules automate the process of maintaining valid sessions during testing, which is crucial for applications with complex authentication mechanisms.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="cookie-jar">
+    <AccordionTrigger>Cookie Jar</AccordionTrigger>
+    <AccordionContent>
+      Configure Burp's cookie management:
+      
+      1. **Cookie Jar**
+         - View and manage stored cookies
+         - Configure automatic cookie capture
+         - Set up cookie jar scope
+      
+      2. **Options**
+         - Enable/disable cookie jar
+         - Configure which tools update the cookie jar
+         - Set up cookie jar monitoring
+      
+      3. **Manual Control**
+         - Add cookies manually
+         - Remove specific cookies
+         - Clear all cookies
+      
+      The cookie jar helps maintain sessions across different Burp tools and ensures that requests include the necessary cookies for authenticated testing.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Scanner (Professional Edition)
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="scanner-settings">
+    <AccordionTrigger>Scanner Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure Burp Scanner behavior:
+      
+      1. **Active Scanning Engine**
+         - Configure scan optimization
+         - Set up scan accuracy
+         - Control scan speed
+         - Configure payload selection
+      
+      2. **Active Scanning Areas**
+         - Select vulnerability types to check
+         - Configure check customization
+         - Set up scan coverage
+      
+      3. **Passive Scanning Areas**
+         - Select passive checks to perform
+         - Configure information gathering
+         - Set up content analysis
+      
+      4. **Static Code Analysis**
+         - Configure JavaScript analysis
+         - Set up code quality checks
+         - Control analysis depth
+      
+      5. **Scan Queue**
+         - Configure concurrent scan limits
+         - Set up scan prioritization
+         - Control resource allocation
+      
+      Scanner settings allow you to customize automated vulnerability detection to suit your testing requirements and target application characteristics.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Intruder
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="intruder-settings">
+    <AccordionTrigger>Intruder Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure Burp Intruder behavior:
+      
+      1. **Payloads**
+         - Configure default payload settings
+         - Set up payload processing rules
+         - Configure payload encoding
+      
+      2. **Grep Match**
+         - Set up response matching rules
+         - Configure match highlighting
+         - Set up match extraction
+      
+      3. **Grep Extract**
+         - Configure data extraction from responses
+         - Set up extraction rules
+         - Configure output formatting
+      
+      4. **Attack Results**
+         - Configure results display
+         - Set up column selection
+         - Configure result filtering
+      
+      5. **Options**
+         - Configure request engine settings
+         - Set up throttling and timing
+         - Configure redirect handling
+      
+      Intruder settings allow you to customize automated attack behavior and result processing for various testing scenarios.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Repeater
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="repeater-settings">
+    <AccordionTrigger>Repeater Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure Burp Repeater behavior:
+      
+      1. **Request Engine**
+         - Configure connection settings
+         - Set up timeout behavior
+         - Control redirect handling
+      
+      2. **Response Processing**
+         - Configure response rendering
+         - Set up content processing
+         - Control response analysis
+      
+      3. **View Options**
+         - Configure interface layout
+         - Set up response visualization
+         - Control request/response display
+      
+      Repeater settings allow you to customize the behavior of manual request manipulation and response analysis.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Target Scope
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="scope-settings">
+    <AccordionTrigger>Target Scope Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure the scope of your testing:
+      
+      1. **Include in Scope**
+         - Define URL patterns to include
+         - Configure host/path matching
+         - Set up protocol restrictions
+      
+      2. **Exclude from Scope**
+         - Define URL patterns to exclude
+         - Configure exception rules
+         - Set up specific exclusions
+      
+      3. **Scope Control**
+         - Configure tool behavior for in-scope items
+         - Set up out-of-scope handling
+         - Control scope enforcement
+      
+      Target scope settings help focus your testing on authorized targets and prevent accidental testing of out-of-scope systems.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Misc Project Options
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="misc-project">
+    <AccordionTrigger>Miscellaneous Project Settings</AccordionTrigger>
+    <AccordionContent>
+      Additional project-specific settings:
+      
+      1. **Logging**
+         - Configure project-specific logging
+         - Set up log file locations
+         - Control log verbosity
+      
+      2. **Scheduled Tasks** (Professional Edition)
+         - Configure automated tasks
+         - Set up task scheduling
+         - Control task execution
+      
+      3. **Resource Pool** (Professional Edition)
+         - Configure resource allocation
+         - Set up concurrent task limits
+         - Control resource prioritization
+      
+      These settings provide additional control over project-specific behavior and automation.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## User Options
+
+### Connections
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="user-connections">
+    <AccordionTrigger>Connection Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure global connection behavior:
+      
+      1. **Upstream Proxy**
+         - Configure default upstream proxy
+         - Set up global proxy settings
+         - Define system-wide proxy rules
+      
+      2. **Timeouts**
+         - Configure default connection timeouts
+         - Set up global timeout behavior
+         - Control connection retry settings
+      
+      3. **Hostname Resolution**
+         - Configure global DNS settings
+         - Set up default resolution behavior
+         - Control DNS caching
+      
+      These settings control how Burp connects to targets across all projects.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### TLS
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="user-tls">
+    <AccordionTrigger>TLS Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure global TLS behavior:
+      
+      1. **Client Certificates**
+         - Configure default client certificates
+         - Set up global certificate settings
+         - Control certificate selection behavior
+      
+      2. **CA Certificate**
+         - Configure Burp's CA certificate
+         - Export certificate for browser installation
+         - Generate new CA certificate
+      
+      3. **TLS Protocols**
+         - Configure default protocol support
+         - Set up global protocol preferences
+         - Control protocol negotiation behavior
+      
+      These settings control how Burp handles TLS connections across all projects.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Display
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="display-settings">
+    <AccordionTrigger>Display Settings</AccordionTrigger>
+    <AccordionContent>
+      Configure Burp's user interface:
+      
+      1. **User Interface**
+         - Configure theme and appearance
+         - Set up font size and style
+         - Control UI layout and behavior
+      
+      2. **HTTP Message Display**
+         - Configure request/response rendering
+         - Set up highlighting and formatting
+         - Control content display options
+      
+      3. **Character Sets**
+         - Configure character encoding handling
+         - Set up default encodings
+         - Control text rendering
+      
+      4. **HTML Rendering**
+         - Configure HTML display options
+         - Set up rendering engine behavior
+         - Control image loading and display
+      
+      Display settings allow you to customize Burp's appearance and content rendering to suit your preferences.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Misc User Options
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="misc-user">
+    <AccordionTrigger>Miscellaneous User Settings</AccordionTrigger>
+    <AccordionContent>
+      Additional user-specific settings:
+      
+      1. **Hotkeys**
+         - Configure keyboard shortcuts
+         - Customize key bindings
+         - Set up custom actions
+      
+      2. **Proxy Interception**
+         - Configure default interception behavior
+         - Set up automatic interception rules
+         - Control interception filtering
+      
+      3. **Logging**
+         - Configure global logging settings
+         - Set up default log locations
+         - Control log rotation and management
+      
+      4. **Automatic Backup** (Professional Edition)
+         - Configure project backup behavior
+         - Set up backup frequency
+         - Control backup location and retention
+      
+      5. **Extensions** (Professional Edition)
+         - Configure extension loading behavior
+         - Set up extension permissions
+         - Control extension updates
+      
+      These settings provide additional control over Burp's behavior and user experience.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Practical Applications
+
+### Optimizing for Different Testing Scenarios
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="testing-scenarios">
+    <AccordionTrigger>Configuration for Common Testing Scenarios</AccordionTrigger>
+    <AccordionContent>
+      Recommended configurations for different testing types:
+      
+      1. **Web Application Assessments**
+         - Configure broad scope for target domain
+         - Enable passive scanning
+         - Set up session handling for authentication
+         - Configure appropriate scan checks
+      
+      2. **API Testing**
+         - Configure content type handling for JSON/XML
+         - Set up appropriate header management
+         - Configure authentication for API endpoints
+         - Disable browser rendering
+      
+      3. **Mobile App Backend Testing**
+         - Configure upstream proxy for device traffic
+         - Set up certificate for mobile device
+         - Configure non-standard ports if needed
+         - Enable appropriate interception filters
+      
+      4. **Single-Page Applications**
+         - Configure WebSocket interception
+         - Enable JavaScript analysis
+         - Set up appropriate scope for API endpoints
+         - Configure session handling for token-based auth
+      
+      5. **Thick Client Applications**
+         - Configure non-standard ports
+         - Set up hostname resolution if needed
+         - Configure TLS options for non-browser clients
+         - Enable binary content handling
+      
+      Tailoring Burp's configuration to specific testing scenarios improves efficiency and effectiveness.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Performance Optimization
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="performance">
+    <AccordionTrigger>Optimizing Burp Performance</AccordionTrigger>
+    <AccordionContent>
+      Settings to improve Burp's performance:
+      
+      1. **Memory Management**
+         - Increase Java heap size
+         - Configure response size limits
+         - Enable streaming for large responses
+         - Limit history size
+      
+      2. **Scan Optimization**
+         - Configure concurrent request limits
+         - Adjust scan speed settings
+         - Select only relevant scan checks
+         - Use targeted scanning instead of full crawls
+      
+      3. **Proxy Performance**
+         - Configure selective interception
+         - Limit response size for interception
+         - Use appropriate content type filters
+         - Disable unnecessary features
+      
+      4. **UI Responsiveness**
+         - Limit displayed history items
+         - Use appropriate rendering options
+         - Disable real-time scanning if not needed
+         - Close unused tool tabs
+      
+      5. **Resource Allocation** (Professional Edition)
+         - Configure resource pools
+         - Prioritize important tasks
+         - Schedule resource-intensive tasks appropriately
+         - Use task throttling for long-running operations
+      
+      Proper performance optimization ensures that Burp remains responsive and efficient during complex testing activities.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Best Practices
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="config-management">
+    <AccordionTrigger>Configuration Management</AccordionTrigger>
+    <AccordionContent>
+      Best practices for managing Burp configurations:
+      
+      1. **Configuration Profiles**
+         - Create and save configuration profiles for different testing scenarios
+         - Document configuration choices and rationale
+         - Share configurations with team members
+         - Maintain version control for configurations
+      
+      2. **Project Organization** (Professional Edition)
+         - Use meaningful project names
+         - Save projects in organized directory structure
+         - Document project-specific configurations
+         - Use consistent naming conventions
+      
+      3. **Configuration Validation**
+         - Test configurations before full deployment
+         - Verify that settings work as expected
+         - Check for unintended consequences
+         - Validate performance impact
+      
+      4. **Documentation**
+         - Document non-standard configurations
+         - Record configuration decisions
+         - Maintain notes on configuration issues
+         - Share lessons learned
+      
+      5. **Regular Review**
+         - Periodically review configurations
+         - Update settings based on new features
+         - Remove obsolete configurations
+         - Optimize based on experience
+      
+      Proper configuration management ensures consistent, efficient, and effective testing across projects and team members.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="security-considerations">
+    <AccordionTrigger>Security Considerations</AccordionTrigger>
+    <AccordionContent>
+      Security best practices for Burp configuration:
+      
+      1. **Scope Control**
+         - Define precise scope to prevent accidental testing
+         - Use specific include/exclude rules
+         - Regularly verify scope settings
+         - Implement additional safeguards for sensitive targets
+      
+      2. **Credential Management**
+         - Secure storage of testing credentials
+         - Avoid hardcoding credentials in macros
+         - Clear sensitive data when not needed
+         - Use project-specific credentials
+      
+      3. **Data Protection**
+         - Configure appropriate logging levels
+         - Secure storage of project files
+         - Encrypt sensitive project data
+         - Implement data retention policies
+      
+      4. **Access Control**
+         - Secure Burp installation
+         - Control access to project files
+         - Implement appropriate user permissions
+         - Secure collaborative testing environments
+      
+      5. **Testing Impact**
+         - Configure appropriate scan throttling
+         - Limit potentially disruptive tests
+         - Implement safeguards for sensitive functions
+         - Monitor testing impact on target systems
+      
+      Security considerations in Burp configuration help protect both the tester and the target systems.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Troubleshooting
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="common-issues">
+    <AccordionTrigger>Common Configuration Issues</AccordionTrigger>
+    <AccordionContent>
+      Solutions to frequently encountered configuration problems:
+      
+      1. **Connection Problems**
+         - Check proxy settings
+         - Verify TLS configuration
+         - Test hostname resolution
+         - Check for network restrictions
+      
+      2. **Performance Issues**
+         - Review memory allocation
+         - Check concurrent request settings
+         - Verify response size handling
+         - Optimize scan configurations
+      
+      3. **Authentication Failures**
+         - Check session handling rules
+         - Verify macro functionality
+         - Test cookie jar configuration
+         - Check for CSRF token handling
+      
+      4. **Scope Problems**
+         - Review scope rule order
+         - Check for conflicting rules
+         - Verify hostname matching
+         - Test with specific examples
+      
+      5. **Tool-Specific Issues**
+         - Scanner: Check scan configurations
+         - Intruder: Verify payload processing
+         - Repeater: Check request engine settings
+         - Proxy: Verify interception rules
+      
+      Understanding common configuration issues helps quickly resolve problems and maintain efficient testing workflows.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+<Callout type="info">
+  While many basic options are available in both Community and Professional editions, advanced features like session handling rules, resource pools, and project saving are exclusive to the Professional edition.
+</Callout>
+
+## Next Steps
+
+- [Proxy Tool Documentation](/docs/burp-suite/tools/proxy)
+- [Scanner Tool Documentation](/docs/burp-suite/tools/scanner)
+- [Intruder Tool Documentation](/docs/burp-suite/tools/intruder)
+- [Advanced Configuration Techniques](/docs/burp-suite/advanced-techniques)
+- [Best Practices for Web Application Security Testing](/docs/burp-suite/best-practices)

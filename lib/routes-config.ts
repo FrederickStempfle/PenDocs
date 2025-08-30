@@ -10,6 +10,40 @@ export type EachRoute = {
 
 export const ROUTES: EachRoute[] = [
   {
+    title: "Burp Suite Guide",
+    href: "/burp-suite",
+    noLink: true,
+    tag: "New",
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      {
+        title: "Core Features",
+        href: "/core-features",
+        items: [
+          { title: "Free Edition", href: "/free-edition" },
+          { title: "Professional Edition", href: "/professional-edition" }
+        ]
+      },
+      {
+        title: "Tools",
+        href: "/tools",
+        items: [
+          { title: "Proxy", href: "/proxy" },
+          { title: "Scanner", href: "/scanner" },
+          { title: "Intruder", href: "/intruder" },
+          { title: "Repeater", href: "/repeater" },
+          { title: "Decoder", href: "/decoder", tag: "New" },
+          { title: "Comparer", href: "/comparer" },
+          { title: "Sequencer", href: "/sequencer" },
+          { title: "Target", href: "/target" },
+          { title: "Extender", href: "/extender" },
+          { title: "Options", href: "/options" }
+        ]
+      },
+      { title: "Advanced Techniques", href: "/advanced-techniques" }
+    ]
+  },
+  {
     title: "SQLMap Guide",
     href: "/sqlmap",
     noLink: true,

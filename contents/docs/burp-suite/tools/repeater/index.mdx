@@ -1,0 +1,701 @@
+---
+title: Burp Suite Repeater Tool
+description: Comprehensive guide to using Burp Suite's Repeater tool for manual request manipulation and testing
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Steps } from "@/components/markdown/steps"
+
+# Burp Suite Repeater Tool
+
+Repeater is one of Burp Suite's core tools, available in both Community and Professional editions. It allows you to manually manipulate and resend individual HTTP and WebSocket requests, providing a powerful environment for testing web application security.
+
+## Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="repeater-purpose">
+    <AccordionTrigger>Purpose and Functionality</AccordionTrigger>
+    <AccordionContent>
+      Repeater serves as Burp Suite's manual testing environment:
+      
+      - Manually modify and resend HTTP/WebSocket requests
+      - Analyze responses in detail
+      - Test hypotheses about application behavior
+      - Refine payloads before using in automated attacks
+      - Explore application logic and security controls
+      
+      Unlike automated tools like Scanner or Intruder, Repeater gives you complete control over each request, making it ideal for precise testing and exploration.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="editions-comparison">
+    <AccordionTrigger>Community vs. Professional Edition</AccordionTrigger>
+    <AccordionContent>
+      The Repeater tool is fully functional in both editions:
+      
+      **Community Edition:**
+      - Full request manipulation capabilities
+      - Response analysis features
+      - Multiple request tabs
+      - Basic rendering options
+      
+      **Professional Edition:**
+      - All Community features
+      - Enhanced response rendering
+      - Inspector feature for structured data
+      - Better integration with other Professional tools
+      
+      Unlike some other Burp tools, Repeater has no rate limiting in the Community Edition, making it equally powerful for manual testing in both versions.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Getting Started
+
+### Basic Usage
+
+<Steps>
+  ### Using Repeater
+  
+  1. **Send a request to Repeater**
+     - Intercept a request in Proxy
+     - Right-click and select "Send to Repeater"
+     - Or select from Proxy history or Site map
+  
+  2. **Modify the request**
+     - Edit any part of the request (headers, parameters, body)
+     - Make precise changes to test specific behaviors
+  
+  3. **Send the request**
+     - Click "Send" to transmit the modified request
+     - View the response in the right panel
+  
+  4. **Analyze the response**
+     - Examine status code, headers, and body
+     - Switch between Raw, Pretty, Headers, Hex, and Render views
+     - Use search functionality to find specific content
+  
+  5. **Iterate**
+     - Make further modifications based on the response
+     - Send again to test different inputs or conditions
+</Steps>
+
+### Interface Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="interface-elements">
+    <AccordionTrigger>Key Interface Elements</AccordionTrigger>
+    <AccordionContent>
+      Understanding the Repeater interface:
+      
+      1. **Request panel (left)**
+         - Raw HTTP request
+         - Editable text area
+         - Headers and body sections
+      
+      2. **Response panel (right)**
+         - Server's response to your request
+         - Multiple view options
+         - Status code and timing information
+      
+      3. **Request list (top)**
+         - Tabs for multiple requests
+         - Rename, color-code, and organize requests
+         - Add comments for documentation
+      
+      4. **Control buttons**
+         - Send: Transmit the current request
+         - Cancel: Stop a pending request
+         - Target: Configure target host and port
+      
+      5. **View options**
+         - Raw: Plain text view
+         - Pretty: Formatted view with syntax highlighting
+         - Headers: Tabular view of headers
+         - Hex: Hexadecimal view for binary data
+         - Render: Browser-like rendering (limited)
+      
+      The dual-panel interface makes it easy to see the direct relationship between your modifications and the server's responses.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="inspector">
+    <AccordionTrigger>Inspector Panel (Professional)</AccordionTrigger>
+    <AccordionContent>
+      The Inspector provides structured editing for complex data:
+      
+      1. **Accessing Inspector**
+         - Click the "Inspector" button
+         - Available in Professional Edition only
+      
+      2. **Request analysis**
+         - Query parameters
+         - Body parameters
+         - Cookies
+         - Headers
+      
+      3. **Structured editing**
+         - Add, modify, or delete parameters
+         - Edit values with proper encoding
+         - Switch between different parameter types
+      
+      4. **Content-Type handling**
+         - Automatic detection of content types
+         - Specialized editors for JSON, XML, etc.
+         - Proper encoding and formatting
+      
+      The Inspector makes it much easier to work with complex requests containing nested data structures or numerous parameters.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Core Functionality
+
+### Request Manipulation
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="editing-requests">
+    <AccordionTrigger>Editing HTTP Requests</AccordionTrigger>
+    <AccordionContent>
+      Techniques for modifying requests:
+      
+      1. **Header manipulation**
+         - Add, modify, or remove HTTP headers
+         - Test for header-based vulnerabilities
+         - Modify authentication tokens
+      
+      2. **Parameter manipulation**
+         - Change parameter values
+         - Add new parameters
+         - Remove or reorder parameters
+      
+      3. **Content-Type changes**
+         - Switch between application/x-www-form-urlencoded and multipart/form-data
+         - Convert between formats (JSON, XML, etc.)
+         - Test content type validation
+      
+      4. **HTTP method switching**
+         - Change between GET, POST, PUT, DELETE, etc.
+         - Test method-based access controls
+         - Explore REST API functionality
+      
+      5. **Path manipulation**
+         - Modify URL paths
+         - Test directory traversal
+         - Explore path-based access controls
+      
+      The ability to precisely control every aspect of the request is what makes Repeater such a powerful testing tool.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="websockets">
+    <AccordionTrigger>WebSocket Testing</AccordionTrigger>
+    <AccordionContent>
+      Working with WebSocket connections:
+      
+      1. **Capturing WebSocket connections**
+         - Proxy WebSocket traffic
+         - Right-click and send to Repeater
+      
+      2. **Message types**
+         - Text messages
+         - Binary messages
+         - Control frames
+      
+      3. **Manipulating messages**
+         - Edit message content
+         - Send custom messages
+         - Test WebSocket security controls
+      
+      4. **Connection management**
+         - Maintain WebSocket connections
+         - Reconnect when needed
+         - View connection details
+      
+      WebSocket testing in Repeater allows you to interact with real-time applications and APIs that use this protocol.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Response Analysis
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="viewing-responses">
+    <AccordionTrigger>Response Viewing Options</AccordionTrigger>
+    <AccordionContent>
+      Different ways to analyze responses:
+      
+      1. **Raw view**
+         - Complete, unmodified response
+         - Headers and body together
+         - Useful for seeing exactly what the server returned
+      
+      2. **Pretty view**
+         - Syntax highlighting
+         - Formatted for readability
+         - Collapsible sections for HTML/JSON/XML
+      
+      3. **Headers view**
+         - Tabular display of response headers
+         - Easy to scan for specific headers
+         - Values displayed in separate column
+      
+      4. **Hex view**
+         - Hexadecimal representation
+         - Useful for binary data
+         - Identifies non-printable characters
+      
+      5. **Render view**
+         - Browser-like rendering
+         - Limited JavaScript execution
+         - Useful for visualizing HTML responses
+      
+      These different views make it easier to analyze various types of responses and identify security issues.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="search-compare">
+    <AccordionTrigger>Search and Compare</AccordionTrigger>
+    <AccordionContent>
+      Tools for analyzing response content:
+      
+      1. **Search functionality**
+         - Find text in responses
+         - Regular expression support
+         - Case-sensitive options
+      
+      2. **Highlighting**
+         - Highlight search matches
+         - Color-code important elements
+         - Identify patterns across responses
+      
+      3. **Response comparison (with Comparer)**
+         - Right-click and select "Send to Comparer"
+         - Compare responses side-by-side
+         - Identify subtle differences
+      
+      4. **History**
+         - View previous requests in the same tab
+         - Compare current response with previous ones
+         - Track changes over multiple iterations
+      
+      These analysis features help identify patterns, anomalies, and security issues in application responses.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Features
+
+### Target Configuration
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="target-settings">
+    <AccordionTrigger>Configuring Request Targets</AccordionTrigger>
+    <AccordionContent>
+      Control where requests are sent:
+      
+      1. **Target dialog**
+         - Click "Target" button above request panel
+         - Set host, port, and protocol
+         - Configure use of TLS/SSL
+      
+      2. **Host header handling**
+         - Update Host header automatically
+         - Override with custom Host header
+         - Test virtual host routing
+      
+      3. **Redirections**
+         - Follow redirections automatically
+         - Set maximum redirection depth
+         - Control whether to stay in target scope
+      
+      4. **Connection settings**
+         - Timeout configuration
+         - Connection reuse options
+         - Proxy settings
+      
+      Target configuration allows you to test how applications respond to unusual routing scenarios or when accessed through different entry points.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="request-history">
+    <AccordionTrigger>Request History and Management</AccordionTrigger>
+    <AccordionContent>
+      Working with multiple requests:
+      
+      1. **Tab management**
+         - Create multiple tabs for different requests
+         - Rename tabs for better organization
+         - Color-code tabs by functionality or vulnerability type
+      
+      2. **Request history**
+         - Access previous versions of requests in the same tab
+         - Revert to earlier versions
+         - Compare changes over time
+      
+      3. **Comments and annotations**
+         - Add comments to tabs
+         - Document findings and test cases
+         - Share context with team members
+      
+      4. **Tab groups (Professional)**
+         - Organize related requests together
+         - Create logical groupings
+         - Manage complex testing scenarios
+      
+      Effective request management helps organize your testing workflow and document your findings.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Integration with Other Tools
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="tool-workflow">
+    <AccordionTrigger>Repeater in the Burp Workflow</AccordionTrigger>
+    <AccordionContent>
+      How Repeater integrates with other Burp tools:
+      
+      1. **Proxy to Repeater**
+         - Intercept interesting requests
+         - Send to Repeater for manual testing
+         - Refine and explore behavior
+      
+      2. **Repeater to Intruder**
+         - Develop and test payloads in Repeater
+         - Send to Intruder for automation
+         - Use successful attacks as templates
+      
+      3. **Scanner to Repeater**
+         - Investigate Scanner findings
+         - Verify vulnerabilities manually
+         - Explore edge cases and variants
+      
+      4. **Repeater to Comparer**
+         - Send responses to Comparer
+         - Analyze differences between responses
+         - Identify subtle security issues
+      
+      5. **Decoder integration**
+         - Encode/decode values for testing
+         - Generate payloads
+         - Analyze encoded response data
+      
+      This integration creates a powerful workflow that combines automated scanning with precise manual testing.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="extensions">
+    <AccordionTrigger>Repeater Extensions</AccordionTrigger>
+    <AccordionContent>
+      Extend Repeater functionality with BApp Store extensions:
+      
+      1. **Request manipulation extensions**
+         - JWT Editor: Manipulate JSON Web Tokens
+         - Hackvertor: Advanced encoding/transformation
+         - Custom Parameter Handler: Automate parameter updates
+      
+      2. **Response analysis extensions**
+         - JSON Beautifier: Improved JSON formatting
+         - CSRF Scanner: Test for CSRF vulnerabilities
+         - JS Miner: Extract endpoints from JavaScript
+      
+      3. **Specialized testing extensions**
+         - GraphQL Raider: Test GraphQL APIs
+         - AWS Security Checks: Test AWS implementations
+         - OAuth Handler: Test OAuth implementations
+      
+      Extensions can significantly enhance Repeater's capabilities for specific testing scenarios or technologies.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Testing Techniques
+
+### Common Testing Scenarios
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="injection-testing">
+    <AccordionTrigger>Injection Vulnerability Testing</AccordionTrigger>
+    <AccordionContent>
+      Using Repeater to test for injection flaws:
+      
+      1. **SQL injection**
+         - Modify parameters with SQL syntax
+         - Look for database errors or behavioral changes
+         - Test different contexts (string, numeric, etc.)
+         - Example: Adding `'` or `1=1--` to parameters
+      
+      2. **Cross-site scripting (XSS)**
+         - Insert script tags and JavaScript
+         - Check if code is reflected in responses
+         - Test different contexts (HTML, attributes, JavaScript)
+         - Example: `<script>alert\(1\)</script>` or `"><img src=x onerror=alert\(1\)>`
+      
+      3. **Command injection**
+         - Add shell commands to parameters
+         - Look for command output in responses
+         - Test different command separators
+         - Example: `; ls -la` or `& whoami`
+      
+      4. **Server-side template injection**
+         - Insert template syntax
+         - Check for template evaluation
+         - Test different template engines
+         - Example: `${7*7}` or `{{7*7}}`
+      
+      Repeater's manual approach allows for precise crafting of payloads and careful analysis of responses.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="auth-testing">
+    <AccordionTrigger>Authentication and Authorization Testing</AccordionTrigger>
+    <AccordionContent>
+      Testing security controls:
+      
+      1. **Authentication bypass**
+         - Manipulate login requests
+         - Test for logic flaws
+         - Try default or weak credentials
+      
+      2. **Session management**
+         - Modify session tokens
+         - Test token validation
+         - Check for session fixation
+      
+      3. **Access control**
+         - Change user identifiers
+         - Access resources with different permissions
+         - Test horizontal and vertical privilege escalation
+      
+      4. **JWT testing**
+         - Modify JWT claims
+         - Test signature validation
+         - Check for algorithm confusion
+      
+      5. **OAuth and OIDC**
+         - Manipulate OAuth parameters
+         - Test redirect validation
+         - Check token handling
+      
+      Repeater is ideal for testing authentication and authorization because it allows precise control over credentials and tokens.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="api-testing">
+    <AccordionTrigger>API Testing</AccordionTrigger>
+    <AccordionContent>
+      Testing web APIs:
+      
+      1. **REST API testing**
+         - Modify HTTP methods (GET, POST, PUT, DELETE)
+         - Test different content types
+         - Manipulate API parameters
+      
+      2. **GraphQL testing**
+         - Craft custom queries
+         - Test query depth and complexity
+         - Explore schema through introspection
+      
+      3. **SOAP/XML testing**
+         - Modify XML payloads
+         - Test XML parsing
+         - Check for XXE vulnerabilities
+      
+      4. **JSON manipulation**
+         - Test type confusion
+         - Inject unexpected values
+         - Explore nested structures
+      
+      5. **API security controls**
+         - Test API keys and tokens
+         - Check rate limiting
+         - Verify content validation
+      
+      Repeater's flexibility makes it perfect for testing APIs with different protocols and data formats.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Advanced Testing Methods
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="race-conditions">
+    <AccordionTrigger>Testing for Race Conditions</AccordionTrigger>
+    <AccordionContent>
+      Identifying time-sensitive vulnerabilities:
+      
+      1. **Send group in parallel (Professional)**
+         - Select multiple tabs
+         - Right-click and choose "Send group in parallel"
+         - Analyze responses for inconsistencies
+      
+      2. **Manual timing techniques**
+         - Prepare multiple tabs with the same request
+         - Send them in quick succession
+         - Look for race condition indicators
+      
+      3. **Common race condition scenarios**
+         - Account registration
+         - Resource allocation
+         - Financial transactions
+         - File operations
+      
+      4. **Analysis techniques**
+         - Compare response times
+         - Look for unexpected successes
+         - Check for duplicate resource creation
+      
+      Race condition testing requires careful timing and analysis of how the application handles near-simultaneous requests.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="out-of-band">
+    <AccordionTrigger>Out-of-Band Testing with Collaborator (Professional)</AccordionTrigger>
+    <AccordionContent>
+      Testing for vulnerabilities that trigger external interactions:
+      
+      1. **Burp Collaborator integration**
+         - Right-click and select "Insert Collaborator payload"
+         - Choose payload type
+         - Monitor for interactions
+      
+      2. **Vulnerability types**
+         - Server-Side Request Forgery (SSRF)
+         - XML External Entity (XXE) injection
+         - Blind SQL injection
+         - Blind command injection
+      
+      3. **Payload placement**
+         - Insert in different request components
+         - Test various contexts
+         - Try different encoding techniques
+      
+      4. **Analysis techniques**
+         - Monitor Collaborator interactions
+         - Correlate with specific requests
+         - Analyze interaction types (DNS, HTTP, SMTP)
+      
+      Out-of-band testing is crucial for detecting vulnerabilities that don't produce immediate, observable results in the application's response.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Best Practices
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="workflow">
+    <AccordionTrigger>Effective Testing Workflow</AccordionTrigger>
+    <AccordionContent>
+      Maximize the effectiveness of your testing:
+      
+      1. **Methodical approach**
+         - Test one parameter at a time
+         - Document findings and observations
+         - Use a consistent testing methodology
+      
+      2. **Tab organization**
+         - Group related requests
+         - Use meaningful tab names
+         - Color-code by functionality or vulnerability type
+      
+      3. **Payload refinement**
+         - Start with simple tests
+         - Refine based on responses
+         - Develop targeted payloads
+      
+      4. **Response analysis**
+         - Look for subtle differences
+         - Pay attention to timing
+         - Consider both positive and negative results
+      
+      5. **Integration with other tools**
+         - Use Repeater findings to guide automated testing
+         - Verify automated findings manually
+         - Combine with other Burp tools for comprehensive testing
+      
+      A systematic approach ensures thorough testing and helps avoid missing potential vulnerabilities.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="ethical">
+    <AccordionTrigger>Ethical Considerations</AccordionTrigger>
+    <AccordionContent>
+      Responsible use of Repeater:
+      
+      1. **Authorization**
+         - Only test applications you own or have permission to test
+         - Respect scope limitations
+         - Adhere to responsible disclosure policies
+      
+      2. **Impact awareness**
+         - Consider the potential impact of your tests
+         - Avoid destructive testing in production
+         - Be cautious with sensitive functionality
+      
+      3. **Data handling**
+         - Respect privacy of discovered data
+         - Secure and properly dispose of findings
+         - Report sensitive data exposure responsibly
+      
+      4. **Legal compliance**
+         - Understand relevant laws and regulations
+         - Document authorization
+         - Stay within agreed boundaries
+      
+      <Callout type="warning">
+        Unauthorized testing may violate computer crime laws and could result in civil or criminal penalties.
+      </Callout>
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Troubleshooting
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="common-issues">
+    <AccordionTrigger>Common Issues and Solutions</AccordionTrigger>
+    <AccordionContent>
+      Solutions to frequently encountered problems:
+      
+      1. **Connection errors**
+         - Check target host and port configuration
+         - Verify network connectivity
+         - Check for TLS/SSL configuration issues
+      
+      2. **Unexpected responses**
+         - Verify all required headers are present
+         - Check for session expiration
+         - Look for CSRF protection mechanisms
+      
+      3. **Rendering issues**
+         - Try different view options
+         - Check for content encoding issues
+         - Use external tools for complex rendering
+      
+      4. **Performance problems**
+         - Close unused tabs
+         - Limit response size
+         - Increase memory allocation to Burp
+      
+      5. **Content-Length issues**
+         - Ensure Content-Length header is accurate
+         - Use "Update Content-Length" option
+         - Check for chunked transfer encoding
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+<Callout type="warning">
+  Always use Burp Suite Repeater ethically and legally. Only test applications you own or have explicit permission to test. Unauthorized testing may violate laws and regulations.
+</Callout>
+
+## Next Steps
+
+- [Intruder Tool Documentation](/docs/burp-suite/tools/intruder)
+- [Scanner Tool Documentation](/docs/burp-suite/tools/scanner)
+- [Decoder Tool Documentation](/docs/burp-suite/tools/decoder)
+- [Advanced Testing Techniques](/docs/burp-suite/advanced-techniques)
+- [Best Practices for Web Application Security Testing](/docs/burp-suite/best-practices)

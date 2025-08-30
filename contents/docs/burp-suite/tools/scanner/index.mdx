@@ -1,0 +1,664 @@
+---
+title: Burp Suite Scanner Tool
+description: Comprehensive guide to using Burp Suite's automated vulnerability scanner (Professional Edition)
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Steps } from "@/components/markdown/steps"
+
+# Burp Suite Scanner Tool
+
+<Callout type="info">
+  The Scanner tool is exclusively available in Burp Suite Professional Edition. It is not included in the Community Edition.
+</Callout>
+
+The Burp Scanner is an automated vulnerability detection tool that identifies security issues in web applications. It combines both passive and active scanning techniques to provide comprehensive coverage with minimal false positives.
+
+## Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="scanner-purpose">
+    <AccordionTrigger>Purpose and Functionality</AccordionTrigger>
+    <AccordionContent>
+      The Scanner serves as Burp Suite's automated vulnerability detection engine:
+      
+      - Identifies security vulnerabilities automatically
+      - Performs both passive and active scanning
+      - Provides detailed reports with evidence and remediation advice
+      - Integrates with other Burp tools for a seamless workflow
+      - Customizable scan configurations for different testing scenarios
+      
+      It significantly accelerates the testing process by automating the discovery of common vulnerabilities, allowing security professionals to focus on more complex issues requiring manual testing.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="scan-types">
+    <AccordionTrigger>Scan Types</AccordionTrigger>
+    <AccordionContent>
+      The Scanner offers two primary scanning methods:
+      
+      **Passive Scanning:**
+      - Analyzes existing traffic without sending additional requests
+      - Identifies issues based on responses already observed
+      - Zero impact on the target application
+      - Runs automatically in the background
+      - Detects information disclosure, security headers, cookie issues, etc.
+      
+      **Active Scanning:**
+      - Sends additional requests to probe for vulnerabilities
+      - Tests for injection flaws, XSS, SSRF, and other attack vectors
+      - Configurable scan intensity and throttling
+      - Can be targeted at specific functions or entire applications
+      - More comprehensive but potentially more intrusive
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Getting Started
+
+### Launching Scans
+
+<Tabs defaultValue="passive">
+  <TabsList>
+    <TabsTrigger value="passive">Passive Scanning</TabsTrigger>
+    <TabsTrigger value="active">Active Scanning</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="passive">
+    <Steps>
+      ### Setting Up Passive Scanning
+      
+      1. **Enable passive scanning**
+         - Go to Scanner → Live Scanning
+         - Ensure "Live Passive Scanning" is enabled
+      
+      2. **Configure scope**
+         - Go to Target → Scope
+         - Define which hosts/URLs should be included
+         - Only in-scope items will be passively scanned
+      
+      3. **Generate traffic**
+         - Browse the application through Burp Proxy
+         - All traffic will be automatically analyzed
+      
+      4. **View results**
+         - Issues appear in the Dashboard and Target → Site Map
+         - Each issue includes details, evidence, and remediation advice
+    </Steps>
+    
+    Passive scanning is always recommended as it has zero impact on the target application and can identify many security issues without additional requests.
+  </TabsContent>
+  
+  <TabsContent value="active">
+    <Steps>
+      ### Running Active Scans
+      
+      1. **Select the target**
+         - Right-click on a URL, folder, or host in the Site Map
+         - Or right-click on a request in Proxy history
+         - Select "Scan" or "Do active scan"
+      
+      2. **Configure scan settings**
+         - Select scan configurations and options
+         - Choose insertion points
+         - Set scan optimization options
+      
+      3. **Launch the scan**
+         - Click "OK" to start the active scan
+         - The scan will run in the background
+      
+      4. **Monitor progress**
+         - View scan progress in the Scanner → Active Scan queue
+         - See estimated remaining time and current activity
+      
+      5. **Review results**
+         - Issues appear in the Dashboard and Target → Site Map
+         - Each issue includes details, evidence, and remediation advice
+    </Steps>
+    
+    <Callout type="warning">
+      Active scanning sends additional requests to the target application and may have an impact on performance or stability. Always ensure you have proper authorization before running active scans.
+    </Callout>
+  </TabsContent>
+</Tabs>
+
+### Scan Configurations
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="scan-config">
+    <AccordionTrigger>Creating and Managing Scan Configurations</AccordionTrigger>
+    <AccordionContent>
+      Scan configurations allow you to customize how the Scanner operates:
+      
+      1. **Access scan configurations**
+         - Go to Scanner → Scan configurations
+      
+      2. **Built-in configurations**
+         - Audit checks - lightweight
+         - Audit checks - thorough
+         - Crawl strategy - fastest
+         - Crawl strategy - thorough
+      
+      3. **Creating custom configurations**
+         - Click "New" to create a new configuration
+         - Base it on an existing configuration or start from scratch
+         - Customize individual settings for your specific needs
+      
+      4. **Configuration options**
+         - Audit checks (which vulnerabilities to test for)
+         - Crawl strategy (how to discover content)
+         - Resource pool (throttling and performance)
+         - Application login (for authenticated scanning)
+         - Scan optimization
+      
+      Custom configurations are particularly valuable for specialized testing scenarios or when testing applications with unique requirements.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="audit-checks">
+    <AccordionTrigger>Audit Check Categories</AccordionTrigger>
+    <AccordionContent>
+      The Scanner includes numerous audit checks across various categories:
+      
+      - **Information gathering**: Identifies information disclosure issues
+      - **Injection checks**: Tests for SQL injection, command injection, etc.
+      - **Cross-site scripting**: Detects reflected, stored, and DOM-based XSS
+      - **Access control**: Identifies authorization issues
+      - **Server-side**: Tests for SSRF, XXE, path traversal, etc.
+      - **Client-side**: Checks for DOM vulnerabilities, CORS issues, etc.
+      - **Input validation**: Tests for various input validation flaws
+      - **Logic flaws**: Attempts to identify business logic vulnerabilities
+      - **File upload**: Tests file upload functionality for security issues
+      
+      Each category can be enabled or disabled, and individual checks within categories can be configured.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Configuration
+
+### Authenticated Scanning
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="auth-scanning">
+    <AccordionTrigger>Setting Up Authenticated Scans</AccordionTrigger>
+    <AccordionContent>
+      Testing authenticated functionality is crucial for thorough security assessment:
+      
+      1. **Record a macro**
+         - Go to Project options → Sessions
+         - Click "Add" in the Session Handling Rules section
+         - Create a rule with a macro that performs authentication
+         - Record the login sequence
+      
+      2. **Configure session handling**
+         - Set the scope for the rule (typically all URLs)
+         - Configure the rule to apply to Scanner
+      
+      3. **Test the macro**
+         - Use the "Test macro" button to verify it works correctly
+         - Ensure it successfully authenticates
+      
+      4. **Run authenticated scans**
+         - Start scans as normal
+         - The session handling rule will maintain authentication
+      
+      Authenticated scanning allows the Scanner to test protected functionality that would otherwise be inaccessible, providing more comprehensive coverage.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="auth-challenges">
+    <AccordionTrigger>Handling Authentication Challenges</AccordionTrigger>
+    <AccordionContent>
+      Different authentication mechanisms require different approaches:
+      
+      **Form-based authentication:**
+      - Record a macro that submits the login form
+      - Configure session validation using a logout link or profile page
+      
+      **API key authentication:**
+      - Use match and replace rules to add API keys to requests
+      - Or create a session handling rule that adds the necessary headers
+      
+      **OAuth/OIDC:**
+      - Record the OAuth flow as a macro
+      - Consider token refresh mechanisms
+      - May require custom extensions for complex flows
+      
+      **Multi-factor authentication:**
+      - Often requires manual intervention
+      - Consider using a fixed second factor for testing if possible
+      - May need to disable MFA in a test environment
+      
+      The right approach depends on the specific authentication mechanism used by the application.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Scan Optimization
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="optimization">
+    <AccordionTrigger>Performance and Accuracy Optimization</AccordionTrigger>
+    <AccordionContent>
+      Balance between thoroughness, speed, and server impact:
+      
+      1. **Resource pools**
+         - Configure concurrent requests
+         - Set throttling options
+         - Define maximum scan duration
+      
+      2. **Insertion point optimization**
+         - Select which parameters to test
+         - Configure custom insertion points
+         - Exclude certain parameter types
+      
+      3. **False positive reduction**
+         - Configure attack payload selection
+         - Set appropriate timeouts
+         - Use response correlation techniques
+      
+      4. **Scan scope refinement**
+         - Focus on critical functionality
+         - Exclude known safe areas
+         - Prioritize high-risk components
+      
+      Proper optimization ensures efficient use of time and resources while maintaining comprehensive coverage.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="crawling">
+    <AccordionTrigger>Crawl Configuration</AccordionTrigger>
+    <AccordionContent>
+      The crawler discovers content for scanning:
+      
+      1. **Crawl depth**
+         - Set maximum crawl depth
+         - Configure link following behavior
+      
+      2. **Form submission**
+         - Configure how forms are handled
+         - Set values for common form fields
+      
+      3. **Application technology detection**
+         - Enable/disable technology detection
+         - Configure custom technology matching
+      
+      4. **Excluded items**
+         - Define URL patterns to exclude
+         - Set file extension exclusions
+      
+      5. **Crawler limits**
+         - Maximum crawl duration
+         - Maximum requests
+         - Maximum discovered resources
+      
+      Effective crawling ensures the Scanner discovers all relevant content while avoiding problematic areas.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Understanding Results
+
+### Issue Types and Severity
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="issue-severity">
+    <AccordionTrigger>Severity Levels</AccordionTrigger>
+    <AccordionContent>
+      Burp Scanner categorizes issues by severity:
+      
+      - **High**: Critical vulnerabilities that pose significant risk
+        - Examples: SQL injection, remote code execution, authentication bypass
+      
+      - **Medium**: Significant security issues that should be addressed
+        - Examples: Stored XSS, CSRF, information disclosure
+      
+      - **Low**: Minor security issues with limited impact
+        - Examples: Cookie without HttpOnly flag, directory listing
+      
+      - **Information**: Informational findings that may be useful
+        - Examples: Technology disclosure, email address disclosure
+      
+      Severity levels help prioritize remediation efforts and focus on the most critical issues first.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="issue-details">
+    <AccordionTrigger>Issue Details and Evidence</AccordionTrigger>
+    <AccordionContent>
+      Each identified issue includes comprehensive information:
+      
+      1. **Issue description**
+         - Detailed explanation of the vulnerability
+         - Technical background information
+      
+      2. **Evidence**
+         - Request and response demonstrating the issue
+         - Highlighted relevant portions
+      
+      3. **Severity and confidence**
+         - Severity rating (High, Medium, Low, Information)
+         - Confidence level (Certain, Firm, Tentative)
+      
+      4. **Remediation advice**
+         - Recommendations for fixing the issue
+         - Best practices and secure coding guidance
+      
+      5. **References**
+         - Links to relevant resources
+         - OWASP, CWE, and other security standards
+      
+      This detailed information helps understand the issue, verify its existence, and implement appropriate fixes.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### False Positive Management
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="false-positives">
+    <AccordionTrigger>Identifying and Handling False Positives</AccordionTrigger>
+    <AccordionContent>
+      While Burp Scanner has a low false positive rate compared to many tools, false positives can still occur:
+      
+      1. **Verifying issues**
+         - Review the evidence provided
+         - Use Repeater to manually test the issue
+         - Consider the application context
+      
+      2. **Marking false positives**
+         - Right-click on the issue
+         - Select "Report as false positive"
+         - Add notes explaining why it's a false positive
+      
+      3. **Adjusting scan configurations**
+         - Disable checks that consistently produce false positives
+         - Refine insertion point selection
+         - Adjust attack payloads
+      
+      4. **Common false positive scenarios**
+         - Time-based detections affected by network latency
+         - Reflected content mistaken for XSS
+         - Error messages mistaken for SQL injection
+         - Coincidental matches in responses
+      
+      Proper false positive management improves the efficiency of the security testing process and the accuracy of final reports.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Integration with Other Tools
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="workflow">
+    <AccordionTrigger>Scanner Workflow with Other Burp Tools</AccordionTrigger>
+    <AccordionContent>
+      The Scanner integrates seamlessly with other Burp Suite tools:
+      
+      1. **Proxy integration**
+         - Passive scanning of Proxy traffic
+         - Right-click in Proxy history to launch active scans
+      
+      2. **Target site map**
+         - Issues displayed directly in the site map
+         - Color-coded by severity
+         - Filter site map by issue type or severity
+      
+      3. **Repeater integration**
+         - Send scanner findings to Repeater for manual verification
+         - Modify and refine attack payloads
+      
+      4. **Intruder integration**
+         - Use scanner payloads in Intruder attacks
+         - Send scanner insertion points to Intruder
+      
+      5. **Collaborator integration**
+         - Detect out-of-band vulnerabilities
+         - Correlate Collaborator interactions with scan requests
+      
+      This integration creates a powerful workflow that combines automated scanning with manual testing techniques.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="extensions">
+    <AccordionTrigger>Scanner Extensions</AccordionTrigger>
+    <AccordionContent>
+      Extend Scanner functionality with BApp Store extensions:
+      
+      1. **Additional scan checks**
+         - Active Scan++ adds additional vulnerability checks
+         - Software Vulnerability Scanner identifies vulnerable libraries
+         - Various specialized scanners for specific technologies
+      
+      2. **Results enhancement**
+         - Additional reporting formats
+         - Custom issue types
+         - Integration with external tools
+      
+      3. **Popular scanner extensions**
+         - Active Scan++
+         - Software Vulnerability Scanner
+         - Additional Scanner Checks
+         - Backslash Powered Scanner
+         - J2EE Scan
+         - CSRF Scanner
+      
+      Extensions can significantly enhance the Scanner's capabilities for specific testing scenarios or technologies.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Best Practices
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="scan-strategy">
+    <AccordionTrigger>Effective Scanning Strategy</AccordionTrigger>
+    <AccordionContent>
+      Maximize the effectiveness of your scanning efforts:
+      
+      1. **Start with passive scanning**
+         - Enable passive scanning from the beginning
+         - Browse the application thoroughly
+         - Review passive findings before active scanning
+      
+      2. **Targeted active scanning**
+         - Start with critical functionality
+         - Scan one section at a time
+         - Use appropriate scan configurations
+      
+      3. **Combine with manual testing**
+         - Use scanner findings as a starting point
+         - Manually verify and explore interesting issues
+         - Look for logical vulnerabilities the scanner can't detect
+      
+      4. **Iterative approach**
+         - Address false positives
+         - Refine scan configurations
+         - Rescan after configuration changes
+      
+      5. **Complete application coverage**
+         - Ensure all functionality is exercised
+         - Include authenticated and unauthenticated testing
+         - Test different user roles if applicable
+      
+      A methodical approach ensures comprehensive coverage and efficient use of time.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="performance">
+    <AccordionTrigger>Performance Considerations</AccordionTrigger>
+    <AccordionContent>
+      Optimize scanner performance and minimize impact:
+      
+      1. **Resource allocation**
+         - Adjust concurrent requests based on target capacity
+         - Use throttling for sensitive applications
+         - Configure appropriate timeouts
+      
+      2. **Scan scope**
+         - Limit scope to relevant areas
+         - Exclude static resources when possible
+         - Use focused scans for large applications
+      
+      3. **System resources**
+         - Allocate sufficient memory to Burp Suite
+         - Monitor CPU and memory usage
+         - Consider running on a powerful system for large scans
+      
+      4. **Scheduling**
+         - Run intensive scans during off-hours
+         - Split large applications into multiple scan sessions
+         - Consider the impact on production systems
+      
+      Proper performance optimization ensures efficient scanning while minimizing the impact on the target application.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Topics
+
+### Custom Scan Checks
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="custom-checks">
+    <AccordionTrigger>Creating Custom Scanner Checks</AccordionTrigger>
+    <AccordionContent>
+      Extend the Scanner with custom vulnerability checks:
+      
+      1. **Using Burp extensions**
+         - Develop Java or Python extensions
+         - Implement the `IScannerCheck` interface
+         - Register custom issue types
+      
+      2. **Custom passive checks**
+         - Analyze requests and responses
+         - Look for specific patterns or vulnerabilities
+         - Report custom issues
+      
+      3. **Custom active checks**
+         - Define custom insertion points
+         - Generate attack payloads
+         - Analyze responses for vulnerability indicators
+      
+      4. **Extension development resources**
+         - Burp Extender API documentation
+         - Example extensions on GitHub
+         - BApp Store submission guidelines
+      
+      Custom checks are particularly valuable for application-specific vulnerabilities or emerging security issues not yet covered by built-in checks.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="collaborator">
+    <AccordionTrigger>Advanced Collaborator Usage</AccordionTrigger>
+    <AccordionContent>
+      Burp Collaborator enhances scanner capabilities for out-of-band testing:
+      
+      1. **Out-of-band vulnerability detection**
+         - SSRF (Server-Side Request Forgery)
+         - Blind SQL injection
+         - XXE (XML External Entity) injection
+         - Blind command injection
+      
+      2. **Collaborator server options**
+         - Use PortSwigger's public Collaborator
+         - Deploy a private Collaborator server
+         - Configure custom Collaborator domains
+      
+      3. **Advanced Collaborator techniques**
+         - DNS exfiltration detection
+         - Custom payload generation
+         - Correlation with specific scan checks
+      
+      4. **Security considerations**
+         - Data sensitivity in Collaborator interactions
+         - Network restrictions and firewall considerations
+         - Private Collaborator deployment for sensitive testing
+      
+      Collaborator significantly enhances the Scanner's ability to detect vulnerabilities that don't produce immediate, observable results in the application's response.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### CI/CD Integration
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="cicd">
+    <AccordionTrigger>Integrating Scanner with CI/CD Pipelines</AccordionTrigger>
+    <AccordionContent>
+      Automate security testing as part of development workflows:
+      
+      1. **Burp Suite Enterprise**
+         - Purpose-built for CI/CD integration
+         - Scheduled and triggered scans
+         - API-driven automation
+      
+      2. **Professional Edition integration**
+         - Command-line interface
+         - REST API for automation
+         - Custom scripts and wrappers
+      
+      3. **Integration approaches**
+         - Pre-deployment security gates
+         - Scheduled scans of staging environments
+         - Post-deployment verification
+      
+      4. **Results processing**
+         - Parse and filter scan results
+         - Set acceptable thresholds
+         - Generate reports and notifications
+      
+      CI/CD integration ensures security testing is performed consistently throughout the development lifecycle, identifying vulnerabilities earlier when they're less expensive to fix.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Troubleshooting
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="common-issues">
+    <AccordionTrigger>Common Issues and Solutions</AccordionTrigger>
+    <AccordionContent>
+      Solutions to frequently encountered problems:
+      
+      1. **Scan not starting**
+         - Check target is in scope
+         - Verify sufficient system resources
+         - Ensure proper network connectivity
+      
+      2. **Scan running slowly**
+         - Adjust concurrent request settings
+         - Reduce scan scope
+         - Check for network latency
+      
+      3. **Missing vulnerabilities**
+         - Verify appropriate scan checks are enabled
+         - Ensure proper authentication configuration
+         - Check for application defenses blocking scans
+      
+      4. **Excessive false positives**
+         - Adjust scan sensitivity
+         - Update to the latest Burp version
+         - Configure appropriate scan checks
+      
+      5. **Application errors during scanning**
+         - Reduce scan intensity
+         - Configure throttling
+         - Exclude problematic endpoints
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+<Callout type="warning">
+  Always use Burp Suite Scanner ethically and legally. Only test applications you own or have explicit permission to test. Unauthorized scanning may violate laws and regulations.
+</Callout>
+
+## Next Steps
+
+- [Intruder Tool Documentation](/docs/burp-suite/tools/intruder)
+- [Repeater Tool Documentation](/docs/burp-suite/tools/repeater)
+- [Advanced Scanning Techniques](/docs/burp-suite/advanced-techniques)
+- [Best Practices for Web Application Security Testing](/docs/burp-suite/best-practices)

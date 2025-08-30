@@ -1,0 +1,139 @@
+---
+title: Burp Suite Tools
+description: Overview of the various tools available in Burp Suite
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+
+# Burp Suite Tools
+
+Burp Suite includes a variety of specialized tools designed to support different aspects of web application security testing. Each tool serves a specific purpose within the overall testing workflow.
+
+## Available Tools
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/proxy">Proxy</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Intercept and modify HTTP/S traffic between your browser and target applications
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/scanner">Scanner</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Automatically scan web applications for vulnerabilities
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/intruder">Intruder</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Perform customized automated attacks against web applications
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/repeater">Repeater</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Manually modify and resend individual HTTP/S requests
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/decoder">Decoder</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Encode, decode, and transform application data
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/comparer">Comparer</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Compare different pieces of data at the word or byte level
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/sequencer">Sequencer</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Analyze the randomness of session tokens and other data
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/target">Target</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Define the scope of your testing and analyze the target site structure
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/extender">Extender</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Add extensions to enhance Burp Suite's functionality
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/tools/options">Options</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Configure Burp Suite settings and preferences
+    </CardContent>
+  </Card>
+</div>
+
+<Callout type="info">
+  Each tool can be accessed from the top navigation bar in Burp Suite. The tools work together seamlessly, allowing you to pass data between them for comprehensive testing.
+</Callout>
+
+## Tool Integration
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="workflow">
+    <AccordionTrigger>Common Testing Workflows</AccordionTrigger>
+    <AccordionContent>
+      Burp Suite tools are designed to work together in various testing workflows:
+      
+      1. **Reconnaissance and mapping**
+         - Use Proxy to browse the application
+         - Target captures the site map automatically
+         - Analyze the structure in Target
+      
+      2. **Vulnerability discovery**
+         - Use Scanner for automated detection
+         - Use Intruder for targeted testing
+         - Use Repeater for manual verification
+      
+      3. **Analysis and exploitation**
+         - Use Decoder to analyze encoded data
+         - Use Comparer to identify differences
+         - Use Repeater to refine and exploit vulnerabilities
+      
+      4. **Reporting and documentation**
+         - Capture evidence with Proxy history
+         - Document findings with Scanner reports
+         - Verify fixes by retesting with Repeater
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Next Steps
+
+- [Introduction to Burp Suite](/docs/burp-suite/introduction)
+- [Core Features](/docs/burp-suite/core-features)
+- [Advanced Techniques](/docs/burp-suite/advanced-techniques)

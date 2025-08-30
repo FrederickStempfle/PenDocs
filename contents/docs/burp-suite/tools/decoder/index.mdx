@@ -1,0 +1,667 @@
+---
+title: Burp Suite Decoder Tool
+description: Comprehensive guide to using Burp Suite's Decoder tool for encoding, decoding, and transforming data
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Steps } from "@/components/markdown/steps"
+
+# Burp Suite Decoder Tool
+
+The Decoder tool is a utility within Burp Suite that allows you to encode, decode, hash, and transform data in various formats. It's available in both Community and Professional editions with identical functionality.
+
+## Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="decoder-purpose">
+    <AccordionTrigger>Purpose and Functionality</AccordionTrigger>
+    <AccordionContent>
+      Decoder serves as Burp Suite's data transformation utility:
+      
+      - Encode data in various formats (URL, HTML, Base64, etc.)
+      - Decode encoded content for analysis
+      - Hash data using common algorithms
+      - Convert between text and binary formats
+      - Apply custom transformations
+      
+      It's an essential tool for security testing, helping you understand how applications process encoded data and prepare payloads for testing.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="common-uses">
+    <AccordionTrigger>Common Use Cases</AccordionTrigger>
+    <AccordionContent>
+      Decoder is useful in many testing scenarios:
+      
+      1. **Payload preparation**
+         - Encode attack payloads to bypass filters
+         - Apply multiple encoding layers
+         - Create precisely formatted data
+      
+      2. **Response analysis**
+         - Decode encoded values in responses
+         - Reveal hidden or obfuscated content
+         - Understand application data formats
+      
+      3. **Authentication testing**
+         - Decode JWT tokens
+         - Analyze Base64-encoded credentials
+         - Examine cookie values
+      
+      4. **Obfuscation analysis**
+         - Decode JavaScript obfuscation
+         - Reveal hidden functionality
+         - Understand data protection mechanisms
+      
+      5. **Hash verification**
+         - Generate hashes for comparison
+         - Verify integrity of data
+         - Test hash-based functionality
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Interface Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="interface-elements">
+    <AccordionTrigger>Key Interface Elements</AccordionTrigger>
+    <AccordionContent>
+      Understanding the Decoder interface:
+      
+      1. **Input panel**
+         - Upper text area
+         - Where you paste or type data to transform
+         - Can be set to text or hex mode
+      
+      2. **Output panel**
+         - Lower text area
+         - Displays the result of transformations
+         - Can be set to text or hex mode
+      
+      3. **Transformation buttons**
+         - Encode: Apply various encoding methods
+         - Decode: Reverse various encoding methods
+         - Hash: Generate cryptographic hashes
+         - Smart decode: Automatically detect and decode
+      
+      4. **Text/Hex toggle**
+         - Switch between text and hexadecimal views
+         - Useful for binary data or non-printable characters
+      
+      The interface is designed for quick transformations and allows you to apply multiple operations in sequence.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Basic Operations
+
+### Encoding
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="encoding-options">
+    <AccordionTrigger>Available Encoding Methods</AccordionTrigger>
+    <AccordionContent>
+      Decoder offers various encoding options:
+      
+      1. **URL encoding**
+         - Converts characters to %XX format
+         - Standard encoding (spaces as +)
+         - Full encoding (all non-alphanumeric)
+      
+      2. **HTML encoding**
+         - Entity encoding (&lt; for <)
+         - Decimal and hex formats
+         - All characters or minimal set
+      
+      3. **Base64**
+         - Standard Base64 encoding
+         - URL-safe variant
+      
+      4. **ASCII Hex**
+         - Converts each character to hex value
+      
+      5. **Hex encoding**
+         - Represents binary data as hexadecimal
+      
+      6. **Octal encoding**
+         - Represents data in base-8 format
+      
+      7. **Binary encoding**
+         - Converts to binary (base-2) representation
+      
+      8. **GZIP encoding**
+         - Compresses data using GZIP algorithm
+      
+      Each encoding method has specific use cases in web application testing.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="encoding-workflow">
+    <AccordionTrigger>Encoding Workflow</AccordionTrigger>
+    <AccordionContent>
+      Steps for encoding data:
+      
+      1. **Input data**
+         - Type or paste data into the input panel
+         - Or right-click elsewhere in Burp and select "Send to Decoder"
+      
+      2. **Select encoding method**
+         - Click the "Encode as..." button
+         - Choose the desired encoding method
+      
+      3. **Review result**
+         - The encoded output appears in the output panel
+      
+      4. **Chain encodings (optional)**
+         - Click "Copy as input" to use the result for further encoding
+         - Apply additional encoding methods as needed
+      
+      5. **Copy result**
+         - Right-click and select "Copy" to use the encoded data elsewhere
+      
+      This workflow allows you to create precisely encoded payloads for security testing.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Decoding
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="decoding-options">
+    <AccordionTrigger>Available Decoding Methods</AccordionTrigger>
+    <AccordionContent>
+      Decoder can reverse various encoding methods:
+      
+      1. **URL decoding**
+         - Converts %XX format back to characters
+      
+      2. **HTML decoding**
+         - Converts HTML entities back to characters
+      
+      3. **Base64 decoding**
+         - Standard and URL-safe variants
+      
+      4. **ASCII Hex decoding**
+         - Converts hex values back to characters
+      
+      5. **Hex decoding**
+         - Converts hexadecimal to binary data
+      
+      6. **Octal decoding**
+         - Converts octal values to characters
+      
+      7. **Binary decoding**
+         - Converts binary to characters
+      
+      8. **GZIP decoding**
+         - Decompresses GZIP data
+      
+      These decoding options help you analyze encoded data found in applications.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="smart-decode">
+    <AccordionTrigger>Smart Decode Feature</AccordionTrigger>
+    <AccordionContent>
+      Automatically detect and decode content:
+      
+      1. **Functionality**
+         - Analyzes input to detect encoding type
+         - Applies appropriate decoding method
+         - Handles multiple layers of encoding
+      
+      2. **Usage**
+         - Paste encoded content
+         - Click "Smart decode"
+         - Review the decoded result
+      
+      3. **Limitations**
+         - May not detect all encoding types
+         - Can be confused by certain patterns
+         - Best for common web encodings
+      
+      4. **Best practices**
+         - Try smart decode first for unknown encodings
+         - Fall back to manual methods if needed
+         - Verify results make sense
+      
+      Smart decode is particularly useful when dealing with multiple or unknown encoding layers.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Hashing
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="hash-algorithms">
+    <AccordionTrigger>Available Hash Algorithms</AccordionTrigger>
+    <AccordionContent>
+      Generate cryptographic hashes:
+      
+      1. **MD5**
+         - 128-bit hash
+         - Fast but cryptographically broken
+         - Still used for non-security checksums
+      
+      2. **SHA-1**
+         - 160-bit hash
+         - Deprecated for security purposes
+         - Still common in legacy systems
+      
+      3. **SHA-224/256/384/512**
+         - Secure hash algorithm family
+         - Different output lengths for different security levels
+         - Current standard for many applications
+      
+      4. **RIPEMD-160**
+         - 160-bit hash
+         - Alternative to SHA-1
+      
+      5. **Custom hash functions**
+         - Available through extensions
+      
+      Hashing is useful for verifying data integrity, analyzing hash-based authentication, and testing hash comparison functionality.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="hash-workflow">
+    <AccordionTrigger>Hashing Workflow</AccordionTrigger>
+    <AccordionContent>
+      Steps for generating hashes:
+      
+      1. **Input data**
+         - Type or paste data into the input panel
+      
+      2. **Select hash algorithm**
+         - Click the "Hash" button
+         - Choose the desired algorithm
+      
+      3. **Review hash**
+         - The hash appears in the output panel
+         - Displayed in hexadecimal format
+      
+      4. **Copy result**
+         - Right-click and select "Copy" to use the hash elsewhere
+      
+      Hashing is a one-way operation - you cannot "decode" a hash back to its original input.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Features
+
+### Text and Binary Modes
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="text-hex-modes">
+    <AccordionTrigger>Working with Text and Hex Views</AccordionTrigger>
+    <AccordionContent>
+      Switch between different data representations:
+      
+      1. **Text mode**
+         - Displays data as text characters
+         - Good for human-readable content
+         - May show unexpected characters for binary data
+      
+      2. **Hex mode**
+         - Displays data as hexadecimal bytes
+         - Essential for binary data
+         - Shows non-printable characters
+         - Reveals hidden bytes
+      
+      3. **Switching modes**
+         - Click "Text" or "Hex" buttons
+         - Can have different modes for input and output
+      
+      4. **Use cases**
+         - Text mode: Working with readable strings, URLs, HTML
+         - Hex mode: Binary files, encrypted data, examining byte patterns
+      
+      The ability to switch between text and hex views is crucial when working with different data types and formats.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Custom Transformations
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="custom-transforms">
+    <AccordionTrigger>Custom Transformation Rules</AccordionTrigger>
+    <AccordionContent>
+      Create specialized transformations:
+      
+      1. **Find and replace**
+         - Replace specific patterns or strings
+         - Use literal text or regex patterns
+         - Case-sensitive or insensitive options
+      
+      2. **Character substitution**
+         - Replace individual characters
+         - Create custom encoding schemes
+      
+      3. **Chaining transformations**
+         - Apply multiple rules in sequence
+         - Create complex transformations
+      
+      4. **Use cases**
+         - Custom obfuscation techniques
+         - Application-specific encoding
+         - Targeted payload modifications
+      
+      Custom transformations allow you to handle specialized encoding schemes or create precisely formatted payloads.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Practical Applications
+
+### Payload Crafting
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="bypass-techniques">
+    <AccordionTrigger>Filter Bypass Techniques</AccordionTrigger>
+    <AccordionContent>
+      Using Decoder to craft payloads that bypass security controls:
+      
+      1. **XSS payload encoding**
+         - HTML encode to bypass basic filters
+         - Double encoding to bypass WAFs
+         - Mixed encoding techniques
+         - Example: `<script>` → `%3Cscript%3E` → `%253Cscript%253E`
+      
+      2. **SQL injection encoding**
+         - URL encode special characters
+         - Hex encoding for string literals
+         - Comment variations
+         - Example: `' OR 1=1--` → `%27%20OR%201%3D1--%20`
+      
+      3. **Command injection obfuscation**
+         - Encode spaces and special characters
+         - Use alternative command separators
+         - Example: `; ls -la` → `%3B%20ls%20-la`
+      
+      4. **Path traversal variations**
+         - Double encoding of slashes and dots
+         - Alternative path representations
+         - Example: `../../../etc/passwd` → `%2E%2E%2F%2E%2E%2F%2E%2E%2Fetc%2Fpasswd`
+      
+      Understanding how applications decode and process input is key to crafting effective bypass payloads.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Response Analysis
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="token-analysis">
+    <AccordionTrigger>Analyzing Authentication Tokens</AccordionTrigger>
+    <AccordionContent>
+      Using Decoder to examine authentication mechanisms:
+      
+      1. **JWT token analysis**
+         - Base64 decode each part of the JWT
+         - Examine header and payload claims
+         - Identify algorithm and signature method
+      
+      2. **Session cookie inspection**
+         - Decode Base64 or URL-encoded cookies
+         - Look for patterns and identifiable information
+         - Identify potential weaknesses
+      
+      3. **OAuth token examination**
+         - Decode access and refresh tokens
+         - Analyze token structure and claims
+         - Identify scope and permissions
+      
+      4. **Custom token formats**
+         - Try different decoding methods
+         - Look for patterns in decoded output
+         - Identify encoding layers
+      
+      Analyzing tokens helps understand authentication mechanisms and identify potential security weaknesses.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="hidden-data">
+    <AccordionTrigger>Revealing Hidden Data</AccordionTrigger>
+    <AccordionContent>
+      Uncovering obfuscated information:
+      
+      1. **JavaScript obfuscation**
+         - Decode eval'd Base64 strings
+         - Decode escaped Unicode characters
+         - Reveal hidden functionality
+      
+      2. **Hidden form fields**
+         - Decode encoded values
+         - Understand validation mechanisms
+         - Identify client-side controls
+      
+      3. **Embedded data**
+         - Extract and decode data from responses
+         - Reveal API endpoints or credentials
+         - Uncover internal information
+      
+      4. **Steganography**
+         - Extract hidden data from images or files
+         - Decode using appropriate methods
+      
+      Revealing hidden data can expose sensitive information or undocumented functionality.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Integration with Other Tools
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="tool-workflow">
+    <AccordionTrigger>Decoder in the Burp Workflow</AccordionTrigger>
+    <AccordionContent>
+      How Decoder integrates with other Burp tools:
+      
+      1. **Proxy to Decoder**
+         - Right-click on a request or response
+         - Select "Send to Decoder"
+         - Analyze or modify encoded content
+      
+      2. **Repeater to Decoder**
+         - Select content in a request
+         - Right-click and send to Decoder
+         - Encode for testing, then copy back
+      
+      3. **Intruder to Decoder**
+         - Prepare payloads in Decoder
+         - Copy encoded content to Intruder payloads
+         - Use for payload processing
+      
+      4. **Scanner integration**
+         - Analyze encoded content in Scanner findings
+         - Understand how vulnerabilities work
+      
+      5. **Extensions integration**
+         - Custom extensions can use Decoder functionality
+         - Process data through Decoder programmatically
+      
+      This integration creates a seamless workflow for handling encoded data throughout the testing process.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="context-menu">
+    <AccordionTrigger>Context Menu Integration</AccordionTrigger>
+    <AccordionContent>
+      Quick access to Decoder functionality:
+      
+      1. **Send to Decoder option**
+         - Available in context menus throughout Burp
+         - Select text in any tool
+         - Right-click and choose "Send to Decoder"
+      
+      2. **Apply transformations directly**
+         - Right-click selected text
+         - Choose "Convert selection"
+         - Select encoding/decoding method
+      
+      3. **Copy as transformed**
+         - Right-click selected text
+         - Choose "Copy as"
+         - Select desired format
+      
+      4. **Use cases**
+         - Quick encoding of payloads
+         - Decoding values without switching tools
+         - Streamlining the testing workflow
+      
+      Context menu integration makes Decoder functionality available throughout Burp Suite without switching tabs.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Best Practices
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="workflow-tips">
+    <AccordionTrigger>Efficient Workflow Tips</AccordionTrigger>
+    <AccordionContent>
+      Maximize your productivity with Decoder:
+      
+      1. **Use keyboard shortcuts**
+         - Ctrl+B: Send to Decoder
+         - Ctrl+C/Ctrl+V: Copy/paste
+         - Tab: Switch between panels
+      
+      2. **Save common transformations**
+         - Keep notes of useful encoding chains
+         - Document application-specific encodings
+      
+      3. **Test multiple encoding variations**
+         - Try different encoding combinations
+         - Test both minimal and full encoding
+      
+      4. **Compare encoded outputs**
+         - Send to Comparer to analyze differences
+         - Identify subtle variations
+      
+      5. **Maintain encoding context**
+         - Note which encodings were applied
+         - Document the order of operations
+      
+      An efficient workflow helps you quickly analyze and prepare data for security testing.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="common-patterns">
+    <AccordionTrigger>Recognizing Common Encoding Patterns</AccordionTrigger>
+    <AccordionContent>
+      Learn to identify encoding types by sight:
+      
+      1. **URL encoding**
+         - Contains % followed by two hex digits
+         - Example: `%20` for space, `%3D` for =
+      
+      2. **Base64**
+         - Contains only A-Z, a-z, 0-9, +, /, and = (padding)
+         - Often ends with = or ==
+         - Example: `SGVsbG8gV29ybGQ=`
+      
+      3. **HTML encoding**
+         - Entity references like `&lt;` or `&#60;`
+         - Named or numeric entities
+      
+      4. **Hex encoding**
+         - Pairs of hex digits (0-9, A-F)
+         - Often space or delimiter separated
+         - Example: `48 65 6C 6C 6F`
+      
+      5. **JWT tokens**
+         - Three Base64 sections separated by dots
+         - Example: `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U`
+      
+      Recognizing patterns helps you quickly identify the appropriate decoding method.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Troubleshooting
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="common-issues">
+    <AccordionTrigger>Common Issues and Solutions</AccordionTrigger>
+    <AccordionContent>
+      Solutions to frequently encountered problems:
+      
+      1. **Garbled output after decoding**
+         - Try different encoding methods
+         - Check for multiple encoding layers
+         - Switch between text and hex views
+         - Verify the input is correctly formatted
+      
+      2. **Base64 decoding errors**
+         - Check for proper padding (= characters)
+         - Verify it's standard Base64 (not URL-safe)
+         - Remove line breaks or whitespace
+      
+      3. **Incomplete decoding**
+         - Look for nested or layered encoding
+         - Try smart decode for multiple layers
+         - Decode iteratively, one layer at a time
+      
+      4. **Binary data handling**
+         - Switch to hex view for binary data
+         - Use appropriate encoding for binary content
+         - Be cautious with character encoding conversions
+      
+      5. **Large data performance**
+         - Split large data into smaller chunks
+         - Be patient with complex transformations
+         - Consider using external tools for very large data
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Extensions and Customization
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="decoder-extensions">
+    <AccordionTrigger>Extending Decoder Functionality</AccordionTrigger>
+    <AccordionContent>
+      Add capabilities with extensions:
+      
+      1. **Hackvertor**
+         - Advanced encoding/decoding extension
+         - Tag-based transformation system
+         - Supports numerous additional encodings
+         - Custom transformation chains
+      
+      2. **Custom Encoder**
+         - Create and save custom encoding rules
+         - Define transformation sequences
+         - Reuse common operations
+      
+      3. **Additional hash algorithms**
+         - Extensions for specialized hash functions
+         - Support for HMAC and other variants
+      
+      4. **Cryptographic extensions**
+         - Encryption/decryption capabilities
+         - Key generation and management
+         - Common crypto algorithms
+      
+      Extensions from the BApp Store can significantly enhance Decoder's capabilities for specialized testing scenarios.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+<Callout type="info">
+  The Decoder tool is identical in both Community and Professional editions, making it fully accessible to all Burp Suite users without limitations.
+</Callout>
+
+## Next Steps
+
+- [Comparer Tool Documentation](/docs/burp-suite/tools/comparer)
+- [Sequencer Tool Documentation](/docs/burp-suite/tools/sequencer)
+- [Intruder Tool Documentation](/docs/burp-suite/tools/intruder)
+- [Advanced Encoding Techniques](/docs/burp-suite/advanced-techniques)
+- [Best Practices for Web Application Security Testing](/docs/burp-suite/best-practices)

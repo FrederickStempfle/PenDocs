@@ -6,7 +6,7 @@ description: Detailed comparison of features between Burp Suite Community Editio
 import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Callout } from "@/components/markdown/callout"
-import { Card, Cards } from "@/components/markdown/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 # Burp Suite Core Features
 
@@ -188,20 +188,40 @@ This page provides a comprehensive comparison between the free Community Edition
 
 ## Use Cases
 
-<Cards>
-  <Card title="Security Professionals" href="/docs/burp-suite/core-features/professional-edition">
-    Security consultants and penetration testers benefit from the Professional Edition's comprehensive feature set, which enables efficient and thorough security assessments.
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/core-features/professional-edition">Security Professionals</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Security consultants and penetration testers benefit from the Professional Edition's comprehensive feature set, which enables efficient and thorough security assessments.
+    </CardContent>
   </Card>
-  <Card title="Students & Beginners" href="/docs/burp-suite/core-features/free-edition">
-    Those learning web security can start with the Community Edition to understand core concepts before investing in the Professional Edition.
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/core-features/free-edition">Students & Beginners</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Those learning web security can start with the Community Edition to understand core concepts before investing in the Professional Edition.
+    </CardContent>
   </Card>
-  <Card title="Development Teams" href="/docs/burp-suite/core-features/professional-edition">
-    Development teams integrating security testing into their workflow will find the Professional Edition's automation features and project saving capabilities essential.
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/core-features/professional-edition">Development Teams</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Development teams integrating security testing into their workflow will find the Professional Edition's automation features and project saving capabilities essential.
+    </CardContent>
   </Card>
-  <Card title="Bug Bounty Hunters" href="/docs/burp-suite/core-features/professional-edition">
-    Bug bounty hunters rely on the Professional Edition's advanced features to efficiently discover vulnerabilities in target applications.
+  <Card>
+    <CardHeader>
+      <CardTitle><a href="/docs/burp-suite/core-features/professional-edition">Bug Bounty Hunters</a></CardTitle>
+    </CardHeader>
+    <CardContent>
+      Bug bounty hunters rely on the Professional Edition's advanced features to efficiently discover vulnerabilities in target applications.
+    </CardContent>
   </Card>
-</Cards>
+</div>
 
 ## Licensing and Pricing
 
@@ -215,7 +235,7 @@ This page provides a comprehensive comparison between the free Community Edition
 - **Restrictions**: For personal, non-commercial use only
 
 ### Professional Edition
-- **Cost**: Annual subscription (check website for current pricing)
+- **Cost**: Annual subscription \(check website for current pricing\)
 - **License Types**:
   - Individual user license
   - Enterprise licenses for teams

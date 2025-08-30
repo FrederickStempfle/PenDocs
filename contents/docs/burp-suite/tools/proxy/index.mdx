@@ -1,0 +1,813 @@
+---
+title: Burp Suite Proxy Tool
+description: Comprehensive guide to using Burp Suite's Proxy tool for intercepting, analyzing, and modifying HTTP/S traffic
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Steps } from "@/components/markdown/steps"
+
+# Burp Suite Proxy Tool
+
+The Proxy is Burp Suite's core intercepting proxy tool that lets you inspect and modify traffic between your browser and target applications. It serves as the central hub for most web application security testing activities.
+
+## Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="proxy-purpose">
+    <AccordionTrigger>Purpose and Functionality</AccordionTrigger>
+    <AccordionContent>
+      The Burp Proxy functions as a man-in-the-middle between your browser and target web applications, allowing you to:
+      
+      - Intercept and view HTTP/S requests and responses
+      - Modify requests before they reach the server
+      - Modify responses before they reach the browser
+      - Analyze the complete history of your browsing traffic
+      - Forward intercepted traffic to other Burp tools
+      - Apply various filters to focus on relevant traffic
+      - Manipulate cookies, headers, and parameters
+      
+      This visibility and control over web traffic is fundamental to web application security testing, making the Proxy the most frequently used tool in Burp Suite.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="proxy-editions">
+    <AccordionTrigger>Community vs. Professional Edition</AccordionTrigger>
+    <AccordionContent>
+      The Proxy tool is available in both Community and Professional editions, with some differences:
+      
+      **Community Edition:**
+      - Basic interception capabilities
+      - HTTP history and WebSockets history
+      - Simple match and replace rules
+      - Basic proxy listeners configuration
+      
+      **Professional Edition:**
+      - All Community features
+      - Advanced match and replace rules
+      - Response modification rules
+      - Automatic matching
+      - Enhanced history search and filtering
+      - Better integration with the Scanner
+      - More advanced WebSockets interception
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Setup and Configuration
+
+### Browser Configuration
+
+<Tabs defaultValue="manual">
+  <TabsList>
+    <TabsTrigger value="manual">Manual Configuration</TabsTrigger>
+    <TabsTrigger value="extension">Browser Extension</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="manual">
+    <Steps>
+      ### Configure Browser Proxy Settings Manually
+      
+      1. **Find your browser's proxy settings**
+         - Chrome: Settings → Advanced → System → Open your computer's proxy settings
+         - Firefox: Options → General → Network Settings → Settings
+         - Edge: Settings → System and performance → Open your computer's proxy settings
+      
+      2. **Configure the proxy settings**
+         - Proxy type: HTTP
+         - Proxy host/address: 127.0.0.1 (localhost)
+         - Port: 8080 (Burp's default)
+         - No proxy for: Leave empty or add exceptions as needed
+      
+      3. **Apply settings and test**
+         - Visit any website to verify traffic is flowing through Burp
+         - You should see requests appearing in Burp's Proxy → HTTP history tab
+    </Steps>
+  </TabsContent>
+  
+  <TabsContent value="extension">
+    <Steps>
+      ### Configure Using Browser Extension
+      
+      1. **Install the appropriate extension**
+         - Chrome/Edge: Install "FoxyProxy" or "SwitchyOmega" from Chrome Web Store
+         - Firefox: Install "FoxyProxy" from Firefox Add-ons
+      
+      2. **Configure the extension**
+         - Create a new proxy profile
+         - Set proxy type to HTTP
+         - Set address to 127.0.0.1
+         - Set port to 8080
+         - Save the profile
+      
+      3. **Enable the proxy**
+         - Click the extension icon
+         - Select the Burp proxy profile
+         - Traffic should now flow through Burp
+      
+      4. **Create switching rules (optional)**
+         - Configure rules to only send specific domains through Burp
+         - This helps reduce noise in your Burp history
+    </Steps>
+  </TabsContent>
+</Tabs>
+
+### HTTPS Interception
+
+<Callout type="warning">
+  To intercept HTTPS traffic, you must install Burp's CA certificate in your browser. Without this step, you'll encounter certificate errors or be unable to view encrypted traffic.
+</Callout>
+
+<Steps>
+  ### Installing Burp's CA Certificate
+  
+  1. **Access the certificate**
+     - With Burp running, navigate to http://burp in your browser
+     - Click the "CA Certificate" button to download the certificate
+  
+  2. **Install in your browser**
+     
+     **Chrome/Edge:**
+     - Go to Settings → Privacy and security → Security → Manage certificates
+     - Import the downloaded certificate into the "Trusted Root Certification Authorities" store
+     
+     **Firefox:**
+     - Go to Options → Privacy & Security → Certificates → View Certificates
+     - Import the certificate and check "Trust this CA to identify websites"
+     
+     **macOS:**
+     - Double-click the certificate file
+     - Add to your login keychain
+     - Open Keychain Access, find the certificate
+     - Set to "Always Trust"
+  
+  3. **Verify installation**
+     - Visit an HTTPS site through Burp
+     - You should see the encrypted traffic in Burp without certificate errors
+</Steps>
+
+### Proxy Listeners
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="proxy-listeners">
+    <AccordionTrigger>Configuring Proxy Listeners</AccordionTrigger>
+    <AccordionContent>
+      Proxy listeners determine how Burp receives incoming connections:
+      
+      1. **Access listener settings**
+         - Go to Proxy → Options tab → Proxy Listeners section
+      
+      2. **Default listener**
+         - By default, Burp listens on 127.0.0.1:8080
+         - This works for most testing scenarios
+      
+      3. **Adding custom listeners**
+         - Click "Add" to create additional listeners
+         - Specify binding (interface and port)
+         - Configure request handling rules
+      
+      4. **Advanced options**
+         - Support for invisible proxying
+         - SOCKS proxy support
+         - Custom TLS certificates
+         - Specific hostname resolution
+      
+      5. **Common scenarios**
+         - Binding to all interfaces (0.0.0.0) for remote devices
+         - Using different ports for different applications
+         - Creating specific listeners for mobile testing
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="invisible-proxying">
+    <AccordionTrigger>Invisible Proxying</AccordionTrigger>
+    <AccordionContent>
+      Invisible proxying is useful for testing non-proxy-aware clients:
+      
+      1. **Enable invisible proxying**
+         - Select a listener in Proxy → Options
+         - Edit the listener
+         - Check "Support invisible proxying"
+      
+      2. **Configure your environment**
+         - Set up network routing to direct traffic through Burp
+         - For mobile devices, configure Wi-Fi settings to use Burp as a gateway
+      
+      3. **DNS considerations**
+         - You may need to configure DNS resolution
+         - Use Burp's hostname resolution options or a custom DNS server
+      
+      This mode is particularly valuable when testing mobile applications, thick clients, or other non-browser applications.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Using the Proxy
+
+### Intercepting Traffic
+
+<Tabs defaultValue="basic">
+  <TabsList>
+    <TabsTrigger value="basic">Basic Interception</TabsTrigger>
+    <TabsTrigger value="advanced">Advanced Techniques</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="basic">
+    <Steps>
+      ### Basic Traffic Interception
+      
+      1. **Enable interception**
+         - Go to Proxy → Intercept tab
+         - Click "Intercept is off" to toggle it to "Intercept is on"
+      
+      2. **Generate traffic**
+         - Browse to your target application in your configured browser
+         - Requests will be captured and displayed in the Intercept tab
+      
+      3. **Review requests**
+         - Examine the raw request, headers, parameters, and body
+         - Switch between different views (raw, params, headers, etc.)
+      
+      4. **Modify if needed**
+         - Edit any part of the request directly in the editor
+         - Changes are highlighted for clarity
+      
+      5. **Forward or drop**
+         - Click "Forward" to send the request to the server
+         - Click "Drop" to discard the request
+         - Click "Action" for additional options
+      
+      6. **Handle responses**
+         - If response interception is enabled, responses will also be intercepted
+         - Review and modify responses before they reach the browser
+    </Steps>
+  </TabsContent>
+  
+  <TabsContent value="advanced">
+    ### Advanced Interception Techniques
+    
+    #### Selective Interception
+    
+    Configure interception rules to focus on specific traffic:
+    
+    1. Go to Proxy → Options → Intercept Client Requests/Responses
+    2. Create rules based on:
+       - URL patterns
+       - File extensions
+       - HTTP methods
+       - MIME types
+       - Request/response size
+    
+    #### Automatic Request Modification
+    
+    Use match and replace rules to automatically modify traffic:
+    
+    1. Go to Proxy → Options → Match and Replace
+    2. Create rules to:
+       - Add/modify headers
+       - Change parameter values
+       - Replace specific strings
+       - Modify cookies
+    
+    #### Intercepting WebSockets
+    
+    1. Enable WebSockets interception in Proxy → Options
+    2. View WebSockets traffic in the WebSockets history tab
+    3. Intercept and modify WebSockets messages
+    
+    #### Working with Non-Standard Protocols
+    
+    For applications using non-standard protocols over HTTP:
+    
+    1. Use the Proxy → Options → TLS Pass Through for specific hosts
+    2. Consider custom extensions for protocol-specific handling
+    3. Utilize Burp Infiltrator for thick client applications
+  </TabsContent>
+</Tabs>
+
+### HTTP History
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="history-overview">
+    <AccordionTrigger>Working with HTTP History</AccordionTrigger>
+    <AccordionContent>
+      The HTTP history tab maintains a record of all HTTP/S traffic processed by the Proxy:
+      
+      1. **Accessing history**
+         - Go to Proxy → HTTP history tab
+         - All requests and responses are listed chronologically
+      
+      2. **Viewing details**
+         - Select any entry to view request and response details
+         - Switch between different view options (raw, pretty, hex, etc.)
+      
+      3. **Filtering history**
+         - Use the filter bar to narrow down entries
+         - Filter by host, method, status code, MIME type, etc.
+         - Save and load filter presets for common scenarios
+      
+      4. **Searching history**
+         - Use the search function to find specific content
+         - Search in requests, responses, or both
+         - Use regular expressions for advanced searches
+      
+      5. **Sending to other tools**
+         - Right-click entries to send to other Burp tools
+         - Send to Repeater for manual testing
+         - Send to Intruder for automated testing
+         - Send to Scanner for vulnerability scanning (Professional only)
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="history-analysis">
+    <AccordionTrigger>Analysis Techniques</AccordionTrigger>
+    <AccordionContent>
+      Effective analysis of HTTP history can reveal valuable insights:
+      
+      1. **Identifying authentication mechanisms**
+         - Examine login requests and responses
+         - Analyze cookie patterns and session tokens
+      
+      2. **Mapping application functionality**
+         - Review the sequence of requests during normal usage
+         - Identify API endpoints and parameters
+      
+      3. **Finding hidden parameters**
+         - Look for parameters that appear in some requests but not others
+         - Identify potential test points
+      
+      4. **Analyzing response patterns**
+         - Compare responses to similar requests
+         - Look for error messages and information disclosure
+      
+      5. **Identifying security controls**
+         - Look for CSRF tokens, security headers, and other protections
+         - Note how the application handles authentication and authorization
+      
+      The history provides a comprehensive view of the application's behavior, which is essential for thorough security testing.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### WebSockets History
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="websockets-overview">
+    <AccordionTrigger>Working with WebSockets</AccordionTrigger>
+    <AccordionContent>
+      Modern web applications often use WebSockets for real-time communication:
+      
+      1. **Accessing WebSockets history**
+         - Go to Proxy → WebSockets history tab
+         - View all WebSocket connections and messages
+      
+      2. **Message types**
+         - Client-to-server messages (outgoing)
+         - Server-to-client messages (incoming)
+         - Connection messages (open, close)
+      
+      3. **Viewing message details**
+         - Select any message to view its content
+         - Switch between different views (raw, hex, etc.)
+      
+      4. **Filtering messages**
+         - Filter by direction, connection, or content
+         - Focus on specific WebSocket channels
+      
+      5. **Modifying WebSocket traffic**
+         - Intercept WebSocket messages (if enabled)
+         - Modify messages before they're transmitted
+      
+      WebSockets testing is increasingly important as more applications use this protocol for dynamic content and real-time features.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Features
+
+### Match and Replace Rules
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="match-replace-basic">
+    <AccordionTrigger>Basic Match and Replace</AccordionTrigger>
+    <AccordionContent>
+      Match and replace rules allow automatic modification of requests and responses:
+      
+      1. **Accessing match and replace**
+         - Go to Proxy → Options → Match and Replace
+      
+      2. **Creating basic rules**
+         - Click "Add" to create a new rule
+         - Specify the type (request or response)
+         - Define the match string or regex pattern
+         - Specify the replacement string
+         - Enable or disable the rule as needed
+      
+      3. **Common use cases**
+         - Adding custom headers to all requests
+         - Modifying User-Agent strings
+         - Replacing session tokens
+         - Removing security headers
+         - Bypassing client-side controls
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="match-replace-advanced">
+    <AccordionTrigger>Advanced Match and Replace (Professional)</AccordionTrigger>
+    <AccordionContent>
+      The Professional Edition offers enhanced match and replace capabilities:
+      
+      1. **Conditional rules**
+         - Apply rules only to specific hosts or URL patterns
+         - Create complex matching conditions
+      
+      2. **Regular expression capture groups**
+         - Use regex capture groups in match patterns
+         - Reference captured values in replacements
+      
+      3. **Match and replace in specific components**
+         - Target specific parts of requests/responses
+         - Headers, body, URL, cookies, etc.
+      
+      4. **Rule ordering and priority**
+         - Control the sequence of rule application
+         - Create rule chains for complex modifications
+      
+      Example of advanced regex with capture groups:
+      ```
+      Match: (Authorization: Bearer )([a-zA-Z0-9\._\-]+)
+      Replace: $1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      ```
+      
+      This example replaces JWT tokens while preserving the "Authorization: Bearer " prefix.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Proxy Options and Settings
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="intercept-rules">
+    <AccordionTrigger>Intercept Rules</AccordionTrigger>
+    <AccordionContent>
+      Configure when and what traffic is intercepted:
+      
+      1. **Client request interception**
+         - Control which requests are intercepted
+         - Filter by URL, method, protocol, etc.
+      
+      2. **Client response interception**
+         - Control which responses are intercepted
+         - Filter by status code, MIME type, etc.
+      
+      3. **Rule creation**
+         - Add rules with specific conditions
+         - Use "AND" and "OR" relationships between conditions
+         - Enable/disable individual rules
+      
+      Effective intercept rules help focus on relevant traffic and reduce noise during testing.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="response-modification">
+    <AccordionTrigger>Response Modification (Professional)</AccordionTrigger>
+    <AccordionContent>
+      The Professional Edition allows automatic modification of responses:
+      
+      1. **HTML modification**
+         - Inject JavaScript into HTML responses
+         - Modify DOM elements
+         - Add or remove content
+      
+      2. **Unhiding hidden fields**
+         - Automatically reveal hidden form fields
+         - Change disabled elements to enabled
+      
+      3. **Removing security restrictions**
+         - Disable Content Security Policy
+         - Remove SameSite cookie restrictions
+         - Disable JavaScript security controls
+      
+      These features are particularly useful for testing client-side security controls and browser-based defenses.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="tls-options">
+    <AccordionTrigger>TLS Options</AccordionTrigger>
+    <AccordionContent>
+      Configure how Burp handles TLS/SSL connections:
+      
+      1. **TLS protocols**
+         - Select supported TLS versions
+         - Enable/disable specific protocols
+      
+      2. **Client certificates**
+         - Configure client certificates for mutual TLS
+         - Import and manage certificates
+      
+      3. **TLS pass through**
+         - Specify hosts to exclude from TLS interception
+         - Useful for applications with certificate pinning
+      
+      4. **Custom server certificates**
+         - Generate specific certificates for certain hosts
+         - Import existing certificates
+      
+      Proper TLS configuration is essential for testing applications with strict security requirements or certificate pinning.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Testing Techniques
+
+### Authentication Testing
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="auth-testing">
+    <AccordionTrigger>Testing Authentication Mechanisms</AccordionTrigger>
+    <AccordionContent>
+      The Proxy is essential for testing authentication security:
+      
+      1. **Capturing credentials**
+         - Intercept login requests to examine how credentials are transmitted
+         - Check for proper encryption and protection
+      
+      2. **Session token analysis**
+         - Examine cookies and tokens set after authentication
+         - Look for patterns or predictability in tokens
+      
+      3. **Testing authentication bypass**
+         - Modify requests to attempt authentication bypass
+         - Test direct access to protected resources
+      
+      4. **Multi-factor authentication testing**
+         - Analyze the implementation of MFA
+         - Test for bypass techniques
+      
+      5. **Password reset functionality**
+         - Intercept password reset requests and responses
+         - Test for vulnerabilities in the reset process
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Input Validation Testing
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="input-testing">
+    <AccordionTrigger>Testing Input Validation</AccordionTrigger>
+    <AccordionContent>
+      Use the Proxy to test how applications handle various inputs:
+      
+      1. **Parameter manipulation**
+         - Modify parameter values to test validation
+         - Try different data types and formats
+      
+      2. **Injection testing**
+         - Insert potentially malicious payloads
+         - Test for SQL injection, XSS, etc.
+      
+      3. **Boundary testing**
+         - Test minimum and maximum values
+         - Try extremely long inputs
+      
+      4. **File upload testing**
+         - Modify file upload requests
+         - Test different file types and content
+      
+      5. **Client-side validation bypass**
+         - Bypass JavaScript validation by modifying requests
+         - Test server-side validation directly
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Session Management Testing
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="session-testing">
+    <AccordionTrigger>Testing Session Management</AccordionTrigger>
+    <AccordionContent>
+      Analyze and test session handling mechanisms:
+      
+      1. **Cookie analysis**
+         - Examine cookie properties (HttpOnly, Secure, SameSite)
+         - Test cookie manipulation
+      
+      2. **Session fixation testing**
+         - Check if the application accepts arbitrary session identifiers
+         - Test if session IDs change after authentication
+      
+      3. **Session timeout testing**
+         - Test session expiration policies
+         - Check for proper session invalidation
+      
+      4. **Concurrent session handling**
+         - Test how multiple simultaneous sessions are handled
+         - Check for race conditions
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Integration with Other Tools
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="tool-integration">
+    <AccordionTrigger>Workflow with Other Burp Tools</AccordionTrigger>
+    <AccordionContent>
+      The Proxy integrates seamlessly with other Burp Suite tools:
+      
+      1. **Sending to Repeater**
+         - Right-click a request in history → Send to Repeater
+         - Manually modify and resend requests
+         - Test specific endpoints in isolation
+      
+      2. **Sending to Intruder**
+         - Right-click a request → Send to Intruder
+         - Automate testing with various payloads
+         - Perform fuzzing and brute force attacks
+      
+      3. **Sending to Scanner (Professional)**
+         - Right-click a request → Send to Scanner
+         - Perform automated vulnerability scanning
+         - Target specific functionality
+      
+      4. **Using with Sequencer**
+         - Identify tokens for randomness analysis
+         - Send to Sequencer to test token quality
+      
+      5. **Target site map integration**
+         - Proxy traffic automatically populates the site map
+         - Provides a comprehensive view of the application structure
+      
+      This integration creates a powerful workflow that combines manual and automated testing techniques.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Mobile and API Testing
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="mobile-testing">
+    <AccordionTrigger>Mobile Application Testing</AccordionTrigger>
+    <AccordionContent>
+      Configure Burp Proxy for mobile application testing:
+      
+      1. **Setting up the environment**
+         - Configure a proxy listener on all interfaces (0.0.0.0)
+         - Set up your mobile device to use Burp as a proxy
+         - Install Burp's CA certificate on the mobile device
+      
+      2. **Handling certificate pinning**
+         - Use the TLS pass through for pinned connections
+         - Consider using frida or objection to bypass pinning
+      
+      3. **Testing mobile APIs**
+         - Intercept and analyze API calls
+         - Test for mobile-specific vulnerabilities
+      
+      4. **Non-HTTP traffic**
+         - Use invisible proxying for non-standard protocols
+         - Consider specialized extensions for specific protocols
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="api-testing">
+    <AccordionTrigger>API Testing</AccordionTrigger>
+    <AccordionContent>
+      The Proxy is excellent for testing APIs:
+      
+      1. **REST API testing**
+         - Intercept and modify API requests
+         - Test different HTTP methods (GET, POST, PUT, DELETE)
+         - Analyze response formats and status codes
+      
+      2. **GraphQL testing**
+         - Intercept GraphQL queries and mutations
+         - Modify query parameters and variables
+         - Test for information disclosure and access control issues
+      
+      3. **Authentication mechanisms**
+         - Test API keys and tokens
+         - Analyze OAuth flows
+         - Check JWT implementation
+      
+      4. **Rate limiting and throttling**
+         - Test API rate limits
+         - Look for bypass techniques
+      
+      5. **Documentation and discovery**
+         - Use intercepted traffic to map undocumented endpoints
+         - Compare actual behavior with API documentation
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Best Practices
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="performance">
+    <AccordionTrigger>Performance Optimization</AccordionTrigger>
+    <AccordionContent>
+      Optimize Burp Proxy performance for efficient testing:
+      
+      1. **Filter unnecessary traffic**
+         - Use target scope to focus on relevant hosts
+         - Filter out static resources when appropriate
+         - Use browser extensions to selectively route traffic
+      
+      2. **Memory management**
+         - Periodically clear history for long testing sessions
+         - Adjust JVM memory allocation for large applications
+      
+      3. **Response interception**
+         - Only intercept responses when needed
+         - Use specific interception rules
+      
+      4. **Proxy listeners**
+         - Only run necessary listeners
+         - Close unused listeners
+      
+      5. **Project files (Professional)**
+         - Save projects regularly
+         - Consider project size and disk space
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="workflow">
+    <AccordionTrigger>Efficient Testing Workflow</AccordionTrigger>
+    <AccordionContent>
+      Develop an efficient workflow with the Proxy:
+      
+      1. **Initial reconnaissance**
+         - Browse the application normally with interception off
+         - Let Burp build a site map and history
+      
+      2. **Focused interception**
+         - Enable interception for specific functionality
+         - Use targeted interception rules
+      
+      3. **Systematic testing**
+         - Test one functionality at a time
+         - Document findings as you go
+      
+      4. **Tool integration**
+         - Use the right Burp tool for each task
+         - Combine manual and automated testing
+      
+      5. **Documentation**
+         - Use comments and highlights in Proxy history
+         - Save important requests for reporting
+      
+      A methodical approach ensures comprehensive coverage and efficient use of time.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Troubleshooting
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="common-issues">
+    <AccordionTrigger>Common Issues and Solutions</AccordionTrigger>
+    <AccordionContent>
+      Solutions to frequently encountered problems:
+      
+      1. **Certificate errors**
+         - Ensure the Burp CA certificate is correctly installed
+         - Check for certificate pinning in the application
+         - Verify TLS settings in Burp
+      
+      2. **Connection issues**
+         - Confirm proxy settings in the browser
+         - Check listener configuration in Burp
+         - Verify network connectivity
+      
+      3. **Performance problems**
+         - Clear history if it becomes too large
+         - Filter out unnecessary traffic
+         - Increase memory allocation for Burp
+      
+      4. **HTTPS not intercepted**
+         - Verify certificate installation
+         - Check for TLS pass through rules
+         - Ensure invisible proxying is configured correctly if needed
+      
+      5. **WebSockets issues**
+         - Enable WebSockets interception
+         - Check for custom protocols or encryption
+         - Verify browser support for WebSockets through proxies
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+<Callout type="warning">
+  Always use Burp Suite ethically and legally. Only test applications you own or have explicit permission to test. Unauthorized testing may violate laws and regulations.
+</Callout>
+
+## Next Steps
+
+- [Scanner Tool Documentation](/docs/burp-suite/tools/scanner)
+- [Intruder Tool Documentation](/docs/burp-suite/tools/intruder)
+- [Repeater Tool Documentation](/docs/burp-suite/tools/repeater)
+- [Advanced Proxy Techniques](/docs/burp-suite/advanced-techniques)

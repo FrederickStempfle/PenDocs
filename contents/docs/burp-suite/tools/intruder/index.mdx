@@ -1,0 +1,934 @@
+---
+title: Burp Suite Intruder Tool
+description: Comprehensive guide to using Burp Suite's Intruder tool for automated request manipulation and testing
+---
+
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Callout } from "@/components/markdown/callout"
+import { Steps } from "@/components/markdown/steps"
+
+# Burp Suite Intruder Tool
+
+The Intruder tool is Burp Suite's automated request manipulation engine. It allows you to perform customized attacks against web applications by sending multiple variations of requests and analyzing the responses.
+
+## Overview
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="intruder-purpose">
+    <AccordionTrigger>Purpose and Functionality</AccordionTrigger>
+    <AccordionContent>
+      Intruder serves as Burp Suite's primary automation tool for:
+      
+      - Fuzzing parameters and inputs
+      - Brute-forcing credentials
+      - Enumerating identifiers and resources
+      - Testing for injection vulnerabilities
+      - Harvesting useful data from responses
+      - Performing custom, targeted attacks
+      
+      It works by taking a base request, defining positions where payloads should be inserted, and then automatically sending multiple requests with different payload values.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="editions-comparison">
+    <AccordionTrigger>Community vs. Professional Edition</AccordionTrigger>
+    <AccordionContent>
+      The Intruder tool has significant differences between editions:
+      
+      **Community Edition:**
+      - Severely rate-limited (approximately 1 request per second)
+      - Only Sniper and Battering Ram attack types
+      - Basic payload options
+      - Limited results analysis
+      
+      **Professional Edition:**
+      - No rate limiting (maximum speed)
+      - All four attack types (including Cluster Bomb and Pitchfork)
+      - Advanced payload types and processing
+      - Enhanced results analysis
+      - Resource pool management
+      
+      <Callout type="warning">
+        The rate limitation in the Community Edition makes it impractical for many real-world testing scenarios that require processing numerous requests.
+      </Callout>
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Attack Types
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="sniper">
+    <AccordionTrigger>Sniper Attack</AccordionTrigger>
+    <AccordionContent>
+      The Sniper attack targets each position one at a time:
+      
+      - Uses a single payload set
+      - Places each payload in each position in turn
+      - Total requests = (number of positions) × (number of payloads)
+      - Available in both Community and Professional editions
+      
+      **Example:**
+      - Base request with 3 positions
+      - Payload set with 10 values
+      - Total requests: 3 × 10 = 30
+      
+      **Best for:**
+      - Testing individual parameters
+      - Finding vulnerabilities in specific inputs
+      - Initial fuzzing of multiple parameters
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="battering-ram">
+    <AccordionTrigger>Battering Ram Attack</AccordionTrigger>
+    <AccordionContent>
+      The Battering Ram attack uses the same payload in all positions simultaneously:
+      
+      - Uses a single payload set
+      - Places the same payload in all positions at once
+      - Total requests = (number of payloads)
+      - Available in both Community and Professional editions
+      
+      **Example:**
+      - Base request with 3 positions
+      - Payload set with 10 values
+      - Total requests: 10
+      
+      **Best for:**
+      - Testing for vulnerabilities that span multiple parameters
+      - When the same value needs to be in multiple places
+      - Testing duplicate parameter submissions
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="pitchfork">
+    <AccordionTrigger>Pitchfork Attack (Professional Only)</AccordionTrigger>
+    <AccordionContent>
+      The Pitchfork attack uses multiple payload sets in lockstep:
+      
+      - Uses one payload set per position
+      - Iterates through all payload sets simultaneously
+      - Total requests = (number of payloads in smallest set)
+      - Only available in Professional Edition
+      
+      **Example:**
+      - Base request with 2 positions
+      - Payload set 1: 10 usernames
+      - Payload set 2: 10 matching passwords
+      - Total requests: 10
+      
+      **Best for:**
+      - Testing related pairs of values (username/password)
+      - When payloads need to be coordinated across parameters
+      - Testing with lists of known valid combinations
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="cluster-bomb">
+    <AccordionTrigger>Cluster Bomb Attack (Professional Only)</AccordionTrigger>
+    <AccordionContent>
+      The Cluster Bomb attack tries all combinations of payloads:
+      
+      - Uses one payload set per position
+      - Tests every possible combination of payloads
+      - Total requests = (product of all payload set sizes)
+      - Only available in Professional Edition
+      
+      **Example:**
+      - Base request with 2 positions
+      - Payload set 1: 10 usernames
+      - Payload set 2: 100 passwords
+      - Total requests: 10 × 100 = 1,000
+      
+      **Best for:**
+      - Brute-force attacks
+      - Testing all possible combinations
+      - Comprehensive parameter testing
+      
+      <Callout type="warning">
+        Cluster Bomb attacks can generate a very large number of requests. Calculate the total before starting to avoid unintentional denial of service.
+      </Callout>
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Getting Started
+
+### Setting Up an Attack
+
+<Steps>
+  ### Basic Attack Configuration
+  
+  1. **Select a base request**
+     - Intercept a request in Proxy
+     - Right-click and select "Send to Intruder"
+     - Or select from Proxy history or Site map
+  
+  2. **Configure positions**
+     - Go to the Positions tab
+     - Clear all automatically selected positions if needed
+     - Add positions manually by selecting text and clicking "Add §"
+     - Positions are marked with § symbols
+  
+  3. **Select attack type**
+     - Choose from Sniper, Battering Ram, Pitchfork, or Cluster Bomb
+     - Consider the number of positions and required payloads
+  
+  4. **Configure payloads**
+     - Go to the Payloads tab
+     - Select or create payload sets
+     - Add payload values
+     - Configure payload processing rules if needed
+  
+  5. **Launch the attack**
+     - Click "Start attack"
+     - A new window opens showing the attack progress
+</Steps>
+
+### Payload Types
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="simple-list">
+    <AccordionTrigger>Simple List</AccordionTrigger>
+    <AccordionContent>
+      The most basic payload type:
+      
+      - Manually entered or pasted values
+      - One payload per line
+      - Can be loaded from a file
+      - Supports adding prefixes and suffixes
+      
+      **Common uses:**
+      - Wordlists for brute-forcing
+      - Known values for enumeration
+      - Test strings for input validation
+      
+      **Example values:**
+      - Usernames: admin, user, test, root
+      - Passwords: password123, admin123, qwerty
+      - Injection tests: ' OR 1=1 --, <script>alert(1)</script>
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="numbers">
+    <AccordionTrigger>Numbers</AccordionTrigger>
+    <AccordionContent>
+      Generates numeric sequences:
+      
+      - Define start and end values
+      - Set step size
+      - Format options (padding, etc.)
+      
+      **Common uses:**
+      - User ID enumeration
+      - Pagination testing
+      - Sequential resource access
+      - Numeric boundary testing
+      
+      **Example configuration:**
+      - From: 1
+      - To: 100
+      - Step: 1
+      - Result: 1, 2, 3, ..., 100
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="advanced">
+    <AccordionTrigger>Advanced Payload Types (Professional)</AccordionTrigger>
+    <AccordionContent>
+      The Professional Edition includes additional payload types:
+      
+      **Character substitution:**
+      - Replace characters in base strings
+      - Test character encoding issues
+      
+      **Case modification:**
+      - Generate variations with different case patterns
+      - Test case sensitivity
+      
+      **Recursive grep:**
+      - Extract values from previous responses
+      - Use in subsequent requests
+      
+      **Custom iterators:**
+      - Generate complex sequences
+      - Combine multiple payload sets
+      
+      **Username generator:**
+      - Create username variations from names
+      
+      **Dates:**
+      - Generate date sequences
+      - Test date-based functionality
+      
+      These advanced types significantly enhance testing capabilities for specific scenarios.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Payload Processing
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="processing-rules">
+    <AccordionTrigger>Payload Processing Rules</AccordionTrigger>
+    <AccordionContent>
+      Modify payloads before they're sent:
+      
+      1. **Encoding**
+         - URL encode
+         - HTML encode
+         - Base64 encode
+         - Various other encodings
+      
+      2. **String transformation**
+         - Case modification
+         - Find and replace
+         - Prefix/suffix addition
+         - Substring extraction
+      
+      3. **Rule chaining**
+         - Apply multiple rules in sequence
+         - Create complex transformations
+      
+      4. **Custom rules (Professional)**
+         - Hash functions (MD5, SHA-1, etc.)
+         - Advanced encoding options
+         - Regular expression replacement
+      
+      Processing rules are particularly useful when testing applications with specific encoding requirements or when bypassing security controls.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Attack Configuration
+
+### Positions Tab
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="positions-basics">
+    <AccordionTrigger>Defining Payload Positions</AccordionTrigger>
+    <AccordionContent>
+      The Positions tab is where you define where payloads will be inserted:
+      
+      1. **Automatic position detection**
+         - Burp automatically identifies common parameters
+         - Click "Clear §" to remove all positions
+         - Click "Auto §" to automatically detect positions
+      
+      2. **Manual position selection**
+         - Select text in the request
+         - Click "Add §" to mark as a position
+         - Click "Remove §" to unmark a position
+      
+      3. **Position types**
+         - URL parameters
+         - Body parameters
+         - Cookies
+         - Headers
+         - Request path components
+         - JSON values
+         - XML values
+      
+      4. **Position refinement**
+         - Be precise about position boundaries
+         - Consider encoding requirements
+         - Think about how the application processes the input
+      
+      Proper position selection is crucial for effective testing and avoiding application errors.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="custom-positions">
+    <AccordionTrigger>Advanced Position Techniques</AccordionTrigger>
+    <AccordionContent>
+      Beyond basic parameter targeting:
+      
+      1. **Nested data structures**
+         - JSON objects and arrays
+         - XML elements and attributes
+         - Nested form parameters
+      
+      2. **Multiple positions in one parameter**
+         - Partial parameter replacement
+         - Testing specific parts of complex values
+      
+      3. **Non-standard positions**
+         - URL path components
+         - Fragment identifiers
+         - WebSocket messages
+         - Custom headers
+      
+      4. **Recursive insertion**
+         - Testing for second-order vulnerabilities
+         - Payloads that contain payload markers
+      
+      Advanced positioning allows for more precise and creative testing scenarios.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Payloads Tab
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="payload-sets">
+    <AccordionTrigger>Configuring Payload Sets</AccordionTrigger>
+    <AccordionContent>
+      The Payloads tab is where you define what values will be inserted:
+      
+      1. **Payload set selection**
+         - For Sniper and Battering Ram: only one set
+         - For Pitchfork and Cluster Bomb: one set per position
+      
+      2. **Payload type selection**
+         - Simple list
+         - Numbers
+         - Custom/advanced types (Professional)
+      
+      3. **Adding payload items**
+         - Manual entry
+         - Paste from clipboard
+         - Load from file
+         - Generate from rules
+      
+      4. **Payload options**
+         - Case modification
+         - Encoding options
+         - Prefix/suffix settings
+      
+      Effective payload selection is key to discovering vulnerabilities and avoiding false negatives.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="wordlists">
+    <AccordionTrigger>Working with Wordlists</AccordionTrigger>
+    <AccordionContent>
+      Wordlists are essential for many types of attacks:
+      
+      1. **Common wordlist sources**
+         - SecLists (https://github.com/danielmiessler/SecLists)
+         - Built-in Burp wordlists
+         - Custom wordlists for specific applications
+      
+      2. **Wordlist types**
+         - Usernames and passwords
+         - Directory and file names
+         - Parameter names
+         - Injection payloads
+         - Fuzzing strings
+      
+      3. **Wordlist optimization**
+         - Remove irrelevant entries
+         - Sort by likelihood
+         - Deduplicate entries
+         - Customize for the target application
+      
+      4. **Managing large wordlists**
+         - Split into smaller chunks
+         - Use resource pools (Professional)
+         - Consider runtime and server impact
+      
+      The right wordlist can significantly improve the effectiveness of your testing.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Options Tab
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="request-options">
+    <AccordionTrigger>Request Options</AccordionTrigger>
+    <AccordionContent>
+      Configure how requests are processed:
+      
+      1. **Request headers**
+         - Update Content-Length header
+         - Set Connection: close
+         - Follow redirections
+      
+      2. **Request engine**
+         - Number of threads (Professional)
+         - Throttling settings
+         - Pause before requests
+      
+      3. **Grep options**
+         - Extract data from responses
+         - Match patterns for classification
+         - Define custom extraction rules
+      
+      4. **Redirections**
+         - Follow redirections automatically
+         - Set maximum redirection depth
+      
+      Proper request options ensure accurate testing and efficient resource usage.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="grep-extract">
+    <AccordionTrigger>Grep and Extract</AccordionTrigger>
+    <AccordionContent>
+      Extract and analyze data from responses:
+      
+      1. **Grep - Match**
+         - Define strings to highlight in results
+         - Quickly identify interesting responses
+         - Flag potential vulnerabilities
+      
+      2. **Grep - Extract**
+         - Define patterns to extract data
+         - Use regular expressions with capture groups
+         - Extract tokens, IDs, or other values
+      
+      3. **Recursive grep (Professional)**
+         - Use extracted values as payloads
+         - Chain attacks together
+         - Follow application logic
+      
+      4. **Common use cases**
+         - Extract CSRF tokens
+         - Harvest user information
+         - Identify success/failure indicators
+         - Extract hidden values for subsequent requests
+      
+      Grep functionality transforms Intruder from a simple request generator into a powerful data harvesting tool.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Analyzing Results
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="results-table">
+    <AccordionTrigger>Results Table</AccordionTrigger>
+    <AccordionContent>
+      The results table displays all attack requests and responses:
+      
+      1. **Columns**
+         - Request number
+         - Payload(s) used
+         - Status code
+         - Length
+         - Response time
+         - Custom extracted values
+         - Grep matches
+      
+      2. **Sorting and filtering**
+         - Click column headers to sort
+         - Filter by any column value
+         - Hide uninteresting results
+      
+      3. **Color coding**
+         - Highlight interesting responses
+         - Identify patterns and anomalies
+         - Quickly spot potential vulnerabilities
+      
+      4. **Response inspection**
+         - View full requests and responses
+         - Analyze headers, body, and rendering
+         - Compare with other responses
+      
+      Effective results analysis is crucial for identifying vulnerabilities and understanding application behavior.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="analysis-techniques">
+    <AccordionTrigger>Analysis Techniques</AccordionTrigger>
+    <AccordionContent>
+      Strategies for identifying interesting results:
+      
+      1. **Length-based analysis**
+         - Look for responses with unusual lengths
+         - Group responses by length
+         - Identify patterns and outliers
+      
+      2. **Status code analysis**
+         - Group by status code
+         - Look for unexpected codes (e.g., 200 instead of 403)
+         - Identify error conditions
+      
+      3. **Time-based analysis**
+         - Look for unusually slow responses
+         - May indicate successful time-based attacks
+         - Identify performance issues
+      
+      4. **Content analysis**
+         - Search for specific strings
+         - Look for error messages
+         - Identify information disclosure
+      
+      5. **Comparison techniques**
+         - Compare similar requests with different outcomes
+         - Identify what triggered different behavior
+         - Understand application logic
+      
+      Combining multiple analysis techniques provides the most comprehensive view of application behavior and vulnerabilities.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Common Attack Scenarios
+
+### Authentication Testing
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="brute-force">
+    <AccordionTrigger>Brute Force Attacks</AccordionTrigger>
+    <AccordionContent>
+      Testing authentication mechanisms:
+      
+      1. **Username enumeration**
+         - Target login or registration forms
+         - Look for different responses for valid vs. invalid usernames
+         - Use Cluster Bomb with username and password lists
+      
+      2. **Password brute-forcing**
+         - Use Pitchfork for known username/password pairs
+         - Use Cluster Bomb for trying all combinations
+         - Look for successful login indicators
+      
+      3. **Multi-factor authentication**
+         - Test for bypasses
+         - Brute-force verification codes
+         - Look for implementation flaws
+      
+      4. **Rate limiting detection**
+         - Monitor for account lockouts
+         - Look for CAPTCHA triggers
+         - Test IP-based vs. account-based limits
+      
+      <Callout type="warning">
+        Always ensure you have proper authorization before performing brute force attacks. Many jurisdictions consider unauthorized brute forcing illegal.
+      </Callout>
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Injection Testing
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="sql-injection">
+    <AccordionTrigger>SQL Injection</AccordionTrigger>
+    <AccordionContent>
+      Testing for SQL injection vulnerabilities:
+      
+      1. **Detection payloads**
+         - `' OR 1=1 --`
+         - `" OR 1=1 --`
+         - `1' OR '1'='1`
+         - `1\) OR \(1=1`
+      
+      2. **Error-based detection**
+         - Look for database error messages
+         - Different responses to malformed queries
+      
+      3. **Boolean-based testing**
+         - `' AND 1=1 --` vs. `' AND 1=2 --`
+         - Look for different responses
+      
+      4. **Time-based testing**
+         - `' WAITFOR DELAY '0:0:5' --`
+         - `' SLEEP\(5\) --`
+         - Monitor response times
+      
+      5. **Analysis techniques**
+         - Group by response length
+         - Look for error messages
+         - Compare response times
+      
+      SQL injection testing with Intruder allows for systematic testing of multiple parameters and payloads.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="xss">
+    <AccordionTrigger>Cross-Site Scripting (XSS)</AccordionTrigger>
+    <AccordionContent>
+      Testing for XSS vulnerabilities:
+      
+      1. **Detection payloads**
+         - `<script>alert\(1\)</script>`
+         - `"><script>alert\(1\)</script>`
+         - `'><script>alert\(1\)</script>`
+         - `javascript:alert\(1\)`
+      
+      2. **Context-specific payloads**
+         - HTML attribute context: `" onmouseover="alert\(1\)`
+         - JavaScript context: `';alert\(1\);//`
+         - CSS context: `</style><script>alert\(1\)</script>`
+      
+      3. **Evasion techniques**
+         - Case variation: `<ScRiPt>alert\(1\)</sCrIpT>`
+         - Encoding: `%3Cscript%3Ealert\(1\)%3C/script%3E`
+         - Alternative syntax: `<img src=x onerror=alert\(1\)>`
+      
+      4. **Analysis techniques**
+         - Look for unfiltered payloads in responses
+         - Check for partial filtering
+         - Test browser rendering of responses
+      
+      XSS testing requires careful analysis of how the application processes and outputs user input in different contexts.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Enumeration and Discovery
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="directory-enumeration">
+    <AccordionTrigger>Directory and Resource Enumeration</AccordionTrigger>
+    <AccordionContent>
+      Discovering hidden resources:
+      
+      1. **Directory enumeration**
+         - Target URL path
+         - Use wordlists of common directory names
+         - Look for 200, 301, 302 responses
+      
+      2. **File enumeration**
+         - Target URL path + filename
+         - Use extensions relevant to the application (.php, .aspx, etc.)
+         - Look for different response sizes and status codes
+      
+      3. **API endpoint discovery**
+         - Enumerate API paths
+         - Test different HTTP methods
+         - Look for JSON/XML responses
+      
+      4. **Analysis techniques**
+         - Filter out 404 responses
+         - Group by response length
+         - Look for interesting content in responses
+      
+      Resource enumeration can reveal hidden functionality, backup files, or development resources that may contain vulnerabilities.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="parameter-enumeration">
+    <AccordionTrigger>Parameter Discovery and Fuzzing</AccordionTrigger>
+    <AccordionContent>
+      Discovering hidden parameters:
+      
+      1. **Parameter name fuzzing**
+         - Add parameters to requests
+         - Use wordlists of common parameter names
+         - Look for changes in response
+      
+      2. **Parameter value fuzzing**
+         - Test different values for known parameters
+         - Look for interesting behavior
+         - Identify validation patterns
+      
+      3. **HTTP method fuzzing**
+         - Test different HTTP methods (GET, POST, PUT, DELETE)
+         - Look for supported but undocumented methods
+      
+      4. **Analysis techniques**
+         - Group by response length
+         - Look for error messages
+         - Identify changes in application behavior
+      
+      Parameter discovery can reveal hidden functionality or parameters that may not be properly validated.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Advanced Techniques
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="resource-pool">
+    <AccordionTrigger>Resource Pool Management (Professional)</AccordionTrigger>
+    <AccordionContent>
+      Optimize attack performance and resource usage:
+      
+      1. **Creating resource pools**
+         - Go to Project options → Misc → Resource pools
+         - Create pools with different settings
+      
+      2. **Pool settings**
+         - Maximum concurrent requests
+         - Throttling (requests per second)
+         - Scope (hosts and URLs)
+      
+      3. **Assigning pools to attacks**
+         - Select pool in Intruder options
+         - Different attacks can use different pools
+      
+      4. **Use cases**
+         - Aggressive testing for robust applications
+         - Gentle testing for sensitive applications
+         - Balancing multiple simultaneous attacks
+      
+      Resource pools help prevent accidental denial of service while maximizing testing efficiency.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="macros">
+    <AccordionTrigger>Session Handling with Macros (Professional)</AccordionTrigger>
+    <AccordionContent>
+      Maintain authentication during attacks:
+      
+      1. **Creating session handling rules**
+         - Go to Project options → Sessions
+         - Create rules that apply to Intruder
+      
+      2. **Recording macros**
+         - Record login sequences
+         - Extract session tokens
+         - Configure token reuse
+      
+      3. **Rule application**
+         - Apply before requests are sent
+         - Maintain valid session state
+         - Handle anti-CSRF tokens
+      
+      4. **Use cases**
+         - Testing authenticated functionality
+         - Handling complex session mechanisms
+         - Bypassing anti-automation controls
+      
+      Session handling rules allow Intruder to test protected functionality that requires authentication.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="extensions">
+    <AccordionTrigger>Intruder Extensions (Professional)</AccordionTrigger>
+    <AccordionContent>
+      Extend Intruder functionality with extensions:
+      
+      1. **Turbo Intruder**
+         - High-performance custom attacks
+         - Python-based attack scripting
+         - Advanced payload generation
+      
+      2. **Custom payload generators**
+         - Create specialized payload types
+         - Implement complex generation logic
+         - Integrate with external tools
+      
+      3. **Results processors**
+         - Custom analysis of responses
+         - Automated vulnerability detection
+         - Integration with reporting tools
+      
+      4. **Popular extensions**
+         - Turbo Intruder
+         - Intruder Payload Generator
+         - Custom Parameter Handler
+         - JWT Editor
+      
+      Extensions can significantly enhance Intruder's capabilities for specialized testing scenarios.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Best Practices
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="efficiency">
+    <AccordionTrigger>Optimizing Attack Efficiency</AccordionTrigger>
+    <AccordionContent>
+      Maximize effectiveness while minimizing resource usage:
+      
+      1. **Target selection**
+         - Focus on high-value parameters
+         - Test one functionality at a time
+         - Prioritize sensitive operations
+      
+      2. **Payload optimization**
+         - Use focused, relevant payloads
+         - Start with smaller payload sets
+         - Expand based on initial results
+      
+      3. **Attack configuration**
+         - Use appropriate attack type
+         - Configure proper thread count
+         - Set reasonable timeouts
+      
+      4. **Response handling**
+         - Define clear success/failure criteria
+         - Use grep extract for important data
+         - Filter uninteresting results
+      
+      Efficient attacks save time, reduce server load, and produce more manageable results.
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="ethical">
+    <AccordionTrigger>Ethical Considerations</AccordionTrigger>
+    <AccordionContent>
+      Responsible use of Intruder:
+      
+      1. **Authorization**
+         - Only test applications you own or have permission to test
+         - Respect scope limitations
+         - Adhere to responsible disclosure policies
+      
+      2. **Impact awareness**
+         - Consider server load and performance
+         - Be cautious with sensitive functionality
+         - Avoid disrupting production systems
+      
+      3. **Data handling**
+         - Respect privacy of discovered data
+         - Secure and properly dispose of findings
+         - Report sensitive data exposure responsibly
+      
+      4. **Legal compliance**
+         - Understand relevant laws and regulations
+         - Document authorization
+         - Stay within agreed boundaries
+      
+      <Callout type="warning">
+        Unauthorized use of Intruder may violate computer crime laws and could result in civil or criminal penalties.
+      </Callout>
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+## Troubleshooting
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="common-issues">
+    <AccordionTrigger>Common Issues and Solutions</AccordionTrigger>
+    <AccordionContent>
+      Solutions to frequently encountered problems:
+      
+      1. **Attack not starting**
+         - Check payload configuration
+         - Verify positions are correctly set
+         - Ensure sufficient system resources
+      
+      2. **Slow performance**
+         - Reduce concurrent threads
+         - Use smaller payload sets
+         - Check for network latency
+         - Consider upgrading to Professional Edition
+      
+      3. **Application errors**
+         - Verify payload encoding is appropriate
+         - Check for application-specific formatting
+         - Consider session handling requirements
+      
+      4. **False negatives**
+         - Try different payload variations
+         - Check for defensive mechanisms
+         - Verify response analysis criteria
+      
+      5. **Memory issues**
+         - Reduce payload set size
+         - Split large attacks into smaller ones
+         - Increase JVM memory allocation
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+<Callout type="warning">
+  Always use Burp Suite Intruder ethically and legally. Only test applications you own or have explicit permission to test. Unauthorized testing may violate laws and regulations.
+</Callout>
+
+## Next Steps
+
+- [Repeater Tool Documentation](/docs/burp-suite/tools/repeater)
+- [Scanner Tool Documentation](/docs/burp-suite/tools/scanner)
+- [Advanced Intruder Techniques](/docs/burp-suite/advanced-techniques)
+- [Best Practices for Web Application Security Testing](/docs/burp-suite/best-practices)

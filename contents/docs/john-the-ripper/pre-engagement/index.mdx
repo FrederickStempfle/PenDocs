@@ -1,0 +1,500 @@
+---
+title: Pre-Engagement and Planning Phase
+description: Learn how to properly scope, plan, and prepare for password cracking activities with John the Ripper
+---
+
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+import { Callout } from "@/components/markdown/callout"
+
+# Pre-Engagement and Planning Phase
+
+The pre-engagement phase is a critical first step in any penetration testing project that involves password cracking. This phase establishes the foundation for the entire assessment and ensures that all activities are conducted legally, ethically, and effectively.
+
+## Defining Scope and Rules of Engagement
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>Scope Definition</CardTitle>
+    </CardHeader>
+    <CardContent>
+      A well-defined scope clearly outlines:
+      
+      - **Target systems and accounts** to be tested
+      - **Excluded systems** that are off-limits
+      - **Time frames** for testing activities
+      - **Data handling procedures** for discovered credentials
+      - **Notification procedures** for critical findings
+      
+      Example scope statement:
+      ```
+      Password testing will be conducted on the Active Directory 
+      environment (domain.local) excluding production database 
+      servers. Testing will occur between 8 PM and 5 AM on 
+      weekdays only.
+      ```
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Rules of Engagement</CardTitle>
+    </CardHeader>
+    <CardContent>
+      The rules of engagement define:
+      
+      - **Permitted techniques** and tools
+      - **Attack intensity** limitations
+      - **Credential usage policies** (if passwords are cracked)
+      - **Reporting procedures** for vulnerabilities
+      - **Emergency contacts** for critical issues
+      
+      Example RoE statement:
+      ```
+      Password cracking will be limited to offline methods only.
+      No automated online password guessing is permitted.
+      Cracked passwords will be reported securely and not used
+      for further system access without explicit approval.
+      ```
+    </CardContent>
+  </Card>
+</div>
+
+### Documentation Requirements
+
+Proper documentation before beginning any password cracking activity is essential:
+
+<Steps>
+  <Step title="Written Authorization">
+    Obtain explicit written permission that includes:
+    
+    ```
+    I, [AUTHORIZED PERSON], representing [ORGANIZATION], 
+    authorize [TESTER/TEAM] to conduct password security testing 
+    on [SPECIFIC SYSTEMS] from [START DATE] to [END DATE].
+    
+    This authorization includes permission to:
+    - Extract password hashes from systems
+    - Attempt to crack passwords using John the Ripper
+    - Document and report findings according to agreed procedures
+    
+    Signed: _________________ Date: _________
+    ```
+    
+    Store this document securely and have it readily available during testing.
+  </Step>
+  
+  <Step title="Testing Plan Document">
+    Create a detailed testing plan that outlines:
+    
+    - Systems to be tested
+    - Methods to be used
+    - Timeline for activities
+    - Resource requirements
+    - Success criteria
+    - Reporting format
+    
+    This document serves as a roadmap for the testing process and ensures all stakeholders understand the approach.
+  </Step>
+  
+  <Step title="Communication Plan">
+    Establish a communication plan that includes:
+    
+    - Regular status updates
+    - Escalation procedures
+    - Emergency contacts
+    - Reporting templates
+    
+    Clear communication channels help prevent misunderstandings and ensure prompt response to any issues.
+  </Step>
+</Steps>
+
+## Setting Objectives for Password Cracking
+
+<Tabs defaultValue="compliance" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="compliance">Compliance Objectives</TabsTrigger>
+    <TabsTrigger value="security">Security Assessment</TabsTrigger>
+    <TabsTrigger value="penetration">Penetration Testing</TabsTrigger>
+  </TabsList>
+  <TabsContent value="compliance">
+    ### Compliance-Focused Objectives
+    
+    When testing for compliance with standards like PCI DSS, HIPAA, or ISO 27001:
+    
+    - **Verify password policy enforcement**: Confirm that password policies meet the required standards
+    - **Document compliance gaps**: Identify areas where password practices fall short of requirements
+    - **Quantify risk**: Provide metrics on password strength relative to compliance requirements
+    - **Test specific requirements**: For example, PCI DSS requires testing for default passwords
+    
+    Example objective statement:
+    ```
+    Verify that all user passwords meet the minimum complexity requirements 
+    specified in section 8.2.3 of PCI DSS by attempting to crack at least 
+    90% of password hashes using common wordlists and basic rules.
+    ```
+  </TabsContent>
+  <TabsContent value="security">
+    ### Security Assessment Objectives
+    
+    For general security assessments:
+    
+    - **Evaluate overall password strength**: Determine the percentage of weak passwords
+    - **Identify pattern trends**: Discover common password creation patterns
+    - **Assess password reuse**: Check if passwords are reused across systems
+    - **Measure policy effectiveness**: Determine if current password policies are effective
+    
+    Example objective statement:
+    ```
+    Assess the effectiveness of the current password policy by attempting 
+    to crack user passwords and analyzing the results to identify common 
+    patterns and weaknesses. Success is defined as providing actionable 
+    recommendations for policy improvements.
+    ```
+  </TabsContent>
+  <TabsContent value="penetration">
+    ### Penetration Testing Objectives
+    
+    As part of a broader penetration test:
+    
+    - **Gain initial access**: Crack passwords to establish a foothold
+    - **Escalate privileges**: Target administrative accounts for privilege escalation
+    - **Demonstrate impact**: Show how cracked passwords can lead to data breaches
+    - **Test detection capabilities**: Evaluate if password cracking attempts are detected
+    
+    Example objective statement:
+    ```
+    Attempt to crack password hashes obtained during the penetration test 
+    to gain access to at least one administrative account, and use this 
+    access to demonstrate potential business impact through access to 
+    sensitive data.
+    ```
+  </TabsContent>
+</Tabs>
+
+### Defining Success Criteria
+
+Clear success criteria help measure the effectiveness of password cracking activities:
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>Quantitative Criteria</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Measurable metrics to evaluate success:
+      
+      - **Crack percentage**: Target percentage of passwords to crack
+      - **Time constraints**: Maximum time allocated for cracking
+      - **Resource utilization**: CPU/GPU hours to be invested
+      - **Coverage**: Percentage of systems to be tested
+      
+      Example:
+      ```
+      Success is defined as cracking at least 25% of user 
+      passwords within 48 hours using no more than 4 GPU-hours 
+      of computing resources.
+      ```
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Qualitative Criteria</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Non-numeric indicators of success:
+      
+      - **Pattern identification**: Discovering common password patterns
+      - **Policy recommendations**: Developing actionable policy improvements
+      - **Risk assessment**: Providing clear risk evaluation
+      - **Remediation guidance**: Offering practical remediation steps
+      
+      Example:
+      ```
+      Success is defined as identifying at least three common 
+      password patterns used within the organization and 
+      providing specific policy recommendations to address 
+      these weaknesses.
+      ```
+    </CardContent>
+  </Card>
+</div>
+
+## Legal and Ethical Considerations
+
+<Callout type="warning">
+  Password cracking activities, even when authorized, must be conducted with strict adherence to legal and ethical guidelines. Failure to do so can result in legal consequences and damage to professional reputation.
+</Callout>
+
+### Legal Framework
+
+<Accordion type="single" collapsible>
+  <AccordionItem value="laws">
+    <AccordionTrigger>Relevant Laws and Regulations</AccordionTrigger>
+    <AccordionContent>
+      Familiarize yourself with laws that may apply to password cracking activities:
+      
+      - **Computer Fraud and Abuse Act (CFAA)** in the United States
+      - **Computer Misuse Act** in the United Kingdom
+      - **General Data Protection Regulation (GDPR)** in Europe
+      - **State and local laws** that may have specific provisions
+      
+      These laws generally prohibit unauthorized access to computer systems, even if the intent is not malicious. Always ensure you have proper authorization before conducting any password cracking activities.
+      
+      Example legal safeguard:
+      ```
+      All password cracking activities will be conducted in accordance 
+      with the Computer Fraud and Abuse Act (CFAA) and will not exceed 
+      the explicit scope defined in the written authorization provided 
+      by [CLIENT ORGANIZATION].
+      ```
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="contracts">
+    <AccordionTrigger>Contractual Obligations</AccordionTrigger>
+    <AccordionContent>
+      Ensure that all contractual documents properly address password cracking:
+      
+      - **Statement of Work (SoW)** should explicitly mention password cracking
+      - **Master Service Agreement (MSA)** should cover liability and indemnification
+      - **Non-Disclosure Agreement (NDA)** should address handling of cracked passwords
+      - **Testing authorization** should be specific about password cracking activities
+      
+      Example contract language:
+      ```
+      The Tester is authorized to attempt to crack password hashes 
+      extracted from the Client's systems solely for the purpose of 
+      security assessment. Any passwords discovered during this process 
+      will be handled according to the data handling procedures defined 
+      in Section 4.2 of this agreement.
+      ```
+    </AccordionContent>
+  </AccordionItem>
+  
+  <AccordionItem value="privacy">
+    <AccordionTrigger>Privacy Considerations</AccordionTrigger>
+    <AccordionContent>
+      Address privacy concerns when handling password data:
+      
+      - **Personal data protection** laws may apply to password information
+      - **Employee privacy** rights may be relevant
+      - **Customer data** may have specific protection requirements
+      - **Cross-border data transfer** may have legal implications
+      
+      Example privacy safeguard:
+      ```
+      All password hashes and cracked passwords will be treated as 
+      sensitive personal data. They will not be stored longer than 
+      necessary for the assessment, will be encrypted at rest, and 
+      will be securely deleted upon completion of the engagement.
+      ```
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+
+### Ethical Guidelines
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>Professional Ethics</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Adhere to professional ethical standards:
+      
+      - **Do no harm**: Avoid actions that could damage systems
+      - **Maintain confidentiality**: Protect all discovered information
+      - **Report honestly**: Provide accurate findings without exaggeration
+      - **Respect privacy**: Handle personal information with care
+      
+      Many professional organizations provide ethical guidelines:
+      
+      - EC-Council Code of Ethics
+      - SANS Institute Code of Ethics
+      - (ISC)² Code of Ethics
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Operational Ethics</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Practical ethical considerations during testing:
+      
+      - **Minimize access**: Only access what is necessary
+      - **Secure storage**: Protect all testing data
+      - **Limit exposure**: Restrict who can view cracked passwords
+      - **Proper disposal**: Securely delete all password data
+      
+      Example operational guideline:
+      ```
+      Cracked passwords will only be viewed by the lead tester 
+      and will be reported in an aggregated, anonymized format 
+      unless specific reporting of individual accounts is 
+      explicitly authorized.
+      ```
+    </CardContent>
+  </Card>
+</div>
+
+## Resource Planning
+
+Effective resource planning ensures that password cracking activities are conducted efficiently:
+
+<Steps>
+  <Step title="Hardware Requirements">
+    Assess the hardware needed based on the scope and objectives:
+    
+    ```
+    For cracking 10,000 NTLM hashes within 48 hours:
+    - Minimum: 1 system with high-end GPU (e.g., NVIDIA RTX 3080)
+    - Recommended: 2-4 systems with high-end GPUs
+    - Storage: 100GB for wordlists and hash files
+    - Memory: 16GB RAM minimum, 32GB recommended
+    ```
+    
+    Consider cloud-based resources for temporary high-performance needs.
+  </Step>
+  
+  <Step title="Software Preparation">
+    Prepare the necessary software tools:
+    
+    - John the Ripper (latest version, preferably jumbo)
+    - Supporting tools for hash extraction
+    - Custom scripts for data processing
+    - Secure communication tools
+    
+    Example preparation checklist:
+    ```
+    □ Install John the Ripper jumbo version
+    □ Compile with GPU support if applicable
+    □ Test on sample hashes
+    □ Prepare and test hash extraction tools
+    □ Set up secure reporting mechanism
+    ```
+  </Step>
+  
+  <Step title="Time Estimation">
+    Develop realistic time estimates for each phase:
+    
+    ```
+    - Hash extraction: 4-8 hours
+    - Initial quick wins (common passwords): 2-4 hours
+    - Dictionary attacks with rules: 24-48 hours
+    - Advanced techniques: 48-72 hours
+    - Analysis and reporting: 8-16 hours
+    ```
+    
+    Include buffer time for unexpected challenges and technical issues.
+  </Step>
+  
+  <Step title="Team Allocation">
+    Assign roles and responsibilities:
+    
+    ```
+    - Lead Tester: Overall coordination and client communication
+    - Technical Specialist: Hash extraction and system access
+    - Cracking Specialist: Running and optimizing John the Ripper
+    - Analyst: Analyzing results and developing recommendations
+    ```
+    
+    Ensure team members have the necessary skills and training.
+  </Step>
+</Steps>
+
+## Pre-Engagement Checklist
+
+Use this comprehensive checklist to ensure you're fully prepared before beginning any password cracking activities:
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>Documentation Checklist</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ul>
+        <li>✅ Written authorization obtained</li>
+        <li>✅ Scope clearly defined</li>
+        <li>✅ Rules of engagement established</li>
+        <li>✅ Testing plan documented</li>
+        <li>✅ Communication plan in place</li>
+        <li>✅ Legal review completed</li>
+        <li>✅ Data handling procedures documented</li>
+        <li>✅ Reporting templates prepared</li>
+      </ul>
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Technical Preparation</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ul>
+        <li>✅ John the Ripper installed and tested</li>
+        <li>✅ Wordlists prepared and verified</li>
+        <li>✅ Custom rules created if needed</li>
+        <li>✅ Hardware resources confirmed</li>
+        <li>✅ Backup systems in place</li>
+        <li>✅ Secure storage configured</li>
+        <li>✅ Test runs completed</li>
+        <li>✅ Performance benchmarks established</li>
+      </ul>
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Client Coordination</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ul>
+        <li>✅ Kick-off meeting conducted</li>
+        <li>✅ Point of contact established</li>
+        <li>✅ Emergency procedures confirmed</li>
+        <li>✅ Reporting expectations set</li>
+        <li>✅ Testing window confirmed</li>
+        <li>✅ Access credentials provided if needed</li>
+        <li>✅ System administrators notified</li>
+        <li>✅ Success criteria agreed upon</li>
+      </ul>
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Risk Mitigation</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ul>
+        <li>✅ Backup procedures verified</li>
+        <li>✅ Rollback plan established</li>
+        <li>✅ Monitoring systems confirmed</li>
+        <li>✅ Data protection measures in place</li>
+        <li>✅ Non-disclosure agreements signed</li>
+        <li>✅ Insurance coverage verified</li>
+        <li>✅ Incident response plan ready</li>
+        <li>✅ Legal counsel available if needed</li>
+      </ul>
+    </CardContent>
+  </Card>
+</div>
+
+<Note title="Professional Tip">
+  The pre-engagement phase is often rushed in practice, but investing time here significantly reduces risks and improves outcomes. A well-planned password cracking assessment is more likely to provide valuable results while avoiding legal and technical complications.
+</Note>
+
+## Next Steps
+
+Now that you understand the pre-engagement and planning phase, you can:
+
+1. Learn about [reconnaissance and intelligence gathering](/docs/john-the-ripper/reconnaissance) techniques
+2. Explore [vulnerability analysis and scanning](/docs/john-the-ripper/vulnerability-analysis) methods
+3. Prepare for the [exploitation phase](/docs/john-the-ripper/exploitation) where you'll extract password hashes

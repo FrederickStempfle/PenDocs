@@ -1,573 +1,118 @@
 ---
 title: Password Cracking Techniques
-description: Comprehensive guide to different password cracking methods using John the Ripper
+description: Overview of different password cracking techniques available in John the Ripper
 ---
 
 # Password Cracking Techniques
 
-This section covers the various techniques available in John the Ripper for cracking passwords, from basic dictionary attacks to advanced rule-based approaches.
+John the Ripper supports multiple password cracking techniques, each with its own strengths and ideal use cases. This section covers the main approaches to password cracking and how to implement them effectively.
 
-<Tabs defaultValue="dictionary" className="pt-5 pb-1">
-  <TabsList>
-    <TabsTrigger value="dictionary">Dictionary Attacks</TabsTrigger>
-    <TabsTrigger value="bruteforce">Brute Force</TabsTrigger>
-    <TabsTrigger value="rulebased">Rule-Based</TabsTrigger>
-  </TabsList>
-  <TabsContent value="dictionary">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Dictionary Attack Basics</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">What is a Dictionary Attack?</h4>
-          <p className="text-sm">A dictionary attack uses a list of potential passwords (a wordlist) and tries each one against the password hash. This is the most efficient method when users choose common or predictable passwords.</p>
-          
-          <h4 className="font-bold mt-3">Basic Syntax</h4>
-          ```bash
-          john --wordlist=PATH_TO_WORDLIST hash_file
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Common Wordlists</h4>
-          <table className="w-full text-sm mt-2">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-2">Wordlist</th>
-                <th className="text-left p-2">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2">rockyou.txt</td>
-                <td className="p-2">14 million real passwords from data breaches</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2">darkweb2017-top10000.txt</td>
-                <td className="p-2">Common passwords from dark web</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2">crackstation.txt</td>
-                <td className="p-2">1.5 billion passwords from various sources</td>
-              </tr>
-              <tr>
-                <td className="p-2">SecLists/Passwords</td>
-                <td className="p-2">Collection of specialized wordlists</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">Advanced Dictionary Techniques</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Combining Wordlists</h4>
-          <p className="text-sm">Combine multiple wordlists for more comprehensive coverage:</p>
-          ```bash
-          # Combine wordlists
-          cat wordlist1.txt wordlist2.txt > combined.txt
-          sort -u combined.txt > sorted_unique.txt
-          
-          # Use the combined wordlist
-          john --wordlist=sorted_unique.txt hashes.txt
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Creating Custom Wordlists</h4>
-          <p className="text-sm">Generate target-specific wordlists based on reconnaissance:</p>
-          ```bash
-          # Extract words from a website
-          cewl -d 2 -m 6 https://target-website.com -w custom_wordlist.txt
-          
-          # Add company-specific terms
-          echo "CompanyName2023" >> custom_wordlist.txt
-          echo "CompanyName123" >> custom_wordlist.txt
-          
-          # Use the custom wordlist
-          john --wordlist=custom_wordlist.txt hashes.txt
-          ```
-        </div>
-        
-        <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 mt-4">
-          <h4 className="font-bold">Pro Tip</h4>
-          <p className="text-sm">For targeted penetration tests, create custom wordlists that include:</p>
-          <ul className="text-sm list-disc pl-5">
-            <li>Company name, products, and slogans</li>
-            <li>Industry-specific terminology</li>
-            <li>Location information (city, state, address)</li>
-            <li>Founding year and significant dates</li>
-            <li>Employee names and usernames</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </TabsContent>
-  <TabsContent value="bruteforce">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Brute Force Attacks</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">What is a Brute Force Attack?</h4>
-          <p className="text-sm">A brute force attack systematically tries all possible character combinations until the correct password is found. John the Ripper implements this through its "incremental" mode.</p>
-          
-          <h4 className="font-bold mt-3">Basic Syntax</h4>
-          ```bash
-          # Full brute force (all character sets)
-          john --incremental=all hashes.txt
-          
-          # Digits only (for PINs)
-          john --incremental=digits hashes.txt
-          
-          # Lowercase letters only
-          john --incremental=alpha hashes.txt
-          
-          # Alphanumeric characters
-          john --incremental=alnum hashes.txt
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Incremental Mode Configuration</h4>
-          <p className="text-sm">The incremental mode is configured in john.conf:</p>
-          ```
-          [Incremental:All]
-          File = $JOHN/all.chr
-          MinLen = 0
-          MaxLen = 8
-          CharCount = 95
-          ```
-          <p className="text-sm mt-2">You can create custom incremental modes by adding new sections to john.conf.</p>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">Mask Attacks</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">What is a Mask Attack?</h4>
-          <p className="text-sm">A mask attack is a refined brute force attack where you specify a pattern (mask) that the password must match. This is useful when you know something about the password structure.</p>
-          
-          <h4 className="font-bold mt-3">Mask Syntax</h4>
-          <table className="w-full text-xs mt-2">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-2">Character</th>
-                <th className="text-left p-2">Represents</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2"><code>?d</code></td>
-                <td className="p-2">Digit (0-9)</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>?l</code></td>
-                <td className="p-2">Lowercase letter (a-z)</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>?u</code></td>
-                <td className="p-2">Uppercase letter (A-Z)</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>?s</code></td>
-                <td className="p-2">Special character</td>
-              </tr>
-              <tr>
-                <td className="p-2"><code>?a</code></td>
-                <td className="p-2">All ASCII characters</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Mask Attack Examples</h4>
-          <p className="text-sm">8-digit PIN:</p>
-          ```bash
-          john --mask='?d?d?d?d?d?d?d?d' hashes.txt
-          ```
-          
-          <p className="text-sm mt-2">Password with specific pattern (e.g., 3 uppercase, 4 lowercase, 1 digit):</p>
-          ```bash
-          john --mask='?u?u?u?l?l?l?l?d' hashes.txt
-          ```
-          
-          <p className="text-sm mt-2">Known prefix with variable suffix:</p>
-          ```bash
-          john --mask='Company?d?d?d?d' hashes.txt
-          ```
-        </div>
-      </div>
-    </div>
-  </TabsContent>
-  <TabsContent value="rulebased">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Rule-Based Attacks</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">What are Rule-Based Attacks?</h4>
-          <p className="text-sm">Rule-based attacks apply transformations to wordlist entries to generate additional password candidates. This combines the efficiency of dictionary attacks with some of the coverage of brute force attacks.</p>
-          
-          <h4 className="font-bold mt-3">Basic Syntax</h4>
-          ```bash
-          # Use default rules
-          john --wordlist=wordlist.txt --rules hashes.txt
-          
-          # Use specific ruleset
-          john --wordlist=wordlist.txt --rules=Single hashes.txt
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Built-in Rulesets</h4>
-          <table className="w-full text-xs mt-2">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-2">Ruleset</th>
-                <th className="text-left p-2">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2"><code>Single</code></td>
-                <td className="p-2">Simple rules for single-word passwords</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>Wordlist</code></td>
-                <td className="p-2">Default rules for wordlist mode</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>Extra</code></td>
-                <td className="p-2">More complex rules</td>
-              </tr>
-              <tr>
-                <td className="p-2"><code>Jumbo</code></td>
-                <td className="p-2">Comprehensive rules (Jumbo version only)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">Common Rule Functions</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Rule Syntax Examples</h4>
-          <table className="w-full text-xs mt-2">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-2">Rule</th>
-                <th className="text-left p-2">Effect</th>
-                <th className="text-left p-2">Example</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2"><code>$X</code></td>
-                <td className="p-2">Append character X</td>
-                <td className="p-2">password → password1</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>^X</code></td>
-                <td className="p-2">Prepend character X</td>
-                <td className="p-2">password → 1password</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>c</code></td>
-                <td className="p-2">Capitalize first letter</td>
-                <td className="p-2">password → Password</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>u</code></td>
-                <td className="p-2">Convert to uppercase</td>
-                <td className="p-2">password → PASSWORD</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>l</code></td>
-                <td className="p-2">Convert to lowercase</td>
-                <td className="p-2">PASSWORD → password</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>r</code></td>
-                <td className="p-2">Reverse the word</td>
-                <td className="p-2">password → drowssap</td>
-              </tr>
-              <tr>
-                <td className="p-2"><code>sXY</code></td>
-                <td className="p-2">Replace X with Y</td>
-                <td className="p-2">password → pa$$word</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Creating Custom Rules</h4>
-          <p className="text-sm">Add custom rules to john.conf:</p>
-          ```
-          [List.Rules:MyRules]
-          # Append year
-          $2$0$2$3
-          # Capitalize and append special char
-          c$!
-          # Replace letters with numbers (leetspeak)
-          sa@
-          se3
-          si1
-          so0
-          st7
-          ```
-          
-          <p className="text-sm mt-2">Use your custom ruleset:</p>
-          ```bash
-          john --wordlist=wordlist.txt --rules=MyRules hashes.txt
-          ```
-        </div>
-      </div>
-    </div>
-  </TabsContent>
-</Tabs>
+## In This Section
 
-## Selecting the Right Technique
+- [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) - Using wordlists to crack passwords
+- [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) - Applying transformation rules to wordlists
+- [Brute Force Attacks](/docs/john-the-ripper/password-cracking-techniques/brute-force-attacks) - Trying all possible character combinations
 
-<Stepper>
-  <StepperItem title="Assess the Target Environment">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Factors to Consider</h3>
-        <ul className="space-y-2 mt-2">
-          <li className="flex items-start">
-            <span className="text-blue-600 mr-2">→</span>
-            <span><strong>Hash Type</strong>: Different hash algorithms require different approaches</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-blue-600 mr-2">→</span>
-            <span><strong>Password Policy</strong>: Understand the target's password requirements</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-blue-600 mr-2">→</span>
-            <span><strong>Available Time</strong>: Consider time constraints for your testing</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-blue-600 mr-2">→</span>
-            <span><strong>Hardware Resources</strong>: CPU/GPU capabilities affect technique selection</span>
-          </li>
-        </ul>
-      </div>
-      
-      <div className="bg-muted p-3 rounded-md">
-        <h4 className="font-bold">Hash Type Considerations</h4>
-        <table className="w-full text-xs mt-2">
-          <thead className="bg-muted">
-            <tr>
-              <th className="text-left p-2">Hash Type</th>
-              <th className="text-left p-2">Recommended Approach</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b">
-              <td className="p-2">Fast hashes (MD5, SHA1)</td>
-              <td className="p-2">Brute force or large wordlists with rules</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2">Slow hashes (bcrypt, PBKDF2)</td>
-              <td className="p-2">Targeted wordlists with minimal rules</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2">Windows NTLM</td>
-              <td className="p-2">Hybrid approach with wordlists and rules</td>
-            </tr>
-            <tr>
-              <td className="p-2">WPA/WPA2</td>
-              <td className="p-2">Focused wordlists with targeted rules</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </StepperItem>
-  
-  <StepperItem title="Start with Dictionary Attacks">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Dictionary Attack Strategy</h3>
-        <p className="text-sm">Always start with dictionary attacks as they offer the best balance of speed and success rate:</p>
-        
-        <ol className="text-sm list-decimal pl-5 mt-2 space-y-2">
-          <li>Begin with a small, high-quality wordlist of common passwords</li>
-          <li>Progress to larger, more comprehensive wordlists</li>
-          <li>Use target-specific custom wordlists based on reconnaissance</li>
-          <li>Apply simple rules to expand coverage</li>
-        </ol>
-      </div>
-      
-      <div className="bg-muted p-3 rounded-md">
-        <h4 className="font-bold">Recommended Approach</h4>
-        ```bash
-        # Step 1: Try common passwords first
-        john --wordlist=/usr/share/wordlists/fasttrack.txt hashes.txt
-        
-        # Step 2: Try larger wordlist
-        john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
-        
-        # Step 3: Add simple rules
-        john --wordlist=/usr/share/wordlists/rockyou.txt --rules=Single hashes.txt
-        
-        # Step 4: Try more complex rules
-        john --wordlist=/usr/share/wordlists/rockyou.txt --rules=Jumbo hashes.txt
-        ```
-      </div>
-    </div>
-  </StepperItem>
-  
-  <StepperItem title="Apply Rule-Based Attacks">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Rule-Based Strategy</h3>
-        <p className="text-sm">After basic dictionary attacks, apply increasingly complex rules:</p>
-        
-        <ol className="text-sm list-decimal pl-5 mt-2 space-y-2">
-          <li>Start with simple transformations (capitalization, appending digits)</li>
-          <li>Progress to more complex rules (combinations, substitutions)</li>
-          <li>Create custom rules based on the target's password policy</li>
-          <li>Use multiple rulesets for comprehensive coverage</li>
-        </ol>
-      </div>
-      
-      <div className="bg-muted p-3 rounded-md">
-        <h4 className="font-bold">Custom Rules Example</h4>
-        <p className="text-sm">Create a custom ruleset for a corporate environment:</p>
-        ```
-        [List.Rules:Corporate]
-        # Company name + year
-        c$2$0$2$3
-        # Department + special char
-        c$!
-        c$@
-        c$#
-        # Common corporate patterns
-        c$P$a$s$s$w$o$r$d
-        c$W$e$l$c$o$m$e
-        ```
-        
-        <p className="text-sm mt-2">Apply the custom ruleset:</p>
-        ```bash
-        john --wordlist=company_terms.txt --rules=Corporate hashes.txt
-        ```
-      </div>
-    </div>
-  </StepperItem>
-  
-  <StepperItem title="Use Brute Force as Last Resort">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Brute Force Strategy</h3>
-        <p className="text-sm">Use brute force attacks only when other methods fail or for specific scenarios:</p>
-        
-        <ul className="text-sm list-disc pl-5 mt-2 space-y-2">
-          <li>Short passwords (8 characters or less)</li>
-          <li>Numeric PINs or simple patterns</li>
-          <li>When you have information about the password structure</li>
-          <li>For targeted mask attacks based on password policy</li>
-        </ul>
-      </div>
-      
-      <div className="bg-muted p-3 rounded-md">
-        <h4 className="font-bold">Targeted Brute Force Examples</h4>
-        <p className="text-sm">For 4-digit PINs:</p>
-        ```bash
-        john --mask='?d?d?d?d' hashes.txt
-        ```
-        
-        <p className="text-sm mt-2">For 8-character passwords with known pattern:</p>
-        ```bash
-        # Uppercase + 5 lowercase + 2 digits
-        john --mask='?u?l?l?l?l?l?d?d' hashes.txt
-        ```
-        
-        <p className="text-sm mt-2">For passwords with known prefix:</p>
-        ```bash
-        # "Company" followed by 2-4 characters
-        john --mask='Company?a?a' hashes.txt
-        john --mask='Company?a?a?a' hashes.txt
-        john --mask='Company?a?a?a?a' hashes.txt
-        ```
-      </div>
-    </div>
-  </StepperItem>
-</Stepper>
+## Choosing the Right Technique
+
+Each password cracking technique has specific advantages and disadvantages:
+
+| Technique | Strengths | Weaknesses | Best For |
+|-----------|-----------|------------|----------|
+| Dictionary | Fast, efficient for common passwords | Limited to wordlist contents | Known/common passwords |
+| Rule-Based | Efficient for pattern-based passwords | Depends on rule quality | Passwords based on words |
+| Brute Force | Comprehensive coverage | Very time-consuming | Short passwords, last resort |
+
+## Recommended Approach
+
+For most password cracking tasks, we recommend the following sequence:
+
+1. **Start with dictionary attacks** using common password lists
+2. **Apply rule-based transformations** to the wordlists
+3. **Use targeted brute force** with masks if needed
+4. **Resort to full brute force** only for short passwords or when other methods fail
+
+## Dictionary Attacks
+
+Dictionary attacks use wordlists of common passwords and words to attempt to crack password hashes. They are:
+
+- **Efficient** for cracking passwords based on real words
+- **Fast** compared to brute force approaches
+- **Highly effective** against common passwords
+
+Learn more in the [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) section.
+
+## Rule-Based Attacks
+
+Rule-based attacks apply transformations to wordlist entries to create variations. They:
+
+- **Extend** the coverage of dictionary attacks
+- **Target** common password creation patterns
+- **Balance** efficiency and thoroughness
+
+Learn more in the [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) section.
+
+## Brute Force Attacks
+
+Brute force attacks try all possible character combinations. John implements these through its "incremental mode" which:
+
+- **Prioritizes** more likely character combinations
+- **Provides** complete coverage (given enough time)
+- **Offers** customizable character sets and patterns
+
+Learn more in the [Brute Force Attacks](/docs/john-the-ripper/password-cracking-techniques/brute-force-attacks) section.
 
 ## Hybrid Approaches
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-  <div>
-    <h3 className="font-semibold">Combining Techniques</h3>
-    <div className="bg-muted p-3 rounded-md mt-2">
-      <h4 className="font-bold">Wordlist + Rules + Masks</h4>
-      <p className="text-sm">For maximum effectiveness, combine multiple techniques:</p>
-      
-      <ol className="text-sm list-decimal pl-5 mt-2 space-y-2">
-        <li>Generate a base wordlist with target-specific terms</li>
-        <li>Apply rules to create variations</li>
-        <li>Use mask attacks for specific patterns</li>
-        <li>Combine outputs for comprehensive coverage</li>
-      </ol>
-    </div>
-    
-    <div className="border p-3 rounded-md mt-4">
-      <h4 className="font-bold">Prince Attack</h4>
-      <p className="text-sm">Prince (PRobability INfinite Chained Elements) combines words from a wordlist:</p>
-      ```bash
-      # Generate prince wordlist
-      pp64.bin --pw-min=8 --pw-max=16 -o prince_wordlist.txt wordlist.txt
-      
-      # Use with John
-      john --wordlist=prince_wordlist.txt hashes.txt
-      ```
-    </div>
-  </div>
-  
-  <div>
-    <h3 className="font-semibold">Markov Chain Attacks</h3>
-    <div className="bg-muted p-3 rounded-md mt-2">
-      <h4 className="font-bold">What are Markov Chains?</h4>
-      <p className="text-sm">Markov chain attacks use statistical models to generate password candidates based on the probability of character sequences in real passwords.</p>
-      
-      <p className="text-sm mt-2">This approach is more efficient than pure brute force but more comprehensive than dictionary attacks.</p>
-    </div>
-    
-    <div className="border p-3 rounded-md mt-4">
-      <h4 className="font-bold">Using Markov Mode</h4>
-      <p className="text-sm">Generate Markov statistics from a wordlist:</p>
-      ```bash
-      john --markov --mkv-stats=stats.txt wordlist.txt
-      ```
-      
-      <p className="text-sm mt-2">Use Markov mode for cracking:</p>
-      ```bash
-      john --markov=100:0:1:10 --mkv-stats=stats.txt hashes.txt
-      ```
-      
-      <p className="text-sm mt-2">Where:</p>
-      <ul className="text-sm list-disc pl-5">
-        <li><code>100</code> is the level (lower = faster but less coverage)</li>
-        <li><code>0:1:10</code> is min:max:length (passwords of length 1-10)</li>
-      </ul>
-    </div>
-  </div>
-</div>
+John the Ripper excels at combining different techniques:
 
-<Note title="Ethical Considerations" type="warning">
-  <p>Password cracking techniques should only be used in authorized security testing scenarios. The more aggressive the technique, the more important it is to ensure you have proper authorization.</p>
-  
-  <p className="mt-2">When conducting password cracking during penetration tests:</p>
-  <ul className="list-disc pl-5 mt-1">
-    <li>Clearly define the scope and objectives in your testing agreement</li>
-    <li>Be mindful of system resources and potential disruption</li>
-    <li>Handle discovered passwords with extreme confidentiality</li>
-    <li>Document your methodology and findings thoroughly</li>
-    <li>Provide clear remediation advice for identified weaknesses</li>
-  </ul>
-</Note>
+### Mask + Dictionary
 
-In the next section, we'll explore advanced techniques for extracting password hashes from various sources and analyzing password patterns.
+```bash
+john --mask='?w?d?d?d' --wordlist=wordlist.txt hash.txt
+```
+
+This tries each word from the wordlist followed by three digits.
+
+### Rules + Incremental
+
+```bash
+john --incremental=Alpha --rules hash.txt
+```
+
+This applies rules to the incremental mode's output.
+
+## Performance Optimization
+
+Regardless of the technique you choose, consider these optimizations:
+
+1. **Use GPU acceleration** when available
+   ```bash
+   john --format=md5crypt-opencl hash.txt
+   ```
+
+2. **Distribute across multiple cores**
+   ```bash
+   john --fork=4 hash.txt
+   ```
+
+3. **Split workload across machines**
+   ```bash
+   john --node=1/3 hash.txt  # On machine 1
+   john --node=2/3 hash.txt  # On machine 2
+   john --node=3/3 hash.txt  # On machine 3
+   ```
+
+## Best Practices
+
+1. **Start with the fastest methods** (dictionary) before moving to slower ones (brute force)
+2. **Target your approach** based on known password policies
+3. **Save your session state** for long-running attacks
+4. **Use multiple techniques** in combination
+5. **Document your methodology** during authorized penetration tests
+
+## Next Steps
+
+After exploring these password cracking techniques, you may want to learn about:
+- [Advanced Techniques](/docs/john-the-ripper/advanced-techniques) - More sophisticated approaches to password cracking
+- [Optimization Best Practices](/docs/john-the-ripper/optimization-best-practices) - How to optimize John for better performance

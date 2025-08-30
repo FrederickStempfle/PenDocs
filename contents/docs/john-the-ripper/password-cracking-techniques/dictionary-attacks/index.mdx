@@ -1,0 +1,238 @@
+---
+title: Dictionary Attacks
+description: Learn how to perform effective dictionary attacks with John the Ripper
+---
+
+# Dictionary Attacks
+
+Dictionary attacks are one of the most efficient password cracking techniques, using lists of words and common passwords to attempt to crack password hashes. John the Ripper provides powerful capabilities for dictionary-based password cracking.
+
+## Understanding Dictionary Attacks
+
+Dictionary attacks work on the principle that many users choose passwords based on:
+- Common words
+- Names
+- Dates
+- Simple patterns
+- Known leaked passwords
+
+Instead of trying every possible character combination (as in brute force attacks), dictionary attacks try a curated list of likely passwords.
+
+## Basic Dictionary Attack
+
+### Simple Wordlist Command
+
+```bash
+john --wordlist=wordlist.txt hash.txt
+```
+
+This command tries each word in the wordlist against the hashes in the hash.txt file.
+
+### Common Wordlists
+
+Several popular wordlists are available for password cracking:
+
+| Wordlist | Description | Size | Source |
+|----------|-------------|------|--------|
+| rockyou.txt | Leaked passwords from the RockYou breach | 14 million | Kali Linux |
+| darkweb2017-top10000.txt | Common passwords from dark web | 10,000 | SecLists |
+| 10-million-password-list-top-1000000.txt | Top million passwords | 1 million | SecLists |
+| english-words.txt | English dictionary words | Varies | Various |
+
+In Kali Linux, many wordlists are available in `/usr/share/wordlists/`.
+
+## Advanced Dictionary Options
+
+### Case Sensitivity
+
+By default, John tries passwords as they appear in the wordlist. To try different case variations:
+
+```bash
+john --wordlist=wordlist.txt --rules:SingleCase hash.txt
+```
+
+### Multiple Wordlists
+
+To use multiple wordlists in sequence:
+
+```bash
+cat wordlist1.txt wordlist2.txt > combined.txt
+john --wordlist=combined.txt hash.txt
+```
+
+### Stdin as Wordlist
+
+You can pipe words into John:
+
+```bash
+cat wordlist.txt | grep "password" | john --stdin hash.txt
+```
+
+## Optimizing Dictionary Attacks
+
+### Wordlist Preprocessing
+
+Sort and remove duplicates from wordlists:
+
+```bash
+sort wordlist.txt | uniq > cleaned_wordlist.txt
+```
+
+### Targeted Wordlists
+
+Create targeted wordlists based on the target:
+
+```bash
+# Extract words from a company website
+cewl www.company.com -d 2 -m 6 -w company_words.txt
+```
+
+### Wordlist Mangling
+
+Apply simple transformations to wordlist entries:
+
+```bash
+# Add numbers to the end of each word
+john --wordlist=wordlist.txt --rules:AppendNumbers hash.txt
+```
+
+## Hybrid Dictionary Attacks
+
+### Combining with Rules
+
+Rules can transform wordlist entries to create variations:
+
+```bash
+john --wordlist=wordlist.txt --rules hash.txt
+```
+
+This applies John's default rule set to each word in the wordlist. See the [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) section for more details.
+
+### Combining with Masks
+
+You can append or prepend character patterns to dictionary words:
+
+```bash
+# Append two digits to each word
+john --wordlist=wordlist.txt --mask='?w?d?d' hash.txt
+```
+
+Where `?w` represents the word from the wordlist and `?d` represents a digit.
+
+## Specialized Dictionary Techniques
+
+### Loopback Attack
+
+Use already cracked passwords as a wordlist:
+
+```bash
+john --loopback hash.txt
+```
+
+This is useful when cracking multiple related passwords, as users often use variations of the same password.
+
+### Prince Attack
+
+Prince (PRobability INfinite Chained Elements) combines words from the wordlist:
+
+```bash
+pp64.bin -o prince_wordlist.txt < wordlist.txt
+john --wordlist=prince_wordlist.txt hash.txt
+```
+
+### Markov-Chain Filtering
+
+Filter wordlists using Markov chains to prioritize likely passwords:
+
+```bash
+john --wordlist=wordlist.txt --external=filter_markov hash.txt
+```
+
+## Performance Considerations
+
+### Wordlist Size vs. Quality
+
+- **Large wordlists** cover more possibilities but take longer to process
+- **Targeted wordlists** are smaller but more effective for specific targets
+- **Quality over quantity** - a well-curated wordlist is more effective than a large random one
+
+### Optimization Strategies
+
+1. **Use GPU acceleration** when available:
+   ```bash
+   john --wordlist=wordlist.txt --format=md5crypt-opencl hash.txt
+   ```
+
+2. **Distribute the workload** across multiple cores:
+   ```bash
+   john --wordlist=wordlist.txt --fork=4 hash.txt
+   ```
+
+3. **Split the wordlist** for multiple machines:
+   ```bash
+   split -n 3 wordlist.txt wordlist_part_
+   ```
+
+## Creating Custom Wordlists
+
+### From Existing Passwords
+
+```bash
+# Extract words from already cracked passwords
+john --show hash.txt | cut -d: -f2 > new_wordlist.txt
+```
+
+### From Target-Specific Information
+
+Gather information about the target:
+- Company names, slogans, products
+- Employee names, birthdays
+- Location information
+- Industry-specific terms
+
+Use tools like CeWL to scrape websites:
+
+```bash
+cewl -d 2 -m 5 -w wordlist.txt https://www.target-company.com
+```
+
+## Practical Examples
+
+### Cracking Linux Shadow Passwords
+
+```bash
+sudo unshadow /etc/passwd /etc/shadow > passwords.txt
+john --wordlist=/usr/share/wordlists/rockyou.txt passwords.txt
+```
+
+### Cracking Web Application Hashes
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt --format=Raw-MD5 webapp_hashes.txt
+```
+
+### Creating and Using a Custom Wordlist
+
+```bash
+# Create a wordlist from company information
+echo "CompanyName" > custom.txt
+echo "Founded2005" >> custom.txt
+echo "ProductName" >> custom.txt
+
+# Use the custom wordlist with rules
+john --wordlist=custom.txt --rules hash.txt
+```
+
+## Best Practices
+
+1. **Start with small, targeted wordlists** before using larger ones
+2. **Combine dictionary attacks with rules** for better coverage
+3. **Create custom wordlists** based on the target
+4. **Update wordlists regularly** with new leaked passwords
+5. **Use multiple wordlists** with different characteristics
+
+## Next Steps
+
+After learning about dictionary attacks, explore:
+- [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) - Learn how to apply transformation rules to wordlists
+- [Brute Force Attacks](/docs/john-the-ripper/password-cracking-techniques/brute-force-attacks) - Understand when and how to use brute force methods

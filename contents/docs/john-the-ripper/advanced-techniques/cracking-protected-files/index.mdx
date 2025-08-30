@@ -1,0 +1,247 @@
+---
+title: Cracking Protected Files
+description: Learn how to use John the Ripper to crack passwords for various protected file formats
+---
+
+# Cracking Protected Files
+
+John the Ripper can be used to crack passwords for a wide variety of protected file formats, including documents, archives, and encrypted containers. This guide covers the techniques and tools for cracking these protected files.
+
+## Supported File Types
+
+John the Ripper supports cracking passwords for many file types through its suite of auxiliary tools:
+
+| File Type | Tool | Description |
+|-----------|------|-------------|
+| PDF | pdf2john | Adobe PDF documents |
+| ZIP | zip2john | ZIP archives |
+| RAR | rar2john | RAR archives |
+| 7z | 7z2john | 7-Zip archives |
+| Office | office2john | Microsoft Office documents |
+| KeePass | keepass2john | KeePass password databases |
+| SSH | ssh2john | SSH private keys |
+| Bitcoin | bitcoin2john | Bitcoin wallet files |
+| PGP | gpg2john | PGP/GPG encrypted files |
+
+## General Workflow
+
+The process for cracking protected files follows these steps:
+
+1. **Extract the hash** using the appropriate `*2john` utility
+2. **Save the hash** to a file
+3. **Crack the hash** using John the Ripper
+4. **Access the file** using the recovered password
+
+## Cracking PDF Documents
+
+### Extracting PDF Password Hashes
+
+```bash
+pdf2john document.pdf > document.hash
+```
+
+The output will contain a hash string that represents the PDF's encryption:
+
+```
+document.pdf:$pdf$4*4*128*-1028*1*16*sample_hash_data*32*sample_hash_data*32*sample_hash_data
+```
+
+### Cracking the PDF Password
+
+```bash
+john --wordlist=wordlist.txt document.hash
+```
+
+## Cracking ZIP Archives
+
+### Extracting ZIP Password Hashes
+
+```bash
+zip2john archive.zip > archive.hash
+```
+
+The output will look like:
+
+```
+archive.zip:$zip2$*0*3*0*a7f5d24a1*0*0*0*0*b5*5a7e*a7a5*5abe3efee0f8d2622ca9564b7c2c660d93e743bd91f84c58*$/zip2$
+```
+
+### Cracking the ZIP Password
+
+```bash
+john --format=zip archive.hash
+```
+
+## Cracking Microsoft Office Documents
+
+### Extracting Office Password Hashes
+
+```bash
+office2john document.docx > document.hash
+```
+
+The output will contain a hash string specific to the Office document format:
+
+```
+document.docx:$office$*2013*100000*128*16*sample_hash_data*sample_hash_data
+```
+
+### Cracking the Office Password
+
+```bash
+john --format=office document.hash
+```
+
+## Cracking RAR Archives
+
+### Extracting RAR Password Hashes
+
+```bash
+rar2john archive.rar > archive.hash
+```
+
+### Cracking the RAR Password
+
+```bash
+john --format=rar archive.hash
+```
+
+## Cracking SSH Private Keys
+
+### Extracting SSH Key Password Hashes
+
+```bash
+ssh2john id_rsa > id_rsa.hash
+```
+
+### Cracking the SSH Key Password
+
+```bash
+john --wordlist=wordlist.txt id_rsa.hash
+```
+
+## Cracking KeePass Databases
+
+### Extracting KeePass Password Hashes
+
+```bash
+keepass2john database.kdbx > database.hash
+```
+
+### Cracking the KeePass Password
+
+```bash
+john --format=keepass database.hash
+```
+
+## Optimizing Protected File Cracking
+
+### Using GPU Acceleration
+
+For supported formats, GPU acceleration can significantly speed up the cracking process:
+
+```bash
+john --format=office-opencl --devices=0 document.hash
+```
+
+### Format-Specific Optimizations
+
+Different file formats have different computational requirements:
+
+| Format | Optimization Tips |
+|--------|------------------|
+| PDF | Use `--format=pdf` for older PDFs, `--format=pdf-opencl` for GPU acceleration |
+| Office | Modern Office formats (2013+) are slow to crack due to high iteration counts |
+| ZIP | Use `--format=zip-opencl` for GPU acceleration |
+| RAR | RAR3 is much faster to crack than RAR5 |
+
+## Advanced Techniques
+
+### Hybrid Attacks for Protected Files
+
+Combine wordlists with rules for more effective cracking:
+
+```bash
+john --wordlist=wordlist.txt --rules=best64 document.hash
+```
+
+### Incremental Mode for Protected Files
+
+When wordlists fail, try incremental mode:
+
+```bash
+john --incremental=all document.hash
+```
+
+### Mask Attacks for Protected Files
+
+If you know part of the password or its pattern:
+
+```bash
+john --mask='password?d?d?d?d' document.hash
+```
+
+## Practical Examples
+
+### Cracking a Password-Protected Excel File
+
+```bash
+# Extract the hash
+office2john financial_data.xlsx > excel.hash
+
+# Crack with wordlist
+john --wordlist=/usr/share/wordlists/rockyou.txt excel.hash
+
+# Show the cracked password
+john --show excel.hash
+```
+
+### Cracking an Encrypted ZIP Archive
+
+```bash
+# Extract the hash
+zip2john backup.zip > zip.hash
+
+# Crack with rules
+john --wordlist=/usr/share/wordlists/rockyou.txt --rules=best64 zip.hash
+
+# Show the cracked password
+john --show zip.hash
+```
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+| Issue | Solution |
+|-------|----------|
+| "No password hashes loaded" | Check if the hash extraction was successful |
+| "No password hashes left to crack" | The password might already be cracked; use `--show` |
+| "Unknown hash format" | Specify the format explicitly with `--format=` |
+| Very slow cracking speed | Try GPU acceleration or adjust `--fork` for multi-threading |
+
+### Format Detection Issues
+
+If John fails to detect the format automatically:
+
+```bash
+# List supported formats
+john --list=formats
+
+# Specify the format explicitly
+john --format=FORMAT hash.file
+```
+
+## Best Practices
+
+1. **Start with wordlists** before trying more time-consuming methods
+2. **Use rules** to transform common passwords
+3. **Leverage GPU acceleration** for supported formats
+4. **Try multiple approaches** if initial attempts fail
+5. **Document your process** during authorized penetration tests
+
+## Next Steps
+
+After learning how to crack protected files, explore:
+- [Custom Rules Creation](/docs/john-the-ripper/advanced-techniques/custom-rules-creation) - Develop custom rules for more effective password cracking
+- [Extracting Hashes](/docs/john-the-ripper/advanced-techniques/extracting-hashes) - Discover methods for extracting password hashes from various systems

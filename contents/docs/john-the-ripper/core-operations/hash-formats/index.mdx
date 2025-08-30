@@ -1,0 +1,210 @@
+---
+title: Hash Formats
+description: Comprehensive guide to hash formats supported by John the Ripper
+---
+
+# Hash Formats
+
+John the Ripper supports a wide variety of password hash formats from different operating systems, applications, and encryption methods. This guide covers the most common hash formats and how to use them effectively.
+
+## Supported Hash Formats
+
+John the Ripper supports over 400 different hash types and ciphers. You can view all supported formats with:
+
+```bash
+john --list=formats
+```
+
+### Common Hash Format Categories
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| Operating System | Password hashes from various OS | Unix crypt, Windows NTLM |
+| Database | Database authentication hashes | MySQL, PostgreSQL, Oracle |
+| Web Applications | Hashes used in web frameworks | WordPress, Drupal, Joomla |
+| Document | Password-protected document hashes | PDF, Office documents, ZIP |
+| Cryptocurrency | Cryptocurrency wallet hashes | Bitcoin, Ethereum |
+| Network Protocols | Authentication protocol hashes | RADIUS, VNC, WPA/WPA2 |
+
+## Specifying Hash Formats
+
+To specify a hash format, use the `--format` option:
+
+```bash
+john --format=FORMAT hash.txt
+```
+
+Where `FORMAT` is one of the supported formats listed by `john --list=formats`.
+
+## Common Hash Formats
+
+### Unix Password Hashes
+
+#### Traditional DES-based crypt
+
+```
+username:rHxKYvKQMkwJs:1000:1000::/home/username:/bin/bash
+```
+
+Format option: `--format=descrypt`
+
+#### MD5-based crypt (modern Linux)
+
+```
+username:$1$salt$hash:1000:1000::/home/username:/bin/bash
+```
+
+Format option: `--format=md5crypt`
+
+#### SHA-256/SHA-512 crypt (modern Linux)
+
+```
+username:$5$salt$hash:1000:1000::/home/username:/bin/bash
+username:$6$salt$hash:1000:1000::/home/username:/bin/bash
+```
+
+Format options: 
+- `--format=sha256crypt`
+- `--format=sha512crypt`
+
+### Windows Password Hashes
+
+#### LM Hash (legacy)
+
+```
+username:1234567890ABCDEF1234567890ABCDEF:other_hash
+```
+
+Format option: `--format=lm`
+
+#### NTLM Hash (modern Windows)
+
+```
+username:other_hash:1234567890ABCDEF1234567890ABCDEF
+```
+
+Format option: `--format=nt`
+
+### Web Application Hashes
+
+#### WordPress
+
+```
+$P$B1234567890ABCDEF1234567890ABCDEF
+```
+
+Format option: `--format=phpass`
+
+#### MySQL
+
+```
+6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9
+```
+
+Format option: `--format=mysql-sha1`
+
+### Document Password Hashes
+
+#### PDF
+
+```
+$pdf$4*4*128*-1028*1*16*sample_hash_data*32*sample_hash_data*32*sample_hash_data
+```
+
+Format option: `--format=pdf`
+
+#### MS Office
+
+```
+$office$*2013*100000*128*16*sample_hash_data*sample_hash_data
+```
+
+Format option: `--format=office`
+
+## Hash Format Detection
+
+John the Ripper can often auto-detect hash formats:
+
+```bash
+john hash.txt
+```
+
+However, for better performance and accuracy, it's recommended to explicitly specify the format when known.
+
+## Hash Format Conversion
+
+### Using john2john Tools
+
+John the Ripper comes with several utilities to convert various password files to formats it can process:
+
+| Utility | Purpose |
+|---------|---------|
+| `pdf2john` | Extract hashes from PDF files |
+| `zip2john` | Extract hashes from ZIP archives |
+| `office2john` | Extract hashes from MS Office documents |
+| `rar2john` | Extract hashes from RAR archives |
+| `ssh2john` | Extract hashes from SSH private keys |
+
+Example usage:
+
+```bash
+pdf2john document.pdf > document.hash
+john document.hash
+```
+
+## Working with Raw Hashes
+
+For raw hashes without usernames or additional metadata:
+
+### MD5 Hashes
+
+```
+5f4dcc3b5aa765d61d8327deb882cf99
+```
+
+Format option: `--format=raw-md5`
+
+### SHA-1 Hashes
+
+```
+5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8
+```
+
+Format option: `--format=raw-sha1`
+
+### SHA-256 Hashes
+
+```
+5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
+```
+
+Format option: `--format=raw-sha256`
+
+## Salted Hashes
+
+Many modern hash formats include salts to prevent rainbow table attacks. John the Ripper handles salted hashes in various formats:
+
+### Format with Salt Embedded
+
+```
+$1$salt$hash
+```
+
+### Format with Separate Salt
+
+```
+hash:salt
+```
+
+## Best Practices
+
+1. **Always specify the format** when known for better performance
+2. **Use the correct hash extraction tool** for password-protected files
+3. **Check the hash format** before starting a cracking session
+4. **Use `--list=formats`** to verify supported formats and their exact names
+
+## Next Steps
+
+After understanding hash formats, explore:
+- [Basic Usage](/docs/john-the-ripper/core-operations/basic-usage) - Review the fundamental operations of John the Ripper
+- [Command Line Options](/docs/john-the-ripper/core-operations/command-line-options) - Learn about the various options to customize John's behavior

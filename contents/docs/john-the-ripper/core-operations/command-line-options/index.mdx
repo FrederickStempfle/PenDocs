@@ -1,0 +1,199 @@
+---
+title: Command Line Options
+description: Comprehensive guide to John the Ripper's command line options and flags
+---
+
+# Command Line Options
+
+John the Ripper offers a wide range of command-line options to customize its behavior for different password cracking scenarios. This guide covers the most important options organized by category.
+
+## General Options
+
+### Basic Options
+
+| Option | Description |
+|--------|-------------|
+| `--help` | Display help information |
+| `--version` | Display version information |
+| `--list=WHAT` | List capabilities, where WHAT can be: `formats`, `subformats`, `inc-modes`, `rules`, `externals`, `sections`, or `parameters` |
+
+### Session Management
+
+| Option | Description |
+|--------|-------------|
+| `--session=NAME` | Name a new cracking session |
+| `--restore[=NAME]` | Restore a previously interrupted session |
+| `--status[=NAME]` | Display status of a session |
+
+Example:
+```bash
+# Start a named session
+john --session=webserver hash.txt
+
+# Restore the session later
+john --restore=webserver
+```
+
+## Wordlist Mode Options
+
+### Basic Wordlist Options
+
+| Option | Description |
+|--------|-------------|
+| `--wordlist=FILE` | Use FILE as a wordlist |
+| `--stdin` | Read words from standard input |
+| `--pipe` | Like --stdin, but bulk reads |
+
+### Rules and Transformations
+
+| Option | Description |
+|--------|-------------|
+| `--rules[=SECTION]` | Enable word mangling rules |
+| `--rules-stack=SECTION[,..]` | Stack rules sections |
+| `--loopback[=FILE]` | Use already cracked passwords as a wordlist |
+
+Example:
+```bash
+# Use a wordlist with rules
+john --wordlist=rockyou.txt --rules hash.txt
+
+# Use previously cracked passwords as input
+john --loopback hash.txt
+```
+
+## Incremental Mode Options
+
+| Option | Description |
+|--------|-------------|
+| `--incremental[=MODE]` | Use incremental mode |
+| `--mask=MASK` | Specify a mask for hybrid attacks |
+| `--markov[=LEVEL[:START[:END[:VALUE]]]]` | Use Markov chains |
+
+Example:
+```bash
+# Use incremental mode with the "All" character set
+john --incremental=All hash.txt
+
+# Use Markov mode with level 1
+john --markov=1 hash.txt
+```
+
+## Format-Specific Options
+
+| Option | Description |
+|--------|-------------|
+| `--format=NAME` | Force hash type NAME |
+| `--subformat=FORMAT` | Select a benchmark format for --format=crypt |
+| `--list=formats` | List all available formats |
+
+Example:
+```bash
+# Force MD5 format
+john --format=raw-md5 hash.txt
+
+# List available formats
+john --list=formats
+```
+
+## Performance Options
+
+### Threading and Parallelization
+
+| Option | Description |
+|--------|-------------|
+| `--fork=N` | Fork N processes |
+| `--node=MIN[-MAX]/TOTAL` | This node's number range out of TOTAL count |
+
+### Hardware Acceleration
+
+| Option | Description |
+|--------|-------------|
+| `--devices=N[-M]` | Set OpenCL device(s) |
+| `--platform=N` | Set OpenCL platform |
+| `--tune=N` | Tuning options for OpenCL |
+
+Example:
+```bash
+# Use 4 processes
+john --fork=4 hash.txt
+
+# Use OpenCL device 0
+john --devices=0 --format=opencl hash.txt
+```
+
+## Output and Display Options
+
+| Option | Description |
+|--------|-------------|
+| `--show[=LEFT]` | Show cracked passwords |
+| `--show=formats` | Show formats in which hashes were cracked |
+| `--show=invalid` | Show lines that are not valid for selected format |
+| `--pot=NAME` | Specify pot file to use |
+| `--encoding=NAME` | Input encoding (eg. UTF-8, ISO-8859-1) |
+
+Example:
+```bash
+# Show cracked passwords
+john --show hash.txt
+
+# Use a specific pot file
+john --pot=custom.pot hash.txt
+```
+
+## Advanced Options
+
+### External Mode
+
+| Option | Description |
+|--------|-------------|
+| `--external=MODE` | External mode or word filter |
+| `--regen-lost-salts=N` | Regenerate lost salts (see doc/OPTIONS) |
+
+### Benchmark and Testing
+
+| Option | Description |
+|--------|-------------|
+| `--test[=TIME]` | Run tests and benchmarks for TIME seconds each |
+| `--stress-test[=TIME]` | Run stress tests for TIME seconds each |
+
+Example:
+```bash
+# Run benchmarks for 5 seconds per format
+john --test=5
+
+# Use external mode
+john --external=filter_digits hash.txt
+```
+
+## Practical Examples
+
+### Cracking Linux Shadow Passwords
+
+```bash
+sudo unshadow /etc/passwd /etc/shadow > passwords.txt
+john --wordlist=/usr/share/wordlists/rockyou.txt passwords.txt
+```
+
+### Cracking Windows NTLM Hashes
+
+```bash
+john --format=nt --wordlist=/usr/share/wordlists/rockyou.txt ntlm_hashes.txt
+```
+
+### Using Multiple Cores
+
+```bash
+john --fork=4 --format=md5crypt hashes.txt
+```
+
+### Using GPU Acceleration
+
+```bash
+john --format=md5crypt-opencl --devices=0 hashes.txt
+```
+
+## Next Steps
+
+After mastering the command-line options, explore:
+- [Hash Formats](/docs/john-the-ripper/core-operations/hash-formats) - Learn about the different hash formats supported by John
+- [Basic Usage](/docs/john-the-ripper/core-operations/basic-usage) - Review the fundamental operations of John the Ripper

@@ -1,0 +1,601 @@
+---
+title: Reconnaissance and Intelligence Gathering
+description: Learn effective techniques for gathering information to create targeted wordlists and improve password cracking success rates
+---
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+import { Callout } from "@/components/markdown/callout"
+
+# Reconnaissance and Intelligence Gathering Phase
+
+The reconnaissance phase is a critical step in password cracking that significantly improves success rates. By gathering intelligence about the target organization and its users, penetration testers can create custom wordlists and strategies that are more likely to crack passwords efficiently.
+
+## Information Gathering for Custom Wordlists
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>OSINT Techniques</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Open Source Intelligence (OSINT) can provide valuable data for wordlist creation:
+      
+      - **Company websites**: Gather terminology, product names, and slogans
+      - **Social media profiles**: Collect names, interests, and important dates
+      - **Press releases**: Find company-specific terms and projects
+      - **Job listings**: Identify technologies and internal terminology
+      - **Public documents**: Extract organization-specific vocabulary
+      
+      ```bash
+      # Using CeWL to spider a website and create a wordlist
+      cewl -d 2 -m 6 -w company_terms.txt https://example.com
+      
+      # Extract additional information with metadata
+      cewl -d 2 -m 6 -w company_terms.txt --meta https://example.com
+      ```
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Employee Information</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Employee details often form the basis of passwords:
+      
+      - **Employee names**: First, last, and usernames
+      - **Email formats**: Understand naming conventions
+      - **Job titles**: Roles often appear in passwords
+      - **Departments**: Department codes or names
+      - **Employment dates**: Years of hiring or important milestones
+      
+      ```bash
+      # Using theHarvester to gather email addresses
+      theHarvester -d example.com -b all -l 500
+      
+      # Using LinkedIn data (when authorized)
+      # Export employee names to a file and process:
+      cat linkedin_names.txt | awk '{print tolower($1)}' > firstnames.txt
+      cat linkedin_names.txt | awk '{print tolower($2)}' > lastnames.txt
+      ```
+    </CardContent>
+  </Card>
+</div>
+
+### Creating Targeted Wordlists
+
+<Tabs defaultValue="company" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="company">Company-Specific</TabsTrigger>
+    <TabsTrigger value="industry">Industry-Specific</TabsTrigger>
+    <TabsTrigger value="location">Location-Based</TabsTrigger>
+  </TabsList>
+  <TabsContent value="company">
+    ### Company-Specific Wordlists
+    
+    Create wordlists tailored to the target organization:
+    
+    ```bash
+    # Combine company terms with common password patterns
+    cat company_terms.txt | while read word; do
+      echo "${word}"
+      echo "${word}123"
+      echo "${word}!"
+      echo "${word}2023"
+    done > company_passwords.txt
+    
+    # Add company founding year variations
+    for year in {1990..2023}; do
+      echo "Company${year}" >> company_passwords.txt
+      echo "company${year}" >> company_passwords.txt
+    done
+    ```
+    
+    Include specific elements:
+    
+    - Company name and variations (CompanyName, company_name)
+    - Product names and abbreviations
+    - Company slogans and mottos
+    - Office locations and addresses
+    - Internal project codenames
+  </TabsContent>
+  <TabsContent value="industry">
+    ### Industry-Specific Wordlists
+    
+    Tailor wordlists to the industry sector:
+    
+    ```bash
+    # Combine industry terms with common password patterns
+    cat industry_terms.txt | while read word; do
+      echo "${word}"
+      echo "${word}123"
+      echo "${word}!"
+    done > industry_passwords.txt
+    ```
+    
+    Include industry-specific elements:
+    
+    - Industry terminology and jargon
+    - Regulatory frameworks (HIPAA, PCI, etc.)
+    - Common tools and software in the industry
+    - Industry abbreviations and acronyms
+    - Competitor names and products
+  </TabsContent>
+  <TabsContent value="location">
+    ### Location-Based Wordlists
+    
+    Create wordlists based on geographical information:
+    
+    ```bash
+    # Generate location-based passwords
+    cat locations.txt | while read location; do
+      echo "${location}"
+      echo "${location}123"
+      echo "${location}!"
+    done > location_passwords.txt
+    ```
+    
+    Include location-specific elements:
+    
+    - City and state names where offices are located
+    - Local sports teams and mascots
+    - Local landmarks and attractions
+    - Area codes and zip codes
+    - Regional slang and terminology
+  </TabsContent>
+</Tabs>
+
+### Wordlist Processing and Optimization
+
+<Steps>
+  <Step title="Combine multiple sources">
+    Merge wordlists from different sources to create a comprehensive base:
+    
+    ```bash
+    # Combine multiple wordlists
+    cat company_terms.txt employee_names.txt industry_terms.txt > combined.txt
+    
+    # Remove duplicates
+    sort -u combined.txt > combined_unique.txt
+    ```
+    
+    This creates a foundation for further processing.
+  </Step>
+  
+  <Step title="Apply common password patterns">
+    Transform base words using common password creation patterns:
+    
+    ```bash
+    # Create a rule file for John the Ripper
+    echo "[List.Rules:Corporate]" > corporate.rule
+    echo "c" >> corporate.rule  # Capitalize
+    echo "c $1" >> corporate.rule  # Capitalize and add 1
+    echo "c $2" >> corporate.rule  # Capitalize and add 2
+    echo "c $3" >> corporate.rule  # Capitalize and add 3
+    echo "$!" >> corporate.rule  # Add !
+    
+    # Apply rules to generate password candidates
+    john --wordlist=combined_unique.txt --rules=corporate.rule --stdout > processed_wordlist.txt
+    ```
+    
+    This expands your wordlist with likely variations.
+  </Step>
+  
+  <Step title="Optimize for size and efficiency">
+    Balance wordlist size with effectiveness:
+    
+    ```bash
+    # Sort by length (shortest first for efficiency)
+    cat processed_wordlist.txt | awk '{print length, $0}' | sort -n | cut -d " " -f2- > optimized_wordlist.txt
+    
+    # Limit size if necessary
+    head -n 1000000 optimized_wordlist.txt > final_wordlist.txt
+    ```
+    
+    This improves cracking efficiency by prioritizing shorter, more common passwords.
+  </Step>
+  
+  <Step title="Test and refine">
+    Validate your wordlist against sample data if available:
+    
+    ```bash
+    # Test against sample hashes (if available)
+    john --wordlist=final_wordlist.txt sample_hashes.txt
+    
+    # Analyze results and refine
+    john --show sample_hashes.txt > cracked.txt
+    ```
+    
+    Use the results to further refine your wordlist.
+  </Step>
+</Steps>
+
+## Identifying Potential Targets and Entry Points
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>Network Reconnaissance</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Identify systems that may contain password hashes:
+      
+      - **Domain controllers**: Primary source of Windows password hashes
+      - **Authentication servers**: LDAP, RADIUS, Kerberos servers
+      - **Web applications**: Custom authentication systems
+      - **Database servers**: Often contain user credentials
+      - **Backup systems**: May contain unprotected password data
+      
+      ```bash
+      # Network scanning (when authorized)
+      nmap -sV -p 389,636,88,1433,3306 10.0.0.0/24
+      
+      # Identifying domain controllers
+      nmap -p 88,389 --open 10.0.0.0/24
+      ```
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Service Enumeration</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Identify services that may be vulnerable to password attacks:
+      
+      - **Remote access services**: SSH, RDP, VPN endpoints
+      - **Web applications**: Admin portals, intranet sites
+      - **File sharing services**: SMB, FTP, NFS
+      - **Email services**: Exchange, IMAP, POP3
+      - **Management interfaces**: iLO, iDRAC, IPMI
+      
+      ```bash
+      # Service scanning
+      nmap -sV -p 22,23,25,80,443,445,3389 10.0.0.0/24
+      
+      # Identifying web applications
+      nikto -h 10.0.0.1
+      ```
+    </CardContent>
+  </Card>
+</div>
+
+### User Account Discovery
+
+<Tabs defaultValue="windows" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="windows">Windows Environment</TabsTrigger>
+    <TabsTrigger value="linux">Linux/Unix Environment</TabsTrigger>
+    <TabsTrigger value="web">Web Applications</TabsTrigger>
+  </TabsList>
+  <TabsContent value="windows">
+    ### Windows Environment
+    
+    In Windows environments, identify user accounts through various methods:
+    
+    ```bash
+    # Using enum4linux (when authorized)
+    enum4linux -a 10.0.0.1
+    
+    # Using net commands (requires access)
+    net user /domain
+    net group "Domain Admins" /domain
+    
+    # Using PowerShell (requires access)
+    Get-ADUser -Filter * -Properties * | Select-Object SamAccountName, GivenName, Surname
+    ```
+    
+    Focus on:
+    - Domain administrators
+    - Service accounts
+    - Recently created accounts
+    - Accounts with elevated privileges
+  </TabsContent>
+  
+  <TabsContent value="linux">
+    ### Linux/Unix Environment
+    
+    In Linux/Unix environments, identify user accounts through:
+    
+    ```bash
+    # Local user enumeration (requires access)
+    cat /etc/passwd
+    
+    # LDAP enumeration (when authorized)
+    ldapsearch -x -h 10.0.0.1 -b "dc=example,dc=com" "(objectClass=user)"
+    
+    # SSH users enumeration
+    metasploit> use auxiliary/scanner/ssh/ssh_enumusers
+    ```
+    
+    Focus on:
+    - Root and sudo users
+    - Service accounts
+    - Application-specific users
+    - Recently modified accounts
+  </TabsContent>
+  
+  <TabsContent value="web">
+    ### Web Applications
+    
+    For web applications, identify user accounts through:
+    
+    ```bash
+    # Username enumeration via error messages
+    # Use tools like Burp Suite to test login forms
+    
+    # Harvesting usernames from website content
+    cewl -d 3 -m 5 -e --email_file emails.txt https://example.com
+    
+    # Testing for username enumeration vulnerabilities
+    # Using tools like OWASP ZAP or Burp Suite
+    ```
+    
+    Focus on:
+    - Administrative accounts
+    - Default accounts
+    - Public-facing user profiles
+    - Technical contact information
+  </TabsContent>
+</Tabs>
+
+## Threat Modeling for Password-Related Vulnerabilities
+
+<Callout type="info">
+  Threat modeling helps identify and prioritize potential password-related vulnerabilities. This process ensures that your password cracking efforts are focused on the most critical areas.
+</Callout>
+
+### Identifying Password Storage Locations
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>Operating System Storage</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Common password storage locations in operating systems:
+      
+      - **Windows**: SAM database, NTDS.dit, LSASS memory
+      - **Linux/Unix**: /etc/shadow, /etc/master.passwd
+      - **macOS**: /var/db/dslocal/nodes/Default/users/
+      - **Network devices**: NVRAM, config files
+      
+      Understanding these locations helps target hash extraction efforts.
+    </CardContent>
+  </Card>
+  
+  <Card>
+    <CardHeader>
+      <CardTitle>Application Storage</CardTitle>
+    </CardHeader>
+    <CardContent>
+      Common password storage in applications:
+      
+      - **Databases**: User tables with password columns
+      - **Configuration files**: Web.config, wp-config.php
+      - **Cached credentials**: Browser storage, credential managers
+      - **Memory**: Runtime memory of authentication services
+      
+      Applications often implement custom password storage mechanisms that may be vulnerable.
+    </CardContent>
+  </Card>
+</div>
+
+### Password Policy Analysis
+
+<Tabs defaultValue="complexity" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="complexity">Complexity Requirements</TabsTrigger>
+    <TabsTrigger value="history">Password History</TabsTrigger>
+    <TabsTrigger value="mfa">Multi-Factor Authentication</TabsTrigger>
+  </TabsList>
+  <TabsContent value="complexity">
+    ### Complexity Requirements Analysis
+    
+    Analyze password complexity policies to inform cracking strategies:
+    
+    ```powershell
+    # Windows domain policy (requires access)
+    Get-ADDefaultDomainPasswordPolicy
+    
+    # Output example:
+    # ComplexityEnabled           : True
+    # MinPasswordLength           : 8
+    # PasswordHistoryCount        : 24
+    ```
+    
+    Common complexity requirements:
+    - Minimum length (typically 8-12 characters)
+    - Character class requirements (uppercase, lowercase, numbers, symbols)
+    - Dictionary word restrictions
+    - Username inclusion restrictions
+    
+    Understanding these requirements helps narrow down the password search space.
+  </TabsContent>
+  <TabsContent value="history">
+    ### Password History and Rotation
+    
+    Analyze password history policies:
+    
+    ```powershell
+    # Windows password history policy
+    net accounts /domain
+    
+    # Output example:
+    # Password history length:     24
+    # Minimum password age (days): 1
+    # Maximum password age (days): 90
+    ```
+    
+    Common patterns in password rotation:
+    - Incremental changes (password1, password2)
+    - Seasonal variations (Company_Spring2023)
+    - Character substitutions (p@ssword, p@$$word)
+    
+    Understanding rotation patterns helps predict current passwords based on previous ones.
+  </TabsContent>
+  <TabsContent value="mfa">
+    ### Multi-Factor Authentication Assessment
+    
+    Evaluate MFA implementation:
+    
+    - Systems protected by MFA
+    - MFA bypass possibilities
+    - Recovery mechanisms that may bypass MFA
+    - Service accounts that might not use MFA
+    
+    While MFA significantly improves security, password cracking remains relevant for:
+    - Systems without MFA
+    - Offline authentication
+    - Password reset mechanisms
+    - Legacy systems and applications
+  </TabsContent>
+</Tabs>
+
+### Risk Assessment Matrix
+
+Use this matrix to prioritize password cracking efforts based on risk:
+
+<div className="overflow-x-auto">
+  <table className="w-full">
+    <thead>
+      <tr>
+        <th>Target Type</th>
+        <th>Impact</th>
+        <th>Likelihood</th>
+        <th>Risk Level</th>
+        <th>Cracking Priority</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Domain Admin Accounts</td>
+        <td>Critical</td>
+        <td>Medium</td>
+        <td>High</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>Service Accounts</td>
+        <td>High</td>
+        <td>High</td>
+        <td>High</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td>Database Credentials</td>
+        <td>High</td>
+        <td>Medium</td>
+        <td>Medium</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>Regular User Accounts</td>
+        <td>Medium</td>
+        <td>High</td>
+        <td>Medium</td>
+        <td>4</td>
+      </tr>
+      <tr>
+        <td>Application Accounts</td>
+        <td>Medium</td>
+        <td>Medium</td>
+        <td>Medium</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td>Test/Dev Accounts</td>
+        <td>Low</td>
+        <td>High</td>
+        <td>Low</td>
+        <td>6</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## Intelligence-Driven Cracking Strategy
+
+<Steps>
+  <Step title="Develop target profiles">
+    Create profiles for different user groups:
+    
+    ```
+    Profile: Executive Management
+    - Likely complexity: Medium to High
+    - Common patterns: Company name + year, position titles
+    - Potential personal elements: Alma maters, sports teams
+    - Cracking approach: Targeted wordlists with company terms
+    
+    Profile: IT Staff
+    - Likely complexity: High
+    - Common patterns: Technical terms, complex variations
+    - Potential personal elements: Tech interests, gaming references
+    - Cracking approach: Technical wordlists with extensive rules
+    ```
+    
+    Tailor your approach based on these profiles.
+  </Step>
+  
+  <Step title="Map organizational structure">
+    Understand the organization's hierarchy and departments:
+    
+    ```
+    Department: Finance
+    - Terminology: fiscal, quarter, budget, audit
+    - Systems: ERP, financial reporting tools
+    - Potential password patterns: Financial terms + numbers
+    
+    Department: IT
+    - Terminology: technical jargon, product names
+    - Systems: Infrastructure, development tools
+    - Potential password patterns: Complex with special characters
+    ```
+    
+    Use this information to create department-specific wordlists.
+  </Step>
+  
+  <Step title="Develop attack sequences">
+    Create a prioritized sequence of cracking attempts:
+    
+    ```
+    1. Quick wins: Common passwords + company name
+    2. Targeted executive accounts: Executive-specific wordlist
+    3. IT admin accounts: Technical wordlist with complex rules
+    4. Service accounts: Pattern-based attacks for automated accounts
+    5. General user accounts: Broader wordlist with common patterns
+    ```
+    
+    This ensures efficient use of resources by targeting high-value accounts first.
+  </Step>
+  
+  <Step title="Document intelligence findings">
+    Create a comprehensive intelligence report:
+    
+    ```
+    Intelligence Summary:
+    - Organization uses 8-character minimum password policy
+    - Password rotation every 90 days
+    - Common pattern observed: CompanyName + Season + Year
+    - Executive accounts likely to contain reference to titles
+    - IT accounts likely to use technical terms and complex patterns
+    ```
+    
+    This documentation guides your cracking strategy and provides context for your findings.
+  </Step>
+</Steps>
+
+<Note title="Ethical Reminder" type="warning">
+  All intelligence gathering activities must be conducted within the authorized scope of the penetration test. Unauthorized reconnaissance can violate privacy laws and terms of service agreements. Always ensure you have proper authorization before collecting information about an organization or its employees.
+</Note>
+
+## Next Steps
+
+Now that you understand the reconnaissance and intelligence gathering phase, you can:
+
+1. Learn about [vulnerability analysis and scanning](/docs/john-the-ripper/vulnerability-analysis) methods
+2. Explore [exploitation techniques](/docs/john-the-ripper/exploitation) for extracting password hashes
+3. Prepare for [password cracking](/docs/john-the-ripper/post-exploitation) using the intelligence you've gathered

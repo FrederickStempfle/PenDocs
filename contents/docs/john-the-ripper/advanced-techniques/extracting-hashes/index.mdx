@@ -1,0 +1,431 @@
+---
+title: Extracting Password Hashes
+description: Learn techniques for extracting password hashes from various systems for use with John the Ripper
+---
+
+# Extracting Password Hashes
+
+Before you can crack passwords with John the Ripper, you need to extract password hashes from the target system. This guide covers comprehensive techniques for extracting hashes from various operating systems, applications, and services for authorized security testing and password recovery.
+
+## Linux Password Hashes
+
+### From /etc/shadow
+
+Linux systems store password hashes in the `/etc/shadow` file, which requires root privileges to access.
+
+```bash
+sudo cat /etc/shadow
+```
+
+The output will look like:
+
+```
+root:$6$xyz123$hashedpasswordhere:18000:0:99999:7:::
+user1:$6$abc456$anotherhashedpasswordhere:18000:0:99999:7:::
+```
+
+The hash format in `/etc/shadow` follows this pattern:
+
+```
+$id$salt$hashed
+```
+
+Where:
+- `$id` identifies the hashing algorithm ($1 = MD5, $2/2a/2y = Blowfish, $5 = SHA-256, $6 = SHA-512)
+- `$salt` is the salt used for the hash
+- `$hashed` is the actual password hash
+
+### Using unshadow
+
+John the Ripper includes the `unshadow` utility to combine `/etc/passwd` and `/etc/shadow` into a format John can use:
+
+```bash
+sudo unshadow /etc/passwd /etc/shadow > passwords.txt
+```
+
+This creates a file with entries like:
+
+```
+root:$6$xyz123$hashedpasswordhere:0:0:root:/root:/bin/bash
+user1:$6$abc456$anotherhashedpasswordhere:1000:1000:User:/home/user1:/bin/bash
+```
+
+You can then crack these hashes with John:
+
+```bash
+john --wordlist=/path/to/wordlist.txt passwords.txt
+```
+
+### From /etc/security/opasswd
+
+Some systems store old passwords in `/etc/security/opasswd`:
+
+```bash
+sudo cat /etc/security/opasswd
+```
+
+## Windows Password Hashes
+
+### From SAM and SYSTEM Files
+
+Windows stores password hashes in the SAM (Security Account Manager) database, which is protected by the SYSTEM file.
+
+1. **Using reg.exe to extract SAM and SYSTEM files** (requires administrator privileges):
+
+```bash
+reg save HKLM\SAM sam.save
+reg save HKLM\SYSTEM system.save
+reg save HKLM\SECURITY security.save
+```
+
+2. **Using Mimikatz to extract hashes**:
+
+```
+privilege::debug
+token::elevate
+lsadump::sam /sam:sam.save /system:system.save
+```
+
+3. **Using secretsdump.py from Impacket**:
+
+```bash
+secretsdump.py -sam sam.save -system system.save LOCAL
+```
+
+4. **Using pwdump or fgdump**:
+
+```bash
+pwdump > hashes.txt
+```
+
+### From Memory with Mimikatz
+
+Mimikatz can extract plaintext passwords and hashes from memory:
+
+```
+privilege::debug
+sekurlsa::logonpasswords full
+```
+
+For domain controllers, you can also dump the NTDS.dit file:
+
+```
+lsadump::dcsync /domain:domain.local /all /csv
+```
+
+### Using Volume Shadow Copy
+
+For offline systems, you can extract hashes using Volume Shadow Copy:
+
+```bash
+vssadmin create shadow /for=C:
+vssadmin list shadows
+copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SAM C:\extracted\SAM
+copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM C:\extracted\SYSTEM
+```
+
+## Web Application Hashes
+
+### WordPress
+
+WordPress password hashes are stored in the database, typically in the `wp_users` table:
+
+```sql
+SELECT user_login, user_pass FROM wp_users;
+```
+
+The output will contain PHPass-format hashes:
+
+```
+admin:$P$B1234567890ABCDEF1234567890ABCDEF
+```
+
+You can also extract hashes directly from the wp-config.php file and database:
+
+```bash
+# Get database credentials
+cat wp-config.php | grep DB_
+
+# Connect to database and extract hashes
+mysql -u username -p database_name -e "SELECT user_login, user_pass FROM wp_users;"
+```
+
+### Drupal
+
+Drupal also stores password hashes in its database:
+
+```sql
+SELECT name, pass FROM users;
+```
+
+### Joomla
+
+Joomla stores hashes in the `#__users` table (typically with a prefix like `jos_users`):
+
+```sql
+SELECT username, password FROM jos_users;
+```
+
+### phpBB
+
+phpBB forum software stores hashes in the `phpbb_users` table:
+
+```sql
+SELECT username, user_password FROM phpbb_users;
+```
+
+## Database Password Hashes
+
+### MySQL
+
+MySQL stores user password hashes in the `mysql.user` table:
+
+```sql
+SELECT user, authentication_string FROM mysql.user;
+```
+
+For MySQL versions before 5.7:
+
+```sql
+SELECT user, password FROM mysql.user;
+```
+
+Convert MySQL hashes for John:
+
+```bash
+echo "username:*HASH" > mysql_hash.txt
+john --format=mysql-sha1 mysql_hash.txt
+```
+
+### PostgreSQL
+
+PostgreSQL password hashes can be found in the `pg_shadow` table:
+
+```sql
+SELECT usename, passwd FROM pg_shadow;
+```
+
+### Oracle
+
+Oracle Database password hashes can be extracted with:
+
+```sql
+SELECT name, password FROM sys.user$;
+```
+
+### Microsoft SQL Server
+
+SQL Server hashes can be extracted with:
+
+```sql
+SELECT name, password_hash FROM sys.sql_logins;
+```
+
+## Password-Protected Files
+
+John the Ripper includes utilities to extract hashes from various file types:
+
+### PDF Files
+
+```bash
+pdf2john document.pdf > document.hash
+john document.hash
+```
+
+Example output:
+```
+document.pdf:$pdf$4*4*128*-1028*1*16*sample-hash-data-here*32*sample-more-hash-data-here*32*sample-even-more-hash-data-here
+```
+
+### ZIP Archives
+
+```bash
+zip2john archive.zip > archive.hash
+john archive.hash
+```
+
+### Microsoft Office Documents
+
+```bash
+office2john document.docx > document.hash
+# For older Office formats (.doc, .xls, .ppt)
+office2john document.doc > document.hash
+```
+
+### RAR Archives
+
+```bash
+rar2john archive.rar > archive.hash
+```
+
+### 7-Zip Archives
+
+```bash
+7z2john archive.7z > archive.hash
+```
+
+### SSH Private Keys
+
+```bash
+ssh2john id_rsa > id_rsa.hash
+```
+
+### KeePass Database Files
+
+```bash
+keepass2john database.kdbx > keepass.hash
+```
+
+### BitLocker Encrypted Volumes
+
+```bash
+bitlocker2john -i image.vhd > bitlocker.hash
+```
+
+## Network Service Hashes
+
+### Capturing WPA/WPA2 Handshakes
+
+1. **Put wireless interface in monitor mode**:
+
+```bash
+airmon-ng start wlan0
+```
+
+2. **Capture handshakes**:
+
+```bash
+airodump-ng -c [channel] --bssid [AP MAC] -w capture wlan0mon
+```
+
+3. **Optional: Deauthenticate clients to force reconnection**:
+
+```bash
+aireplay-ng -0 1 -a [AP MAC] -c [CLIENT MAC] wlan0mon
+```
+
+4. **Convert capture to John format**:
+
+```bash
+hcxpcapngtool -o capture.hashes capture.cap
+# Or for older formats
+aircrack-ng -J capture capture.cap
+john --wordlist=wordlist.txt capture.hccapx
+```
+
+### NTLM Hashes via Responder
+
+```bash
+sudo responder -I eth0 -wrf
+```
+
+Hashes will be saved in `/usr/share/responder/logs/`.
+
+### Kerberos TGT/TGS Tickets (Kerberoasting)
+
+Extract service tickets that can be cracked offline:
+
+```bash
+GetUserSPNs.py -request -dc-ip [DC-IP] domain/user
+```
+
+### LDAP Authentication
+
+Capture LDAP authentication attempts:
+
+```bash
+sudo tcpdump -i eth0 -w ldap_capture.pcap port 389
+```
+
+### VNC Password Extraction
+
+```bash
+vncpwd vnc_password_file > vnc.hash
+```
+
+## Hash Identification
+
+If you're unsure about the hash format, use hash identification tools:
+
+```bash
+hashid hash_string
+```
+
+Or John's built-in detection:
+
+```bash
+john --identify hash_file
+```
+
+Common hash formats and their identifiers:
+
+| Hash Type | Example | John Format |
+|-----------|---------|-------------|
+| MD5 | `5f4dcc3b5aa765d61d8327deb882cf99` | `raw-md5` |
+| SHA-1 | `5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8` | `raw-sha1` |
+| SHA-256 | `5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8` | `raw-sha256` |
+| bcrypt | `$2a$12$K3JNi5hYTTmVxV9fPXIvYO0PS.0RD2DZNSIjxIa1iiNg78dIcC3ZK` | `bcrypt` |
+| NTLM | `aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0` | `nt` |
+| Linux (SHA-512) | `$6$salt$hash` | `sha512crypt` |
+
+## Preparing Hashes for John
+
+### Format Conversion
+
+Some hashes may need conversion to work with John. Use the appropriate `*2john` utility:
+
+```bash
+[utility]2john input_file > output_hash
+```
+
+Available conversion utilities include:
+- `pdf2john` - PDF files
+- `zip2john` - ZIP archives
+- `rar2john` - RAR archives
+- `office2john` - Microsoft Office documents
+- `ssh2john` - SSH private keys
+- `keepass2john` - KeePass databases
+- `bitlocker2john` - BitLocker volumes
+- `gpg2john` - GPG/PGP keys
+- `truecrypt2john` - TrueCrypt containers
+
+### Cleaning Hash Files
+
+Remove unnecessary data from hash files:
+
+```bash
+grep -v '^#' hash_file > clean_hash_file
+```
+
+### Formatting Hashes Manually
+
+If you have raw hashes, format them for John:
+
+```bash
+# Username:hash format
+echo "user:5f4dcc3b5aa765d61d8327deb882cf99" > md5_hashes.txt
+
+# For salted hashes
+echo "user:$salt$hash" > salted_hashes.txt
+```
+
+## Best Practices
+
+1. **Always maintain proper authorization** before extracting password hashes
+2. **Document your actions** during authorized penetration tests
+3. **Handle hash files securely** to prevent unauthorized access
+4. **Use the correct extraction tool** for each system or application
+5. **Verify hash formats** before attempting to crack them
+6. **Encrypt extracted hash files** when storing them
+7. **Delete hash files securely** when no longer needed
+8. **Use dedicated systems** for hash extraction and password cracking
+9. **Keep extraction tools updated** to support the latest hash formats
+10. **Test extraction methods** in controlled environments first
+
+## Next Steps
+
+After extracting hashes, you can:
+- [Crack Protected Files](/docs/john-the-ripper/advanced-techniques/cracking-protected-files) - Learn techniques for cracking password-protected files
+- [Create Custom Rules](/docs/john-the-ripper/advanced-techniques/custom-rules-creation) - Develop custom rules for more effective password cracking
+- [Optimization Best Practices](/docs/john-the-ripper/optimization-best-practices) - Learn how to optimize your password cracking process
+- [Password Cracking Techniques](/docs/john-the-ripper/password-cracking-techniques) - Explore different approaches to password cracking

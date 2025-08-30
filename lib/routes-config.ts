@@ -63,6 +63,51 @@ export const ROUTES: EachRoute[] = [
       },
     ],
   },
+  {
+    title: "John the Ripper Guide",
+    href: "/john-the-ripper",
+    noLink: true,
+    tag: "New",
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      {
+        title: "Core Operations",
+        href: "/core-operations",
+        items: [
+          { title: "Basic Usage", href: "/basic-usage" },
+          { title: "Command Line Options", href: "/command-line-options" },
+          { title: "Hash Formats", href: "/hash-formats" },
+        ],
+      },
+      {
+        title: "Password Cracking Techniques",
+        href: "/password-cracking-techniques",
+        items: [
+          { title: "Dictionary Attacks", href: "/dictionary-attacks" },
+          { title: "Rule-Based Attacks", href: "/rule-based-attacks" },
+          { title: "Brute Force Attacks", href: "/brute-force-attacks" },
+        ],
+      },
+      {
+        title: "Advanced Techniques",
+        href: "/advanced-techniques",
+        items: [
+          { title: "Extracting Hashes", href: "/extracting-hashes" },
+          { title: "Custom Rules Creation", href: "/custom-rules-creation" },
+          { title: "Cracking Protected Files", href: "/cracking-protected-files" },
+        ],
+      },
+      {
+        title: "Optimization Best Practices",
+        href: "/optimization-best-practices",
+      },
+      { title: "Pre-Engagement", href: "/pre-engagement" },
+      { title: "Reconnaissance", href: "/reconnaissance" },
+      { title: "Vulnerability Analysis", href: "/vulnerability-analysis" },
+      { title: "Exploitation", href: "/exploitation" },
+      { title: "Post-Exploitation", href: "/post-exploitation" },
+    ],
+  },
 ];
 
 type Page = { title: string; href: string };

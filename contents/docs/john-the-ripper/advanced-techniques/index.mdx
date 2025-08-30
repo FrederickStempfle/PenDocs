@@ -1,610 +1,70 @@
 ---
 title: Advanced Techniques
-description: Advanced password cracking techniques and hash extraction methods using John the Ripper
+description: Explore advanced techniques for password cracking with John the Ripper
 ---
 
 # Advanced Techniques
 
-This section covers advanced techniques for extracting password hashes from various sources and leveraging John the Ripper's more sophisticated features for penetration testing.
+This section covers advanced techniques for using John the Ripper beyond basic password cracking, including extracting hashes from various systems, creating custom rules, and cracking protected files.
 
-<Tabs defaultValue="extraction" className="pt-5 pb-1">
-  <TabsList>
-    <TabsTrigger value="extraction">Hash Extraction</TabsTrigger>
-    <TabsTrigger value="analysis">Password Analysis</TabsTrigger>
-    <TabsTrigger value="custom">Custom Rules</TabsTrigger>
-  </TabsList>
-  <TabsContent value="extraction">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">System Password Hashes</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Linux/Unix Password Hashes</h4>
-          <p className="text-sm">Extract hashes from Linux systems:</p>
-          ```bash
-          # Combine /etc/passwd and /etc/shadow
-          unshadow /etc/passwd /etc/shadow > linux_hashes.txt
-          
-          # Crack the combined file
-          john linux_hashes.txt
-          ```
-          
-          <p className="text-sm mt-2">For systems where you have read access to /etc/shadow:</p>
-          ```bash
-          # Direct cracking of shadow file
-          john /etc/shadow
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Windows Password Hashes</h4>
-          <p className="text-sm">Extract hashes from Windows systems:</p>
-          ```bash
-          # Using mimikatz (on Windows)
-          mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" "exit" > hashes.txt
-          
-          # Using reg.exe to extract SAM and SYSTEM
-          reg save HKLM\\SAM sam.save
-          reg save HKLM\\SYSTEM system.save
-          
-          # Convert to John format
-          samdump2 system.save sam.save > windows_hashes.txt
-          
-          # Crack with John
-          john --format=NT windows_hashes.txt
-          ```
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">Application Password Hashes</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Web Application Hashes</h4>
-          <p className="text-sm">Extract hashes from common web applications:</p>
-          
-          <p className="text-sm mt-2">WordPress:</p>
-          ```bash
-          # Extract from WordPress database
-          mysql -u root -p wordpress -e "SELECT user_login,user_pass FROM wp_users" > wp_hashes.txt
-          
-          # Format for John
-          cut -f 2,3 wp_hashes.txt > wp_formatted.txt
-          
-          # Crack with John
-          john --format=phpass wp_formatted.txt
-          ```
-          
-          <p className="text-sm mt-2">PHPBB:</p>
-          ```bash
-          # Extract from PHPBB database
-          mysql -u root -p phpbb -e "SELECT username,user_password FROM phpbb_users" > phpbb_hashes.txt
-          
-          # Crack with John
-          john --format=phpbb3 phpbb_hashes.txt
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Database Password Hashes</h4>
-          <p className="text-sm">Extract and crack database user password hashes:</p>
-          
-          <p className="text-sm mt-2">MySQL:</p>
-          ```bash
-          # Extract MySQL user hashes
-          mysql -u root -p -e "SELECT User, Password FROM mysql.user" > mysql_hashes.txt
-          
-          # Crack with John
-          john --format=mysql-sha1 mysql_hashes.txt
-          ```
-          
-          <p className="text-sm mt-2">PostgreSQL:</p>
-          ```bash
-          # Extract PostgreSQL user hashes
-          psql -U postgres -c "SELECT usename, passwd FROM pg_shadow" > postgres_hashes.txt
-          
-          # Crack with John
-          john --format=postgres postgres_hashes.txt
-          ```
-        </div>
-      </div>
-    </div>
-  </TabsContent>
-  <TabsContent value="analysis">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Password Statistics</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Analyzing Cracked Passwords</h4>
-          <p className="text-sm">After cracking passwords, analyze them to identify patterns:</p>
-          ```bash
-          # Show cracked passwords
-          john --show hashes.txt > cracked.txt
-          
-          # Extract just the passwords
-          cut -d: -f2 cracked.txt > passwords_only.txt
-          
-          # Basic statistics
-          sort passwords_only.txt | uniq -c | sort -rn > password_frequency.txt
-          
-          # Password length distribution
-          awk '{print length}' passwords_only.txt | sort -n | uniq -c > length_distribution.txt
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Common Password Patterns</h4>
-          <p className="text-sm">Look for these common patterns in cracked passwords:</p>
-          <ul className="text-sm list-disc pl-5">
-            <li>Base word + numbers (e.g., password123)</li>
-            <li>Capitalized word + special char (e.g., Password!)</li>
-            <li>Name/year combinations (e.g., John2023)</li>
-            <li>Keyboard patterns (e.g., qwerty, 123qwe)</li>
-            <li>Leetspeak substitutions (e.g., p@ssw0rd)</li>
-          </ul>
-          
-          <p className="text-sm mt-2">Use these patterns to create more effective custom rules.</p>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">Password Quality Assessment</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Strength Metrics</h4>
-          <p className="text-sm">Evaluate password strength using these metrics:</p>
-          <table className="w-full text-xs mt-2">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-2">Metric</th>
-                <th className="text-left p-2">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2">Length</td>
-                <td className="p-2">Longer passwords are generally stronger</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2">Complexity</td>
-                <td className="p-2">Mix of character types (upper, lower, digits, special)</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2">Uniqueness</td>
-                <td className="p-2">Not found in common wordlists</td>
-              </tr>
-              <tr>
-                <td className="p-2">Entropy</td>
-                <td className="p-2">Randomness/unpredictability of characters</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Creating a Password Audit Report</h4>
-          <p className="text-sm">Generate a comprehensive password audit report:</p>
-          <ol className="text-sm list-decimal pl-5">
-            <li>Percentage of cracked passwords</li>
-            <li>Time required to crack (by password complexity)</li>
-            <li>Common patterns identified</li>
-            <li>Password reuse statistics</li>
-            <li>Compliance with password policy</li>
-            <li>Recommendations for improvement</li>
-          </ol>
-          
-          <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 mt-4">
-            <h5 className="font-bold">Pro Tip</h5>
-            <p className="text-sm">Use visualization tools like matplotlib (Python) to create charts showing password strength distribution, making reports more impactful for management.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </TabsContent>
-  <TabsContent value="custom">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">Advanced Rule Syntax</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Complex Rule Functions</h4>
-          <table className="w-full text-xs mt-2">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-2">Rule</th>
-                <th className="text-left p-2">Description</th>
-                <th className="text-left p-2">Example</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2"><code>AN"str"</code></td>
-                <td className="p-2">Append if not suffix</td>
-                <td className="p-2">Append "123" if not already there</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>i[pos]X</code></td>
-                <td className="p-2">Insert X at position</td>
-                <td className="p-2">Insert "!" at position 3</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>o[pos]X</code></td>
-                <td className="p-2">Overwrite at position</td>
-                <td className="p-2">Replace char at position 0 with "A"</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>D[pos]</code></td>
-                <td className="p-2">Delete character at position</td>
-                <td className="p-2">Delete first character</td>
-              </tr>
-              <tr>
-                <td className="p-2"><code>x[pos1][pos2]</code></td>
-                <td className="p-2">Swap characters</td>
-                <td className="p-2">Swap first and last characters</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Rule Rejection</h4>
-          <p className="text-sm">Use rejection to filter out certain candidates:</p>
-          <table className="w-full text-xs mt-2">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-2">Rejection</th>
-                <th className="text-left p-2">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2"><code>-c</code></td>
-                <td className="p-2">Reject if word contains a capital letter</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>-8</code></td>
-                <td className="p-2">Reject if word contains a non-ASCII character</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2"><code>-s</code></td>
-                <td className="p-2">Reject if word contains a special character</td>
-              </tr>
-              <tr>
-                <td className="p-2"><code>-p</code></td>
-                <td className="p-2">Reject if word is a palindrome</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">Building Effective Custom Rules</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Target-Specific Rules</h4>
-          <p className="text-sm">Create rules based on the target organization:</p>
-          ```
-          [List.Rules:TargetCompany]
-          # Company name variations
-          $1                # Append digit 1
-          $!                # Append !
-          c                 # Capitalize
-          c$1               # Capitalize and append 1
-          c$!               # Capitalize and append !
-          sa@               # Replace a with @
-          se3               # Replace e with 3
-          c sa@ se3         # Capitalize, replace a with @, e with 3
-          
-          # Year variations
-          $2$0$2$3         # Append current year
-          ^2^0^2^3         # Prepend current year
-          
-          # Special character substitutions
-          sa@ se3 si! so0 sl1
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Testing and Refining Rules</h4>
-          <p className="text-sm">Test your custom rules on sample passwords:</p>
-          ```bash
-          # Test rules on a single word
-          echo "password" | john --wordlist=- --rules=TargetCompany --stdout
-          
-          # Test rules on a small wordlist
-          john --wordlist=small_list.txt --rules=TargetCompany --stdout | less
-          
-          # Count generated candidates
-          john --wordlist=small_list.txt --rules=TargetCompany --stdout | wc -l
-          ```
-          
-          <p className="text-sm mt-2">Refine rules based on results:</p>
-          <ul className="text-sm list-disc pl-5">
-            <li>Remove rules that generate too many similar candidates</li>
-            <li>Add rules that cover patterns found in previously cracked passwords</li>
-            <li>Optimize rule order for efficiency</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </TabsContent>
-</Tabs>
+## In This Section
 
-## Extracting Hashes from Protected Files
+- [Extracting Hashes](/docs/john-the-ripper/advanced-techniques/extracting-hashes) - Learn methods for extracting password hashes from various systems
+- [Custom Rules Creation](/docs/john-the-ripper/advanced-techniques/custom-rules-creation) - Develop custom rules for more effective password cracking
+- [Cracking Protected Files](/docs/john-the-ripper/advanced-techniques/cracking-protected-files) - Techniques for cracking passwords of protected documents and archives
 
-<Stepper>
-  <StepperItem title="Archive Files">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">ZIP Archives</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Using zip2john</h4>
-          <p className="text-sm">Extract hash from password-protected ZIP files:</p>
-          ```bash
-          # Extract hash
-          zip2john protected.zip > zip_hash.txt
-          
-          # Crack the hash
-          john zip_hash.txt
-          
-          # Show cracked password
-          john --show zip_hash.txt
-          ```
-          
-          <p className="text-sm mt-2">The output will show the password if cracked successfully.</p>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">RAR Archives</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Using rar2john</h4>
-          <p className="text-sm">Extract hash from password-protected RAR files:</p>
-          ```bash
-          # Extract hash
-          rar2john protected.rar > rar_hash.txt
-          
-          # Crack the hash
-          john rar_hash.txt
-          
-          # Show cracked password
-          john --show rar_hash.txt
-          ```
-        </div>
-        
-        <div className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 mt-4">
-          <h4 className="font-bold">Important Note</h4>
-          <p className="text-sm">RAR format versions matter:</p>
-          <ul className="text-sm list-disc pl-5">
-            <li>RAR3 is faster to crack than RAR5</li>
-            <li>Specify format if needed: <code>--format=rar</code> or <code>--format=rar5</code></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </StepperItem>
-  
-  <StepperItem title="Document Files">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">PDF Documents</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Using pdf2john</h4>
-          <p className="text-sm">Extract hash from password-protected PDF files:</p>
-          ```bash
-          # Extract hash
-          pdf2john document.pdf > pdf_hash.txt
-          
-          # Crack the hash
-          john pdf_hash.txt
-          
-          # Show cracked password
-          john --show pdf_hash.txt
-          ```
-        </div>
-        
-        <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 mt-4">
-          <h4 className="font-bold">Pro Tip</h4>
-          <p className="text-sm">PDF encryption strength varies widely:</p>
-          <ul className="text-sm list-disc pl-5">
-            <li>Older PDFs (before 1.6) use weaker encryption</li>
-            <li>Newer PDFs may use AES-256 encryption</li>
-            <li>Some PDFs only restrict editing but not viewing</li>
-          </ul>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">Office Documents</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Using office2john</h4>
-          <p className="text-sm">Extract hash from MS Office documents:</p>
-          ```bash
-          # Extract hash
-          office2john document.docx > office_hash.txt
-          
-          # Clean the output (remove filename)
-          sed 's/^[^:]*://' office_hash.txt > clean_hash.txt
-          
-          # Crack the hash
-          john clean_hash.txt
-          
-          # Show cracked password
-          john --show clean_hash.txt
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">Office Format Considerations</h4>
-          <table className="w-full text-xs mt-2">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left p-2">Format</th>
-                <th className="text-left p-2">Encryption</th>
-                <th className="text-left p-2">Cracking Difficulty</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2">Office 97-2003 (.doc, .xls)</td>
-                <td className="p-2">Weak RC4</td>
-                <td className="p-2">Easy</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2">Office 2007-2010</td>
-                <td className="p-2">SHA1 (default)</td>
-                <td className="p-2">Moderate</td>
-              </tr>
-              <tr>
-                <td className="p-2">Office 2013+</td>
-                <td className="p-2">SHA512 + AES</td>
-                <td className="p-2">Difficult</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </StepperItem>
-  
-  <StepperItem title="Other File Types">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold">SSH Private Keys</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Using ssh2john</h4>
-          <p className="text-sm">Extract hash from encrypted SSH private keys:</p>
-          ```bash
-          # Extract hash
-          ssh2john id_rsa > ssh_hash.txt
-          
-          # Crack the hash
-          john ssh_hash.txt
-          
-          # Show cracked password
-          john --show ssh_hash.txt
-          ```
-        </div>
-        
-        <div className="border p-3 rounded-md mt-4">
-          <h4 className="font-bold">SSH Key Types</h4>
-          <p className="text-sm">ssh2john works with various SSH key formats:</p>
-          <ul className="text-sm list-disc pl-5">
-            <li>RSA private keys</li>
-            <li>DSA private keys</li>
-            <li>ECDSA private keys</li>
-            <li>ED25519 private keys</li>
-            <li>PuTTY private keys (.ppk)</li>
-          </ul>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold">KeePass Databases</h3>
-        <div className="bg-muted p-3 rounded-md mt-2">
-          <h4 className="font-bold">Using keepass2john</h4>
-          <p className="text-sm">Extract hash from KeePass password databases:</p>
-          ```bash
-          # Extract hash
-          keepass2john database.kdbx > keepass_hash.txt
-          
-          # Clean the output (remove filename)
-          sed 's/^[^:]*://' keepass_hash.txt > clean_hash.txt
-          
-          # Crack the hash
-          john clean_hash.txt
-          
-          # Show cracked password
-          john --show clean_hash.txt
-          ```
-        </div>
-        
-        <div className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 mt-4">
-          <h4 className="font-bold">Important Note</h4>
-          <p className="text-sm">KeePass databases often use strong encryption:</p>
-          <ul className="text-sm list-disc pl-5">
-            <li>May use key files in addition to passwords</li>
-            <li>Often have high iteration counts (slow to crack)</li>
-            <li>Consider using GPU acceleration for these hashes</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </StepperItem>
-</Stepper>
+## Advanced Password Cracking Techniques
 
-## Advanced Exploitation Techniques
+After mastering the core operations of John the Ripper, these advanced techniques will help you tackle more complex password cracking challenges.
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-  <div>
-    <h3 className="font-semibold">Distributed Cracking</h3>
-    <div className="bg-muted p-3 rounded-md mt-2">
-      <h4 className="font-bold">Splitting Workload</h4>
-      <p className="text-sm">Distribute cracking across multiple machines:</p>
-      ```bash
-      # On Machine 1
-      john --wordlist=wordlist.txt --rules=Jumbo --node=1/3 hashes.txt
-      
-      # On Machine 2
-      john --wordlist=wordlist.txt --rules=Jumbo --node=2/3 hashes.txt
-      
-      # On Machine 3
-      john --wordlist=wordlist.txt --rules=Jumbo --node=3/3 hashes.txt
-      ```
-      
-      <p className="text-sm mt-2">The <code>--node=N/M</code> option splits the workload into M parts and processes part N.</p>
-    </div>
-    
-    <div className="border p-3 rounded-md mt-4">
-      <h4 className="font-bold">Using MPI for Cluster Computing</h4>
-      <p className="text-sm">For large-scale distributed cracking:</p>
-      ```bash
-      # Compile John with MPI support
-      ./configure --enable-mpi && make
-      
-      # Run on a cluster
-      mpirun -np 16 ./john --incremental hashes.txt
-      ```
-      <p className="text-sm mt-2">This requires a properly configured MPI environment.</p>
-    </div>
-  </div>
-  
-  <div>
-    <h3 className="font-semibold">Rainbow Tables</h3>
-    <div className="bg-muted p-3 rounded-md mt-2">
-      <h4 className="font-bold">Using Rainbow Tables with John</h4>
-      <p className="text-sm">Rainbow tables are precomputed tables for reversing hash functions:</p>
-      ```bash
-      # Convert rainbow table to John's format
-      rtgen md5 loweralpha-numeric 1 7 0 3800 33554432 0
-      rtsort *.rt
-      
-      # Use with John
-      john --format=md5 --external=rt_lookup hashes.txt
-      ```
-      
-      <p className="text-sm mt-2">Note: Rainbow tables are less common now due to salted hashes, but still useful for unsalted hashes.</p>
-    </div>
-    
-    <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 mt-4">
-      <h4 className="font-bold">Pro Tip</h4>
-      <p className="text-sm">Modern alternatives to rainbow tables:</p>
-      <ul className="text-sm list-disc pl-5">
-        <li>Pre-computed hash databases (e.g., Hashkiller)</li>
-        <li>Online hash cracking services</li>
-        <li>GPU-accelerated cracking (much faster than rainbow tables for many hash types)</li>
-      </ul>
-    </div>
-  </div>
-</div>
+### Hash Extraction
 
-<Note title="Ethical and Legal Considerations" type="warning">
-  <p>Advanced extraction and cracking techniques should only be used in authorized security testing scenarios. Unauthorized access to password-protected files or systems is illegal in most jurisdictions.</p>
-  
-  <p className="mt-2">When conducting authorized penetration tests:</p>
-  <ul className="list-disc pl-5 mt-1">
-    <li>Always operate within the defined scope of your engagement</li>
-    <li>Document all extraction and cracking activities thoroughly</li>
-    <li>Securely handle and dispose of extracted hashes and cracked passwords</li>
-    <li>Report findings responsibly to the system owner</li>
-    <li>Provide clear remediation advice for identified weaknesses</li>
-  </ul>
-</Note>
+Before you can crack passwords, you need to extract the hashes from the target system. The [Extracting Hashes](/docs/john-the-ripper/advanced-techniques/extracting-hashes) guide covers techniques for:
 
-In the next section, we'll explore how to document your findings and provide effective remediation recommendations in a penetration test report.
+- Extracting hashes from Linux and Windows systems
+- Obtaining hashes from web applications and databases
+- Using specialized tools to extract hashes from various sources
+
+### Custom Rules Development
+
+John the Ripper's rule-based attack mode is one of its most powerful features. The [Custom Rules Creation](/docs/john-the-ripper/advanced-techniques/custom-rules-creation) guide teaches you how to:
+
+- Understand the rule syntax and commands
+- Create effective custom rules
+- Test and optimize your rules
+- Implement complex transformation patterns
+
+### Protected File Cracking
+
+John the Ripper can crack passwords for various protected file formats. The [Cracking Protected Files](/docs/john-the-ripper/advanced-techniques/cracking-protected-files) guide covers:
+
+- Cracking PDF, Office, ZIP, RAR, and other file formats
+- Using specialized utilities to extract hashes from protected files
+- Optimizing the cracking process for different file types
+- Troubleshooting common issues
+
+## When to Use Advanced Techniques
+
+These advanced techniques are particularly useful when:
+
+1. **Standard approaches fail** - When basic wordlists and rules don't yield results
+2. **Working with complex systems** - When dealing with enterprise environments or specialized applications
+3. **Conducting thorough security assessments** - When comprehensive testing is required
+4. **Recovering lost passwords** - When access to important files or systems is needed
+
+## Best Practices for Advanced Techniques
+
+When using these advanced techniques, keep these best practices in mind:
+
+1. **Always maintain proper authorization** before attempting to extract or crack passwords
+2. **Document your actions** during authorized penetration tests
+3. **Use resources efficiently** by selecting the appropriate techniques for each scenario
+4. **Stay updated** on the latest John the Ripper features and capabilities
+5. **Combine techniques** for more effective password cracking
+
+## Next Steps
+
+After exploring these advanced techniques, you can further enhance your password cracking skills with:
+
+- [Password Cracking Techniques](/docs/john-the-ripper/password-cracking-techniques) - Learn about different approaches to password cracking
+- [Optimization Best Practices](/docs/john-the-ripper/optimization-best-practices) - Discover how to optimize John for better performance

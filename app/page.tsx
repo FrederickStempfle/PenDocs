@@ -2,7 +2,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { page_routes } from "@/lib/routes-config";
 import { DatabaseIcon, BookOpenIcon, ShieldIcon } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Home() {
   return (

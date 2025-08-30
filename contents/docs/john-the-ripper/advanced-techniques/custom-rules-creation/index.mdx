@@ -1,0 +1,216 @@
+---
+title: Custom Rules Creation
+description: Learn how to create and use custom rules in John the Ripper for more effective password cracking
+---
+
+# Custom Rules Creation
+
+John the Ripper's rule-based attack mode is one of its most powerful features. Custom rules allow you to transform wordlist entries according to patterns commonly used in password creation. This guide covers the syntax and techniques for creating effective custom rules.
+
+## Understanding Rule-Based Attacks
+
+Rule-based attacks combine the efficiency of dictionary attacks with the thoroughness of brute force attacks by applying transformations to dictionary words.
+
+### Basic Concept
+
+A rule consists of one or more commands that modify a word from the wordlist. For example:
+
+```
+# Capitalize the first letter
+c
+
+# Append the digit "1"
+$1
+
+# Both operations combined
+c $1
+```
+
+Applied to the word "password", these rules would generate:
+- `Password`
+- `password1`
+- `Password1`
+
+## Rule Syntax
+
+### Rule Commands
+
+John's rule commands are single characters that represent specific operations:
+
+| Command | Description | Example | Result on "password" |
+|---------|-------------|---------|---------------------|
+| `:` | Do nothing | `:` | password |
+| `l` | Convert to lowercase | `l` | password |
+| `u` | Convert to uppercase | `u` | PASSWORD |
+| `c` | Capitalize | `c` | Password |
+| `r` | Reverse | `r` | drowssap |
+| `d` | Duplicate | `d` | passwordpassword |
+| `f` | Reflect | `f` | passworddrowssap |
+| `{` | Rotate left | `{` | asswordp |
+| `}` | Rotate right | `}` | dpasswor |
+| `$X` | Append character X | `$1` | password1 |
+| `^X` | Prepend character X | `^1` | 1password |
+| `[` | Delete first character | `[` | assword |
+| `]` | Delete last character | `]` | passwor |
+
+### Position-Based Commands
+
+Some commands operate on specific positions within the word:
+
+| Command | Description | Example | Result on "password" |
+|---------|-------------|---------|---------------------|
+| `AN"X"` | Replace character at position N with X | `A3"$"` | pas$word |
+| `xNM` | Extract substring from position N, M characters | `x04` | pass |
+| `iNX` | Insert character X at position N | `i3!` | pas!sword |
+| `oNX` | Overwrite character at position N with X | `o3$` | pas$word |
+| `DNX` | Delete character at position N, X times | `D2` | pasword |
+
+### Conditional Commands
+
+Conditional commands execute only if certain conditions are met:
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `<N` | Word length less than N | `<8 c` |
+| `>N` | Word length greater than N | `>8 $1` |
+| `_X` | Contains character X | `_a $1` |
+| `!X` | Does not contain character X | `!a $1` |
+
+## Creating Custom Rule Files
+
+### Rule File Structure
+
+Rules are stored in the `john.conf` file, typically located at `/etc/john/john.conf` or `~/.john/john.conf`. Rules are organized in sections:
+
+```
+[List.Rules:MyCustomRules]
+# Rule definitions go here
+c
+c $1
+c $2
+c $3
+```
+
+### Using Custom Rule Files
+
+To use your custom rules:
+
+```bash
+john --wordlist=wordlist.txt --rules=MyCustomRules hash.txt
+```
+
+## Practical Rule Examples
+
+### Common Password Patterns
+
+```
+# Capitalize and add a year
+c $1$9$8$9
+c $2$0$1$9
+c $2$0$2$0
+
+# Add special characters at the end
+$!
+$@
+$#
+$$
+$%
+
+# Replace letters with similar-looking numbers (leetspeak)
+sa@
+se3
+si1
+so0
+```
+
+### Complex Rule Combinations
+
+```
+# Capitalize, replace 'a' with '@', and append a digit
+c sa@ $1
+
+# Reverse, capitalize, and append "123"
+r c $1$2$3
+
+# Duplicate, uppercase first and last characters
+d cT0 cT-1
+```
+
+## Testing and Debugging Rules
+
+### Using --stdout to Test Rules
+
+Test your rules without actually cracking passwords:
+
+```bash
+john --wordlist=wordlist.txt --rules=MyCustomRules --stdout | head -20
+```
+
+This displays the first 20 transformed words, allowing you to verify your rules.
+
+### Rule Debugging Tips
+
+1. **Start simple**: Begin with basic rules and gradually add complexity
+2. **Test incrementally**: Verify each rule works as expected before combining them
+3. **Use small wordlists**: Test with small wordlists first to quickly see results
+4. **Check for duplicates**: Ensure your rules don't generate too many duplicate passwords
+
+## Optimizing Rules for Efficiency
+
+### Rule Prioritization
+
+Order rules by likelihood of success:
+
+1. Common transformations (capitalization, appending digits)
+2. Moderate transformations (substitutions, prepending characters)
+3. Complex transformations (multiple operations)
+
+### Avoiding Redundancy
+
+Eliminate rules that generate the same outputs:
+
+```
+# These two rules produce the same result
+c $1
+^C ]
+```
+
+## Advanced Rule Techniques
+
+### Using Preprocessor Directives
+
+John's rule engine supports preprocessor directives for more complex logic:
+
+```
+# Include another rule section
+.include [List.Rules:OtherRules]
+
+# Define a variable
+.var=digits 0123456789
+
+# Use the variable
+.var=digits ?d
+```
+
+### Creating Hybrid Rules
+
+Combine different techniques for more comprehensive coverage:
+
+```
+# Leetspeak + year + special character
+sa@ se3 si1 so0 $2$0$2$1 $!
+```
+
+## Best Practices
+
+1. **Start with existing rules**: Study and modify the built-in rules before creating your own
+2. **Target specific patterns**: Create rules based on known password patterns in your environment
+3. **Balance coverage and efficiency**: More rules mean more passwords tested but slower cracking
+4. **Document your rules**: Add comments explaining what each rule or group of rules does
+5. **Test thoroughly**: Verify that your rules generate the expected transformations
+
+## Next Steps
+
+After mastering custom rules creation, explore:
+- [Cracking Protected Files](/docs/john-the-ripper/advanced-techniques/cracking-protected-files) - Learn techniques for cracking password-protected files
+- [Extracting Hashes](/docs/john-the-ripper/advanced-techniques/extracting-hashes) - Discover methods for extracting password hashes from various systems

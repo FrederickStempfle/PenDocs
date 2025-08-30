@@ -13,9 +13,12 @@ import { getIconName, hasSupportedExtension } from "./utils";
 
 // custom components imports
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import Pre from "@/components/markdown/pre";
 import Note from "@/components/markdown/note";
+import { Callout } from "@/components/markdown/callout";
 import { Stepper, StepperItem } from "@/components/markdown/stepper";
+import { Steps, Step } from "@/components/markdown/steps";
 import Image from "@/components/markdown/image";
 import Link from "@/components/markdown/link";
 import Outlet from "@/components/markdown/outlet";
@@ -28,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // add custom components
 const components = {
@@ -35,8 +39,19 @@ const components = {
   TabsContent,
   TabsList,
   TabsTrigger,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   pre: Pre,
   Note,
+  Callout,
+  Steps,
+  Step,
   Stepper,
   StepperItem,
   img: Image,

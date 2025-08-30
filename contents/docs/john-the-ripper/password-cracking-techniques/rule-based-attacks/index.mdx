@@ -1,0 +1,266 @@
+---
+title: Rule-Based Attacks
+description: Learn how to use rule-based attacks in John the Ripper to transform wordlists and increase password cracking efficiency
+---
+
+# Rule-Based Attacks
+
+Rule-based attacks combine the efficiency of dictionary attacks with the thoroughness of brute force attacks by applying transformations to wordlist entries. John the Ripper's rule engine is one of its most powerful features, allowing for sophisticated password candidate generation.
+
+## Understanding Rule-Based Attacks
+
+Rule-based attacks work by:
+1. Taking a base word from a wordlist
+2. Applying one or more transformations (rules)
+3. Testing the transformed word against the password hash
+
+This approach is based on the observation that users often create passwords by modifying common words in predictable ways.
+
+## Basic Rule Usage
+
+### Enabling Rules
+
+```bash
+john --wordlist=wordlist.txt --rules hash.txt
+```
+
+This command applies John's default ruleset to each word in the wordlist.
+
+### Specifying Rule Sets
+
+John comes with several predefined rule sets:
+
+```bash
+# Use the "Single" ruleset (optimized for single-crack mode)
+john --wordlist=wordlist.txt --rules=Single hash.txt
+
+# Use the "Wordlist" ruleset (default for wordlist mode)
+john --wordlist=wordlist.txt --rules=Wordlist hash.txt
+
+# Use the "NT" ruleset (optimized for Windows passwords)
+john --wordlist=wordlist.txt --rules=NT hash.txt
+```
+
+## Rule Syntax and Commands
+
+Rules in John the Ripper consist of one or more commands that modify the input word. Each command is a single character followed by optional parameters.
+
+### Basic Rule Commands
+
+| Command | Description | Example | Result on "password" |
+|---------|-------------|---------|---------------------|
+| `:` | Do nothing | `:` | password |
+| `l` | Convert to lowercase | `l` | password |
+| `u` | Convert to uppercase | `u` | PASSWORD |
+| `c` | Capitalize | `c` | Password |
+| `r` | Reverse | `r` | drowssap |
+| `d` | Duplicate | `d` | passwordpassword |
+| `f` | Reflect | `f` | passworddrowssap |
+| `{` | Rotate left | `{` | asswordp |
+| `}` | Rotate right | `}` | dpasswor |
+| `$X` | Append character X | `$1` | password1 |
+| `^X` | Prepend character X | `^1` | 1password |
+| `[` | Delete first character | `[` | assword |
+| `]` | Delete last character | `]` | passwor |
+
+### Position-Based Commands
+
+| Command | Description | Example | Result on "password" |
+|---------|-------------|---------|---------------------|
+| `AN"X"` | Replace character at position N with X | `A3"$"` | pas$word |
+| `xNM` | Extract substring from position N, M characters | `x04` | pass |
+| `iNX` | Insert character X at position N | `i3!` | pas!sword |
+| `oNX` | Overwrite character at position N with X | `o3$` | pas$word |
+| `DNX` | Delete character at position N, X times | `D2` | pasword |
+
+### Conditional Commands
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `<N` | Word length less than N | `<8 c` |
+| `>N` | Word length greater than N | `>8 $1` |
+| `_X` | Contains character X | `_a $1` |
+| `!X` | Does not contain character X | `!a $1` |
+
+## Common Rule Patterns
+
+### Case Manipulation
+
+```
+# Capitalize
+c
+
+# Toggle case of first letter
+T0
+
+# Toggle case of all letters
+T
+
+# Lowercase first, uppercase rest
+l u T0
+```
+
+### Adding Numbers and Special Characters
+
+```
+# Append single digits
+$0
+$1
+$2
+...
+$9
+
+# Append common years
+$1$9$9$9
+$2$0$0$0
+$2$0$2$0
+
+# Append special characters
+$!
+$@
+$#
+```
+
+### Character Substitution (Leetspeak)
+
+```
+# Replace 'a' with '@'
+sa@
+
+# Replace 'e' with '3'
+se3
+
+# Replace 'i' with '1'
+si1
+
+# Replace 'o' with '0'
+so0
+
+# Multiple substitutions
+sa@ se3 si1 so0
+```
+
+## Creating Custom Rule Files
+
+### Rule File Structure
+
+Rules are stored in the `john.conf` file, typically located at `/etc/john/john.conf` or `~/.john/john.conf`. Rules are organized in sections:
+
+```
+[List.Rules:MyCustomRules]
+# Rule definitions go here
+c
+c $1
+c $2
+c $3
+```
+
+### Using Custom Rule Files
+
+To use your custom rules:
+
+```bash
+john --wordlist=wordlist.txt --rules=MyCustomRules hash.txt
+```
+
+## Advanced Rule Techniques
+
+### Rule Stacking
+
+Multiple rules can be applied in sequence:
+
+```
+# First capitalize, then append "123"
+c $1$2$3
+```
+
+### Rule Rejection
+
+The `M` command rejects candidate passwords that don't match a mask:
+
+```
+# Only accept passwords with at least one digit
+M?*[0-9]?*
+```
+
+### External Filters
+
+For complex logic, you can use external filters:
+
+```bash
+john --wordlist=wordlist.txt --external=filter_digits hash.txt
+```
+
+## Optimizing Rule-Based Attacks
+
+### Rule Prioritization
+
+Order rules by likelihood of success:
+
+1. Common transformations (capitalization, appending digits)
+2. Moderate transformations (substitutions, prepending characters)
+3. Complex transformations (multiple operations)
+
+### Testing Rules
+
+Test your rules without actually cracking passwords:
+
+```bash
+john --wordlist=wordlist.txt --rules=MyCustomRules --stdout | head -20
+```
+
+This displays the first 20 transformed words, allowing you to verify your rules.
+
+### Rule Debugging
+
+If your rules aren't working as expected:
+
+1. Test with a small wordlist containing known words
+2. Add rules one by one to identify issues
+3. Use `--stdout` to see the transformed words
+
+## Practical Examples
+
+### Common Password Patterns
+
+```
+# Rule to create patterns like "Password123!"
+c $1$2$3$!
+
+# Rule to create patterns like "P@ssw0rd"
+c sa@ so0
+
+# Rule to create patterns like "password123"
+$1$2$3
+```
+
+### Targeting Specific Password Policies
+
+For systems requiring specific password complexity:
+
+```
+# At least 8 chars, upper, lower, digit, special
+>7 c _[a-z] _[A-Z] _[0-9] _[!@#$%^&*()]
+```
+
+### Corporate Username to Password Conversion
+
+```
+# Transform username into password (e.g., jsmith -> Jsmith2023!)
+c $2$0$2$3$!
+```
+
+## Best Practices
+
+1. **Start with existing rules**: Study and modify the built-in rules before creating your own
+2. **Target specific patterns**: Create rules based on known password patterns in your environment
+3. **Balance coverage and efficiency**: More rules mean more passwords tested but slower cracking
+4. **Document your rules**: Add comments explaining what each rule or group of rules does
+5. **Test thoroughly**: Verify that your rules generate the expected transformations
+
+## Next Steps
+
+After mastering rule-based attacks, explore:
+- [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) - Learn more about effective wordlist usage
+- [Brute Force Attacks](/docs/john-the-ripper/password-cracking-techniques/brute-force-attacks) - Understand when and how to use brute force methods
+- [Custom Rules Creation](/docs/john-the-ripper/advanced-techniques/custom-rules-creation) - Dive deeper into creating sophisticated custom rules

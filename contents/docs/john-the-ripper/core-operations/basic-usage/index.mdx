@@ -1,0 +1,140 @@
+---
+title: Basic Usage
+description: Learn the fundamental commands and operations of John the Ripper
+---
+
+# Basic Usage
+
+John the Ripper is a powerful password cracking tool with a wide range of capabilities. This section covers the fundamental operations and commands to get you started.
+
+## Running John the Ripper
+
+### Basic Syntax
+
+The basic syntax for running John the Ripper is:
+
+```bash
+john [options] [password-files]
+```
+
+Where:
+- `options` are the command-line flags that control John's behavior
+- `password-files` are the files containing the password hashes to be cracked
+
+### Simple Example
+
+To crack a password file using default settings:
+
+```bash
+john password.txt
+```
+
+This command will:
+1. Auto-detect the hash format in the file
+2. Use the default wordlist (usually located at `/usr/share/john/password.lst`)
+3. Apply default rules to the wordlist
+4. Display cracked passwords as they are found
+
+## Password File Formats
+
+John the Ripper supports various password file formats:
+
+### Unix-style Password Files
+
+Traditional Unix password files have the format:
+
+```
+username:$hashtype$salt$hash:UID:GID:GECOS:home:shell
+```
+
+Example:
+```
+user:$1$salt$hash:1000:1000:User:/home/user:/bin/bash
+```
+
+### Simple Hash Lists
+
+For simple hash lists, each line contains a single hash:
+
+```
+5f4dcc3b5aa765d61d8327deb882cf99
+d8578edf8458ce06fbc5bb76a58c5ca4
+```
+
+### Hash:Salt Format
+
+For formats requiring separate salt values:
+
+```
+hash:salt
+```
+
+## Viewing Results
+
+### Showing Cracked Passwords
+
+To view passwords that have already been cracked:
+
+```bash
+john --show password.txt
+```
+
+This displays usernames and their corresponding cracked passwords.
+
+### Viewing Session Status
+
+To check the status of a running session:
+
+```bash
+john --status
+```
+
+This shows statistics about the current cracking session, including:
+- Time elapsed
+- Passwords tried
+- Cracking speed (passwords per second)
+- Estimated time remaining
+
+## Stopping and Resuming
+
+### Stopping a Session
+
+To stop a running session, press `Ctrl+C`. John will save its progress automatically.
+
+### Resuming a Session
+
+To resume a previously stopped session:
+
+```bash
+john --restore
+```
+
+This continues from where the previous session left off, using the same settings and progress.
+
+## Basic Wordlist Mode
+
+### Using a Custom Wordlist
+
+To use a specific wordlist for cracking:
+
+```bash
+john --wordlist=wordlist.txt password.txt
+```
+
+This tries each word in the specified wordlist against the hashes in the password file.
+
+### Applying Rules to Wordlists
+
+To apply mangling rules to a wordlist:
+
+```bash
+john --wordlist=wordlist.txt --rules password.txt
+```
+
+This applies transformation rules (like capitalization, adding numbers, etc.) to each word in the wordlist.
+
+## Next Steps
+
+After mastering the basic usage, you can explore:
+- [Command Line Options](/docs/john-the-ripper/core-operations/command-line-options) - Learn about the various options to customize John's behavior
+- [Hash Formats](/docs/john-the-ripper/core-operations/hash-formats) - Understand the different hash formats supported by John

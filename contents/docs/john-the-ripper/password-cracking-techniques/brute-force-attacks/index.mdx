@@ -1,0 +1,221 @@
+---
+title: Brute Force Attacks
+description: Learn how to perform brute force attacks with John the Ripper using incremental mode
+---
+
+# Brute Force Attacks
+
+Brute force attacks try every possible combination of characters until the correct password is found. John the Ripper implements brute force attacks through its "incremental mode," which is more sophisticated than a simple character-by-character approach.
+
+## Understanding Incremental Mode
+
+John's incremental mode is a smart brute force attack that:
+
+1. Tries character combinations in order of decreasing probability
+2. Uses statistical models to prioritize more likely passwords
+3. Can be customized for different character sets and password patterns
+
+## Basic Incremental Mode Usage
+
+### Simple Incremental Mode Command
+
+```bash
+john --incremental hash.txt
+```
+
+This command uses the default "Incremental" mode, which tries all possible character combinations based on built-in character frequency tables.
+
+### Specifying Character Sets
+
+John comes with several predefined character sets:
+
+```bash
+# All ASCII printable characters
+john --incremental=All hash.txt
+
+# Only lowercase letters
+john --incremental=Lower hash.txt
+
+# Only digits
+john --incremental=Digits hash.txt
+
+# Lowercase letters and digits
+john --incremental=LowerNum hash.txt
+
+# Lowercase and uppercase letters
+john --incremental=Alpha hash.txt
+
+# Lowercase, uppercase, and digits
+john --incremental=AlphaNum hash.txt
+```
+
+## Advanced Incremental Mode Options
+
+### Limiting Password Length
+
+You can limit the maximum password length to try:
+
+```bash
+john --incremental=All --max-length=6 hash.txt
+```
+
+This restricts the attack to passwords of 6 characters or less, which can significantly reduce the search space.
+
+### Custom Character Sets
+
+You can define custom character sets in the john.conf file:
+
+```
+[Incremental:Custom]
+File = $JOHN/custom.chr
+MinLen = 1
+MaxLen = 8
+CharCount = 36
+```
+
+Then generate the .chr file:
+
+```bash
+john --make-charset=custom.chr
+```
+
+And use it:
+
+```bash
+john --incremental=Custom hash.txt
+```
+
+## Mask-Based Brute Force
+
+John also supports mask-based attacks, which are a more targeted form of brute force:
+
+```bash
+john --mask='?l?l?l?l?d?d' hash.txt
+```
+
+This tries all combinations where:
+- `?l` represents lowercase letters
+- `?d` represents digits
+
+The example would try all 6-character passwords with 4 lowercase letters followed by 2 digits.
+
+### Available Mask Characters
+
+| Placeholder | Meaning | Characters |
+|-------------|---------|------------|
+| `?l` | Lowercase | abcdefghijklmnopqrstuvwxyz |
+| `?u` | Uppercase | ABCDEFGHIJKLMNOPQRSTUVWXYZ |
+| `?d` | Digits | 0123456789 |
+| `?s` | Special | !@#$%^&*()-_+=~`[]{}|\:;"'&lt;&gt;,.?/ |
+| `?a` | All ASCII | All printable ASCII characters |
+| `?b` | Binary | All 256 possible byte values |
+
+### Custom Character Sets in Masks
+
+You can define custom character sets within a mask:
+
+```bash
+john --mask='?l?l?l?l[0123456789abc]' hash.txt
+```
+
+This tries all combinations where the last character is one of the specified characters.
+
+## Markov-Chain Brute Force
+
+John supports Markov-chain-based brute force, which uses statistical models to prioritize more likely character combinations:
+
+```bash
+john --markov=100 hash.txt
+```
+
+The number after `--markov=` represents the threshold level (0-100). Lower values try fewer but more likely passwords.
+
+### Markov Mode Options
+
+```bash
+# Specify a level and starting/ending password lengths
+john --markov=150:3:10 hash.txt
+
+# Use a specific stats file
+john --markov-stats=stats.file hash.txt
+```
+
+## Performance Considerations
+
+### Time Complexity
+
+Brute force attacks grow exponentially with password length:
+
+| Character Set | Size | 6 chars | 8 chars | 10 chars |
+|---------------|------|---------|---------|----------|
+| Lowercase | 26 | 308 million | 208 billion | 141 trillion |
+| Alphanumeric | 62 | 56 billion | 218 trillion | 839 quadrillion |
+| All ASCII | 95 | 735 billion | 6.6 quadrillion | 59 quintillion |
+
+### Optimization Strategies
+
+1. **Use GPU acceleration** when available:
+   ```bash
+   john --incremental=All --format=md5crypt-opencl hash.txt
+   ```
+
+2. **Distribute the workload** across multiple cores:
+   ```bash
+   john --incremental=All --fork=4 hash.txt
+   ```
+
+3. **Split the workload** across multiple machines:
+   ```bash
+   # Machine 1
+   john --incremental=All --node=1/3 hash.txt
+   
+   # Machine 2
+   john --incremental=All --node=2/3 hash.txt
+   
+   # Machine 3
+   john --incremental=All --node=3/3 hash.txt
+   ```
+
+## When to Use Brute Force
+
+Brute force attacks are most effective when:
+
+1. Passwords are short (8 characters or less)
+2. The character set is limited (e.g., only digits)
+3. Other methods (dictionary, rules) have failed
+4. You have significant computational resources
+
+## Practical Examples
+
+### Cracking a 4-Digit PIN
+
+```bash
+john --incremental=Digits --max-length=4 pin.hash
+```
+
+### Cracking Short Passwords
+
+```bash
+john --incremental=AlphaNum --max-length=6 hash.txt
+```
+
+### Targeted Brute Force with Mask
+
+```bash
+# For passwords like "admin123", "user456", etc.
+john --mask='?l?l?l?l?l?d?d?d' hash.txt
+```
+
+## Best Practices
+
+1. **Start with other methods** before resorting to brute force
+2. **Use targeted approaches** (masks, character set restrictions) when possible
+3. **Monitor progress** to estimate completion time
+4. **Save session state** for long-running attacks
+5. **Use GPU acceleration** for significant performance improvements
+
+## Next Steps
+
+After learning about brute force attacks, explore:
+- [Dictionary Attacks](/docs/john-the-ripper/password-cracking-techniques/dictionary-attacks) - Learn how to use wordlists for more efficient password cracking
+- [Rule-Based Attacks](/docs/john-the-ripper/password-cracking-techniques/rule-based-attacks) - Discover how to apply transformation rules to wordlists

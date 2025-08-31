@@ -1,0 +1,89 @@
+/* Catppuccin Frappe Theme */
+:root[data-theme="frappe"] {
+  /* Base colors */
+  --ctp-rosewater: 10, 57%, 88%;
+  --ctp-flamingo: 0, 59%, 84%;
+  --ctp-pink: 316, 73%, 84%;
+  --ctp-mauve: 280, 65%, 76%;
+  --ctp-red: 359, 68%, 71%;
+  --ctp-maroon: 358, 66%, 71%;
+  --ctp-peach: 22, 99%, 72%;
+  --ctp-yellow: 40, 70%, 78%;
+  --ctp-green: 128, 44%, 68%;
+  --ctp-teal: 171, 40%, 71%;
+  --ctp-sky: 198, 69%, 75%;
+  --ctp-sapphire: 199, 66%, 71%;
+  --ctp-blue: 222, 74%, 73%;
+  --ctp-lavender: 239, 66%, 83%;
+  
+  /* Surface colors */
+  --ctp-base: 229, 20%, 26%;
+  --ctp-mantle: 230, 21%, 23%;
+  --ctp-crust: 230, 22%, 20%;
+  
+  /* Text colors */
+  --ctp-text: 227, 70%, 87%;
+  --ctp-subtext1: 227, 52%, 81%;
+  --ctp-subtext0: 228, 39%, 74%;
+  --ctp-overlay2: 228, 30%, 66%;
+  --ctp-overlay1: 230, 25%, 59%;
+  --ctp-overlay0: 231, 20%, 52%;
+  --ctp-surface2: 231, 16%, 44%;
+  --ctp-surface1: 232, 14%, 38%;
+  --ctp-surface0: 233, 13%, 31%;
+
+  /* Theme variables */
+  --background: var(--ctp-base);
+  --foreground: var(--ctp-text);
+  --card: var(--ctp-mantle);
+  --card-foreground: var(--ctp-text);
+  --popover: var(--ctp-mantle);
+  --popover-foreground: var(--ctp-text);
+  --primary: var(--ctp-blue);
+  --primary-foreground: var(--ctp-mantle);
+  --secondary: var(--ctp-surface0);
+  --secondary-foreground: var(--ctp-text);
+  --muted: var(--ctp-surface0);
+  --muted-foreground: var(--ctp-subtext0);
+  --accent: var(--ctp-sapphire);
+  --accent-foreground: var(--ctp-text);
+  --destructive: var(--ctp-red);
+  --destructive-foreground: var(--ctp-mantle);
+  --border: var(--ctp-surface0);
+  --input: var(--ctp-surface0);
+  --ring: var(--ctp-blue);
+  
+  /* Sidebar colors */
+  --sidebar: var(--ctp-crust);
+  --sidebar-foreground: var(--ctp-text);
+  --sidebar-primary: var(--ctp-blue);
+  --sidebar-primary-foreground: var(--ctp-mantle);
+  --sidebar-accent: var(--ctp-sapphire);
+  --sidebar-accent-foreground: var(--ctp-text);
+  --sidebar-border: var(--ctp-surface0);
+  --sidebar-ring: var(--ctp-blue);
+  
+  /* Text specific colors */
+  --heading-color: hsl(227, 100%, 97%); /* Improved contrast for headings */
+  --nav-link-color: hsl(227, 75%, 90%); /* Improved contrast for nav links */
+  --nav-link-hover-color: hsl(227, 100%, 100%); /* Brighter hover state */
+  --nav-link-active-color: hsl(239, 90%, 90%); /* Brighter active state */
+  --code-color: hsl(227, 100%, 95%); /* Improved contrast for code */
+  --code-bg: hsl(233, 30%, 22%); /* Darker code background for better contrast */
+  --link-color: hsl(222, 100%, 83%); /* Brighter links */
+  --link-hover-color: hsl(199, 100%, 83%); /* Brighter hover links */
+  --blockquote-color: hsl(228, 70%, 85%); /* Improved contrast for blockquotes */
+  --blockquote-border: hsl(222, 100%, 80%); /* Brighter blockquote border */
+  --table-border: hsl(232, 30%, 48%); /* More visible table borders */
+  --table-header-bg: hsl(233, 30%, 26%); /* Darker table header for contrast */
+  --table-row-even: hsl(230, 21%, 23%); /* Frappe mantle */
+  --table-row-odd: hsl(229, 20%, 26%); /* Frappe base */
+  --scrollbar-thumb: hsla(222, 74%, 73%, 0.5); /* Blue with transparency */
+}
+
+/* Custom scrollbar colors for Frappe theme */
+:root[data-theme="frappe"] .highlight-line {
+  border-left-width: 2px;
+  border-color: hsla(222, 74%, 73%, 0.6) !important;
+  background-color: hsla(222, 74%, 73%, 0.1) !important;
+}

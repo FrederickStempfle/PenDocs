@@ -4,7 +4,6 @@ import { SheetLeftbar } from "./leftbar";
 import { page_routes } from "@/lib/routes-config";
 import { SheetClose } from "@/components/ui/sheet";
 import CustomSearch from "./custom-search";
-import { ThemeSwitcher } from "./theme-switcher";
 
 export const NAVLINKS = [
   {
@@ -29,7 +28,7 @@ export function Navbar() {
             <div className="lg:flex hidden">
               <Logo />
             </div>
-            <div className="md:flex hidden items-center gap-4 text-sm font-medium text-nav-link-color">
+            <div className="md:flex hidden items-center gap-4 text-sm font-medium text-muted-foreground">
               <NavMenu />
             </div>
           </div>
@@ -37,7 +36,6 @@ export function Navbar() {
 
         <div className="flex items-center sm:justify-normal justify-between sm:gap-3 ml-1 sm:w-fit w-[90%]">
           <CustomSearch />
-          <ThemeSwitcher />
         </div>
       </div>
     </nav>
@@ -46,7 +44,7 @@ export function Navbar() {
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-1 sm:text-sm text-[14.5px] text-heading-color">
+    <Link href="/" className="flex items-center gap-1 sm:text-sm text-[14.5px] dark:text-stone-300/85 text-stone-800">
       Home
     </Link>
   );
@@ -61,7 +59,7 @@ export function NavMenu({ isSheet = false }) {
             key={item.title + item.href}
             activeClassName="active-tab-highlight"
             absolute
-            className="flex items-center gap-1 sm:text-sm text-[14.5px] text-nav-link-color hover:text-nav-link-hover-color"
+            className="flex items-center gap-1 sm:text-sm text-[14.5px] dark:text-stone-300/85 text-stone-800"
             href={item.href}
           >
             {item.title}

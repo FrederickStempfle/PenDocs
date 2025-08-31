@@ -1,9 +1,6 @@
 @import url("./syntax.css");
 @import url("./algolia.css");
-@import url("./catppuccin-mocha.css");
-@import url("./catppuccin-macchiato.css");
-@import url("./catppuccin-frappe.css");
-@import url("./catppuccin-latte.css");
+@import url("./catppuccin.css");
 
 :root {
   font-variant-ligatures: none;
@@ -233,8 +230,8 @@ td>code {
   word-break: keep-all !important;
 }
 
-/* Active tab highlight using theme variables */
+/* Active tab highlight in light green */
 .active-tab-highlight {
-  color: hsl(var(--nav-link-active-color)) !important;
+  color: hsl(142 70% 70%) !important;
   font-weight: 600;
 }

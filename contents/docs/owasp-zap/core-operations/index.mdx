@@ -1,0 +1,436 @@
+---
+title: OWASP ZAP Core Operations
+description: Essential operations and features of OWASP ZAP for web application security testing
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Core Operations
+
+OWASP Zed Attack Proxy (ZAP) is a powerful open-source web application security testing tool that functions as an intercepting proxy. This guide covers the core operations and essential features of OWASP ZAP for effective security testing.
+
+## Overview of Core Operations
+
+OWASP ZAP provides several key operational modes and features:
+
+1. **Proxying**: Intercepting and modifying HTTP/HTTPS traffic between browser and web application
+2. **Automated Scanning**: Discovering vulnerabilities through automated active and passive scanning
+3. **Spider/Crawler**: Discovering the attack surface of web applications
+4. **Manual Testing**: Tools for manual security testing and exploration
+5. **Reporting**: Generating comprehensive security reports
+
+## User Interface Overview
+
+The ZAP interface is divided into several key sections:
+
+<Tabs defaultValue={"main"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"main"}>Main Components</TabsTrigger>
+    <TabsTrigger value={"views"}>Key Views</TabsTrigger>
+    <TabsTrigger value={"modes"}>Operation Modes</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"main"}>
+    ### Main Components
+    
+    - **Menu Bar**: Access to all ZAP features and configurations
+    - **Toolbar**: Quick access to commonly used functions
+    - **Tree Panel**: Hierarchical view of sites being tested
+    - **Workspace Panel**: Displays details of selected items
+    - **Information Panel**: Shows details about requests, responses, and discovered issues
+    - **Footer**: Status information and quick filters
+    
+    ![ZAP Main Interface](/images/zap-main-interface.png)
+  </TabsContent>
+  <TabsContent value={"views"}>
+    ### Key Views
+    
+    - **Sites Tree**: Hierarchical representation of all explored sites
+    - **History**: Chronological list of all HTTP requests and responses
+    - **Search**: Find specific content across requests and responses
+    - **Alerts**: Security issues discovered during scanning
+    - **Active Scan**: Configuration and results of active scanning
+    - **Spider**: Configuration and results of crawling operations
+    - **Params**: Parameters discovered across the application
+  </TabsContent>
+  <TabsContent value={"modes"}>
+    ### Operation Modes
+    
+    ZAP offers different modes to suit various testing scenarios:
+    
+    - **Safe Mode**: No potentially dangerous operations allowed
+    - **Protected Mode**: Only targets in scope can be attacked
+    - **Standard Mode**: Default mode, allows all operations but only against targets in scope
+    - **Attack Mode**: Actively attacks all sites visited
+    
+    To change the mode:
+    1. Click the mode indicator in the toolbar
+    2. Select the desired mode from the dropdown
+    3. Confirm the change if prompted
+  </TabsContent>
+</Tabs>
+
+## Setting Up the Proxy
+
+The proxy is ZAP's core feature, allowing you to intercept and analyze HTTP/HTTPS traffic.
+
+<Steps>
+  <Step title="Configure Proxy Settings">
+    1. Go to **Tools > Options > Network > Local Servers/Proxies**
+    2. Verify the address (default: 127.0.0.1) and port (default: 8080)
+    3. Click **OK** to save changes
+  </Step>
+  <Step title="Configure Browser">
+    There are multiple ways to configure your browser to use ZAP as a proxy:
+    
+    **Manual Configuration**:
+    1. Open your browser's network settings
+    2. Set HTTP/HTTPS proxy to 127.0.0.1:8080
+    
+    **Using ZAP's Browser Launch Feature**:
+    1. Go to **Tools > Launch Browser**
+    2. Select your preferred browser
+    3. ZAP will launch the browser with the correct proxy settings
+    
+    **Using ZAP's Quick Start Tab**:
+    1. Go to the **Quick Start** tab
+    2. Enter the URL to attack
+    3. Click **Launch Browser**
+  </Step>
+  <Step title="Install SSL Certificate">
+    To intercept HTTPS traffic without browser warnings:
+    
+    1. Go to **Tools > Options > Network > Server Certificates**
+    2. Click **Generate** if you haven't created a certificate
+    3. Click **Save** to export the certificate
+    4. Import the certificate into your browser or operating system
+    
+    **Alternative Method**:
+    1. Navigate to http://zap/ in your proxied browser
+    2. Click on **Download ZAP Root CA Certificate**
+    3. Follow browser-specific instructions to install the certificate
+  </Step>
+</Steps>
+
+<Note>
+  For mobile devices or other systems, you may need to configure a proxy and install the ZAP certificate manually. See the [Mobile Testing](/docs/owasp-zap/advanced-techniques/mobile-testing) guide for details.
+</Note>
+
+## Exploring Web Applications
+
+### Using the Spider
+
+The Spider automatically discovers content and functionality in web applications:
+
+```
+Spider → Discovers URLs → Builds site map → Identifies entry points
+```
+
+<Tabs defaultValue={"traditional"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"traditional"}>Traditional Spider</TabsTrigger>
+    <TabsTrigger value={"ajax"}>AJAX Spider</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"traditional"}>
+    ### Traditional Spider
+    
+    The traditional spider crawls web applications by parsing HTML and following links.
+    
+    **To use the traditional spider**:
+    
+    1. Right-click on a target in the Sites tree
+    2. Select **Attack > Spider**
+    3. Configure options:
+       - **Max depth**: How deep to crawl (default: 5)
+       - **Thread count**: Number of concurrent threads (default: 2)
+       - **Context**: Select a context if defined
+       - **User**: Select a user if authentication is required
+    4. Click **Start Scan**
+    
+    **View results**:
+    - Go to the **Spider** tab to see discovered URLs
+    - The Sites tree will be updated with new content
+    
+    **Common options**:
+    - **Scope**: Limit crawling to in-scope targets
+    - **Parse robots.txt**: Discover URLs from robots.txt
+    - **Parse sitemap.xml**: Discover URLs from sitemap.xml
+    - **Process forms**: Submit forms with default values
+  </TabsContent>
+  <TabsContent value={"ajax"}>
+    ### AJAX Spider
+    
+    The AJAX Spider uses a browser to discover content in JavaScript-heavy applications.
+    
+    **To use the AJAX Spider**:
+    
+    1. Right-click on a target in the Sites tree
+    2. Select **Attack > AJAX Spider**
+    3. Configure options:
+       - **Browser**: Select the browser to use (e.g., Chrome, Firefox)
+       - **Max duration**: Maximum crawl time
+       - **Max states**: Maximum number of states to crawl
+       - **Context**: Select a context if defined
+       - **User**: Select a user if authentication is required
+    4. Click **Start Scan**
+    
+    **View results**:
+    - Go to the **AJAX Spider** tab to see discovered URLs
+    - The Sites tree will be updated with new content
+    
+    **When to use AJAX Spider**:
+    - Single-page applications (SPAs)
+    - Applications with heavy JavaScript usage
+    - When the traditional spider misses content
+  </TabsContent>
+</Tabs>
+
+### Manual Exploration
+
+Manual exploration allows you to browse the application while ZAP records traffic:
+
+1. Configure your browser to use ZAP as a proxy
+2. Browse the application normally
+3. All traffic will appear in the History tab
+4. The Sites tree will be populated with discovered resources
+
+<Note>
+  Manual exploration is essential for understanding application flow and discovering functionality that automated tools might miss.
+</Note>
+
+## Passive Scanning
+
+Passive scanning analyzes HTTP messages without sending additional requests:
+
+```
+HTTP Traffic → Passive Scanner → Analyzes content → Reports issues
+```
+
+### How Passive Scanning Works
+
+1. ZAP automatically analyzes all traffic passing through the proxy
+2. It applies passive scan rules to identify potential issues
+3. Discovered issues appear in the Alerts tab
+4. No additional requests are sent to the target
+
+### Configuring Passive Scan Rules
+
+1. Go to **Tools > Options > Passive Scanner**
+2. Enable or disable specific rules
+3. Adjust the scan strength and threshold for each rule
+4. Configure scan only in scope if desired
+
+### Common Passive Scan Findings
+
+- Information disclosure
+- Insecure headers
+- Cookie issues
+- Content security policy problems
+- Sensitive data in HTML/JavaScript
+- Outdated libraries
+
+## Active Scanning
+
+Active scanning sends test requests to identify vulnerabilities:
+
+```
+Target → Active Scanner → Sends test requests → Analyzes responses → Reports vulnerabilities
+```
+
+<Steps>
+  <Step title="Start an Active Scan">
+    1. Right-click on a target in the Sites tree
+    2. Select **Attack > Active Scan**
+    3. Configure scan options:
+       - **Policy**: Select a scan policy
+       - **Context**: Select a context if defined
+       - **User**: Select a user if authentication is required
+       - **Recurse**: Scan all nodes under the selected target
+    4. Click **Start Scan**
+  </Step>
+  <Step title="Monitor Scan Progress">
+    1. Go to the **Active Scan** tab
+    2. View the progress of the scan
+    3. See which rules are being applied
+    4. Check the number of requests sent
+  </Step>
+  <Step title="Review Results">
+    1. Go to the **Alerts** tab
+    2. Review identified vulnerabilities
+    3. Sort by risk level
+    4. Examine details of each alert
+  </Step>
+</Steps>
+
+### Scan Policies
+
+Scan policies determine which active scan rules are used:
+
+<Tabs defaultValue={"default"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"default"}>Default Policy</TabsTrigger>
+    <TabsTrigger value={"custom"}>Custom Policies</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"default"}>
+    ### Default Policy
+    
+    The default policy includes a balanced set of scan rules suitable for most applications.
+    
+    **Categories included**:
+    - Injection flaws (SQL, NoSQL, Command, etc.)
+    - Cross-site scripting (XSS)
+    - Path traversal
+    - Server-side request forgery (SSRF)
+    - XML external entity (XXE)
+    - And many more
+  </TabsContent>
+  <TabsContent value={"custom"}>
+    ### Custom Policies
+    
+    Create custom policies for specific testing needs:
+    
+    1. Go to **Tools > Options > Active Scan**
+    2. Click **Add** to create a new policy
+    3. Name your policy
+    4. Enable/disable specific rules
+    5. Adjust the strength and threshold for each rule
+    
+    **Common custom policies**:
+    - **Quick Scan**: Only high-risk, low-false-positive rules
+    - **Full Scan**: All rules at maximum strength
+    - **Injection Only**: Focus on injection vulnerabilities
+    - **XSS Only**: Focus on cross-site scripting
+  </TabsContent>
+</Tabs>
+
+## Context and Scope
+
+Contexts and scopes help focus your testing on specific targets:
+
+### Setting Up a Context
+
+1. Right-click on a site in the Sites tree
+2. Select **Include in Context > New Context**
+3. Name your context
+4. Configure context properties:
+   - **Include/Exclude URLs**: Define the boundaries
+   - **Authentication**: Set up authentication methods
+   - **Session Management**: Configure session handling
+   - **Users**: Define users for authenticated testing
+   - **Technology**: Specify technologies used by the application
+   - **Authorization**: Define authorization rules
+
+### Defining Scope
+
+1. Right-click on a site or URL in the Sites tree
+2. Select **Add to Scope**
+3. Alternatively, go to **Tools > Options > Scope**
+4. Add include/exclude regex patterns
+
+<Note>
+  Setting the scope is crucial for focused testing. Many ZAP features can be configured to work only on in-scope items.
+</Note>
+
+## Authentication
+
+ZAP supports various authentication methods for testing secure areas:
+
+<Tabs defaultValue={"form"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"form"}>Form-Based</TabsTrigger>
+    <TabsTrigger value={"http"}>HTTP Authentication</TabsTrigger>
+    <TabsTrigger value={"script"}>Script-Based</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"form"}>
+    ### Form-Based Authentication
+    
+    Configure form-based authentication:
+    
+    1. Go to the context properties
+    2. Select **Authentication**
+    3. Choose **Form-based Authentication**
+    4. Configure:
+       - **Login URL**: The URL of the login page
+       - **Login Request POST Data**: The form parameters
+       - **Username Parameter**: Parameter name for username
+       - **Password Parameter**: Parameter name for password
+       - **Logged In/Out Indicators**: Regex patterns to detect login state
+    
+    **Example configuration**:
+    - Login URL: `https://example.com/login`
+    - POST Data: `username=%username%&password=%password%`
+    - Logged In Indicator: `Logout|Welcome`
+    - Logged Out Indicator: `Login|Sign in`
+  </TabsContent>
+  <TabsContent value={"http"}>
+    ### HTTP Authentication
+    
+    Configure HTTP authentication:
+    
+    1. Go to the context properties
+    2. Select **Authentication**
+    3. Choose **HTTP/NTLM Authentication**
+    4. Configure:
+       - **Hostname**: Target hostname
+       - **Port**: Target port
+       - **Realm**: Authentication realm
+       - **Username/Password**: Credentials to use
+    
+    **Example configuration**:
+    - Hostname: `example.com`
+    - Port: `443`
+    - Realm: `Protected Area`
+  </TabsContent>
+  <TabsContent value={"script"}>
+    ### Script-Based Authentication
+    
+    For complex authentication flows:
+    
+    1. Go to the context properties
+    2. Select **Authentication**
+    3. Choose **Script-Based Authentication**
+    4. Select or create an authentication script
+    5. Configure script parameters
+    
+    **Example use cases**:
+    - Multi-step authentication
+    - OAuth/OIDC flows
+    - CAPTCHA handling
+    - Custom authentication mechanisms
+  </TabsContent>
+</Tabs>
+
+### Setting Up Users
+
+1. Go to the context properties
+2. Select **Users**
+3. Click **Add** to create a new user
+4. Configure:
+   - **Name**: User identifier
+   - **Username**: Authentication username
+   - **Password**: Authentication password
+5. Enable the user for testing
+
+## Session Management
+
+ZAP offers various session management methods:
+
+1. **Cookie-Based**: Default method, tracks cookies automatically
+2. **HTTP Authentication**: Maintains HTTP authentication
+3. **Script-Based**: Custom session handling via scripts
+
+To configure:
+1. Go to the context properties
+2. Select **Session Management**
+3. Choose the appropriate method
+4. Configure method-specific settings
+
+## Next Steps
+
+Now that you understand the core operations of OWASP ZAP, explore these topics:
+
+- [Basic Usage](/docs/owasp-zap/core-operations/basic-usage) - Step-by-step guide for common testing scenarios
+- [Scanning Options](/docs/owasp-zap/core-operations/scanning-options) - Detailed configuration of scanning features
+- [Reporting](/docs/owasp-zap/core-operations/reporting) - Generating and customizing security reports
+- [Advanced Techniques](/docs/owasp-zap/advanced-techniques) - Advanced usage scenarios and features

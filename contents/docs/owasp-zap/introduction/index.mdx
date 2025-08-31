@@ -1,0 +1,397 @@
+---
+title: The Expert's OWASP ZAP Guide
+description: A comprehensive guide to web application security testing with OWASP ZAP
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+import { FileTree } from "@/components/markdown/file-sys"
+
+# The Expert's OWASP ZAP Guide
+
+OWASP Zed Attack Proxy (ZAP) is a free, open-source web application security scanner designed to help find security vulnerabilities in web applications during the development and testing phases. As one of the world's most popular security tools, ZAP provides an integrated penetration testing platform for finding vulnerabilities in web applications, with features designed for both beginners and security professionals.
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+    <TabsTrigger value={"features"}>Key Features</TabsTrigger>
+    <TabsTrigger value={"versions"}>Version History</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    OWASP ZAP (Zed Attack Proxy) is a comprehensive security tool that functions as an intercepting proxy, allowing users to see and manipulate all traffic between their browser and the target application. It's designed to be used by people with a wide range of security experience and provides automated scanners as well as a set of tools that allow you to find security vulnerabilities manually. ZAP can help identify vulnerabilities such as SQL injection, cross-site scripting (XSS), broken authentication, and many others listed in the OWASP Top Ten.
+  </TabsContent>
+  <TabsContent value="features">
+    - **Intercepting proxy**: Inspect and modify requests and responses
+    - **Automated scanner**: Discover vulnerabilities automatically
+    - **Traditional and AJAX spiders**: Crawl standard and JavaScript-heavy applications
+    - **Passive scanner**: Automatically analyze responses for security issues
+    - **Active scanner**: Probe applications for vulnerabilities
+    - **Fuzzing tool**: Test for injection vulnerabilities
+    - **WebSockets support**: Intercept and modify WebSocket messages
+    - **Scripting**: Automate tasks with JavaScript, Python, Ruby, and Groovy
+    - **REST API**: Integrate with CI/CD pipelines and other tools
+    - **Add-on marketplace**: Extend functionality with community-developed add-ons
+    - **Authentication support**: Test applications requiring authentication
+    - **Client certificates**: Support for applications requiring client certificates
+  </TabsContent>
+  <TabsContent value="versions">
+    - **ZAP 2.13.0** (2023): Latest stable release with enhanced automation framework
+    - **ZAP 2.12.0** (2022): Improved authentication handling and new scan rules
+    - **ZAP 2.10.0** (2021): Added support for GraphQL and enhanced automation
+    - **ZAP 2.9.0** (2020): Introduced the Automation Framework
+    - **ZAP 2.8.0** (2019): Added support for custom pages and improved HUD
+    - **ZAP 2.7.0** (2018): Added OWASP ZAP Heads Up Display (HUD)
+    - **ZAP 2.0.0** (2013): First major stable release after being donated to OWASP
+  </TabsContent>
+</Tabs>
+
+## Why Use OWASP ZAP?
+
+- **Comprehensive Testing**: Covers a wide range of web application vulnerabilities
+- **Flexibility**: Works as both an automated scanner and a manual testing tool
+- **Integration Capabilities**: Fits into development pipelines and DevSecOps workflows
+- **Active Community**: Maintained by OWASP with regular updates and improvements
+- **Free and Open Source**: No licensing costs or usage restrictions
+- **Cross-platform**: Available for Windows, Linux, macOS, and Docker
+- **Extensibility**: Customizable with add-ons, scripts, and APIs
+- **Educational Value**: Helps developers understand security vulnerabilities
+
+## Getting Started with OWASP ZAP
+
+<Steps>
+  <Step title="Install OWASP ZAP">
+    OWASP ZAP is available for multiple platforms:
+    
+    **Windows**:
+    - Download the installer from [zaproxy.org](https://www.zaproxy.org/download/)
+    - Run the installer and follow the instructions
+    
+    **Linux**:
+    ```bash
+    # Using snap
+    sudo snap install zaproxy --classic
+    
+    # Using apt (Kali Linux)
+    sudo apt update
+    sudo apt install zaproxy
+    ```
+    
+    **macOS**:
+    ```bash
+    # Using Homebrew
+    brew install --cask owasp-zap
+    ```
+    
+    **Docker**:
+    ```bash
+    docker pull owasp/zap2docker-stable
+    docker run -t owasp/zap2docker-stable zap-baseline.py -t https://www.example.com
+    ```
+  </Step>
+  <Step title="Launch ZAP">
+    Start ZAP using the installed shortcut or command:
+    
+    ```bash
+    # Command line
+    zap
+    
+    # Docker
+    docker run -u zap -p 8080:8080 -p 8090:8090 -i owasp/zap2docker-stable zap-webswing.sh
+    ```
+    
+    When first launched, ZAP will ask if you're using it in a production or test environment. Select the appropriate option for your context.
+  </Step>
+  <Step title="Configure Your Browser">
+    To use ZAP as a proxy, configure your browser to use ZAP's proxy settings:
+    
+    - Proxy address: 127.0.0.1 (localhost)
+    - Port: 8080 (default)
+    
+    Alternatively, use the ZAP Browser add-ons available for Firefox and Chrome to automatically configure the proxy settings.
+  </Step>
+</Steps>
+
+## Core Components and Functionality
+
+### Proxy
+
+The intercepting proxy is the core component of ZAP, allowing you to:
+
+- View all requests and responses between your browser and the web application
+- Intercept and modify requests before they are sent
+- Intercept and modify responses before they are displayed in the browser
+- Automatically record all observed traffic for later analysis
+
+To use the proxy:
+
+```
+Tools > Options > Local Proxies > Set address to 127.0.0.1 and port to 8080
+```
+
+### Spider
+
+ZAP includes two types of spiders for crawling web applications:
+
+<Tabs defaultValue="traditional" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value={"traditional"}>Traditional Spider</TabsTrigger>
+    <TabsTrigger value={"ajax"}>AJAX Spider</TabsTrigger>
+  </TabsList>
+  <TabsContent value="traditional">
+    The traditional spider crawls websites by following links in HTML pages:
+    
+    1. Right-click on a site in the Sites panel
+    2. Select "Attack" > "Spider"
+    3. Configure the crawl depth and other options
+    4. Click "Start Scan"
+    
+    The spider will discover pages and resources, adding them to the Sites tree.
+  </TabsContent>
+  <TabsContent value="ajax">
+    The AJAX Spider uses a browser to crawl JavaScript-heavy applications:
+    
+    1. Right-click on a site in the Sites panel
+    2. Select "Attack" > "AJAX Spider"
+    3. Configure browser and other options
+    4. Click "Start Scan"
+    
+    This is essential for modern web applications that load content dynamically.
+  </TabsContent>
+</Tabs>
+
+### Active Scanner
+
+The Active Scanner probes the application for vulnerabilities by sending potentially malicious requests:
+
+1. Right-click on a site or URL in the Sites panel
+2. Select "Attack" > "Active Scan"
+3. Configure scan policy and other options
+4. Click "Start Scan"
+
+The scanner will test for:
+- Injection vulnerabilities (SQL, NoSQL, OS command)
+- Cross-site scripting (XSS)
+- Cross-site request forgery (CSRF)
+- Insecure configurations
+- And many other vulnerabilities
+
+### Passive Scanner
+
+The Passive Scanner automatically analyzes every request and response that passes through ZAP without modifying them:
+
+- Runs automatically in the background
+- Identifies issues like missing security headers
+- Detects information disclosure
+- Finds potential security misconfigurations
+
+Configure passive scan rules:
+```
+Tools > Options > Passive Scanner
+```
+
+## Advanced Features
+
+### Fuzzing
+
+ZAP's Fuzzer allows you to send multiple variations of a request to test for vulnerabilities:
+
+1. Find a request in the History tab
+2. Right-click and select "Attack" > "Fuzz"
+3. Select the parameter to fuzz
+4. Add payloads (e.g., SQL injection strings, XSS payloads)
+5. Click "Start Fuzzer"
+
+### Authentication
+
+ZAP supports testing authenticated applications using various methods:
+
+<Tabs defaultValue="form" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value={"form"}>Form-based</TabsTrigger>
+    <TabsTrigger value={"script"}>Script-based</TabsTrigger>
+    <TabsTrigger value={"http"}>HTTP/NTLM</TabsTrigger>
+  </TabsList>
+  <TabsContent value="form">
+    For form-based authentication:
+    
+    1. Go to "Session Properties" > "Authentication"
+    2. Select "Form-based Authentication"
+    3. Configure login URL, username/password parameters
+    4. Define logged-in/out indicators
+    5. Set up users in the "Users" tab
+    
+    ZAP will maintain authenticated sessions during scanning.
+  </TabsContent>
+  <TabsContent value="script">
+    For complex authentication flows:
+    
+    1. Create an authentication script (JavaScript, Python, Ruby)
+    2. Go to "Session Properties" > "Authentication"
+    3. Select "Script-based Authentication"
+    4. Select your script and configure parameters
+    5. Set up users in the "Users" tab
+    
+    This method is ideal for OAuth, JWT, or custom authentication schemes.
+  </TabsContent>
+  <TabsContent value="http">
+    For HTTP Basic or NTLM authentication:
+    
+    1. Go to "Session Properties" > "Authentication"
+    2. Select "HTTP/NTLM Authentication"
+    3. Enter username and password
+    4. Define logged-in/out indicators
+    5. Set up users in the "Users" tab
+  </TabsContent>
+</Tabs>
+
+### Automation Framework
+
+ZAP's Automation Framework allows you to automate security testing:
+
+```yaml
+# Example automation.yaml
+env:
+  contexts:
+    - name: test-context
+      urls:
+        - https://www.example.com
+  parameters:
+    failOnError: true
+    progressToStdout: true
+jobs:
+  - type: passiveScan-config
+    parameters:
+      scanOnlyInScope: true
+  - type: spider
+    parameters:
+      context: test-context
+      url: https://www.example.com
+  - type: activeScan
+    parameters:
+      context: test-context
+  - type: report
+    parameters:
+      template: traditional-html
+      reportDir: /path/to/reports
+      reportFile: zap-report.html
+```
+
+Run with:
+```bash
+zap.sh -cmd -autorun automation.yaml
+```
+
+### API Integration
+
+ZAP provides a REST API for integration with other tools:
+
+```bash
+# Start ZAP API daemon
+zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.key=12345
+
+# Example API call
+curl "http://localhost:8080/JSON/spider/action/scan/?apikey=12345&url=https://www.example.com"
+```
+
+This enables integration with CI/CD pipelines and other security tools.
+
+## Practical Examples
+
+### Basic Web Application Scan
+
+```bash
+# Using the command line
+zap-baseline.py -t https://www.example.com -r report.html
+```
+
+Or using the GUI:
+1. Enter the URL in the Quick Start tab
+2. Click "Attack"
+3. Review the Alerts tab for findings
+
+### Authenticated Scan
+
+1. Set up authentication as described in the Authentication section
+2. Configure a Context to include the target application
+3. Add one or more Users with valid credentials
+4. Enable "Forced User Mode" and select a user
+5. Run spiders and scans as normal
+
+### API Security Testing
+
+For REST API testing:
+1. Install the "OpenAPI Support" add-on
+2. Import an OpenAPI/Swagger definition
+3. Use the "Import URLs" functionality to add API endpoints
+4. Run Active Scan on the imported endpoints
+
+### CI/CD Integration
+
+Example Jenkins pipeline:
+
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('ZAP Scan') {
+            steps {
+                sh 'docker run -v $(pwd):/zap/wrk/:rw --user root -t owasp/zap2docker-stable zap-baseline.py -t https://www.example.com -g gen.conf -r zap-report.html'
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '.',
+                        reportFiles: 'zap-report.html',
+                        reportName: 'ZAP Security Report'
+                    ])
+                }
+            }
+        }
+    }
+}
+```
+
+<Note>
+Always ensure you have proper authorization before scanning any web application. Unauthorized security testing may be illegal and unethical.
+</Note>
+
+## Understanding ZAP Results
+
+ZAP categorizes findings by risk level:
+
+- **High**: Serious vulnerabilities that require immediate attention
+- **Medium**: Significant issues that should be addressed
+- **Low**: Minor issues that represent best practice violations
+- **Informational**: Findings that might not be vulnerabilities but provide useful information
+
+Each alert includes:
+- Description of the vulnerability
+- URL and parameter where it was found
+- Risk level and confidence rating
+- Evidence from the response
+- Solution recommendations
+- References to related standards (CWE, WASC, OWASP)
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **Core Operations**: Basic usage, proxy configuration, and scanning
+2. **Advanced Features**: Authentication, scripting, and automation
+3. **Integration**: Using ZAP in development workflows and CI/CD
+4. **Best Practices**: Optimizing scans and interpreting results accurately
+
+Each section provides detailed explanations, step-by-step instructions, and real-world examples to help you master OWASP ZAP for web application security testing.
+
+## Next Steps
+
+Now that you understand the basics of OWASP ZAP, explore the following sections to deepen your knowledge:
+
+- [Core Operations](/docs/owasp-zap/core-operations) - Learn the fundamental features and scanning techniques
+- [Advanced Features](/docs/owasp-zap/advanced-features) - Explore authentication, scripting, and automation
+- [Integration Guide](/docs/owasp-zap/integration) - Learn how to integrate ZAP into development workflows
+- [Best Practices](/docs/owasp-zap/best-practices) - Optimize your security testing and reporting

@@ -1,0 +1,285 @@
+---
+title: The Expert's Hydra Guide
+description: A comprehensive guide to password cracking and brute force attacks with Hydra
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+import { FileTree } from "@/components/markdown/file-sys"
+
+# The Expert's Hydra Guide
+
+Hydra is one of the most powerful and widely used online password cracking tools in the security industry. This fast and flexible tool is designed to efficiently perform brute force attacks against various network services and authentication mechanisms. Hydra excels at testing password security across multiple protocols, making it an essential tool for security professionals conducting penetration tests.
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="features">Key Features</TabsTrigger>
+    <TabsTrigger value="versions">Version History</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    THC-Hydra is a parallelized login cracker that supports numerous protocols to attack. It is very fast and flexible, and new modules are easy to add. This tool makes it possible for researchers and security consultants to show how easy it would be to gain unauthorized access to a system remotely. Hydra can perform rapid dictionary attacks against more than 50 protocols, including telnet, FTP, HTTP, HTTPS, SMB, several databases, LDAP, and more.
+  </TabsContent>
+  <TabsContent value="features">
+    - **Multi-protocol support**: Over 50 protocols including SSH, HTTP(S), FTP, SMB, databases, LDAP, and more
+    - **Parallel execution**: Ability to test multiple hosts and passwords simultaneously
+    - **Flexible authentication**: Support for various authentication methods
+    - **Multiple attack vectors**: Username enumeration, password brute forcing, and credential stuffing
+    - **Modular design**: Easy to extend with new protocols and attack methods
+    - **IPv4 and IPv6 support**: Works with both address formats
+    - **Proxy support**: Ability to route attacks through proxies for anonymity
+    - **Session management**: Resume interrupted attack sessions
+  </TabsContent>
+  <TabsContent value="versions">
+    - **Hydra 9.4** (2022): Latest stable release with improved performance and additional protocols
+    - **Hydra 9.0** (2019): Major update with enhanced parallelization and new modules
+    - **Hydra 8.0** (2014): Significant improvements in speed and protocol support
+    - **Hydra 7.0** (2012): Added IPv6 support and improved multi-threading
+    - **Hydra 5.0** (2006): First version with GUI support (xHydra)
+  </TabsContent>
+</Tabs>
+
+## Why Use Hydra?
+
+- **Versatility**: Supports numerous protocols and authentication mechanisms
+- **Speed**: Highly optimized for fast password cracking with parallel execution
+- **Flexibility**: Customizable attack parameters and options
+- **Active Development**: Regularly updated with new features and protocol support
+- **Free and Open Source**: Available to everyone with an active community
+- **Comprehensive Reporting**: Detailed output of successful login attempts
+- **Integration Capabilities**: Works well with other penetration testing tools
+
+## Getting Started with Hydra
+
+<Steps>
+  <Step title="Install Hydra">
+    Hydra comes pre-installed in many security-focused Linux distributions like Kali Linux. For other systems:
+    
+    **Debian/Ubuntu**:
+    ```bash
+    sudo apt update
+    sudo apt install hydra
+    ```
+    
+    **Fedora/RHEL**:
+    ```bash
+    sudo dnf install hydra
+    ```
+    
+    **macOS (using Homebrew)**:
+    ```bash
+    brew install hydra
+    ```
+    
+    **From Source**:
+    ```bash
+    git clone https://github.com/vanhauser-thc/thc-hydra.git
+    cd thc-hydra
+    ./configure
+    make
+    make install
+    ```
+  </Step>
+  <Step title="Verify Installation">
+    Test your installation by running:
+    ```bash
+    hydra -h
+    ```
+    
+    This should display the help menu with available options and supported protocols.
+  </Step>
+  <Step title="Understand Basic Syntax">
+    The basic syntax for Hydra is:
+    ```bash
+    hydra [options] [-s PORT] TARGET PROTOCOL [MODULE-OPTIONS]
+    ```
+    
+    For example, to perform an FTP brute force attack:
+    ```bash
+    hydra -l user -P wordlist.txt ftp://192.168.1.1
+    ```
+    
+    Where:
+    - `-l user`: Specifies a single username
+    - `-P wordlist.txt`: Specifies a password list file
+    - `ftp://192.168.1.1`: Target protocol and IP address
+  </Step>
+</Steps>
+
+## Supported Protocols
+
+Hydra supports a wide range of protocols, including but not limited to:
+
+| Category | Protocols |
+|----------|-----------|
+| Remote Access | SSH, Telnet, rlogin, rsh |
+| File Transfer | FTP, FTPS, SFTP |
+| Web | HTTP(S), HTTP-FORM-GET, HTTP-FORM-POST, HTTP-PROXY |
+| Mail | SMTP, POP3, IMAP |
+| Databases | MySQL, PostgreSQL, Oracle, MS-SQL, MongoDB |
+| Directory Services | LDAP, SMB/CIFS |
+| VoIP | SIP, Asterisk |
+| Other | VNC, RDP, Cisco, Cisco-enable, CVS |
+
+## Common Attack Methods
+
+<Tabs defaultValue="http-form" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="http-form">HTTP Form</TabsTrigger>
+    <TabsTrigger value="ssh">SSH</TabsTrigger>
+    <TabsTrigger value="ftp">FTP</TabsTrigger>
+    <TabsTrigger value="smb">SMB</TabsTrigger>
+  </TabsList>
+  <TabsContent value="http-form">
+    HTTP Form-based authentication is one of the most common targets for Hydra. The syntax for attacking web forms is:
+    
+    ```bash
+    hydra -l username -P passwords.txt target.com http-post-form "/login.php:username=^USER^&password=^PASS^:Failed login"
+    ```
+    
+    The http-post-form parameter consists of three parts separated by colons:
+    1. The URL path of the form
+    2. The form parameters with ^USER^ and ^PASS^ as placeholders
+    3. The error message indicating a failed login attempt
+    
+    For GET requests, use http-get-form instead of http-post-form.
+  </TabsContent>
+  <TabsContent value="ssh">
+    SSH is a common protocol to test during penetration tests:
+    
+    ```bash
+    hydra -l root -P passwords.txt ssh://192.168.1.1 -t 4
+    ```
+    
+    The `-t 4` option limits the number of parallel connections to 4, which is recommended for SSH to avoid connection refusals.
+    
+    For using a key file instead of a password:
+    ```bash
+    hydra -L users.txt -e nsr ssh://192.168.1.1
+    ```
+    
+    The `-e nsr` option tries:
+    - n: null password
+    - s: same as login
+    - r: reversed login
+  </TabsContent>
+  <TabsContent value="ftp">
+    FTP servers are often targeted for brute force attacks:
+    
+    ```bash
+    hydra -L users.txt -P passwords.txt ftp://192.168.1.1
+    ```
+    
+    For FTP on a non-standard port:
+    ```bash
+    hydra -L users.txt -P passwords.txt -s 2121 192.168.1.1 ftp
+    ```
+    
+    The `-s 2121` option specifies the port number.
+  </TabsContent>
+  <TabsContent value="smb">
+    SMB/CIFS is commonly used in Windows environments:
+    
+    ```bash
+    hydra -l administrator -P passwords.txt 192.168.1.1 smb
+    ```
+    
+    For targeting a specific Windows domain:
+    ```bash
+    hydra -l administrator -P passwords.txt -m "WORKGROUP" 192.168.1.1 smb
+    ```
+    
+    The `-m` option allows passing additional parameters to the module, in this case, the domain name.
+  </TabsContent>
+</Tabs>
+
+## Advanced Options
+
+### Parallelization and Performance Tuning
+
+Control the number of parallel tasks and optimize performance:
+
+```bash
+hydra -l admin -P passwords.txt -t 16 -f -V 192.168.1.1 http-post-form "/admin:username=^USER^&password=^PASS^:Login failed"
+```
+
+- `-t 16`: Use 16 parallel connections
+- `-f`: Stop after finding a valid credential pair
+- `-V`: Verbose mode, showing login attempts
+
+### Username and Password Lists
+
+Hydra offers flexible options for username and password inputs:
+
+```bash
+hydra -L users.txt -P passwords.txt 192.168.1.1 ftp
+```
+
+- `-L users.txt`: List of usernames
+- `-P passwords.txt`: List of passwords
+- `-C credentials.txt`: Combined username:password format
+
+### Output and Reporting
+
+Save results to various formats:
+
+```bash
+hydra -l admin -P passwords.txt 192.168.1.1 ssh -o ssh_results.txt
+```
+
+- `-o ssh_results.txt`: Output results to a text file
+- `-b json`: Output in JSON format
+- `-I`: Show each attempt (very verbose)
+
+<Note>
+Always ensure you have proper authorization before using Hydra against any system. Unauthorized password cracking attempts are illegal and unethical.
+</Note>
+
+## Practical Examples
+
+### WordPress Login Brute Force
+
+```bash
+hydra -l admin -P wordlist.txt 192.168.1.1 http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:The password you entered"
+```
+
+### SSH with Rate Limiting
+
+```bash
+hydra -l root -P passwords.txt ssh://192.168.1.1 -t 4 -W 5
+```
+
+The `-W 5` option adds a 5-second delay between connection attempts to avoid triggering rate limiting.
+
+### MySQL Database
+
+```bash
+hydra -l root -P passwords.txt 192.168.1.1 mysql
+```
+
+### SMTP Authentication
+
+```bash
+hydra -l user@example.com -P passwords.txt smtp://mail.example.com -v
+```
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **Core Operations**: Basic syntax, protocol support, and fundamental usage
+2. **Advanced Techniques**: Customization options, performance tuning, and specialized approaches
+3. **Protocol-Specific Guides**: Detailed instructions for common protocols
+4. **Best Practices**: Ethical considerations, avoiding detection, and workflow optimization
+
+Each section provides detailed explanations, command examples, and real-world use cases to help you master Hydra for ethical penetration testing and security assessment.
+
+## Next Steps
+
+Now that you understand the basics of Hydra, explore the following sections to deepen your knowledge:
+
+- [Core Operations](/docs/hydra/core-operations) - Learn the fundamental commands and operations
+- [Advanced Techniques](/docs/hydra/advanced-techniques) - Explore sophisticated attack strategies
+- [Protocol-Specific Guides](/docs/hydra/protocol-guides) - Detailed instructions for specific protocols
+- [Best Practices](/docs/hydra/best-practices) - Optimize your workflow and ensure ethical usage

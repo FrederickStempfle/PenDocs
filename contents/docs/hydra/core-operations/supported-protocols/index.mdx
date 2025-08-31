@@ -1,0 +1,562 @@
+---
+title: Hydra Supported Protocols
+description: A comprehensive guide to all protocols supported by Hydra and their specific options
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hydra Supported Protocols
+
+Hydra supports a wide range of protocols for password cracking and brute force attacks. This guide provides details on each supported protocol and their specific options.
+
+## Network Services
+
+<Tabs defaultValue={"ssh"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"ssh"}>SSH</TabsTrigger>
+    <TabsTrigger value={"ftp"}>FTP</TabsTrigger>
+    <TabsTrigger value={"telnet"}>Telnet</TabsTrigger>
+    <TabsTrigger value={"smb"}>SMB</TabsTrigger>
+    <TabsTrigger value={"rdp"}>RDP</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"ssh"}>
+    ### SSH Protocol
+    
+    The SSH (Secure Shell) protocol module allows you to test SSH authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l username -P passwords.txt ssh://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    - `-m OPTIONS`: Additional module options
+    
+    **SSH-Specific Options:**
+    ```bash
+    # Use SSH key authentication
+    hydra -l username -P keyfiles.txt -m 1 ssh://192.168.1.100
+    
+    # Specify SSH protocol version
+    hydra -l username -P passwords.txt -m ssh2 ssh://192.168.1.100
+    ```
+    
+    **Example:**
+    ```bash
+    # SSH with keyboard-interactive authentication
+    hydra -l admin -P passwords.txt -e nsr ssh://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"ftp"}>
+    ### FTP Protocol
+    
+    The FTP (File Transfer Protocol) module allows you to test FTP authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l username -P passwords.txt ftp://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    - `-m OPTIONS`: Additional module options
+    
+    **FTP-Specific Options:**
+    ```bash
+    # Use anonymous login
+    hydra -l anonymous -p "" ftp://192.168.1.100
+    
+    # Specify FTP mode
+    hydra -l username -P passwords.txt -m PASSIVE ftp://192.168.1.100
+    ```
+    
+    **Example:**
+    ```bash
+    # FTP with TLS (FTPS)
+    hydra -l admin -P passwords.txt -S ftp://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"telnet"}>
+    ### Telnet Protocol
+    
+    The Telnet module allows you to test Telnet authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l username -P passwords.txt telnet://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    - `-m OPTIONS`: Additional module options
+    
+    **Telnet-Specific Options:**
+    ```bash
+    # Specify login and password prompts
+    hydra -l admin -P passwords.txt -m "Login: /Password: " telnet://192.168.1.100
+    ```
+    
+    **Example:**
+    ```bash
+    # Telnet with custom timeout
+    hydra -l admin -P passwords.txt -w 30 telnet://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"smb"}>
+    ### SMB Protocol
+    
+    The SMB (Server Message Block) module allows you to test Windows authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l username -P passwords.txt smb://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-m DOMAIN`: Specify the Windows domain
+    
+    **SMB-Specific Options:**
+    ```bash
+    # Specify domain
+    hydra -l administrator -P passwords.txt -m WORKGROUP smb://192.168.1.100
+    
+    # Target specific share
+    hydra -l administrator -P passwords.txt smb://192.168.1.100/C$
+    ```
+    
+    **Example:**
+    ```bash
+    # SMB with domain authentication
+    hydra -l "DOMAIN\\administrator" -P passwords.txt smb://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"rdp"}>
+    ### RDP Protocol
+    
+    The RDP (Remote Desktop Protocol) module allows you to test RDP authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l username -P passwords.txt rdp://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    
+    **RDP-Specific Options:**
+    ```bash
+    # Specify domain
+    hydra -l administrator -P passwords.txt -m domain rdp://192.168.1.100
+    ```
+    
+    **Example:**
+    ```bash
+    # RDP with domain authentication
+    hydra -l "DOMAIN\\administrator" -P passwords.txt rdp://192.168.1.100
+    ```
+  </TabsContent>
+</Tabs>
+
+## Web Services
+
+<Tabs defaultValue={"http-get"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"http-get"}>HTTP-GET</TabsTrigger>
+    <TabsTrigger value={"http-post"}>HTTP-POST</TabsTrigger>
+    <TabsTrigger value={"http-form"}>HTTP-FORM</TabsTrigger>
+    <TabsTrigger value={"https"}>HTTPS</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"http-get"}>
+    ### HTTP-GET Form
+    
+    The HTTP-GET module allows you to test web applications using GET requests.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l admin -P passwords.txt 192.168.1.100 http-get "/login.php"
+    ```
+    
+    **Module Options:**
+    - `/path`: The URL path
+    - `:parameters`: Form parameters with ^USER^ and ^PASS^ placeholders
+    - `:fail_string`: String indicating failed login
+    
+    **Example:**
+    ```bash
+    hydra -l admin -P passwords.txt 192.168.1.100 http-get-form "/login.php:username=^USER^&password=^PASS^:Login failed"
+    ```
+  </TabsContent>
+  <TabsContent value={"http-post"}>
+    ### HTTP-POST Form
+    
+    The HTTP-POST module allows you to test web applications using POST requests.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l admin -P passwords.txt 192.168.1.100 http-post "/login.php"
+    ```
+    
+    **Module Options:**
+    - `/path`: The URL path
+    - `:parameters`: Form parameters with ^USER^ and ^PASS^ placeholders
+    - `:fail_string`: String indicating failed login
+    
+    **Example:**
+    ```bash
+    hydra -l admin -P passwords.txt 192.168.1.100 http-post-form "/login.php:username=^USER^&password=^PASS^:Login failed"
+    ```
+    
+    **With Headers:**
+    ```bash
+    hydra -l admin -P passwords.txt 192.168.1.100 http-post-form "/login.php:username=^USER^&password=^PASS^:Login failed:H=Cookie: sessid=1234"
+    ```
+  </TabsContent>
+  <TabsContent value={"http-form"}>
+    ### HTTP-FORM
+    
+    The HTTP-FORM module is a more flexible version for testing web forms.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l admin -P passwords.txt 192.168.1.100 http-form-post "/login.php:username=^USER^&password=^PASS^:Login failed"
+    ```
+    
+    **Module Options:**
+    - `/path`: The URL path
+    - `:parameters`: Form parameters with ^USER^ and ^PASS^ placeholders
+    - `:fail_string`: String indicating failed login
+    - `:H=Header`: Custom headers
+    - `:S=success_string`: String indicating successful login
+    
+    **Example with Success Condition:**
+    ```bash
+    hydra -l admin -P passwords.txt 192.168.1.100 http-form-post "/login.php:username=^USER^&password=^PASS^:F=Login failed:S=Welcome"
+    ```
+    
+    **Example with Cookies and Headers:**
+    ```bash
+    hydra -l admin -P passwords.txt 192.168.1.100 http-form-post "/login.php:username=^USER^&password=^PASS^:F=Login failed:H=Cookie: sessid=1234\nUser-Agent: Mozilla/5.0"
+    ```
+  </TabsContent>
+  <TabsContent value={"https"}>
+    ### HTTPS
+    
+    The HTTPS module allows you to test secure web applications.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l admin -P passwords.txt -S 192.168.1.100 http-post-form "/login.php:username=^USER^&password=^PASS^:Login failed"
+    ```
+    
+    **Alternative Syntax:**
+    ```bash
+    hydra -l admin -P passwords.txt https://192.168.1.100 http-post-form "/login.php:username=^USER^&password=^PASS^:Login failed"
+    ```
+    
+    **Example with SSL Options:**
+    ```bash
+    hydra -l admin -P passwords.txt -S -s 443 192.168.1.100 http-post-form "/login.php:username=^USER^&password=^PASS^:Login failed"
+    ```
+  </TabsContent>
+</Tabs>
+
+## Database Services
+
+<Tabs defaultValue={"mysql"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"mysql"}>MySQL</TabsTrigger>
+    <TabsTrigger value={"postgres"}>PostgreSQL</TabsTrigger>
+    <TabsTrigger value={"oracle"}>Oracle</TabsTrigger>
+    <TabsTrigger value={"mssql"}>MS-SQL</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"mysql"}>
+    ### MySQL Protocol
+    
+    The MySQL module allows you to test MySQL database authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l root -P passwords.txt mysql://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    
+    **Example:**
+    ```bash
+    # MySQL on non-standard port
+    hydra -l root -P passwords.txt -s 3307 mysql://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"postgres"}>
+    ### PostgreSQL Protocol
+    
+    The PostgreSQL module allows you to test PostgreSQL database authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l postgres -P passwords.txt postgres://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    
+    **Example:**
+    ```bash
+    # PostgreSQL with database name
+    hydra -l postgres -P passwords.txt -m "database=template1" postgres://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"oracle"}>
+    ### Oracle Protocol
+    
+    The Oracle module allows you to test Oracle database authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l system -P passwords.txt oracle://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    - `-m SID`: Specify Oracle SID
+    
+    **Example:**
+    ```bash
+    # Oracle with SID
+    hydra -l system -P passwords.txt -m ORCL oracle://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"mssql"}>
+    ### MS-SQL Protocol
+    
+    The MS-SQL module allows you to test Microsoft SQL Server authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l sa -P passwords.txt mssql://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    
+    **Example:**
+    ```bash
+    # MS-SQL with Windows authentication
+    hydra -l "DOMAIN\\administrator" -P passwords.txt mssql://192.168.1.100
+    ```
+  </TabsContent>
+</Tabs>
+
+## Email Services
+
+<Tabs defaultValue={"smtp"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"smtp"}>SMTP</TabsTrigger>
+    <TabsTrigger value={"pop3"}>POP3</TabsTrigger>
+    <TabsTrigger value={"imap"}>IMAP</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"smtp"}>
+    ### SMTP Protocol
+    
+    The SMTP module allows you to test email server authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l admin -P passwords.txt smtp://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    
+    **SMTP-Specific Options:**
+    ```bash
+    # SMTP with TLS (SMTPS)
+    hydra -l admin -P passwords.txt -S smtp://192.168.1.100
+    
+    # SMTP with specific authentication method
+    hydra -l admin -P passwords.txt -m LOGIN smtp://192.168.1.100
+    ```
+    
+    **Example:**
+    ```bash
+    # SMTP with PLAIN authentication
+    hydra -l admin@example.com -P passwords.txt -m PLAIN smtp://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"pop3"}>
+    ### POP3 Protocol
+    
+    The POP3 module allows you to test email retrieval authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l user@example.com -P passwords.txt pop3://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    
+    **POP3-Specific Options:**
+    ```bash
+    # POP3 with TLS (POP3S)
+    hydra -l user@example.com -P passwords.txt -S pop3://192.168.1.100
+    ```
+    
+    **Example:**
+    ```bash
+    # POP3 on non-standard port with TLS
+    hydra -l user@example.com -P passwords.txt -S -s 2110 pop3://192.168.1.100
+    ```
+  </TabsContent>
+  <TabsContent value={"imap"}>
+    ### IMAP Protocol
+    
+    The IMAP module allows you to test email retrieval authentication.
+    
+    **Basic Usage:**
+    ```bash
+    hydra -l user@example.com -P passwords.txt imap://192.168.1.100
+    ```
+    
+    **Module Options:**
+    - `-s PORT`: Specify a non-standard port
+    
+    **IMAP-Specific Options:**
+    ```bash
+    # IMAP with TLS (IMAPS)
+    hydra -l user@example.com -P passwords.txt -S imap://192.168.1.100
+    ```
+    
+    **Example:**
+    ```bash
+    # IMAP with specific authentication method
+    hydra -l user@example.com -P passwords.txt -m PLAIN imap://192.168.1.100
+    ```
+  </TabsContent>
+</Tabs>
+
+## Other Protocols
+
+Hydra also supports many other protocols, including:
+
+- **LDAP**: Lightweight Directory Access Protocol
+  ```bash
+  hydra -l "cn=admin,dc=example,dc=com" -P passwords.txt ldap://192.168.1.100
+  ```
+
+- **VNC**: Virtual Network Computing
+  ```bash
+  hydra -P passwords.txt vnc://192.168.1.100
+  ```
+
+- **Cisco**: Cisco device authentication
+  ```bash
+  hydra -l admin -P passwords.txt cisco://192.168.1.100
+  ```
+
+- **Cisco-Enable**: Cisco enable password
+  ```bash
+  hydra -l admin -P passwords.txt cisco-enable://192.168.1.100
+  ```
+
+- **CVS**: Concurrent Versions System
+  ```bash
+  hydra -l admin -P passwords.txt cvs://192.168.1.100
+  ```
+
+- **Firebird**: Firebird database
+  ```bash
+  hydra -l SYSDBA -P passwords.txt firebird://192.168.1.100
+  ```
+
+- **HTTP-Proxy**: HTTP proxy authentication
+  ```bash
+  hydra -l admin -P passwords.txt http-proxy://192.168.1.100
+  ```
+
+- **ICQ**: ICQ protocol
+  ```bash
+  hydra -l 123456789 -P passwords.txt icq://192.168.1.100
+  ```
+
+- **IRC**: Internet Relay Chat
+  ```bash
+  hydra -l admin -P passwords.txt irc://192.168.1.100
+  ```
+
+- **NCP**: NetWare Core Protocol
+  ```bash
+  hydra -l admin -P passwords.txt ncp://192.168.1.100
+  ```
+
+- **NNTP**: Network News Transfer Protocol
+  ```bash
+  hydra -l admin -P passwords.txt nntp://192.168.1.100
+  ```
+
+- **PCNFS**: PC Network File System
+  ```bash
+  hydra -l admin -P passwords.txt pcnfs://192.168.1.100
+  ```
+
+- **Redis**: Redis database
+  ```bash
+  hydra -P passwords.txt redis://192.168.1.100
+  ```
+
+- **Rexec**: Remote execution
+  ```bash
+  hydra -l admin -P passwords.txt rexec://192.168.1.100
+  ```
+
+- **Rlogin**: Remote login
+  ```bash
+  hydra -l admin -P passwords.txt rlogin://192.168.1.100
+  ```
+
+- **Rsh**: Remote shell
+  ```bash
+  hydra -l admin -P passwords.txt rsh://192.168.1.100
+  ```
+
+- **RTSP**: Real Time Streaming Protocol
+  ```bash
+  hydra -l admin -P passwords.txt rtsp://192.168.1.100
+  ```
+
+- **SOCKS5**: SOCKS version 5
+  ```bash
+  hydra -l admin -P passwords.txt socks5://192.168.1.100
+  ```
+
+- **SVN**: Subversion
+  ```bash
+  hydra -l admin -P passwords.txt svn://192.168.1.100
+  ```
+
+- **Teamspeak**: Teamspeak server
+  ```bash
+  hydra -l admin -P passwords.txt teamspeak://192.168.1.100
+  ```
+
+- **Vmauthd**: VMware Authentication Daemon
+  ```bash
+  hydra -l admin -P passwords.txt vmauthd://192.168.1.100
+  ```
+
+- **XMPP**: Extensible Messaging and Presence Protocol
+  ```bash
+  hydra -l admin -P passwords.txt xmpp://192.168.1.100
+  ```
+
+## Next Steps
+
+Now that you understand the protocols supported by Hydra, explore the following topics:
+
+- [Attack Options](/docs/hydra/core-operations/attack-options) - Learn about advanced attack configuration options
+- [Performance Tuning](/docs/hydra/advanced-techniques/performance-tuning) - Optimize Hydra for speed and efficiency
+- [Custom Modules](/docs/hydra/advanced-techniques/custom-modules) - Learn how to create custom protocol modules

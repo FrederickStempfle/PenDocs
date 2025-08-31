@@ -1,0 +1,732 @@
+---
+title: Hashcat Attack Modes
+description: Comprehensive guide to Hashcat's attack modes for password cracking, including dictionary, combinator, mask, hybrid, and rule-based attacks
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hashcat Attack Modes
+
+Hashcat offers several attack modes, each designed for specific password cracking scenarios. This guide explains each attack mode in detail, including when to use them and how to optimize their performance.
+
+## Overview of Attack Modes
+
+Hashcat supports the following attack modes, each specified with the `-a` parameter:
+
+| Mode | Name | Description |
+|------|------|-------------|
+| 0 | Dictionary Attack | Uses wordlists to attempt password recovery |
+| 1 | Combinator Attack | Combines words from multiple wordlists |
+| 3 | Mask Attack | Uses specified patterns with character sets |
+| 6 | Hybrid Dict + Mask | Appends mask patterns to dictionary words |
+| 7 | Hybrid Mask + Dict | Prepends mask patterns to dictionary words |
+| 9 | Association Mode | Uses statistical analysis to optimize guessing |
+
+## Dictionary Attack (Mode 0)
+
+<Tabs defaultValue={"basics"} className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value={"basics"}>Basics</TabsTrigger>
+    <TabsTrigger value={"advanced"}>Advanced Usage</TabsTrigger>
+    <TabsTrigger value={"examples"}>Examples</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"basics"}>
+    ### Dictionary Attack Basics
+    
+    The dictionary attack is the most straightforward approach, using a wordlist of potential passwords:
+    
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt
+    ```
+    
+    **How it works**:
+    1. Hashcat reads each word from the wordlist
+    2. Computes the hash of each word
+    3. Compares the computed hash with the target hash
+    4. Reports a match if found
+    
+    **When to use**:
+    - When passwords might be common words or phrases
+    - When you have relevant wordlists for the target
+    - As a first attempt before more complex attacks
+    
+    **Common wordlists**:
+    - `rockyou.txt` (14 million passwords from real data breaches)
+    - `crackstation.txt` (1.5 billion entries)
+    - `SecLists` collections (various specialized wordlists)
+  </TabsContent>
+  <TabsContent value={"advanced"}>
+    ### Advanced Dictionary Usage
+    
+    Enhance dictionary attacks with these advanced techniques:
+    
+    **Multiple wordlists**:
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist1.txt wordlist2.txt wordlist3.txt
+    ```
+    
+    **Left rule application**:
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -j '$!'
+    ```
+    
+    **Right rule application**:
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -k '$!'
+    ```
+    
+    **Custom encoding**:
+    ```bash
+    # For passwords in UTF-8
+    hashcat -a 0 -m 0 example.hash wordlist.txt --encoding-from=utf8 --encoding-to=utf8
+    ```
+    
+    **Loopback attack**:
+    ```bash
+    # Use cracked passwords as input for further cracking
+    hashcat -a 0 -m 0 example.hash wordlist.txt --loopback
+    ```
+    
+    **Wordlist management**:
+    ```bash
+    # Remove duplicates and sort
+    hashcat --stdout wordlist.txt | sort -u > clean_wordlist.txt
+    
+    # Generate wordlist from directory of text files
+    find /path/to/files -type f -name "*.txt" -exec cat {} \; | sort -u > combined_wordlist.txt
+    ```
+  </TabsContent>
+  <TabsContent value={"examples"}>
+    ### Dictionary Attack Examples
+    
+    **Basic dictionary attack on MD5 hash**:
+    ```bash
+    hashcat -a 0 -m 0 5f4dcc3b5aa765d61d8327deb882cf99 rockyou.txt
+    ```
+    
+    **Dictionary attack on multiple hashes**:
+    ```bash
+    hashcat -a 0 -m 1000 ntlm_hashes.txt rockyou.txt
+    ```
+    
+    **Dictionary with rules**:
+    ```bash
+    hashcat -a 0 -m 0 example.hash rockyou.txt -r rules/best64.rule
+    ```
+    
+    **Dictionary with salt**:
+    ```bash
+    # Format: hash:salt
+    hashcat -a 0 -m 10 "6d5875265d1979dd5c5f308e2c298f93:salt123" rockyou.txt
+    ```
+    
+    **Dictionary with hex-salt**:
+    ```bash
+    # Format: hash:hex-salt
+    hashcat -a 0 -m 10 "6d5875265d1979dd5c5f308e2c298f93:0123456789abcdef" rockyou.txt --hex-salt
+    ```
+    
+    **Dictionary with username incorporation**:
+    ```bash
+    # Format: hash:username
+    hashcat -a 0 -m 0 --username example.hash rockyou.txt
+    ```
+  </TabsContent>
+</Tabs>
+
+## Combinator Attack (Mode 1)
+
+<Steps>
+  <Step title={"Basic Concept"}>
+    The combinator attack combines words from two wordlists to create password candidates:
+    
+    ```bash
+    hashcat -a 1 -m 0 example.hash wordlist1.txt wordlist2.txt
+    ```
+    
+    **How it works**:
+    1. Takes each word from the first wordlist
+    2. Combines it with each word from the second wordlist
+    3. Tests each combination against the target hash
+    
+    For example, if wordlist1.txt contains "pass" and wordlist2.txt contains "word", the combinator attack will test "password".
+  </Step>
+  <Step title={"Advanced Usage"}>
+    **Using the same wordlist twice**:
+    ```bash
+    hashcat -a 1 -m 0 example.hash wordlist.txt wordlist.txt
+    ```
+    
+    **With rules**:
+    ```bash
+    # Apply rules to first wordlist
+    hashcat -a 1 -m 0 example.hash wordlist1.txt wordlist2.txt -j rule.txt
+    
+    # Apply rules to second wordlist
+    hashcat -a 1 -m 0 example.hash wordlist1.txt wordlist2.txt -k rule.txt
+    
+    # Apply different rules to each wordlist
+    hashcat -a 1 -m 0 example.hash wordlist1.txt wordlist2.txt -j rule1.txt -k rule2.txt
+    ```
+    
+    **Creating custom combinator wordlists**:
+    ```bash
+    # Generate a combinator wordlist
+    hashcat --stdout -a 1 wordlist1.txt wordlist2.txt > combined.txt
+    ```
+  </Step>
+  <Step title={"Examples"}>
+    **Basic combinator attack**:
+    ```bash
+    # Combine common words with years
+    hashcat -a 1 -m 0 example.hash common_words.txt years.txt
+    ```
+    
+    **Combinator with name and birth year**:
+    ```bash
+    # Create a years list
+    for i in {1950..2010}; do echo $i >> years.txt; done
+    
+    # Combine names with years
+    hashcat -a 1 -m 0 example.hash names.txt years.txt
+    ```
+    
+    **Combinator with common separators**:
+    ```bash
+    # Create a separators list
+    echo -e ".\n-\n_\n@\n#\n!" > separators.txt
+    
+    # Combine words with separators and then with more words
+    hashcat -a 1 -m 0 example.hash <(hashcat --stdout -a 1 words.txt separators.txt) words.txt
+    ```
+    
+    <Note>
+      Combinator attacks can generate a large number of candidates. Consider the size of your wordlists to avoid excessive memory usage and processing time.
+    </Note>
+  </Step>
+</Steps>
+
+## Mask Attack (Mode 3)
+
+<Tabs defaultValue={"basics"} className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value={"basics"}>Basics</TabsTrigger>
+    <TabsTrigger value={"charsets"}>Custom Charsets</TabsTrigger>
+    <TabsTrigger value={"examples"}>Examples</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"basics"}>
+    ### Mask Attack Basics
+    
+    Mask attacks use patterns to generate password candidates:
+    
+    ```bash
+    hashcat -a 3 -m 0 example.hash ?a?a?a?a?a?a
+    ```
+    
+    **Built-in character sets**:
+    - `?l` = abcdefghijklmnopqrstuvwxyz
+    - `?u` = ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    - `?d` = 0123456789
+    - `?s` = !"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~
+    - `?a` = ?l?u?d?s (all characters)
+    - `?b` = 0x00 - 0xff (all 256 byte values)
+    
+    **How it works**:
+    1. Hashcat generates all possible combinations based on the mask
+    2. Each combination is hashed and compared to the target hash
+    3. A match is reported if found
+    
+    **When to use**:
+    - When you know the password pattern or length
+    - When you know character types used in the password
+    - For brute-force attacks on short passwords
+  </TabsContent>
+  <TabsContent value={"charsets"}>
+    ### Custom Charsets
+    
+    Define custom character sets for more targeted attacks:
+    
+    ```bash
+    # Define custom charset ?1 with lowercase vowels
+    hashcat -a 3 -m 0 example.hash -1 aeiou ?1?1?1?1?1?1
+    
+    # Define multiple custom charsets
+    hashcat -a 3 -m 0 example.hash -1 aeiou -2 0123456789 ?1?1?2?2?2?2
+    ```
+    
+    **Up to four custom charsets**:
+    - `-1` = Custom charset 1 (?1)
+    - `-2` = Custom charset 2 (?2)
+    - `-3` = Custom charset 3 (?3)
+    - `-4` = Custom charset 4 (?4)
+    
+    **Combining built-in and custom charsets**:
+    ```bash
+    # First two characters from custom set, followed by digits
+    hashcat -a 3 -m 0 example.hash -1 abcdefghABCDEFGH ?1?1?d?d?d?d
+    ```
+    
+    **Using hex values in custom charsets**:
+    ```bash
+    # Include hex values in custom charset
+    hashcat -a 3 -m 0 example.hash -1 abcdef0123456789ABCDEF ?1?1?1?1?1?1
+    ```
+  </TabsContent>
+  <TabsContent value={"examples"}>
+    ### Mask Attack Examples
+    
+    **8-character lowercase password**:
+    ```bash
+    hashcat -a 3 -m 0 example.hash ?l?l?l?l?l?l?l?l
+    ```
+    
+    **4-digit PIN**:
+    ```bash
+    hashcat -a 3 -m 0 example.hash ?d?d?d?d
+    ```
+    
+    **Password with known pattern**:
+    ```bash
+    # Pattern: 3 uppercase, 4 digits, 1 special
+    hashcat -a 3 -m 0 example.hash ?u?u?u?d?d?d?d?s
+    ```
+    
+    **Password with specific characters in known positions**:
+    ```bash
+    # Known: Starts with "Pass" followed by 4 digits
+    hashcat -a 3 -m 0 example.hash Pass?d?d?d?d
+    ```
+    
+    **Incremental mask attack** (tries multiple lengths):
+    ```bash
+    # Try passwords from 1 to 8 characters
+    hashcat -a 3 -m 0 example.hash ?a?a?a?a?a?a?a?a --increment
+    
+    # Try passwords from 5 to 8 characters
+    hashcat -a 3 -m 0 example.hash ?a?a?a?a?a?a?a?a --increment --increment-min=5
+    ```
+    
+    **Keyspace calculation** (estimate attack size):
+    ```bash
+    # Calculate keyspace size without cracking
+    hashcat -a 3 --keyspace ?d?d?d?d?d?d
+    ```
+  </TabsContent>
+</Tabs>
+
+## Hybrid Attacks (Modes 6 and 7)
+
+<Steps>
+  <Step title={"Hybrid Dict + Mask (Mode 6)"}>
+    Hybrid Dict + Mask attack appends mask patterns to dictionary words:
+    
+    ```bash
+    hashcat -a 6 -m 0 example.hash wordlist.txt ?d?d?d?d
+    ```
+    
+    **How it works**:
+    1. Takes each word from the wordlist
+    2. Appends all combinations from the mask
+    3. Tests each combined candidate
+    
+    **Example scenarios**:
+    - Words followed by years: `password2023`
+    - Words followed by special characters: `password!@#`
+    - Words followed by common suffixes: `password123!`
+    
+    **Examples**:
+    ```bash
+    # Words followed by 2 digits
+    hashcat -a 6 -m 0 example.hash wordlist.txt ?d?d
+    
+    # Words followed by special character and digit
+    hashcat -a 6 -m 0 example.hash wordlist.txt ?s?d
+    
+    # Words followed by year (2020-2023)
+    hashcat -a 6 -m 0 example.hash wordlist.txt 202?d
+    ```
+  </Step>
+  <Step title={"Hybrid Mask + Dict (Mode 7)"}>
+    Hybrid Mask + Dict attack prepends mask patterns to dictionary words:
+    
+    ```bash
+    hashcat -a 7 -m 0 example.hash ?d?d?d?d wordlist.txt
+    ```
+    
+    **How it works**:
+    1. Generates all combinations from the mask
+    2. Prepends each combination to each word from the wordlist
+    3. Tests each combined candidate
+    
+    **Example scenarios**:
+    - Years followed by words: `2023password`
+    - Special characters followed by words: `!@#password`
+    - Common prefixes followed by words: `Admin_password`
+    
+    **Examples**:
+    ```bash
+    # 2 digits followed by words
+    hashcat -a 7 -m 0 example.hash ?d?d wordlist.txt
+    
+    # Special character and digit followed by words
+    hashcat -a 7 -m 0 example.hash ?s?d wordlist.txt
+    
+    # Year (2020-2023) followed by words
+    hashcat -a 7 -m 0 example.hash 202?d wordlist.txt
+    ```
+  </Step>
+  <Step title={"Advanced Hybrid Techniques"}>
+    **Combining with rules**:
+    ```bash
+    # Apply rules to dictionary words in hybrid attack
+    hashcat -a 6 -m 0 example.hash wordlist.txt ?d?d?d?d -r rules/best64.rule
+    ```
+    
+    **Multiple hybrid attacks**:
+    ```bash
+    # First try Dict + Mask
+    hashcat -a 6 -m 0 example.hash wordlist.txt ?d?d?d?d
+    
+    # Then try Mask + Dict
+    hashcat -a 7 -m 0 example.hash ?d?d?d?d wordlist.txt
+    ```
+    
+    **Custom charsets in hybrid attacks**:
+    ```bash
+    # Words followed by custom charset
+    hashcat -a 6 -m 0 example.hash wordlist.txt -1 01234 ?1?1?1?1
+    ```
+    
+    **Generating hybrid wordlists**:
+    ```bash
+    # Generate Dict + Mask wordlist
+    hashcat --stdout -a 6 wordlist.txt ?d?d > hybrid_wordlist.txt
+    ```
+    
+    <Note>
+      Hybrid attacks are particularly effective for cracking passwords that combine dictionary words with predictable patterns, such as company naming conventions or common user behaviors.
+    </Note>
+  </Step>
+</Steps>
+
+## Rule-Based Attack
+
+<Tabs defaultValue={"basics"} className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value={"basics"}>Basics</TabsTrigger>
+    <TabsTrigger value={"rules"}>Common Rules</TabsTrigger>
+    <TabsTrigger value={"custom"}>Custom Rules</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"basics"}>
+    ### Rule-Based Attack Basics
+    
+    Rule-based attacks apply transformations to wordlist entries:
+    
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r rules/best64.rule
+    ```
+    
+    **How it works**:
+    1. Takes each word from the wordlist
+    2. Applies each rule to create variations
+    3. Tests each variation against the target hash
+    
+    **When to use**:
+    - When passwords might be variations of dictionary words
+    - To test common password modification patterns
+    - To expand coverage without massive wordlists
+    
+    **Rule functions include**:
+    - Case modification: toggle, uppercase, lowercase
+    - Character substitution: 'a' to '@', 'e' to '3', etc.
+    - Prefixing and suffixing
+    - Truncation and extension
+    - Reversal and duplication
+  </TabsContent>
+  <TabsContent value={"rules"}>
+    ### Common Rule Files
+    
+    Hashcat includes several rule files for different scenarios:
+    
+    **best64.rule**: 64 most common password variations
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r rules/best64.rule
+    ```
+    
+    **d3ad0ne.rule**: More comprehensive set of rules
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r rules/d3ad0ne.rule
+    ```
+    
+    **rockyou-30000.rule**: Rules derived from the RockYou dataset
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r rules/rockyou-30000.rule
+    ```
+    
+    **specific.rule**: Rules for specific scenarios
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r rules/specific.rule
+    ```
+    
+    **toggles1.rule**: Case toggling rules
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r rules/toggles1.rule
+    ```
+    
+    **OneRuleToRuleThemAll.rule**: A comprehensive community rule set
+    ```bash
+    # Download from https://github.com/NotSoSecure/password_cracking_rules
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r OneRuleToRuleThemAll.rule
+    ```
+  </TabsContent>
+  <TabsContent value={"custom"}>
+    ### Custom Rules
+    
+    Create custom rules for specific scenarios:
+    
+    **Basic rule syntax**:
+    ```
+    # Append 1
+    $1
+    
+    # Replace 'a' with '@'
+    sa@
+    
+    # Capitalize first letter
+    c
+    
+    # Reverse word
+    r
+    
+    # Duplicate word
+    d
+    ```
+    
+    **Creating a custom rule file**:
+    ```bash
+    # Create rule file
+    cat > custom.rule << 'EOF'
+    # Append common digits
+    $1
+    $2
+    $3
+    # Common substitutions
+    sa@
+    se3
+    si!
+    so0
+    # Capitalize
+    c
+    # Append special chars
+    $!
+    $@
+    $#
+    EOF
+    
+    # Use custom rule
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r custom.rule
+    ```
+    
+    **Testing rules**:
+    ```bash
+    # Test rule on a word
+    echo -n "password" | hashcat --stdout -r custom.rule
+    ```
+    
+    **Chaining multiple rule files**:
+    ```bash
+    hashcat -a 0 -m 0 example.hash wordlist.txt -r rule1.rule -r rule2.rule
+    ```
+    
+    <Note>
+      Rule-based attacks are extremely powerful but can generate a large number of candidates. Start with smaller rule sets and expand as needed.
+    </Note>
+  </TabsContent>
+</Tabs>
+
+## Association Mode (Mode 9)
+
+<Steps>
+  <Step title={"Basic Concept"}>
+    Association mode uses statistical analysis to optimize password guessing:
+    
+    ```bash
+    hashcat -a 9 -m 0 example.hash association_file.txt
+    ```
+    
+    **How it works**:
+    1. Uses a file containing username:password pairs
+    2. Analyzes patterns in known username:password associations
+    3. Applies these patterns to crack similar hashes
+    
+    This mode is particularly useful when you have some known username:password pairs from the same source as your target hashes.
+  </Step>
+  <Step title={"Creating Association Files"}>
+    Association files should contain username:password pairs:
+    
+    ```
+    user1:password1
+    user2:password2
+    admin:admin123
+    john:john1980
+    ```
+    
+    **Generating association files**:
+    ```bash
+    # From existing potfile
+    grep -o '[^:]*:[^:]*$' hashcat.potfile > associations.txt
+    
+    # From known credentials
+    echo "user1:password1" > associations.txt
+    echo "user2:password2" >> associations.txt
+    ```
+  </Step>
+  <Step title={"Examples"}>
+    **Basic association attack**:
+    ```bash
+    hashcat -a 9 -m 0 example.hash associations.txt
+    ```
+    
+    **With username hash format**:
+    ```bash
+    # Format: hash:username
+    hashcat -a 9 -m 0 --username example.hash associations.txt
+    ```
+    
+    **Combining with other attacks**:
+    ```bash
+    # First try association mode
+    hashcat -a 9 -m 0 --username example.hash associations.txt
+    
+    # Then try dictionary attack
+    hashcat -a 0 -m 0 --username example.hash wordlist.txt
+    ```
+    
+    <Note>
+      Association mode is most effective when you have a significant number of known credentials from the same source or organization as your target hashes.
+    </Note>
+  </Step>
+</Steps>
+
+## Choosing the Right Attack Mode
+
+<Tabs defaultValue="decision" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value={"decision"}>Decision Tree</TabsTrigger>
+    <TabsTrigger value={"combined"}>Combined Strategy</TabsTrigger>
+    <TabsTrigger value={"performance"}>Performance Considerations</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"decision"}>
+    ### Decision Tree
+    
+    Use this decision tree to select the most appropriate attack mode:
+    
+    1. **Do you have relevant wordlists?**
+       - Yes: Start with Dictionary Attack (Mode 0)
+       - No: Consider Mask Attack (Mode 3)
+    
+    2. **Do you know the password pattern or length?**
+       - Yes: Use Mask Attack (Mode 3)
+       - No: Try Dictionary with Rules
+    
+    3. **Are passwords likely combinations of words?**
+       - Yes: Use Combinator Attack (Mode 1)
+       - No: Continue with other modes
+    
+    4. **Are passwords likely words with prefixes/suffixes?**
+       - Yes: Use Hybrid Attacks (Modes 6 and 7)
+       - No: Continue with other modes
+    
+    5. **Do you have known username:password pairs?**
+       - Yes: Try Association Mode (Mode 9)
+       - No: Continue with other modes
+    
+    6. **Still no success?**
+       - Try more comprehensive rule sets
+       - Combine multiple attack modes
+       - Consider more specialized approaches
+  </TabsContent>
+  <TabsContent value={"combined"}>
+    ### Combined Strategy
+    
+    For maximum effectiveness, use a progressive approach:
+    
+    1. **Quick wins first**:
+       ```bash
+       # Try common passwords
+       hashcat -a 0 -m 0 example.hash common_passwords.txt
+       ```
+    
+    2. **Add rules to basic dictionary**:
+       ```bash
+       # Apply best64 rules
+       hashcat -a 0 -m 0 example.hash wordlist.txt -r rules/best64.rule
+       ```
+    
+    3. **Try targeted mask attacks**:
+       ```bash
+       # Common patterns
+       hashcat -a 3 -m 0 example.hash ?l?l?l?l?l?d?d
+       ```
+    
+    4. **Use hybrid approaches**:
+       ```bash
+       # Words with common suffixes
+       hashcat -a 6 -m 0 example.hash wordlist.txt ?d?d?d?d
+       ```
+    
+    5. **Expand to more comprehensive attacks**:
+       ```bash
+       # More extensive rules
+       hashcat -a 0 -m 0 example.hash wordlist.txt -r rules/rockyou-30000.rule
+       ```
+    
+    6. **Use specialized techniques for remaining hashes**:
+       ```bash
+       # Combinator attack
+       hashcat -a 1 -m 0 example.hash wordlist1.txt wordlist2.txt
+       ```
+  </TabsContent>
+  <TabsContent value={"performance"}>
+    ### Performance Considerations
+    
+    Different attack modes have different performance characteristics:
+    
+    **Fastest to slowest** (generally):
+    1. Mask Attack (Mode 3) - Most optimized
+    2. Dictionary Attack (Mode 0) - Good performance
+    3. Hybrid Attacks (Modes 6 and 7) - Moderate performance
+    4. Combinator Attack (Mode 1) - Can be slow with large wordlists
+    5. Rule-based Attack - Performance depends on rule complexity
+    
+    **Memory usage**:
+    - Mask attacks: Low memory usage
+    - Dictionary attacks: Memory usage depends on wordlist size
+    - Combinator attacks: Can require significant memory
+    - Rule-based attacks: Memory usage depends on rule complexity
+    
+    **Optimizing for your hardware**:
+    ```bash
+    # For GPUs, prefer mask attacks
+    hashcat -a 3 -m 0 example.hash ?a?a?a?a?a?a -w 3
+    
+    # For CPUs, dictionary attacks often work well
+    hashcat -a 0 -m 0 example.hash wordlist.txt -w 2 -D 1
+    ```
+    
+    <Note>
+      Always benchmark different attack modes on your specific hardware to determine the most efficient approach for your scenario.
+    </Note>
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand Hashcat's attack modes, explore these related topics:
+
+- [Hash Types](/docs/hashcat/core-operations/hash-types) - Learn about the various hash algorithms supported by Hashcat
+- [Rule-Based Attacks](/docs/hashcat/advanced-techniques/rule-based-attacks) - Dive deeper into rule-based password cracking
+- [Mask Attacks](/docs/hashcat/advanced-techniques/mask-attacks) - Advanced mask techniques for targeted cracking
+- [Hybrid Attacks](/docs/hashcat/advanced-techniques/hybrid-attacks) - Combine multiple attack methods for better results

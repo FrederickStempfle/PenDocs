@@ -4,16 +4,16 @@ description: Learn about advanced SQLMap techniques for security testing
 ---
 
 
-<Tabs defaultValue="overview" className="pt-5 pb-1">
+<Tabs defaultValue={"overview"} className="pt-5 pb-1">
   <TabsList>
-    <TabsTrigger value="overview">Overview</TabsTrigger>
-    <TabsTrigger value="prerequisites">Prerequisites</TabsTrigger>
-    <TabsTrigger value="scenarios">Use Cases</TabsTrigger>
+    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+    <TabsTrigger value={"prerequisites"}>Prerequisites</TabsTrigger>
+    <TabsTrigger value={"scenarios"}>Use Cases</TabsTrigger>
   </TabsList>
-  <TabsContent value="overview">
+  <TabsContent value={"overview"}>
     This section covers advanced SQLMap techniques that can be used during authorized security assessments, including OS command execution, privilege escalation, and maintaining access. These techniques demonstrate the potential impact of SQL injection vulnerabilities when exploited by malicious actors.
   </TabsContent>
-  <TabsContent value="prerequisites">
+  <TabsContent value={"prerequisites"}>
     Before attempting these advanced techniques, ensure you have:
     
     - **Confirmed SQL injection vulnerability** - Verify that the target is vulnerable
@@ -22,7 +22,7 @@ description: Learn about advanced SQLMap techniques for security testing
     - **Understanding of risks** - These techniques can potentially damage systems
     - **Isolated test environment** - Preferably use a controlled environment for testing
   </TabsContent>
-  <TabsContent value="scenarios">
+  <TabsContent value={"scenarios"}>
     Common scenarios where these techniques might be used in authorized testing:
     
     - **Demonstrating impact** - Showing the full extent of a vulnerability
@@ -35,17 +35,17 @@ description: Learn about advanced SQLMap techniques for security testing
 ## Techniques Covered
 
 <Stepper>
-  <StepperItem title="OS Command Execution">
+  <StepperItem title={"OS Command Execution"}>
     Learn how to leverage SQL injection to execute operating system commands, access the file system, and interact with the underlying operating system.
     
     [Explore OS Command Execution →](/docs/sqlmap/advanced-techniques/os-command-execution)
   </StepperItem>
-  <StepperItem title="Privilege Escalation">
+  <StepperItem title={"Privilege Escalation"}>
     Discover techniques for escalating privileges within the database system and potentially gaining administrative access to the database or operating system.
     
     [Explore Privilege Escalation →](/docs/sqlmap/advanced-techniques/privilege-escalation)
   </StepperItem>
-  <StepperItem title="Maintaining Access">
+  <StepperItem title={"Maintaining Access"}>
     Explore methods for establishing persistent access to compromised systems, including creating backdoors and scheduled tasks.
     
     [Explore Maintaining Access →](/docs/sqlmap/advanced-techniques/maintaining-access)

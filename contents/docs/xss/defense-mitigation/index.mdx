@@ -12,14 +12,14 @@ Protecting web applications against Cross-Site Scripting (XSS) attacks requires 
 
 A robust XSS defense strategy implements multiple layers of protection:
 
-<Tabs defaultValue="input-validation" className="pt-5 pb-1">
+<Tabs defaultValue={"input-validation"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="input-validation">Input Validation</TabsTrigger>
-    <TabsTrigger value="output-encoding">Output Encoding</TabsTrigger>
-    <TabsTrigger value="csp">Content Security Policy</TabsTrigger>
-    <TabsTrigger value="framework">Framework Protections</TabsTrigger>
+    <TabsTrigger value={"input-validation"}>Input Validation</TabsTrigger>
+    <TabsTrigger value={"output-encoding"}>Output Encoding</TabsTrigger>
+    <TabsTrigger value={"csp"}>Content Security Policy</TabsTrigger>
+    <TabsTrigger value={"framework"}>Framework Protections</TabsTrigger>
   </TabsList>
-  <TabsContent value="input-validation">
+  <TabsContent value={"input-validation"}>
     ### Input Validation
     
     Input validation is the first line of defense against XSS attacks:
@@ -55,7 +55,7 @@ A robust XSS defense strategy implements multiple layers of protection:
     
     **Important Note**: Input validation alone is not sufficient protection against XSS. It should be combined with output encoding and other defenses.
   </TabsContent>
-  <TabsContent value="output-encoding">
+  <TabsContent value={"output-encoding"}>
     ### Output Encoding
     
     Output encoding ensures that user-supplied data is treated as data, not executable code:
@@ -90,14 +90,14 @@ A robust XSS defense strategy implements multiple layers of protection:
     
     **Context Matters**: Always use the appropriate encoding function for the context where the data will be used. HTML encoding is not sufficient for JavaScript contexts, and vice versa.
   </TabsContent>
-  <TabsContent value="csp">
+  <TabsContent value={"csp"}>
     ### Content Security Policy
     
     CSP provides an additional layer of protection by restricting which resources can be loaded and executed:
     
     ```html
     <!-- Strong CSP example -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; base-uri 'self'; form-action 'self'">
+    \<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; base-uri 'self'; form-action 'self'"\>
     ```
     
     **Server-side implementation (Express.js):**
@@ -128,7 +128,7 @@ A robust XSS defense strategy implements multiple layers of protection:
       Content-Security-Policy-Report-Only: ...; report-uri /csp-report-endpoint
       ```
   </TabsContent>
-  <TabsContent value="framework">
+  <TabsContent value={"framework"}>
     ### Framework Protections
     
     Modern frameworks provide built-in XSS protections:
@@ -142,7 +142,9 @@ A robust XSS defense strategy implements multiple layers of protection:
     
     // For HTML content, use dangerouslySetInnerHTML with caution
     function RawHTML({ content }) {
-      return <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(content) }} />;
+      return <div dangerouslySetInnerHTML={{
+        __html: sanitizeHTML(content)
+      }} />;
     }
     ```
     
@@ -321,26 +323,30 @@ element.innerHTML = policy.createHTML(userInput); // Safe
 
 ## Framework-Specific Best Practices
 
-<Tabs defaultValue="react" className="pt-5 pb-1">
+<Tabs defaultValue={"react"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="react">React</TabsTrigger>
-    <TabsTrigger value="angular">Angular</TabsTrigger>
-    <TabsTrigger value="vue">Vue.js</TabsTrigger>
-    <TabsTrigger value="express">Express.js</TabsTrigger>
+    <TabsTrigger value={"react"}>React</TabsTrigger>
+    <TabsTrigger value={"angular"}>Angular</TabsTrigger>
+    <TabsTrigger value={"vue"}>Vue.js</TabsTrigger>
+    <TabsTrigger value={"express"}>Express.js</TabsTrigger>
   </TabsList>
-  <TabsContent value="react">
+  <TabsContent value={"react"}>
     ### React Security Best Practices
     
     React automatically escapes values in JSX, but there are still important practices to follow:
     
     ```jsx
     // AVOID: Using dangerouslySetInnerHTML without sanitization
-    <div dangerouslySetInnerHTML={{ __html: userInput }} /> // Dangerous!
+    <div dangerouslySetInnerHTML={{
+      __html: userInput
+    }} /> // Dangerous!
     
     // BETTER: Sanitize content first
     import DOMPurify from 'dompurify';
     
-    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userInput) }} />
+    <div dangerouslySetInnerHTML={{
+      __html: DOMPurify.sanitize(userInput)
+    }} />
     
     // BEST: Avoid dangerouslySetInnerHTML when possible
     <div>{userInput}</div>
@@ -352,7 +358,7 @@ element.innerHTML = policy.createHTML(userInput); // Safe
     - Use prop types or TypeScript to validate props
     - Be cautious with third-party components that might use unsafe practices
   </TabsContent>
-  <TabsContent value="angular">
+  <TabsContent value={"angular"}>
     ### Angular Security Best Practices
     
     Angular provides built-in sanitization but requires careful usage:
@@ -381,7 +387,7 @@ element.innerHTML = policy.createHTML(userInput); // Safe
     - Use the `[attr.name]` binding syntax for dynamic attribute names
     - Avoid direct DOM manipulation with `ElementRef`
   </TabsContent>
-  <TabsContent value="vue">
+  <TabsContent value={"vue"}>
     ### Vue.js Security Best Practices
     
     Vue automatically escapes content but has specific security considerations:
@@ -414,7 +420,7 @@ element.innerHTML = policy.createHTML(userInput); // Safe
     - Validate props with prop validation
     - Use Vue's built-in template syntax rather than render functions when possible
   </TabsContent>
-  <TabsContent value="express">
+  <TabsContent value={"express"}>
     ### Express.js Security Best Practices
     
     Server-side frameworks like Express need comprehensive security measures:
@@ -565,9 +571,9 @@ element.innerHTML = policy.createHTML(userInput); // Safe
 SRI ensures that resources loaded from external sources haven't been tampered with:
 
 ```html
-<script src="https://cdn.example.com/library.js" 
-        integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC" 
-        crossorigin="anonymous"></script>
+\<script src="https://cdn.example.com/library.js"
+        integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC"
+        crossorigin="anonymous"\>\</script\>
 ```
 
 ### Feature Policy / Permissions Policy
@@ -575,7 +581,7 @@ SRI ensures that resources loaded from external sources haven't been tampered wi
 Restrict which browser features can be used by a web application:
 
 ```
-Permissions-Policy: geolocation=(), camera=(), microphone=()
+Permissions-Policy: geolocation="()", camera="()", microphone="()"
 ```
 
 ## Conclusion

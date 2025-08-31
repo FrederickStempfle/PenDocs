@@ -1,0 +1,303 @@
+---
+title: The Expert's Hashcat Guide
+description: A comprehensive guide to password cracking and recovery with Hashcat
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+import { FileTree } from "@/components/markdown/file-sys"
+
+
+Hashcat is the world's fastest and most advanced password recovery utility, supporting five unique modes of attack for over 300 highly-optimized hashing algorithms. This powerful tool leverages the computational capabilities of CPUs and GPUs to perform high-speed hash cracking, making it an essential component in any penetration tester's toolkit.
+
+<Tabs defaultValue="overview" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="features">Key Features</TabsTrigger>
+    <TabsTrigger value="versions">Version History</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">
+    Hashcat is an advanced password recovery tool that uses brute force and dictionary-based methods to crack password hashes. Originally developed as two separate tools (Hashcat and oclHashcat), they were merged into a single application in 2015. Hashcat is designed to be high-performance, utilizing the parallel processing power of modern GPUs to achieve unprecedented cracking speeds. It supports a wide range of hash types, from common formats like MD5 and SHA to more specialized algorithms used in various applications and systems.
+  </TabsContent>
+  <TabsContent value="features">
+    - **Multi-platform support**: Windows, Linux, macOS
+    - **Multi-hash cracking**: Process multiple hashes simultaneously
+    - **Multi-device support**: Utilize multiple GPUs and CPUs concurrently
+    - **Multi-algorithm support**: Over 300 hash types including MD5, SHA, WPA/WPA2, and many more
+    - **Advanced attack modes**: Dictionary, Brute-Force, Rule-Based, Combinator, and Mask attacks
+    - **Rule engine**: Sophisticated word mangling capabilities
+    - **Built-in benchmarking**: Measure performance across different algorithms
+    - **Resume capability**: Continue interrupted sessions
+    - **Distributed cracking**: Split workloads across multiple systems
+  </TabsContent>
+  <TabsContent value="versions">
+    - **Hashcat 6.2.6** (2023): Latest stable release with improved performance and additional hash types
+    - **Hashcat 6.0.0** (2020): Major update with enhanced GPU utilization and new attack modes
+    - **Hashcat 5.0.0** (2018): Significant performance improvements and expanded hash support
+    - **Hashcat 4.0.0** (2017): Merged CPU and GPU code paths
+    - **Hashcat 3.0.0** (2016): First unified release after merging Hashcat and oclHashcat
+  </TabsContent>
+</Tabs>
+
+## Why Use Hashcat?
+
+- **Performance**: Unmatched speed utilizing GPU acceleration for password recovery
+- **Versatility**: Supports over 300 hash types and multiple attack modes
+- **Customization**: Extensive rule-based attack capabilities for targeted cracking
+- **Community Support**: Active development and large user community
+- **Free and Open Source**: Available to everyone with regular updates and improvements
+- **Advanced Features**: Includes sophisticated techniques like fingerprinting, markov chains, and table lookups
+
+## Getting Started with Hashcat
+
+<Steps>
+  <Step title="Install Hashcat">
+    Hashcat is available for Windows, Linux, and macOS. For Linux distributions:
+    ```bash
+    sudo apt update
+    sudo apt install hashcat
+    ```
+    
+    For other operating systems, download from the official GitHub repository:
+    ```bash
+    git clone https://github.com/hashcat/hashcat.git
+    cd hashcat
+    make
+    sudo make install
+    ```
+  </Step>
+  <Step title="Verify Installation">
+    Test your installation by running:
+    ```bash
+    hashcat --version
+    ```
+    
+    Check GPU support with:
+    ```bash
+    hashcat --benchmark
+    ```
+    This will display supported devices and perform a benchmark test.
+  </Step>
+  <Step title="Understand Basic Syntax">
+    The basic syntax for Hashcat is:
+    ```bash
+    hashcat [options] hashfile [dictionary|mask|directory]
+    ```
+    
+    For example, to crack an MD5 hash using a dictionary:
+    ```bash
+    hashcat -m 0 -a 0 hash.txt wordlist.txt
+    ```
+    Where `-m 0` specifies MD5 hash type and `-a 0` indicates a dictionary attack.
+  </Step>
+</Steps>
+
+## Hash Types and Modes
+
+Hashcat supports over 300 hash types, each identified by a specific mode number. Here are some commonly used hash types:
+
+| Mode | Hash Type | Example |
+|------|-----------|---------|
+| 0    | MD5       | 8743b52063cd84097a65d1633f5c74f5 |
+| 100  | SHA1      | b89eaac7e61417341b710b727768294d0e6a277b |
+| 1000 | NTLM      | b4b9b02e6f09a9bd760f388b67351e2b |
+| 1800 | SHA512crypt| $6$rounds=5000$salt$hash |
+| 2500 | WPA/WPA2  | HCCAP or HCCAPX file format |
+| 3000 | LM        | 299bd128c1101fd6 |
+
+To identify an unknown hash type, you can use Hashcat's built-in hash identification:
+
+```bash
+hashcat --identify hash.txt
+```
+
+## Attack Modes
+
+Hashcat offers five primary attack modes, each suited for different scenarios:
+
+<Tabs defaultValue="dictionary" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="dictionary">Dictionary (-a 0)</TabsTrigger>
+    <TabsTrigger value="combinator">Combinator (-a 1)</TabsTrigger>
+    <TabsTrigger value="bruteforce">Brute Force (-a 3)</TabsTrigger>
+    <TabsTrigger value="hybrid">Hybrid (-a 6/7)</TabsTrigger>
+    <TabsTrigger value="rule">Rule-Based</TabsTrigger>
+  </TabsList>
+  <TabsContent value="dictionary">
+    Dictionary attacks use wordlists to attempt password recovery. This is often the most efficient method when the password is a common word or phrase.
+    
+    ```bash
+    hashcat -m 0 -a 0 hash.txt wordlist.txt
+    ```
+    
+    Popular wordlists include:
+    - RockYou.txt (14 million common passwords)
+    - SecLists (collection of multiple wordlists)
+    - CrackStation's wordlist (1.5 billion entries)
+  </TabsContent>
+  <TabsContent value="combinator">
+    Combinator attacks combine words from two wordlists to create password candidates.
+    
+    ```bash
+    hashcat -m 0 -a 1 hash.txt wordlist1.txt wordlist2.txt
+    ```
+    
+    This is effective for passwords that combine two words, like "summertime" or "password123".
+  </TabsContent>
+  <TabsContent value="bruteforce">
+    Brute force attacks (Mask attacks) try all possible character combinations based on a specified pattern.
+    
+    ```bash
+    hashcat -m 0 -a 3 hash.txt ?a?a?a?a?a?a
+    ```
+    
+    The example above tries all 6-character passwords using all possible characters.
+    
+    Character sets:
+    - ?l = lowercase letters (a-z)
+    - ?u = uppercase letters (A-Z)
+    - ?d = digits (0-9)
+    - ?s = special characters
+    - ?a = all of the above
+  </TabsContent>
+  <TabsContent value="hybrid">
+    Hybrid attacks combine dictionary words with brute force techniques.
+    
+    Dictionary + Mask (-a 6):
+    ```bash
+    hashcat -m 0 -a 6 hash.txt wordlist.txt ?d?d?d?d
+    ```
+    
+    Mask + Dictionary (-a 7):
+    ```bash
+    hashcat -m 0 -a 7 hash.txt ?d?d?d?d wordlist.txt
+    ```
+    
+    These are useful for passwords that combine words with predictable patterns, like "password2023" or "2023password".
+  </TabsContent>
+  <TabsContent value="rule">
+    Rule-based attacks apply transformation rules to dictionary words, creating variations.
+    
+    ```bash
+    hashcat -m 0 -a 0 hash.txt wordlist.txt -r rules/best64.rule
+    ```
+    
+    Hashcat includes several rule files:
+    - best64.rule: Common password variations
+    - toggles5.rule: Case toggling rules
+    - leetspeak.rule: Character substitutions (e.g., a→4, e→3)
+  </TabsContent>
+</Tabs>
+
+## Advanced Techniques
+
+### Custom Rule Creation
+
+Rules allow you to create sophisticated password mutations. Here's an example rule file:
+
+```
+# Append digits
+$1
+$2
+$3
+
+# Capitalize first letter
+c
+
+# Replace letters with numbers (leetspeak)
+sa4
+se3
+si1
+so0
+```
+
+Save this as `custom.rule` and use it with:
+
+```bash
+hashcat -m 0 -a 0 hash.txt wordlist.txt -r custom.rule
+```
+
+### Optimizing Performance
+
+To maximize Hashcat's performance:
+
+1. **Workload profiles**: Adjust with `-w` flag (1-4, where 4 is highest)
+   ```bash
+   hashcat -m 0 -a 0 hash.txt wordlist.txt -w 3
+   ```
+
+2. **Segment size**: Optimize memory usage with `--segment-size`
+   ```bash
+   hashcat -m 0 -a 0 hash.txt wordlist.txt --segment-size=256
+   ```
+
+3. **Kernel optimization**: Use `--kernel-accel` and `--kernel-loops`
+   ```bash
+   hashcat -m 0 -a 0 hash.txt wordlist.txt --kernel-accel=1 --kernel-loops=1024
+   ```
+
+### Distributed Cracking
+
+For large-scale operations, distribute workloads across multiple machines:
+
+```bash
+# On machine 1
+hashcat -m 0 -a 3 hash.txt ?a?a?a?a?a?a --skip=0 --limit=500000000
+
+# On machine 2
+hashcat -m 0 -a 3 hash.txt ?a?a?a?a?a?a --skip=500000000 --limit=500000000
+```
+
+## Practical Examples
+
+### Cracking MD5 Hashes
+
+```bash
+hashcat -m 0 -a 0 md5hashes.txt wordlist.txt -r rules/best64.rule
+```
+
+### Cracking Windows NTLM Hashes
+
+```bash
+hashcat -m 1000 -a 0 ntlm_hashes.txt wordlist.txt
+```
+
+### Cracking WPA/WPA2 Handshakes
+
+```bash
+# Convert cap to hccapx format
+cap2hccapx capture.cap output.hccapx
+
+# Crack the handshake
+hashcat -m 2500 -a 0 output.hccapx wordlist.txt
+```
+
+### Cracking Linux Shadow Hashes
+
+```bash
+hashcat -m 1800 -a 0 shadow.txt wordlist.txt
+```
+
+<Note>
+Always ensure you have proper authorization before attempting to crack any passwords. Unauthorized password cracking is illegal and unethical.
+</Note>
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **Core Operations**: Basic syntax, hash types, and fundamental usage
+2. **Attack Modes**: Detailed exploration of each attack strategy
+3. **Advanced Techniques**: Rule creation, optimization, and specialized approaches
+4. **Best Practices**: Ethical considerations, performance tuning, and workflow optimization
+
+Each section provides detailed explanations, command examples, and real-world use cases to help you master Hashcat for ethical penetration testing and security assessment.
+
+## Next Steps
+
+Now that you understand the basics of Hashcat, explore the following sections to deepen your knowledge:
+
+- [Core Operations](/docs/hashcat/core-operations) - Learn the fundamental commands and operations
+- [Advanced Techniques](/docs/hashcat/advanced-techniques) - Explore sophisticated cracking strategies
+- [Best Practices](/docs/hashcat/best-practices) - Optimize your workflow and ensure ethical usage

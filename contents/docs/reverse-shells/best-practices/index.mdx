@@ -167,12 +167,12 @@ Understanding how reverse shells can be detected helps both attackers improve th
     - **Process Execution Frequency**: Alerting on unusual execution patterns
       ```bash
       # Windows Sysmon configuration
-      <RuleGroup name="ProcessCreation">
-        <ProcessCreate onmatch="include">
-          <Image condition="contains">powershell.exe</Image>
-          <CommandLine condition="contains">-enc</CommandLine>
-        </ProcessCreate>
-      </RuleGroup>
+      &lt;RuleGroup name="ProcessCreation"&gt;
+        &lt;ProcessCreate onmatch="include"&gt;
+          &lt;Image condition="contains"&gt;powershell.exe&lt;/Image&gt;
+          &lt;CommandLine condition="contains"&gt;-enc&lt;/CommandLine&gt;
+        &lt;/ProcessCreate&gt;
+      &lt;/RuleGroup&gt;
       ```
   </TabsContent>
   <TabsContent value="file">
@@ -365,33 +365,33 @@ Implementing effective defenses against reverse shells requires a multi-layered 
     
     **Implementation Example (Sysmon):**
     ```xml
-    <!-- Sysmon configuration to detect reverse shell behaviors -->
-    <Sysmon>
-      <EventFiltering>
-        <!-- Monitor process creation -->
-        <RuleGroup name="ProcessCreate">
-          <ProcessCreate onmatch="include">
-            <Image condition="contains">cmd.exe</Image>
-            <Image condition="contains">powershell.exe</Image>
-            <Image condition="contains">wscript.exe</Image>
-            <Image condition="contains">cscript.exe</Image>
-            <CommandLine condition="contains">-enc</CommandLine>
-            <CommandLine condition="contains">IEX</CommandLine>
-            <CommandLine condition="contains">Invoke-Expression</CommandLine>
-          </ProcessCreate>
-        </RuleGroup>
+    &lt;!-- Sysmon configuration to detect reverse shell behaviors --&gt;
+    &lt;Sysmon&gt;
+      &lt;EventFiltering&gt;
+        &lt;!-- Monitor process creation --&gt;
+        &lt;RuleGroup name="ProcessCreate"&gt;
+          &lt;ProcessCreate onmatch="include"&gt;
+            &lt;Image condition="contains"&gt;cmd.exe&lt;/Image&gt;
+            &lt;Image condition="contains"&gt;powershell.exe&lt;/Image&gt;
+            &lt;Image condition="contains"&gt;wscript.exe&lt;/Image&gt;
+            &lt;Image condition="contains"&gt;cscript.exe&lt;/Image&gt;
+            &lt;CommandLine condition="contains"&gt;-enc&lt;/CommandLine&gt;
+            &lt;CommandLine condition="contains"&gt;IEX&lt;/CommandLine&gt;
+            &lt;CommandLine condition="contains"&gt;Invoke-Expression&lt;/CommandLine&gt;
+          &lt;/ProcessCreate&gt;
+        &lt;/RuleGroup&gt;
         
-        <!-- Monitor network connections -->
-        <RuleGroup name="NetworkConnect">
-          <NetworkConnect onmatch="include">
-            <Image condition="contains">cmd.exe</Image>
-            <Image condition="contains">powershell.exe</Image>
-            <DestinationPort condition="is">4444</DestinationPort>
-            <DestinationPort condition="is">443</DestinationPort>
-          </NetworkConnect>
-        </RuleGroup>
-      </EventFiltering>
-    </Sysmon>
+        &lt;!-- Monitor network connections --&gt;
+        &lt;RuleGroup name="NetworkConnect"&gt;
+          &lt;NetworkConnect onmatch="include"&gt;
+            &lt;Image condition="contains"&gt;cmd.exe&lt;/Image&gt;
+            &lt;Image condition="contains"&gt;powershell.exe&lt;/Image&gt;
+            &lt;DestinationPort condition="is"&gt;4444&lt;/DestinationPort&gt;
+            &lt;DestinationPort condition="is"&gt;443&lt;/DestinationPort&gt;
+          &lt;/NetworkConnect&gt;
+        &lt;/RuleGroup&gt;
+      &lt;/EventFiltering&gt;
+    &lt;/Sysmon&gt;
     ```
   </StepperItem>
   <StepperItem title="Privilege Management">

@@ -1,0 +1,539 @@
+---
+title: Hashcat Basic Usage
+description: Learn the basic usage of Hashcat for password cracking, including installation, command syntax, and common operations
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hashcat Basic Usage
+
+This guide covers the basic usage of Hashcat, including installation, command syntax, and common operations for password cracking.
+
+## Installation
+
+<Tabs defaultValue="linux" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="linux">Linux</TabsTrigger>
+    <TabsTrigger value="windows">Windows</TabsTrigger>
+    <TabsTrigger value="macos">macOS</TabsTrigger>
+  </TabsList>
+  <TabsContent value="linux">
+    ### Linux Installation
+    
+    Install Hashcat on Linux using package managers or from source:
+    
+    **Using apt (Debian/Ubuntu)**:
+    ```bash
+    sudo apt update
+    sudo apt install hashcat
+    ```
+    
+    **Using yum (CentOS/RHEL)**:
+    ```bash
+    sudo yum install epel-release
+    sudo yum install hashcat
+    ```
+    
+    **From source**:
+    ```bash
+    git clone https://github.com/hashcat/hashcat.git
+    cd hashcat
+    make
+    sudo make install
+    ```
+    
+    Verify the installation:
+    ```bash
+    hashcat --version
+    ```
+  </TabsContent>
+  <TabsContent value="windows">
+    ### Windows Installation
+    
+    1. **Download the latest binary package**:
+       - Visit the [official Hashcat website](https://hashcat.net/hashcat/)
+       - Download the Windows binary package (e.g., `hashcat-6.2.6.7z`)
+    
+    2. **Extract the archive**:
+       - Use 7-Zip or a similar tool to extract the downloaded archive
+       - Extract to a location like `C:\hashcat`
+    
+    3. **Add to PATH (optional)**:
+       - Right-click on "This PC" or "My Computer" and select "Properties"
+       - Click on "Advanced system settings"
+       - Click on "Environment Variables"
+       - Edit the "Path" variable and add the path to the Hashcat directory
+    
+    4. **Install required drivers**:
+       - For NVIDIA GPUs: Install the latest CUDA drivers
+       - For AMD GPUs: Install the latest AMD drivers with OpenCL support
+    
+    5. **Verify installation**:
+       - Open Command Prompt
+       - Run `hashcat --version`
+  </TabsContent>
+  <TabsContent value="macos">
+    ### macOS Installation
+    
+    Install Hashcat on macOS using Homebrew or from source:
+    
+    **Using Homebrew**:
+    ```bash
+    brew install hashcat
+    ```
+    
+    **From source**:
+    ```bash
+    git clone https://github.com/hashcat/hashcat.git
+    cd hashcat
+    make
+    sudo make install
+    ```
+    
+    <Note>
+      macOS has limited GPU support for Hashcat. Performance will be significantly better on systems with dedicated GPUs.
+    </Note>
+    
+    Verify the installation:
+    ```bash
+    hashcat --version
+    ```
+  </TabsContent>
+</Tabs>
+
+## Basic Command Syntax
+
+The basic syntax for Hashcat commands follows this pattern:
+
+```bash
+hashcat [options] hashfile [dictionary|mask|directory]
+```
+
+### Essential Parameters
+
+<Steps>
+  <Step title="Hash Mode (-m)">
+    Specify the hash type using the `-m` parameter:
+    
+    ```bash
+    hashcat -m 0 example.hash wordlist.txt
+    ```
+    
+    Common hash modes:
+    - `0`: MD5
+    - `100`: SHA1
+    - `1000`: NTLM
+    - `1800`: SHA512crypt (Linux)
+    - `3000`: LM
+    - `5500`: NetNTLMv1
+    - `5600`: NetNTLMv2
+    - `13100`: Kerberos 5 TGS-REP
+    
+    To see all supported hash types:
+    ```bash
+    hashcat --help | grep -i "Hash modes"
+    ```
+  </Step>
+  <Step title="Attack Mode (-a)">
+    Specify the attack type using the `-a` parameter:
+    
+    ```bash
+    hashcat -m 0 -a 0 example.hash wordlist.txt  # Dictionary attack
+    ```
+    
+    Attack modes:
+    - `0`: Dictionary attack
+    - `1`: Combinator attack
+    - `3`: Mask attack
+    - `6`: Hybrid dictionary + mask
+    - `7`: Hybrid mask + dictionary
+    - `9`: Association mode
+  </Step>
+  <Step title="Input Files">
+    Specify hash and wordlist files:
+    
+    ```bash
+    # Single hash directly in command line
+    hashcat -m 0 -a 0 5f4dcc3b5aa765d61d8327deb882cf99 wordlist.txt
+    
+    # Hash file (one hash per line)
+    hashcat -m 0 -a 0 hashes.txt wordlist.txt
+    
+    # Multiple wordlists
+    hashcat -m 0 -a 0 hashes.txt wordlist1.txt wordlist2.txt
+    ```
+    
+    <Note>
+      Hashcat automatically detects if a single hash is provided directly or if a file path is given.
+    </Note>
+  </Step>
+</Steps>
+
+## Common Operations
+
+<Tabs defaultValue="dictionary" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="dictionary">Dictionary Attack</TabsTrigger>
+    <TabsTrigger value="mask">Mask Attack</TabsTrigger>
+    <TabsTrigger value="rule">Rule-Based Attack</TabsTrigger>
+    <TabsTrigger value="combined">Combined Attacks</TabsTrigger>
+  </TabsList>
+  <TabsContent value="dictionary">
+    ### Dictionary Attack
+    
+    A dictionary attack uses a wordlist to attempt password recovery:
+    
+    ```bash
+    hashcat -m 0 -a 0 example.hash wordlist.txt
+    ```
+    
+    **Common wordlists**:
+    - `rockyou.txt`: A popular wordlist containing millions of real passwords
+    - `crackstation.txt`: A large collection of common passwords
+    - `wordlists/fasttrack.txt`: A smaller list of very common passwords
+    
+    **Example with options**:
+    ```bash
+    # Use a dictionary attack with rules and show the status
+    hashcat -m 1000 -a 0 ntlm.hash wordlist.txt -r rules/best64.rule --status
+    ```
+    
+    Dictionary attacks are most effective when the password is a common word or phrase.
+  </TabsContent>
+  <TabsContent value="mask">
+    ### Mask Attack
+    
+    A mask attack uses patterns to generate password candidates:
+    
+    ```bash
+    hashcat -m 0 -a 3 example.hash ?a?a?a?a?a?a
+    ```
+    
+    **Character sets**:
+    - `?l`: Lowercase letters (a-z)
+    - `?u`: Uppercase letters (A-Z)
+    - `?d`: Digits (0-9)
+    - `?s`: Special characters (!@#$%, etc.)
+    - `?a`: All characters (lowercase, uppercase, digits, special)
+    
+    **Examples**:
+    ```bash
+    # 8-character passwords with lowercase and digits
+    hashcat -m 0 -a 3 example.hash ?l?l?l?l?d?d?d?d
+    
+    # 6-character passwords starting with "pass" followed by 2 digits
+    hashcat -m 0 -a 3 example.hash pass?d?d
+    
+    # Using custom character sets
+    hashcat -m 0 -a 3 example.hash -1 ?l?d ?1?1?1?1?1?1
+    ```
+    
+    Mask attacks are efficient for passwords with known patterns or length.
+  </TabsContent>
+  <TabsContent value="rule">
+    ### Rule-Based Attack
+    
+    Rule-based attacks apply transformations to wordlist entries:
+    
+    ```bash
+    hashcat -m 0 -a 0 example.hash wordlist.txt -r rules/best64.rule
+    ```
+    
+    **Common rule files**:
+    - `best64.rule`: 64 most common password variations
+    - `rockyou-30000.rule`: Rules derived from the RockYou dataset
+    - `OneRuleToRuleThemAll.rule`: A comprehensive rule set
+    
+    **Custom rules example**:
+    ```bash
+    # Create a custom rule file
+    echo 'c $1 $3 $7 $!
+    sa@ so0 se3 ss$' > custom.rule
+    
+    # Use the custom rule
+    hashcat -m 0 -a 0 example.hash wordlist.txt -r custom.rule
+    ```
+    
+    Rule-based attacks are powerful for cracking variations of dictionary words.
+  </TabsContent>
+  <TabsContent value="combined">
+    ### Combined Attacks
+    
+    Combine multiple attack methods for more comprehensive coverage:
+    
+    **Combinator attack** (combines words from two wordlists):
+    ```bash
+    hashcat -m 0 -a 1 example.hash wordlist1.txt wordlist2.txt
+    ```
+    
+    **Hybrid attack** (dictionary + mask):
+    ```bash
+    # Dictionary words followed by digits
+    hashcat -m 0 -a 6 example.hash wordlist.txt ?d?d?d?d
+    
+    # Digits followed by dictionary words
+    hashcat -m 0 -a 7 example.hash ?d?d?d?d wordlist.txt
+    ```
+    
+    **Multiple attack methods sequentially**:
+    ```bash
+    # First try dictionary attack
+    hashcat -m 0 -a 0 example.hash wordlist.txt
+    
+    # Then try rule-based attack (will skip already cracked hashes)
+    hashcat -m 0 -a 0 example.hash wordlist.txt -r rules/best64.rule
+    
+    # Finally try mask attack
+    hashcat -m 0 -a 3 example.hash ?a?a?a?a?a?a
+    ```
+    
+    Combined attacks provide better coverage for complex password patterns.
+  </TabsContent>
+</Tabs>
+
+## Managing Sessions
+
+<Steps>
+  <Step title="Session Management">
+    Hashcat automatically creates session files to allow resuming interrupted cracking sessions:
+    
+    ```bash
+    # Start a new named session
+    hashcat -m 0 -a 0 example.hash wordlist.txt --session=mysession
+    
+    # Resume a session
+    hashcat --session=mysession --restore
+    ```
+    
+    You can also use the default session:
+    ```bash
+    # After interruption, simply run
+    hashcat --restore
+    ```
+  </Step>
+  <Step title="Output Management">
+    Control how Hashcat outputs recovered passwords:
+    
+    ```bash
+    # Specify output file
+    hashcat -m 0 -a 0 example.hash wordlist.txt -o cracked.txt
+    
+    # Specify output format
+    hashcat -m 0 -a 0 example.hash wordlist.txt --outfile-format=2
+    ```
+    
+    Output formats:
+    - `1`: hash[:salt]:password
+    - `2`: plain password
+    - `3`: hash[:salt]:password:hex_plain
+    - `4`: hex_plain
+    - `5`: hash[:salt]:password:plain
+    - `6`: plain:hex_plain
+  </Step>
+  <Step title="Potfile Management">
+    The potfile stores all previously cracked passwords:
+    
+    ```bash
+    # Specify custom potfile
+    hashcat -m 0 -a 0 example.hash wordlist.txt --potfile-path=custom.pot
+    
+    # Disable potfile usage
+    hashcat -m 0 -a 0 example.hash wordlist.txt --potfile-disable
+    
+    # Show contents of default potfile
+    hashcat --show
+    ```
+    
+    <Note>
+      Using the potfile prevents Hashcat from re-cracking previously cracked hashes, saving time and resources.
+    </Note>
+  </Step>
+</Steps>
+
+## Performance Optimization
+
+<Tabs defaultValue="hardware" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="hardware">Hardware Optimization</TabsTrigger>
+    <TabsTrigger value="software">Software Optimization</TabsTrigger>
+    <TabsTrigger value="monitoring">Performance Monitoring</TabsTrigger>
+  </TabsList>
+  <TabsContent value="hardware">
+    ### Hardware Optimization
+    
+    Optimize hardware usage for better performance:
+    
+    **Device selection**:
+    ```bash
+    # List available devices
+    hashcat -I
+    
+    # Use specific devices
+    hashcat -m 0 -a 0 example.hash wordlist.txt -d 1  # Use device #1
+    hashcat -m 0 -a 0 example.hash wordlist.txt -d 1,2  # Use devices #1 and #2
+    ```
+    
+    **Device types**:
+    ```bash
+    # Use only GPUs
+    hashcat -m 0 -a 0 example.hash wordlist.txt -D 2
+    
+    # Use only CPUs
+    hashcat -m 0 -a 0 example.hash wordlist.txt -D 1
+    ```
+    
+    **Temperature management**:
+    ```bash
+    # Set temperature abort value (in °C)
+    hashcat -m 0 -a 0 example.hash wordlist.txt --hwmon-temp-abort=90
+    ```
+  </TabsContent>
+  <TabsContent value="software">
+    ### Software Optimization
+    
+    Optimize software settings for better performance:
+    
+    **Workload profile**:
+    ```bash
+    # Low: Minimal resource usage
+    hashcat -m 0 -a 0 example.hash wordlist.txt -w 1
+    
+    # Default
+    hashcat -m 0 -a 0 example.hash wordlist.txt -w 2
+    
+    # High: Maximum performance
+    hashcat -m 0 -a 0 example.hash wordlist.txt -w 3
+    
+    # Nightmare: Potentially unstable
+    hashcat -m 0 -a 0 example.hash wordlist.txt -w 4
+    ```
+    
+    **Optimization parameters**:
+    ```bash
+    # Kernel optimization
+    hashcat -m 0 -a 0 example.hash wordlist.txt --kernel-accel=2 --kernel-loops=1024
+    
+    # Segment size
+    hashcat -m 0 -a 0 example.hash wordlist.txt --segment-size=512
+    ```
+    
+    **Disable slow features**:
+    ```bash
+    # Skip self-test
+    hashcat -m 0 -a 0 example.hash wordlist.txt --self-test-disable
+    
+    # Disable automatic performance tuning
+    hashcat -m 0 -a 0 example.hash wordlist.txt --runtime=10 --speed-only
+    ```
+  </TabsContent>
+  <TabsContent value="monitoring">
+    ### Performance Monitoring
+    
+    Monitor and analyze Hashcat's performance:
+    
+    **Status display**:
+    ```bash
+    # Show status during cracking
+    hashcat -m 0 -a 0 example.hash wordlist.txt --status
+    
+    # Status display interval (in seconds)
+    hashcat -m 0 -a 0 example.hash wordlist.txt --status --status-timer=1
+    ```
+    
+    **Benchmark**:
+    ```bash
+    # Benchmark all hash types
+    hashcat -b
+    
+    # Benchmark specific hash type
+    hashcat -b -m 1000
+    ```
+    
+    **Progress information**:
+    ```bash
+    # Show detailed progress
+    hashcat -m 0 -a 0 example.hash wordlist.txt --status --status-automat
+    
+    # Generate machine-readable output
+    hashcat -m 0 -a 0 example.hash wordlist.txt --machine-readable
+    ```
+    
+    <Note>
+      Press 's' during operation to display status information.
+    </Note>
+  </TabsContent>
+</Tabs>
+
+## Troubleshooting
+
+<Steps>
+  <Step title="Common Issues">
+    **No devices found**:
+    - Ensure proper drivers are installed
+    - Check if your GPU supports OpenCL/CUDA
+    - Try running with `--force` option
+    
+    **Slow performance**:
+    - Update GPU drivers
+    - Check for thermal throttling
+    - Try different workload profiles
+    - Use optimized attack modes for your hash type
+    
+    **Crashes or freezes**:
+    - Reduce workload profile (`-w 1` or `-w 2`)
+    - Update drivers
+    - Check system cooling
+    - Try running with `--opencl-device-types=1` (CPU only)
+  </Step>
+  <Step title="Debug Mode">
+    Use debug mode to identify issues:
+    
+    ```bash
+    # Basic debug information
+    hashcat -m 0 example.hash wordlist.txt --debug-mode=1
+    
+    # More verbose debug information
+    hashcat -m 0 example.hash wordlist.txt --debug-mode=4
+    
+    # Full debug with file output
+    hashcat -m 0 example.hash wordlist.txt --debug-mode=4 --debug-file=debug.log
+    ```
+    
+    Debug modes:
+    - `1`: Basic information
+    - `2`: Rule engine information
+    - `3`: Wordlist information
+    - `4`: Full information
+  </Step>
+  <Step title="Compatibility Issues">
+    **OpenCL/CUDA issues**:
+    ```bash
+    # Force OpenCL
+    hashcat -m 0 example.hash wordlist.txt --opencl-device-types=1,2
+    
+    # Ignore warnings
+    hashcat -m 0 example.hash wordlist.txt --force
+    ```
+    
+    **Driver issues**:
+    - For NVIDIA: Install latest CUDA toolkit
+    - For AMD: Install latest AMD drivers with OpenCL support
+    - For Intel: Install OpenCL runtime for Intel processors
+    
+    **Legacy hardware**:
+    ```bash
+    # Use legacy OpenCL kernels
+    hashcat -m 0 example.hash wordlist.txt --opencl-device-types=1,2 --force
+    ```
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you understand the basic usage of Hashcat, explore these related topics:
+
+- [Hash Types](/docs/hashcat/core-operations/hash-types) - Learn about the various hash algorithms supported by Hashcat
+- [Attack Modes](/docs/hashcat/core-operations/attack-modes) - Explore different strategies for password recovery
+- [Advanced Techniques](/docs/hashcat/advanced-techniques) - Discover more sophisticated cracking methods

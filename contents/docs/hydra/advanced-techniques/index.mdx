@@ -1,0 +1,120 @@
+---
+title: Hydra Advanced Techniques
+description: Advanced techniques and strategies for using Hydra in penetration testing
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hydra Advanced Techniques
+
+This section covers advanced techniques and strategies for using Hydra in penetration testing scenarios. These techniques will help you optimize your password cracking attempts, improve success rates, and handle complex authentication systems.
+
+## Overview of Advanced Techniques
+
+Hydra offers several advanced capabilities that go beyond basic brute force attacks:
+
+1. **Performance Tuning**: Optimize attack speed and resource usage
+2. **Custom Modules**: Create or modify protocol modules for specialized targets
+3. **Distributed Attacks**: Coordinate attacks across multiple systems
+4. **Advanced Authentication Handling**: Deal with complex authentication flows
+5. **Wordlist Manipulation**: Create and optimize wordlists for specific targets
+
+## When to Use Advanced Techniques
+
+Advanced techniques are particularly useful in the following scenarios:
+
+- When basic attacks are too slow or inefficient
+- When targeting custom or non-standard authentication systems
+- When dealing with rate limiting or lockout mechanisms
+- When standard modules don't support your target's specific implementation
+- When you need to coordinate large-scale testing across multiple systems
+
+## Key Advanced Features
+
+### Distributed Attack Coordination
+
+Hydra supports distributed attacks across multiple systems:
+
+```bash
+# On master node
+hydra -l admin -P passwords.txt -M targets.txt ssh -T 64 -g 3000 -G 3001
+
+# On slave nodes
+hydra -l admin -P passwords.txt -M targets.txt ssh -T 64 -g 3000 -G 3001 -U
+```
+
+### Session Management
+
+Hydra can save and restore attack sessions:
+
+```bash
+# Start an attack with session saving
+hydra -l admin -P passwords.txt -o session.hydra ssh://192.168.1.100
+
+# Restore a previous session
+hydra -R -o session.hydra
+```
+
+### Custom Password Generators
+
+Instead of using static wordlists, you can generate passwords on-the-fly:
+
+```bash
+# Generate passwords using a pattern
+hydra -l admin -x 3:5:a ssh://192.168.1.100
+
+# Generate passwords with specific character sets
+hydra -l admin -x 3:5:aA1! ssh://192.168.1.100
+```
+
+Where:
+- First number is minimum length
+- Second number is maximum length
+- Characters specify the character set:
+  - a: lowercase letters
+  - A: uppercase letters
+  - 1: numbers
+  - !: special characters
+
+## Advanced Use Cases
+
+### Chaining with Other Tools
+
+Hydra works well as part of a larger penetration testing workflow:
+
+```bash
+# Use Nmap to discover services
+nmap -p 22,80,443,3306 192.168.1.0/24 -oG services.txt
+
+# Extract targets for Hydra
+grep "open" services.txt | grep "ssh" | cut -d " " -f 2 > ssh_targets.txt
+
+# Run Hydra against discovered targets
+hydra -L usernames.txt -P passwords.txt -M ssh_targets.txt ssh
+```
+
+### Targeting Web Applications with Complex Authentication
+
+For web applications with multi-step authentication:
+
+```bash
+# First request to get CSRF token
+curl -c cookies.txt https://example.com/login > login.html
+
+# Extract token
+csrf=$(grep -o 'name="csrf" value="[^"]*"' login.html | cut -d '"' -f 4)
+
+# Use token in Hydra attack
+hydra -l admin -P passwords.txt https://example.com http-post-form "/login:username=^USER^&password=^PASS^&csrf=$csrf:F=Login failed:H=Cookie: $(cat cookies.txt | grep -v '^#' | paste -sd ';')"
+```
+
+## Next Steps
+
+Explore the following sections to learn more about advanced Hydra techniques:
+
+- [Performance Tuning](/docs/hydra/advanced-techniques/performance-tuning) - Optimize Hydra for speed and efficiency
+- [Custom Modules](/docs/hydra/advanced-techniques/custom-modules) - Learn how to create custom protocol modules
+- [Protocol-Specific Guides](/docs/hydra/protocol-guides) - Detailed guides for specific protocols
+- [Best Practices](/docs/hydra/best-practices) - Learn best practices for effective and ethical use of Hydra

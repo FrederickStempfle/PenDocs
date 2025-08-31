@@ -1,0 +1,508 @@
+---
+title: Hydra Custom Modules
+description: Learn how to create and modify custom protocol modules for Hydra
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hydra Custom Modules
+
+This guide explains how to create and modify custom protocol modules for Hydra. Custom modules allow you to extend Hydra's capabilities to support new protocols or modify existing ones to handle non-standard implementations.
+
+## Understanding Hydra's Module System
+
+Hydra uses a modular architecture where each protocol is implemented as a separate module. These modules are written in C and are part of the Hydra source code. Each module implements a standard interface that Hydra uses to interact with the protocol.
+
+## When to Create Custom Modules
+
+Consider creating a custom module when:
+
+- You need to test a proprietary or custom authentication protocol
+- An existing protocol implementation has unique characteristics not supported by Hydra
+- You want to add support for a new protocol
+- You need to modify an existing module to handle specific edge cases
+
+## Module Development Prerequisites
+
+Before creating a custom module, you'll need:
+
+<Steps>
+  <Step title="Set Up Development Environment">
+    Install the necessary development tools:
+    
+    ```bash
+    # Debian/Ubuntu
+    sudo apt install build-essential git libssl-dev pkg-config
+    
+    # Fedora/RHEL
+    sudo dnf install gcc gcc-c++ git openssl-devel pkgconfig
+    ```
+  </Step>
+  <Step title="Get Hydra Source Code">
+    Clone the Hydra repository:
+    
+    ```bash
+    git clone https://github.com/vanhauser-thc/thc-hydra.git
+    cd thc-hydra
+    ```
+  </Step>
+  <Step title="Understand Module Structure">
+    Examine existing modules in the source code:
+    
+    ```bash
+    ls -l hydra-*.c
+    ```
+    
+    Each file named `hydra-[protocol].c` contains the implementation for a specific protocol.
+  </Step>
+</Steps>
+
+## Module Structure
+
+A Hydra module consists of the following key components:
+
+1. **Module Registration**: Information about the module name, port, and flags
+2. **Connection Functions**: Code to establish and manage connections
+3. **Authentication Functions**: Code to perform authentication attempts
+4. **Cleanup Functions**: Code to release resources
+
+Here's a simplified example of a module structure:
+
+```c
+void module_register() {
+    register_module(MODULE_NAME, MODULE_PORT, MODULE_OPTIONS);
+}
+
+int start_module(int s, char *ip, int port, unsigned char options, char *miscptr, FILE *fp) {
+    // Initialize connection
+}
+
+int send_module(int s, char *ip, char *user, char *pass, char *miscptr, FILE *fp) {
+    // Send authentication attempt
+}
+
+void service_module(char *ip, int sp, unsigned char options, char *miscptr, FILE *fp, int port, char *hostname) {
+    // Main service function
+}
+
+void stop_module() {
+    // Cleanup resources
+}
+```
+
+## Creating a Basic Custom Module
+
+Let's walk through creating a simple custom module for a fictional protocol:
+
+<Tabs defaultValue="template" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="template">Module Template</TabsTrigger>
+    <TabsTrigger value="implementation">Implementation</TabsTrigger>
+    <TabsTrigger value="compilation">Compilation</TabsTrigger>
+  </TabsList>
+  <TabsContent value="template">
+    ### Module Template
+    
+    Start by creating a new file named `hydra-custom.c`:
+    
+    ```c
+    #include "hydra-mod.h"
+    
+    // Module information
+    extern char *HYDRA_EXIT;
+    char *buf;
+    
+    // Module registration
+    void module_register() {
+      register_module(MODULE_NAME, MODULE_PORT, MODULE_OPTIONS);
+    }
+    
+    // Connection initialization
+    int start_module(int s, char *ip, int port, unsigned char options, char *miscptr, FILE *fp) {
+      // Initialize connection
+      return 0;
+    }
+    
+    // Authentication attempt
+    int send_module(int s, char *ip, char *user, char *pass, unsigned char options, char *miscptr, FILE *fp) {
+      // Send authentication attempt
+      return 0;
+    }
+    
+    // Main service function
+    void service_module(char *ip, int sp, unsigned char options, char *miscptr, FILE *fp, int port, char *hostname) {
+      // Main service logic
+    }
+    
+    // Cleanup function
+    void stop_module() {
+      // Cleanup resources
+    }
+    ```
+    
+    This template includes all the required functions for a Hydra module.
+  </TabsContent>
+  <TabsContent value="implementation">
+    ### Implementation Example
+    
+    Here's a simplified implementation for a custom protocol:
+    
+    ```c
+    #include "hydra-mod.h"
+    #include <string.h>
+    
+    extern char *HYDRA_EXIT;
+    char *buf;
+    
+    void module_register() {
+      register_module("custom", 12345, 0);
+    }
+    
+    int start_module(int s, char *ip, int port, unsigned char options, char *miscptr, FILE *fp) {
+      char *empty = "";
+      char *login;
+      
+      if (strlen(login = hydra_get_next_login()) == 0)
+        login = empty;
+        
+      if (sock >= 0)
+        sock = hydra_disconnect(sock);
+        
+      if ((sock = hydra_connect_tcp(ip, port)) < 0)
+        return 3;
+        
+      // Read welcome message
+      buf = hydra_receive_line(sock);
+      if (buf == NULL)
+        return 3;
+        
+      free(buf);
+      return 0;
+    }
+    
+    int send_module(int sock, char *ip, char *user, char *pass, unsigned char options, char *miscptr, FILE *fp) {
+      char buffer[1024];
+      
+      // Format authentication message
+      snprintf(buffer, sizeof(buffer), "AUTH %s %s\r\n", user, pass);
+      
+      if (hydra_send(sock, buffer, strlen(buffer), 0) < 0) {
+        return 1;
+      }
+      
+      // Read response
+      buf = hydra_receive_line(sock);
+      if (buf == NULL)
+        return 1;
+        
+      // Check for success or failure
+      if (strstr(buf, "SUCCESS")) {
+        hydra_report_found_host(port, ip, "custom", fp);
+        hydra_completed_pair_found();
+        free(buf);
+        return 1;
+      }
+      
+      if (strstr(buf, "FAILED")) {
+        hydra_completed_pair();
+        free(buf);
+        return 2;
+      }
+      
+      // Unknown response
+      hydra_report(stderr, "[ERROR] Unknown response: %s\n", buf);
+      free(buf);
+      return 3;
+    }
+    
+    void service_module(char *ip, int sp, unsigned char options, char *miscptr, FILE *fp, int port, char *hostname) {
+      int run = 1, next_run = 1, sock = -1;
+      
+      hydra_register_socket(sp);
+      
+      while (1) {
+        if (run == 1) {
+          if (sock >= 0)
+            sock = hydra_disconnect(sock);
+            
+          if ((sock = hydra_connect_tcp(ip, port)) < 0) {
+            hydra_report(stderr, "[ERROR] Could not connect to target port %d\n", port);
+            hydra_child_exit(1);
+          }
+          
+          next_run = start_module(sock, ip, port, options, miscptr, fp);
+          run = 0;
+        }
+        
+        if (next_run == 1) {
+          run = 1;
+          continue;
+        }
+        
+        next_run = 0;
+        
+        // Get next credentials
+        memset(login, 0, sizeof(login));
+        memset(pass, 0, sizeof(pass));
+        
+        if (hydra_get_next_pair() == 3) {
+          hydra_child_exit(2);
+        }
+        
+        // Send authentication attempt
+        next_run = send_module(sock, ip, login, pass, options, miscptr, fp);
+        
+        if (next_run == 3) {
+          hydra_report(stderr, "[ERROR] Protocol error\n");
+          hydra_child_exit(2);
+        }
+      }
+    }
+    
+    void stop_module() {
+      // Nothing to clean up
+    }
+    ```
+    
+    This implementation:
+    - Registers a "custom" protocol on port 12345
+    - Connects to the target
+    - Sends authentication in the format "AUTH username password"
+    - Checks for "SUCCESS" or "FAILED" in the response
+  </TabsContent>
+  <TabsContent value="compilation">
+    ### Compilation and Integration
+    
+    To compile and integrate your custom module:
+    
+    1. Add your module to the Makefile:
+    
+    ```bash
+    # Find the line with XLIBS and add your module
+    XLIBS = hydra-custom.c
+    ```
+    
+    2. Add your module to hydra.c:
+    
+    ```c
+    // Find the array of services and add your module
+    { "custom", 12345, "Custom protocol", 1, 1, 0, 0 },
+    ```
+    
+    3. Compile Hydra:
+    
+    ```bash
+    ./configure
+    make
+    ```
+    
+    4. Test your module:
+    
+    ```bash
+    ./hydra -l admin -p password custom://192.168.1.100
+    ```
+  </TabsContent>
+</Tabs>
+
+## Modifying Existing Modules
+
+Instead of creating a new module, you can modify an existing one to handle special cases:
+
+<Steps>
+  <Step title="Identify the Module">
+    Find the module you want to modify:
+    
+    ```bash
+    # For example, to modify the SSH module
+    cp hydra-ssh.c hydra-ssh-custom.c
+    ```
+  </Step>
+  <Step title="Make Your Changes">
+    Edit the module file to implement your changes. Common modifications include:
+    
+    - Changing authentication message formats
+    - Adding support for additional authentication methods
+    - Modifying response parsing
+    - Adding custom headers or parameters
+  </Step>
+  <Step title="Update Registration">
+    Change the module registration to avoid conflicts:
+    
+    ```c
+    // Change from
+    register_module("ssh", 22, 0);
+    
+    // To
+    register_module("ssh-custom", 22, 0);
+    ```
+  </Step>
+  <Step title="Integrate and Compile">
+    Update the Makefile and hydra.c as described earlier, then compile.
+  </Step>
+</Steps>
+
+## Advanced Module Techniques
+
+### Handling Multi-Step Authentication
+
+Some protocols require multiple steps for authentication:
+
+```c
+int send_module(int sock, char *ip, char *user, char *pass, unsigned char options, char *miscptr, FILE *fp) {
+  // Step 1: Send username
+  snprintf(buffer, sizeof(buffer), "USER %s\r\n", user);
+  if (hydra_send(sock, buffer, strlen(buffer), 0) < 0) return 1;
+  
+  buf = hydra_receive_line(sock);
+  if (buf == NULL) return 1;
+  
+  // Check for username acceptance
+  if (!strstr(buf, "Password:")) {
+    free(buf);
+    return 1;
+  }
+  free(buf);
+  
+  // Step 2: Send password
+  snprintf(buffer, sizeof(buffer), "PASS %s\r\n", pass);
+  if (hydra_send(sock, buffer, strlen(buffer), 0) < 0) return 1;
+  
+  buf = hydra_receive_line(sock);
+  if (buf == NULL) return 1;
+  
+  // Check for success
+  if (strstr(buf, "Login successful")) {
+    hydra_report_found_host(port, ip, "custom", fp);
+    hydra_completed_pair_found();
+    free(buf);
+    return 1;
+  }
+  
+  // Failed login
+  hydra_completed_pair();
+  free(buf);
+  return 2;
+}
+```
+
+### Handling Binary Protocols
+
+For binary protocols, you'll need to use raw data handling:
+
+```c
+int send_module(int sock, char *ip, char *user, char *pass, unsigned char options, char *miscptr, FILE *fp) {
+  unsigned char buffer[1024];
+  int length = 0;
+  
+  // Create binary packet header
+  buffer[0] = 0x01;  // Protocol version
+  buffer[1] = 0x03;  // Authentication request
+  
+  // Add username length and data
+  buffer[2] = strlen(user);
+  memcpy(buffer + 3, user, strlen(user));
+  length = 3 + strlen(user);
+  
+  // Add password length and data
+  buffer[length] = strlen(pass);
+  memcpy(buffer + length + 1, pass, strlen(pass));
+  length += 1 + strlen(pass);
+  
+  // Send binary packet
+  if (hydra_send(sock, (char *)buffer, length, 0) < 0) return 1;
+  
+  // Receive binary response
+  int bytes_read = recv(sock, buffer, sizeof(buffer), 0);
+  if (bytes_read <= 0) { return 1; }
+  
+  // Check response code (assuming first byte is status)
+  if (buffer[0] == 0x00) {
+    hydra_report_found_host(port, ip, "custom", fp);
+    hydra_completed_pair_found();
+    return 1;
+  }
+  
+  hydra_completed_pair();
+  return 2;
+}
+```
+
+## Testing and Debugging Modules
+
+To test and debug your custom module:
+
+<Steps>
+  <Step title="Enable Debug Output">
+    Run Hydra with verbose output:
+    
+    ```bash
+    ./hydra -l admin -p password -V -d custom://192.168.1.100
+    ```
+    
+    The `-d` flag enables debug output, which shows all communication.
+  </Step>
+  <Step title="Use a Test Server">
+    Create a simple server that implements your protocol for testing:
+    
+    ```python
+    import socket
+    
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(('0.0.0.0', 12345))
+    server.listen(5)
+    
+    print("Server listening on port 12345")
+    
+    while True:
+        client, addr = server.accept()
+        print(f"Connection from {addr}")
+        
+        # Send welcome message
+        client.send(b"Welcome to test server\r\n")
+        
+        # Receive authentication
+        data = client.recv(1024).decode('utf-8').strip()
+        print(f"Received: {data}")
+        
+        # Check credentials
+        if data == "AUTH admin password":
+            client.send(b"SUCCESS\r\n")
+        else:
+            client.send(b"FAILED\r\n")
+            
+        client.close()
+    ```
+  </Step>
+  <Step title="Use GDB for Debugging">
+    For more complex issues, use GDB:
+    
+    ```bash
+    gdb --args ./hydra -l admin -p password custom://127.0.0.1
+    ```
+    
+    Set breakpoints in your module:
+    
+    ```
+    (gdb) break hydra-custom.c:100
+    (gdb) run
+    ```
+  </Step>
+</Steps>
+
+## Contributing Modules Back to Hydra
+
+If you've created a useful module, consider contributing it back to the Hydra project:
+
+1. Ensure your code follows Hydra's coding style
+2. Add proper documentation and comments
+3. Test thoroughly with various inputs
+4. Submit a pull request on GitHub with a clear description of your module
+
+## Next Steps
+
+Now that you understand how to create custom Hydra modules, explore the following topics:
+
+- [Protocol-Specific Guides](/docs/hydra/protocol-guides) - Detailed guides for specific protocols
+- [Best Practices](/docs/hydra/best-practices) - Learn best practices for effective and ethical use of Hydra

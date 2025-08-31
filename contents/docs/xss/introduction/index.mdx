@@ -9,16 +9,16 @@ import { Callout } from "@/components/markdown/callout"
 
 Welcome to the comprehensive Cross-Site Scripting (XSS) guide. This documentation provides detailed instructions on understanding, identifying, exploiting, and mitigating XSS vulnerabilities, one of the most prevalent and dangerous web application security flaws in modern web applications.
 
-<Tabs defaultValue="overview" className="pt-5 pb-1">
+<Tabs defaultValue={"overview"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="overview">Overview</TabsTrigger>
-    <TabsTrigger value="features">Key Concepts</TabsTrigger>
-    <TabsTrigger value="versions">Historical Impact</TabsTrigger>
+    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+    <TabsTrigger value={"features"}>Key Concepts</TabsTrigger>
+    <TabsTrigger value={"versions"}>Historical Impact</TabsTrigger>
   </TabsList>
-  <TabsContent value="overview">
+  <TabsContent value={"overview"}>
     Cross-Site Scripting (XSS) is a client-side code injection attack where malicious scripts are injected into trusted websites. These attacks occur when an application includes untrusted data in a web page without proper validation or encoding. XSS allows attackers to execute scripts in a victim's browser, which can hijack user sessions, deface websites, redirect users to malicious sites, or steal sensitive information.
   </TabsContent>
-  <TabsContent value="features">
+  <TabsContent value={"features"}>
     - **Three Main Types**: Reflected XSS, Stored XSS, and DOM-based XSS
     - **Client-Side Execution**: Runs in the victim's browser context
     - **Session Hijacking Capability**: Can steal cookies and authentication tokens
@@ -26,7 +26,7 @@ Welcome to the comprehensive Cross-Site Scripting (XSS) guide. This documentatio
     - **Bypass Techniques**: Methods to evade filters and WAFs
     - **Cross-Browser Impact**: Affects most modern web browsers
   </TabsContent>
-  <TabsContent value="versions">
+  <TabsContent value={"versions"}>
     - **2000**: First major XSS vulnerabilities documented
     - **2005**: Ajax revolution increased XSS attack surface
     - **2007**: XSS becomes part of OWASP Top 10
@@ -65,15 +65,15 @@ Welcome to the comprehensive Cross-Site Scripting (XSS) guide. This documentatio
     # Chrome extension: "XSS Rays" or "Hackbar"
     ```
     
-    <Callout type="warning" title="Warning">
+    <Callout type={"warning"} title={"Warning"}>
       Always perform XSS testing in controlled environments or with explicit permission. Unauthorized testing is illegal and unethical.
     </Callout>
   </StepperItem>
   <StepperItem title="Basic XSS Detection">
     Try simple payloads to detect XSS vulnerabilities:
     ```javascript
-    <script>alert('XSS')</script>
-    <img src="x" onerror="alert('XSS')">
+    \<script\>alert('XSS')\</script\>
+    \<img src="x" onerror="alert('XSS')"\>
     javascript:alert('XSS')
     ```
     Look for contexts where your input is reflected without proper encoding or sanitization.

@@ -1,0 +1,667 @@
+---
+title: Nikto Plugin Development
+description: Learn how to create and customize Nikto plugins for specialized web vulnerability scanning
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nikto Plugin Development
+
+This guide covers the process of creating and customizing Nikto plugins to extend its functionality for specialized web vulnerability scanning. Nikto's plugin architecture allows you to add custom tests and integrate with other tools.
+
+## Understanding Nikto's Plugin Architecture
+
+Nikto uses a modular plugin architecture where each plugin is a Perl module that implements specific tests or functionality. The plugin system allows you to:
+
+- Add new vulnerability tests
+- Modify existing tests
+- Add support for new output formats
+- Integrate with other tools
+- Implement custom scanning logic
+
+### Plugin Types
+
+Nikto plugins generally fall into these categories:
+
+1. **Scan plugins**: Implement vulnerability tests
+2. **Report plugins**: Generate output in different formats
+3. **Database plugins**: Access and manipulate Nikto's databases
+4. **Utility plugins**: Provide helper functions for other plugins
+
+## Plugin Structure
+
+### Basic Plugin Template
+
+A basic Nikto plugin has the following structure:
+
+```perl
+# Plugin file: myplugin.plugin
+package Nikto::Plugin::myplugin;
+use strict;
+use Nikto;
+
+# Plugin registration
+sub new {
+    my $class = shift;
+    my $self = {
+        name        => "myplugin",
+        full_name   => "My Custom Plugin",
+        author      => "Your Name",
+        description => "Description of what this plugin does",
+        version     => "1.0",
+        hooks       => {
+            # Define which hooks this plugin uses
+            scan => { method => \&scan, weight => 10 },
+        },
+    };
+    bless $self, $class;
+    return $self;
+}
+
+# Main plugin function
+sub scan {
+    my ($self, $mark, $parameters) = @_;
+    my ($found, $requests, $responses) = (0, 0, 0);
+    
+    # Plugin logic goes here
+    
+    return ($found, $requests, $responses);
+}
+
+1;
+```
+
+### Plugin Hooks
+
+Plugins interact with Nikto through hooks, which are specific points in the scanning process where plugins can execute code:
+
+<Tabs defaultValue={"scan"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"scan"}>Scan Hooks</TabsTrigger>
+    <TabsTrigger value={"request"}>Request Hooks</TabsTrigger>
+    <TabsTrigger value={"report"}>Report Hooks</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"scan"}>
+    ### Scan Hooks
+    
+    - `scan`: Main scanning hook, called for each host
+    - `postfetch`: Called after each HTTP request
+    - `prefetch`: Called before each HTTP request
+    - `posthost`: Called after a host scan completes
+    - `prehost`: Called before a host scan begins
+    
+    Example:
+    ```perl
+    hooks => {
+        scan => { method => \&scan, weight => 10 },
+        postfetch => { method => \&postfetch, weight => 5 },
+    },
+    ```
+    
+    The `weight` parameter determines the execution order (lower numbers execute first).
+  </TabsContent>
+  <TabsContent value={"request"}>
+    ### Request Hooks
+    
+    - `request`: Modifies or processes HTTP requests
+    - `response`: Processes HTTP responses
+    
+    Example:
+    ```perl
+    hooks => {
+        request => { method => \&modify_request, weight => 10 },
+        response => { method => \&process_response, weight => 10 },
+    },
+    ```
+    
+    These hooks allow you to modify requests before they're sent or process responses after they're received.
+  </TabsContent>
+  <TabsContent value={"report"}>
+    ### Report Hooks
+    
+    - `report`: Generates reports in specific formats
+    - `start_report`: Called at the beginning of report generation
+    - `end_report`: Called at the end of report generation
+    
+    Example:
+    ```perl
+    hooks => {
+        report => { method => \&report, weight => 10 },
+        start_report => { method => \&start_report, weight => 10 },
+        end_report => { method => \&end_report, weight => 10 },
+    },
+    ```
+    
+    These hooks are used primarily by reporting plugins.
+  </TabsContent>
+</Tabs>
+
+## Creating Your First Plugin
+
+<Steps>
+  <Step title="Set Up Development Environment">
+    First, locate your Nikto installation and plugins directory:
+    
+    ```bash
+    # Find Nikto installation
+    which nikto
+    
+    # Common plugin locations
+    # - /usr/share/nikto/plugins/
+    # - /usr/local/share/nikto/plugins/
+    # - [nikto_installation_dir]/plugins/
+    ```
+    
+    Create a backup of the plugins directory before making changes:
+    
+    ```bash
+    cp -r /usr/share/nikto/plugins/ ~/nikto_plugins_backup/
+    ```
+  </Step>
+  <Step title="Create Plugin File">
+    Create a new file in the plugins directory with a `.plugin` extension:
+    
+    ```bash
+    # Navigate to plugins directory
+    cd /usr/share/nikto/plugins/
+    
+    # Create new plugin file
+    sudo touch secheader.plugin
+    ```
+    
+    The file name should be descriptive of the plugin's purpose.
+  </Step>
+  <Step title="Implement Basic Plugin">
+    Edit the plugin file with your custom logic:
+    
+    ```perl
+    # secheader.plugin - Check for security headers
+    package Nikto::Plugin::secheader;
+    use strict;
+    use Nikto;
+    
+    sub new {
+        my $class = shift;
+        my $self = {
+            name        => "secheader",
+            full_name   => "Security Headers Check",
+            author      => "Your Name",
+            description => "Checks for important security headers",
+            version     => "1.0",
+            hooks       => {
+                postfetch => { method => \&postfetch, weight => 10 },
+            },
+        };
+        bless $self, $class;
+        return $self;
+    }
+    
+    sub postfetch {
+        my ($self, $mark, $parameters) = @_;
+        my ($found, $requests, $responses) = (0, 0, 0);
+        
+        # Skip if no response or not HTML/text
+        return (0, 0, 0) unless ($mark->{'content-type'} =~ /(?:text|html)/i);
+        
+        # Check for security headers
+        my %headers_to_check = (
+            'content-security-policy' => "Content-Security-Policy header is missing",
+            'x-content-type-options' => "X-Content-Type-Options header is missing",
+            'x-frame-options' => "X-Frame-Options header is missing",
+            'strict-transport-security' => "Strict-Transport-Security header is missing",
+            'x-xss-protection' => "X-XSS-Protection header is missing",
+        );
+        
+        # Check each header
+        foreach my $header (keys %headers_to_check) {
+            if (!exists $mark->{'response'}{'headers'}{$header}) {
+                add_vulnerability($mark, $headers_to_check{$header}, 999990 + $found);
+                $found++;
+            }
+        }
+        
+        return ($found, $requests, $responses);
+    }
+    
+    1;
+    ```
+    
+    This plugin checks for common security headers in HTTP responses.
+  </Step>
+  <Step title="Test Your Plugin">
+    Run Nikto with your new plugin:
+    
+    ```bash
+    # Test with verbose output
+    nikto -h example.com -Plugins "secheader" -Display V
+    
+    # Test with only your plugin
+    nikto -h example.com -Plugins "secheader" -Display 3
+    ```
+    
+    Check the output to see if your plugin is working correctly.
+  </Step>
+</Steps>
+
+## Plugin API Reference
+
+### Core Functions
+
+These functions are available to all plugins:
+
+<Tabs defaultValue={"vuln"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"vuln"}>Vulnerability Reporting</TabsTrigger>
+    <TabsTrigger value={"http"}>HTTP Functions</TabsTrigger>
+    <TabsTrigger value={"util"}>Utility Functions</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"vuln"}>
+    ### Vulnerability Reporting Functions
+    
+    - `add_vulnerability($mark, $message, $id, $url)`: Report a vulnerability
+    - `add_vulnerability_nohttp($mark, $message, $id)`: Report a vulnerability without HTTP details
+    
+    Example:
+    ```perl
+    # Report a vulnerability
+    add_vulnerability($mark, "SQL injection vulnerability found", 999999);
+    
+    # Report a vulnerability with a specific URL
+    add_vulnerability($mark, "XSS vulnerability found", 999998, "/vulnerable.php");
+    ```
+    
+    The `$id` parameter should be unique for each type of vulnerability.
+  </TabsContent>
+  <TabsContent value={"http"}>
+    ### HTTP Functions
+    
+    - `nikto_request($mark, $request, $postdata)`: Send an HTTP request
+    - `get_link_dict($mark, $html)`: Extract links from HTML
+    - `get_form_dict($mark, $html)`: Extract forms from HTML
+    
+    Example:
+    ```perl
+    # Send a GET request
+    my ($res, $content, $error, $request, $response) = nikto_request($mark, "/test.php");
+    
+    # Send a POST request
+    my ($res, $content, $error, $request, $response) = nikto_request($mark, "/login.php", "username=test&password=test");
+    
+    # Extract links
+    my $links = get_link_dict($mark, $content);
+    ```
+  </TabsContent>
+  <TabsContent value={"util"}>
+    ### Utility Functions
+    
+    - `nprint($message, $type)`: Print a message to the console
+    - `is_404($mark, $content)`: Check if a response is a 404 error
+    - `get_variations($string)`: Generate variations of a string
+    
+    Example:
+    ```perl
+    # Print a message
+    nprint("Testing security headers", "v");
+    
+    # Check for 404
+    if (is_404($mark, $content)) {
+        nprint("Page not found", "v");
+    }
+    
+    # Generate variations
+    my @variations = get_variations("admin");
+    ```
+  </TabsContent>
+</Tabs>
+
+### The `$mark` Object
+
+The `$mark` object contains information about the current target:
+
+```perl
+# Common $mark properties
+my $host = $mark->{'hostname'};
+my $ip = $mark->{'ip'};
+my $port = $mark->{'port'};
+my $ssl = $mark->{'ssl'};
+my $cookies = $mark->{'cookies'};
+
+# Response information
+my $headers = $mark->{'response'}{'headers'};
+my $content_type = $mark->{'content-type'};
+my $status_code = $mark->{'response'}{'code'};
+```
+
+## Advanced Plugin Examples
+
+### Custom Scanner Plugin
+
+This example creates a plugin to scan for specific file patterns:
+
+```perl
+# filescan.plugin - Scan for sensitive files
+package Nikto::Plugin::filescan;
+use strict;
+use Nikto;
+
+sub new {
+    my $class = shift;
+    my $self = {
+        name        => "filescan",
+        full_name   => "Sensitive File Scanner",
+        author      => "Your Name",
+        description => "Scans for sensitive files and directories",
+        version     => "1.0",
+        hooks       => {
+            scan => { method => \&scan, weight => 20 },
+        },
+    };
+    bless $self, $class;
+    return $self;
+}
+
+sub scan {
+    my ($self, $mark, $parameters) = @_;
+    my ($found, $requests, $responses) = (0, 0, 0);
+    
+    # List of sensitive files to check
+    my @files = (
+        "config.php.bak",
+        "wp-config.php.old",
+        ".env",
+        ".git/config",
+        "id_rsa",
+        "credentials.txt",
+        "database.yml",
+        "settings.py",
+    );
+    
+    # Check each file
+    foreach my $file (@files) {
+        my ($res, $content, $error, $request, $response) = nikto_request($mark, "/$file");
+        $requests++;
+        
+        # Skip 404 responses
+        next if is_404($mark, $content);
+        
+        # Check if file exists
+        if ($res eq "200") {
+            add_vulnerability($mark, "Sensitive file found: $file", 999900 + $found, "/$file");
+            $found++;
+        }
+    }
+    
+    return ($found, $requests, $responses);
+}
+
+1;
+```
+
+### Custom Report Plugin
+
+This example creates a plugin to generate a custom JSON report format:
+
+```perl
+# report_custom_json.plugin - Custom JSON report format
+package Nikto::Plugin::report_custom_json;
+use strict;
+use Nikto;
+use JSON;
+
+sub new {
+    my $class = shift;
+    my $self = {
+        name        => "report_custom_json",
+        full_name   => "Custom JSON Report",
+        author      => "Your Name",
+        description => "Generates a custom JSON report format",
+        version     => "1.0",
+        hooks       => {
+            report => { method => \&report, weight => 10 },
+            start_report => { method => \&start_report, weight => 10 },
+            end_report => { method => \&end_report, weight => 10 },
+        },
+    };
+    bless $self, $class;
+    return $self;
+}
+
+sub start_report {
+    my ($self, $file) = @_;
+    
+    # Initialize report data structure
+    $self->{report_data} = {
+        scan_info => {
+            nikto_version => $VARIABLES{'version'},
+            scan_start => localtime(),
+            targets => [],
+        },
+        vulnerabilities => [],
+    };
+    
+    return;
+}
+
+sub report {
+    my ($self, $mark, $parameters) = @_;
+    
+    # Add target information
+    my $target = {
+        hostname => $mark->{'hostname'},
+        ip => $mark->{'ip'},
+        port => $mark->{'port'},
+        ssl => $mark->{'ssl'} ? JSON::true : JSON::false,
+        banner => $mark->{'banner'},
+    };
+    
+    push(@{$self->{report_data}{scan_info}{targets}}, $target);
+    
+    # Add vulnerabilities
+    foreach my $item (@{$mark->{vulns}}) {
+        my $vuln = {
+            hostname => $mark->{'hostname'},
+            ip => $mark->{'ip'},
+            port => $mark->{'port'},
+            id => $item->{tid},
+            osvdb => $item->{osvdb},
+            method => $item->{method},
+            url => $item->{url},
+            description => $item->{message},
+            severity => calculate_severity($item),
+        };
+        
+        push(@{$self->{report_data}{vulnerabilities}}, $vuln);
+    }
+    
+    return;
+}
+
+sub end_report {
+    my ($self, $file) = @_;
+    
+    # Add scan end time
+    $self->{report_data}{scan_info}{scan_end} = localtime();
+    
+    # Convert to JSON
+    my $json = JSON->new->pretty->encode($self->{report_data});
+    
+    # Write to file
+    open(my $fh, '>', $file) or return;
+    print $fh $json;
+    close($fh);
+    
+    return;
+}
+
+# Helper function to calculate severity
+sub calculate_severity {
+    my ($item) = @_;
+    
+    # Simple severity calculation based on OSVDB ID
+    if ($item->{osvdb} > 0) {
+        return "high";
+    } elsif ($item->{message} =~ /XSS|SQL|injection|overflow|directory traversal/i) {
+        return "medium";
+    } else {
+        return "low";
+    }
+}
+
+1;
+```
+
+### Integration Plugin
+
+This example creates a plugin to integrate with other tools:
+
+```perl
+# integration_burp.plugin - Burp Suite integration
+package Nikto::Plugin::integration_burp;
+use strict;
+use Nikto;
+use LWP::UserAgent;
+use HTTP::Request;
+use JSON;
+
+sub new {
+    my $class = shift;
+    my $self = {
+        name        => "integration_burp",
+        full_name   => "Burp Suite Integration",
+        author      => "Your Name",
+        description => "Sends findings to Burp Suite via API",
+        version     => "1.0",
+        hooks       => {
+            posthost => { method => \&posthost, weight => 10 },
+        },
+    };
+    bless $self, $class;
+    return $self;
+}
+
+sub posthost {
+    my ($self, $mark, $parameters) = @_;
+    my ($found, $requests, $responses) = (0, 0, 0);
+    
+    # Burp API configuration
+    my $burp_api_url = "http://localhost:1337/v0.1/issues";
+    my $burp_api_key = $parameters->{burp_api_key} || "";
+    
+    # Skip if no vulnerabilities found
+    return (0, 0, 0) unless (defined $mark->{vulns} && scalar @{$mark->{vulns}} > 0);
+    
+    # Create user agent
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(10);
+    
+    # Process each vulnerability
+    foreach my $item (@{$mark->{vulns}}) {
+        # Create Burp issue
+        my $issue = {
+            issue_type => "custom",
+            severity => "medium",
+            confidence => "certain",
+            name => "Nikto: " . $item->{message},
+            detail => "Nikto found: " . $item->{message} . "\n\nOSVDB: " . $item->{osvdb},
+            remediation => "Review the finding and address the security issue.",
+            url => "http" . ($mark->{ssl} ? "s" : "") . "://" . $mark->{hostname} . ":" . $mark->{port} . $item->{url},
+        };
+        
+        # Convert to JSON
+        my $json = JSON->new->encode($issue);
+        
+        # Send to Burp
+        my $req = HTTP::Request->new('POST', $burp_api_url);
+        $req->header('Content-Type' => 'application/json');
+        $req->header('Authorization' => "Bearer $burp_api_key") if $burp_api_key;
+        $req->content($json);
+        
+        my $res = $ua->request($req);
+        
+        if ($res->is_success) {
+            $found++;
+            nprint("Sent finding to Burp Suite: " . $item->{message}, "d");
+        } else {
+            nprint("Failed to send finding to Burp Suite: " . $res->status_line, "e");
+        }
+        
+        $requests++;
+    }
+    
+    return ($found, $requests, $responses);
+}
+
+1;
+```
+
+## Best Practices for Plugin Development
+
+### Code Organization
+
+- Keep your plugin focused on a specific task
+- Use meaningful variable and function names
+- Comment your code thoroughly
+- Follow Perl best practices for error handling
+
+### Performance Considerations
+
+- Minimize HTTP requests
+- Use efficient data structures
+- Implement early returns for irrelevant targets
+- Consider the impact of your plugin on scan time
+
+### Testing and Debugging
+
+<Steps>
+  <Step title="Debug Mode">
+    Run Nikto with debug output:
+    
+    ```bash
+    nikto -h example.com -Plugins "myplugin" -Display D
+    ```
+    
+    This shows detailed debugging information.
+  </Step>
+  <Step title="Incremental Testing">
+    Test your plugin against known vulnerable targets:
+    
+    ```bash
+    # Test against DVWA
+    nikto -h localhost/dvwa -Plugins "myplugin" -Display V
+    ```
+  </Step>
+  <Step title="Error Handling">
+    Add robust error handling to your plugin:
+    
+    ```perl
+    # Example error handling
+    eval {
+        # Code that might fail
+        my $result = some_function();
+    };
+    if ($@) {
+        nprint("Error in plugin: $@", "e");
+        return (0, 0, 0);
+    }
+    ```
+  </Step>
+</Steps>
+
+### Distribution and Sharing
+
+If you've created a useful plugin, consider sharing it:
+
+1. Document your plugin thoroughly
+2. Test it against various targets
+3. Share it on GitHub or security forums
+4. Consider submitting it to the Nikto project
+
+## Next Steps
+
+Now that you understand Nikto plugin development, explore the following topics:
+
+- [Evasion Techniques](/docs/nikto/advanced-techniques/evasion-techniques) - Detailed guide to evading detection
+- [Integration](/docs/nikto/integration) - Comprehensive guide to integrating Nikto with other tools
+- [Best Practices](/docs/nikto/best-practices) - Learn best practices for effective and ethical use of Nikto

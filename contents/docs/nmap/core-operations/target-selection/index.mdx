@@ -13,13 +13,13 @@ Effective target selection is crucial for successful network scanning. Nmap prov
 
 ## Basic Target Specification
 
-<Tabs defaultValue="single" className="pt-5 pb-1">
+<Tabs defaultValue={"single"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="single">Single Targets</TabsTrigger>
-    <TabsTrigger value="multiple">Multiple Targets</TabsTrigger>
-    <TabsTrigger value="ranges">IP Ranges</TabsTrigger>
+    <TabsTrigger value={"single"}>Single Targets</TabsTrigger>
+    <TabsTrigger value={"multiple"}>Multiple Targets</TabsTrigger>
+    <TabsTrigger value={"ranges"}>IP Ranges</TabsTrigger>
   </TabsList>
-  <TabsContent value="single">
+  <TabsContent value={"single"}>
     **Hostname**
     ```bash
     nmap example.com
@@ -38,7 +38,7 @@ Effective target selection is crucial for successful network scanning. Nmap prov
     ```
     Scans the IPv6 host (requires `-6` flag).
   </TabsContent>
-  <TabsContent value="multiple">
+  <TabsContent value={"multiple"}>
     **Multiple Hostnames**
     ```bash
     nmap example.com example2.com
@@ -57,7 +57,7 @@ Effective target selection is crucial for successful network scanning. Nmap prov
     ```
     Scans hosts specified by both IP addresses and domain names.
   </TabsContent>
-  <TabsContent value="ranges">
+  <TabsContent value={"ranges"}>
     **CIDR Notation**
     ```bash
     nmap 192.168.1.0/24

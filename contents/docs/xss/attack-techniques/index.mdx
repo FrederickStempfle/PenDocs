@@ -1,0 +1,57 @@
+---
+title: XSS Attack Techniques
+description: Comprehensive guide to Cross-Site Scripting (XSS) attack techniques for penetration testers
+---
+
+# XSS Attack Techniques
+
+This section covers various Cross-Site Scripting (XSS) attack techniques used in modern web application penetration testing. Understanding these techniques is essential for both identifying vulnerabilities and demonstrating their impact during security assessments.
+
+## Section Overview
+
+Cross-Site Scripting remains one of the most prevalent web application vulnerabilities. This section explores the methodologies for identifying XSS vulnerabilities, techniques to bypass security controls, and strategies for exploiting discovered vulnerabilities in a controlled environment.
+
+## In This Section
+
+- [Identification Techniques](/docs/xss/attack-techniques/identification-techniques) - Methods to discover and confirm XSS vulnerabilities
+- [Evasion Techniques](/docs/xss/attack-techniques/evasion-techniques) - Approaches to bypass XSS filters and protections
+- [Exploitation Strategies](/docs/xss/attack-techniques/exploitation-strategies) - Practical exploitation techniques and payloads
+
+## Key Concepts
+
+### Attack Vectors
+
+XSS attacks can be delivered through various vectors, including:
+
+- **User input fields** - Forms, search boxes, and comment sections
+- **URL parameters** - Query strings and fragment identifiers
+- **HTTP headers** - Referer, User-Agent, and custom headers
+- **File uploads** - SVG files, HTML documents, and other content types
+- **DOM manipulation** - Client-side JavaScript that processes untrusted data
+
+### Impact Assessment
+
+Understanding the potential impact of XSS vulnerabilities is crucial for prioritizing remediation efforts:
+
+- **Session hijacking** - Stealing user cookies and authentication tokens
+- **Credential theft** - Capturing login credentials through fake forms
+- **Content defacement** - Modifying the appearance of web pages
+- **Malware distribution** - Delivering malicious code to visitors
+- **Network reconnaissance** - Mapping internal networks from the browser
+
+### Testing Methodology
+
+A structured approach to XSS testing includes:
+
+1. **Reconnaissance** - Identifying potential injection points
+2. **Payload crafting** - Developing context-appropriate test strings
+3. **Delivery** - Injecting payloads through various vectors
+4. **Verification** - Confirming successful execution
+5. **Impact demonstration** - Proving the vulnerability's significance
+
+## Next Steps
+
+After exploring these attack techniques, you may want to check out:
+
+- [XSS Fundamentals](/docs/xss/fundamentals) - Review the core concepts of XSS
+- [Defense & Mitigation](/docs/xss/defense-mitigation) - Learn how to protect against XSS attacks

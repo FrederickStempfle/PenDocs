@@ -1,0 +1,550 @@
+---
+title: Nikto Evasion Techniques
+description: Advanced evasion techniques for bypassing detection mechanisms when using Nikto
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nikto Evasion Techniques
+
+This guide covers advanced evasion techniques for Nikto that help bypass intrusion detection systems (IDS), intrusion prevention systems (IPS), web application firewalls (WAF), and other detection mechanisms during web vulnerability assessments.
+
+## Understanding Detection Mechanisms
+
+Before implementing evasion techniques, it's important to understand how detection systems identify scanning activity:
+
+1. **Pattern Matching**: Detecting known signatures in requests
+2. **Rate Limiting**: Identifying high volumes of requests in short periods
+3. **Behavioral Analysis**: Detecting unusual patterns of requests
+4. **User-Agent Filtering**: Blocking requests with known scanner User-Agents
+5. **IP Reputation**: Blocking IPs associated with scanning activity
+
+## Built-in Evasion Options
+
+Nikto provides several built-in evasion techniques through the `-evasion` option:
+
+```bash
+nikto -h example.com -evasion 1
+```
+
+You can combine multiple techniques by specifying multiple numbers:
+
+```bash
+nikto -h example.com -evasion 167
+```
+
+### Available Evasion Techniques
+
+<Tabs defaultValue={"encoding"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"encoding"}>Encoding Techniques</TabsTrigger>
+    <TabsTrigger value={"path"}>Path Manipulation</TabsTrigger>
+    <TabsTrigger value={"request"}>Request Manipulation</TabsTrigger>
+    <TabsTrigger value={"combined"}>Combined Approaches</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"encoding"}>
+    ### Encoding Techniques
+    
+    These techniques modify how URLs and parameters are encoded:
+    
+    - **1: Random URI encoding (non-UTF8)**
+      ```bash
+      nikto -h example.com -evasion 1
+      ```
+      This technique randomly encodes parts of the URL using percent encoding, which can bypass simple pattern matching.
+      
+      Example: `/admin/login.php` becomes `/a%64min/lo%67in.php`
+    
+    - **3: Double encode**
+      ```bash
+      nikto -h example.com -evasion 3
+      ```
+      This technique double-encodes characters, which can bypass filters that only decode once.
+      
+      Example: `/admin/login.php` becomes `/a%2564min/lo%2567in.php`
+    
+    - **4: Unicode encode**
+      ```bash
+      nikto -h example.com -evasion 4
+      ```
+      This technique uses Unicode encoding, which can bypass filters that only handle ASCII.
+      
+      Example: `/admin/login.php` becomes `/\u0061dmin/l\u006fgin.php`
+  </TabsContent>
+  <TabsContent value={"path"}>
+    ### Path Manipulation
+    
+    These techniques modify how paths are represented:
+    
+    - **2: Directory self-reference (/./ prepend)**
+      ```bash
+      nikto -h example.com -evasion 2
+      ```
+      This technique adds self-referencing directory components, which can bypass path-based filters.
+      
+      Example: `/admin/login.php` becomes `/./admin/./login.php`
+    
+    - **5: Session splicing**
+      ```bash
+      nikto -h example.com -evasion 5
+      ```
+      This technique splits HTTP requests across multiple packets, which can bypass inspection systems that don't reassemble sessions.
+    
+    - **8: Use Windows directory separator (\)**
+      ```bash
+      nikto -h example.com -evasion 8
+      ```
+      This technique uses backslashes instead of forward slashes, which can bypass filters that only check for forward slashes.
+      
+      Example: `/admin/login.php` becomes `\admin\login.php`
+  </TabsContent>
+  <TabsContent value={"request"}>
+    ### Request Manipulation
+    
+    These techniques modify HTTP request structure:
+    
+    - **6: TAB as request spacer instead of spaces**
+      ```bash
+      nikto -h example.com -evasion 6
+      ```
+      This technique uses tabs instead of spaces in HTTP headers, which can bypass filters that expect standard spacing.
+    
+    - **7: Change the case of the URL**
+      ```bash
+      nikto -h example.com -evasion 7
+      ```
+      This technique randomly changes the case of letters in the URL, which can bypass case-sensitive filters.
+      
+      Example: `/admin/login.php` becomes `/AdMiN/LoGiN.php`
+    
+    - **A: Use a carriage return (0x0d) as a request spacer**
+      ```bash
+      nikto -h example.com -evasion A
+      ```
+      This technique uses carriage returns instead of spaces, which can bypass filters that expect standard spacing.
+    
+    - **B: Use binary value 0x0b as a request spacer**
+      ```bash
+      nikto -h example.com -evasion B
+      ```
+      This technique uses a vertical tab character instead of spaces, which can bypass filters that expect standard spacing.
+  </TabsContent>
+  <TabsContent value={"combined"}>
+    ### Combined Approaches
+    
+    Combining multiple evasion techniques can be more effective:
+    
+    - **Basic combination**
+      ```bash
+      nikto -h example.com -evasion 17
+      ```
+      This combines random URI encoding (1) and URL case changes (7).
+    
+    - **Advanced combination**
+      ```bash
+      nikto -h example.com -evasion 1267
+      ```
+      This combines:
+      - Random URI encoding (1)
+      - Directory self-reference (2)
+      - TAB as request spacer (6)
+      - URL case changes (7)
+    
+    - **Maximum evasion**
+      ```bash
+      nikto -h example.com -evasion 12345678AB
+      ```
+      This uses all available evasion techniques together, which can be effective but may also cause issues with some servers.
+  </TabsContent>
+</Tabs>
+
+## Advanced Evasion Strategies
+
+Beyond built-in options, you can implement additional evasion strategies:
+
+### Timing and Rate Control
+
+Control the scan timing to avoid rate-based detection:
+
+```bash
+# Add delay between requests (in seconds)
+nikto -h example.com -delay 3
+
+# Limit the number of requests per second
+nikto -h example.com -vhost example.com -delay 2
+```
+
+For more sophisticated timing patterns:
+
+```bash
+# Variable delay between 1-5 seconds
+nikto -h example.com -delay "1-5"
+```
+
+### User-Agent Manipulation
+
+Change the User-Agent to appear as legitimate traffic:
+
+```bash
+# Use a specific browser User-Agent
+nikto -h example.com -useragent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+```
+
+Rotate between different User-Agents:
+
+```bash
+# Create a User-Agent file
+echo "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/96.0.4664.110" > useragents.txt
+echo "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15" >> useragents.txt
+echo "Mozilla/5.0 (X11; Linux x86_64) Firefox/95.0" >> useragents.txt
+
+# Use the FUZZ option to rotate through User-Agents
+nikto -h example.com -useragent FUZZ -userfile useragents.txt
+```
+
+### Proxy Chains and IP Rotation
+
+Route traffic through proxies to hide your origin:
+
+```bash
+# Use a single proxy
+nikto -h example.com -useproxy http://proxy.example.com:8080
+
+# Use Tor as a proxy
+nikto -h example.com -useproxy http://127.0.0.1:9050
+```
+
+For more advanced proxy chaining:
+
+```bash
+# Set up a proxy chain with proxychains
+# First, configure /etc/proxychains.conf
+# Then run:
+proxychains nikto -h example.com
+```
+
+### Host Header Manipulation
+
+Modify the Host header to bypass virtual host restrictions:
+
+```bash
+# Specify a different Host header
+nikto -h example.com -vhost "internal.example.com"
+```
+
+Test multiple virtual hosts:
+
+```bash
+# Create a vhost file
+echo "www.example.com" > vhosts.txt
+echo "admin.example.com" >> vhosts.txt
+echo "api.example.com" >> vhosts.txt
+
+# Test all virtual hosts
+nikto -h example.com -vhost vhosts.txt
+```
+
+## Evasion Techniques for Specific Scenarios
+
+### Web Application Firewall (WAF) Bypass
+
+<Steps>
+  <Step title="Identify the WAF">
+    First, identify the WAF type:
+    
+    ```bash
+    # Use wafw00f to identify the WAF
+    wafw00f example.com
+    
+    # Or use a simple Nikto scan to observe behavior
+    nikto -h example.com -Display 3
+    ```
+  </Step>
+  <Step title="Select Appropriate Techniques">
+    Choose evasion techniques based on the WAF type:
+    
+    - **ModSecurity**: Try evasion modes 1, 3, 7
+    - **Cloudflare**: Try evasion modes 2, 6, timing controls
+    - **F5 BIG-IP ASM**: Try evasion modes 4, 8, User-Agent rotation
+  </Step>
+  <Step title="Implement Combined Approach">
+    Combine multiple techniques:
+    
+    ```bash
+    # Example for ModSecurity bypass
+    nikto -h example.com -evasion 137 -delay 2 -useragent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/96.0.4664.110"
+    ```
+  </Step>
+</Steps>
+
+### IDS/IPS Bypass
+
+<Tabs defaultValue={"network"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"network"}>Network IDS</TabsTrigger>
+    <TabsTrigger value={"host"}>Host-based IDS</TabsTrigger>
+    <TabsTrigger value={"hybrid"}>Hybrid Approach</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"network"}>
+    ### Network IDS Bypass
+    
+    Network IDS systems often rely on pattern matching and session analysis:
+    
+    ```bash
+    # Use session splicing
+    nikto -h example.com -evasion 5
+    
+    # Combine with timing controls
+    nikto -h example.com -evasion 5 -delay "2-5"
+    ```
+    
+    Additional techniques:
+    
+    - Route through multiple proxies
+    - Fragment requests across multiple packets
+    - Use HTTPS to encrypt traffic
+  </TabsContent>
+  <TabsContent value={"host"}>
+    ### Host-based IDS Bypass
+    
+    Host-based IDS systems often monitor file access and system calls:
+    
+    ```bash
+    # Use path obfuscation
+    nikto -h example.com -evasion 28
+    
+    # Combine with request manipulation
+    nikto -h example.com -evasion 28AB
+    ```
+    
+    Additional techniques:
+    
+    - Target non-standard ports
+    - Use non-standard protocol variations
+    - Distribute requests over time
+  </TabsContent>
+  <TabsContent value={"hybrid"}>
+    ### Hybrid Approach
+    
+    For environments with multiple layers of protection:
+    
+    ```bash
+    # Maximum stealth approach
+    nikto -h example.com -evasion 1267 -delay "3-7" -useragent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/96.0.4664.110" -nointeractive -Tuning x
+    ```
+    
+    This approach:
+    - Uses multiple evasion techniques
+    - Adds variable delays between requests
+    - Uses a common browser User-Agent
+    - Runs non-interactively
+    - Uses minimal scan tuning
+  </TabsContent>
+</Tabs>
+
+### Enterprise Environment Considerations
+
+When testing in enterprise environments with multiple security layers:
+
+```bash
+# Enterprise stealth scan
+nikto -h example.com -evasion 127 -delay 5 -useragent "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)" -nossl -Plugins "-outdated,-msgs" -Tuning 123 -output enterprise_scan.html -Format htm
+```
+
+Key considerations:
+- Use common enterprise User-Agents
+- Avoid SSL/TLS issues with `-nossl` if needed
+- Disable noisy plugins
+- Focus on specific test categories
+- Generate clean reports
+
+## Practical Evasion Examples
+
+### Basic Stealth Scan
+
+```bash
+# Basic stealth scan
+nikto -h example.com -evasion 17 -delay 2 -useragent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/96.0.4664.110"
+```
+
+This scan:
+- Uses random URI encoding and case changes
+- Adds a 2-second delay between requests
+- Uses a common browser User-Agent
+
+### Advanced Stealth Scan
+
+```bash
+# Advanced stealth scan
+nikto -h example.com -evasion 1267 -delay "2-5" -useragent FUZZ -Tuning 123 -vhost example.com
+```
+
+This scan:
+- Uses multiple evasion techniques
+- Adds variable delays between requests
+- Rotates through User-Agents
+- Focuses on specific test categories
+- Uses the correct virtual host
+
+### Maximum Stealth Scan
+
+```bash
+# Maximum stealth scan
+nikto -h example.com -evasion 12345678 -delay "5-10" -useragent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/96.0.4664.110" -Tuning 123 -timeout 10 -maxtime 3600 -Display 3 -nointeractive
+```
+
+This scan:
+- Uses all evasion techniques
+- Adds long variable delays between requests
+- Uses a common browser User-Agent
+- Focuses on specific test categories
+- Increases request timeout
+- Limits total scan time
+- Minimizes output
+- Runs non-interactively
+
+## Monitoring and Adjusting Evasion
+
+### Detecting Detection
+
+Monitor for signs that your scan has been detected:
+
+<Steps>
+  <Step title="Watch for Response Changes">
+    Look for sudden changes in server responses:
+    
+    ```bash
+    # Run with verbose output
+    nikto -h example.com -Display V -evasion 1
+    ```
+    
+    Signs of detection:
+    - Consistent 403 Forbidden responses
+    - Captcha challenges appearing
+    - Unusual redirects
+    - Connection resets
+  </Step>
+  <Step title="Test with Canary Requests">
+    Send benign requests before and after suspicious ones:
+    
+    ```bash
+    # Create a simple script
+    curl -A "Mozilla/5.0" https://example.com/
+    nikto -h example.com -evasion 1 -Tuning 9
+    curl -A "Mozilla/5.0" https://example.com/
+    ```
+    
+    If the second curl request fails but the first succeeded, your scan may have triggered blocking.
+  </Step>
+  <Step title="Adjust Techniques">
+    If detected, adjust your approach:
+    
+    ```bash
+    # Try different evasion combinations
+    nikto -h example.com -evasion 28 -delay 10
+    ```
+    
+    Consider:
+    - Changing IP address
+    - Using different evasion techniques
+    - Increasing delays
+    - Reducing scan scope
+  </Step>
+</Steps>
+
+### Balancing Stealth and Effectiveness
+
+Finding the right balance between evasion and scan effectiveness:
+
+<Tabs defaultValue={"quick"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"quick"}>Quick Assessment</TabsTrigger>
+    <TabsTrigger value={"thorough"}>Thorough Assessment</TabsTrigger>
+    <TabsTrigger value={"targeted"}>Targeted Assessment</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"quick"}>
+    ### Quick Assessment
+    
+    When you need basic results quickly:
+    
+    ```bash
+    # Quick but somewhat stealthy
+    nikto -h example.com -evasion 17 -Tuning 123 -maxtime 900
+    ```
+    
+    This approach:
+    - Uses minimal evasion techniques
+    - Focuses on common vulnerabilities
+    - Limits scan time to 15 minutes
+    - Accepts some risk of detection
+  </TabsContent>
+  <TabsContent value={"thorough"}>
+    ### Thorough Assessment
+    
+    When comprehensive results are needed:
+    
+    ```bash
+    # Thorough with moderate stealth
+    nikto -h example.com -evasion 127 -delay 2 -useragent "Mozilla/5.0" -Tuning x
+    ```
+    
+    This approach:
+    - Uses moderate evasion techniques
+    - Adds reasonable delays
+    - Uses a generic User-Agent
+    - Performs extensive testing
+    - Accepts longer scan times
+  </TabsContent>
+  <TabsContent value={"targeted"}>
+    ### Targeted Assessment
+    
+    When focusing on specific issues:
+    
+    ```bash
+    # Targeted with high stealth
+    nikto -h example.com -evasion 12678 -delay "3-7" -useragent "Mozilla/5.0" -Tuning 9 -Plugins "headers;paths"
+    ```
+    
+    This approach:
+    - Uses extensive evasion techniques
+    - Adds variable delays
+    - Uses a generic User-Agent
+    - Focuses on specific tests
+    - Runs only selected plugins
+  </TabsContent>
+</Tabs>
+
+## Best Practices for Evasion
+
+### Ethical Considerations
+
+- Always obtain proper authorization before testing
+- Document your methodology and evasion techniques used
+- Be prepared to immediately stop if requested
+- Consider the potential impact on production systems
+
+### Technical Best Practices
+
+1. **Start Simple**: Begin with minimal evasion and increase as needed
+2. **Test Incrementally**: Run small tests to verify evasion effectiveness
+3. **Monitor Systems**: Watch for signs of detection or system impact
+4. **Document Everything**: Record which techniques worked and which didn't
+5. **Adapt Dynamically**: Be prepared to change your approach mid-scan
+
+### Common Pitfalls
+
+- **Over-evasion**: Using too many techniques can cause scan failures
+- **Under-evasion**: Not using enough evasion can trigger detection
+- **Ignoring Feedback**: Failing to adjust based on server responses
+- **Excessive Speed**: Scanning too quickly despite evasion techniques
+- **Predictable Patterns**: Creating detectable patterns in your requests
+
+## Next Steps
+
+Now that you understand Nikto evasion techniques, explore the following topics:
+
+- [Plugin Development](/docs/nikto/advanced-techniques/plugin-development) - Learn how to create custom Nikto plugins
+- [Integration](/docs/nikto/integration) - Comprehensive guide to integrating Nikto with other tools
+- [Best Practices](/docs/nikto/best-practices) - Learn best practices for effective and ethical use of Nikto

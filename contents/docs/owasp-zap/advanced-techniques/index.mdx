@@ -1,0 +1,380 @@
+---
+title: OWASP ZAP Advanced Techniques
+description: Advanced usage scenarios and features of OWASP ZAP for comprehensive web application security testing
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Advanced Techniques
+
+This section covers advanced usage scenarios and features of OWASP ZAP that go beyond the core operations. These techniques will help you conduct more thorough and effective security assessments.
+
+## Overview of Advanced Capabilities
+
+OWASP ZAP offers numerous advanced features for security professionals:
+
+- **Authentication Handling**: Testing authenticated applications with various authentication mechanisms
+- **Scripting**: Extending ZAP's functionality with custom scripts
+- **Automation**: Integrating ZAP into CI/CD pipelines and automating security testing
+- **API Security Testing**: Specialized techniques for testing APIs and web services
+- **Advanced Proxy Features**: Intercepting, modifying, and analyzing HTTP/HTTPS traffic
+- **Custom Rules and Scan Policies**: Creating tailored scanning rules and policies
+- **Integration with Other Tools**: Working with other security tools and frameworks
+
+## Authentication Handling
+
+Testing authenticated applications is a critical aspect of security assessments. ZAP provides robust support for various authentication mechanisms.
+
+<Note>
+  For detailed instructions on authentication handling, see the [Authentication Techniques](/docs/owasp-zap/advanced-techniques/authentication) page.
+</Note>
+
+## Scripting and Extensibility
+
+ZAP's scripting capabilities allow you to extend its functionality and automate complex tasks.
+
+<Tabs defaultValue={"overview"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+    <TabsTrigger value={"types"}>Script Types</TabsTrigger>
+    <TabsTrigger value={"languages"}>Supported Languages</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"overview"}>
+    ### Scripting Overview
+    
+    ZAP's scripting engine allows you to:
+    
+    - Automate repetitive tasks
+    - Create custom scan rules
+    - Modify requests and responses
+    - Handle complex authentication flows
+    - Process and analyze scan results
+    - Integrate with external systems
+    
+    Scripts can be run on-demand or triggered by specific events within ZAP.
+  </TabsContent>
+  <TabsContent value={"types"}>
+    ### Script Types
+    
+    ZAP supports various script types:
+    
+    - **Active Rules**: Custom active scanning rules
+    - **Authentication**: Handle complex authentication processes
+    - **Extender**: Add new functionality to ZAP
+    - **HTTP Sender**: Modify HTTP messages before they are sent/received
+    - **Passive Rules**: Custom passive scanning rules
+    - **Proxy**: Process proxied requests and responses
+    - **Standalone**: Scripts that can be run on-demand
+    - **Targeted**: Scripts that run against a specific target
+  </TabsContent>
+  <TabsContent value={"languages"}>
+    ### Supported Languages
+    
+    ZAP supports multiple scripting languages:
+    
+    - **JavaScript**: Most commonly used
+    - **Groovy**: Java-like syntax with additional features
+    - **Python**: Via Jython implementation
+    - **Ruby**: Via JRuby implementation
+    - **Zest**: ZAP's graphical security testing language
+    
+    The availability of languages depends on the installed scripting engines.
+  </TabsContent>
+</Tabs>
+
+<Note>
+  For detailed instructions on scripting, see the [Scripting](/docs/owasp-zap/advanced-techniques/scripting) page.
+</Note>
+
+## Automation Framework
+
+ZAP's Automation Framework allows you to automate security testing and integrate ZAP into CI/CD pipelines.
+
+<Steps>
+  <Step title="Automation Overview">
+    The Automation Framework provides:
+    
+    - YAML-based configuration
+    - Job-based execution model
+    - Integration with CI/CD systems
+    - Consistent, repeatable testing
+    - Headless operation
+  </Step>
+  <Step title="Key Components">
+    - **Environment**: Define contexts, users, and URLs
+    - **Jobs**: Individual tasks to perform (spider, scan, report)
+    - **Parameters**: Configuration options for each job
+    - **Output**: Results and reports from the automation run
+  </Step>
+  <Step title="Common Use Cases">
+    - Integration with CI/CD pipelines
+    - Scheduled security testing
+    - Regression testing after code changes
+    - Baseline security scanning
+    - Compliance verification
+  </Step>
+</Steps>
+
+<Note>
+  For detailed instructions on automation, see the [Automation](/docs/owasp-zap/advanced-techniques/automation) page.
+</Note>
+
+## API Security Testing
+
+ZAP provides specialized features for testing APIs and web services.
+
+<Tabs defaultValue={"rest"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"rest"}>REST APIs</TabsTrigger>
+    <TabsTrigger value={"graphql"}>GraphQL</TabsTrigger>
+    <TabsTrigger value={"soap"}>SOAP/XML</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"rest"}>
+    ### REST API Testing
+    
+    ZAP can test REST APIs through:
+    
+    - OpenAPI/Swagger import
+    - Manual request creation
+    - API-specific scan rules
+    - Authentication handling
+    - Parameter fuzzing
+    
+    The OpenAPI Support add-on provides enhanced capabilities for REST API testing.
+  </TabsContent>
+  <TabsContent value={"graphql"}>
+    ### GraphQL Testing
+    
+    ZAP's GraphQL support includes:
+    
+    - GraphQL schema import
+    - Query generation
+    - Introspection query analysis
+    - GraphQL-specific vulnerabilities
+    - Custom query testing
+    
+    The GraphQL Support add-on is required for these features.
+  </TabsContent>
+  <TabsContent value={"soap"}>
+    ### SOAP/XML Web Services
+    
+    ZAP can test SOAP and XML-based web services:
+    
+    - WSDL import
+    - XML external entity (XXE) testing
+    - XML injection
+    - SOAP action spoofing
+    - WS-Security testing
+    
+    The SOAP Scanner add-on enhances ZAP's capabilities for SOAP services.
+  </TabsContent>
+</Tabs>
+
+<Note>
+  For detailed instructions on API security testing, see the [API Security Testing](/docs/owasp-zap/advanced-techniques/api-security) page.
+</Note>
+
+## Advanced Proxy Features
+
+ZAP's proxy capabilities go beyond basic interception and include advanced features for manipulating and analyzing traffic.
+
+<Tabs defaultValue={"breakpoints"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"breakpoints"}>Breakpoints</TabsTrigger>
+    <TabsTrigger value={"websockets"}>WebSockets</TabsTrigger>
+    <TabsTrigger value={"filters"}>Filters & Replacers</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"breakpoints"}>
+    ### Advanced Breakpoints
+    
+    ZAP allows fine-grained control over request/response interception:
+    
+    - Conditional breakpoints based on URL, method, parameters
+    - Custom breakpoint scripts
+    - HTTP message editors with syntax highlighting
+    - Hex editor for binary content
+    - Structured editors for common formats (JSON, XML)
+  </TabsContent>
+  <TabsContent value={"websockets"}>
+    ### WebSockets Support
+    
+    ZAP can intercept and manipulate WebSocket connections:
+    
+    - View WebSocket channels
+    - Intercept WebSocket messages
+    - Modify messages on-the-fly
+    - Set breakpoints on WebSocket traffic
+    - Fuzz WebSocket messages
+    - Passive and active scanning of WebSocket messages
+  </TabsContent>
+  <TabsContent value={"filters"}>
+    ### Filters and Replacers
+    
+    ZAP provides tools to modify requests and responses:
+    
+    - **Replacer**: Replace strings in requests or responses
+    - **Global Excludes**: Exclude URLs from proxying
+    - **HTTP Sessions**: Manage multiple sessions
+    - **Parameter Handling**: Modify how parameters are processed
+    - **Response Rewriting**: Modify responses before they reach the browser
+  </TabsContent>
+</Tabs>
+
+<Note>
+  For detailed instructions on advanced proxy features, see the [Advanced Proxy](/docs/owasp-zap/advanced-techniques/advanced-proxy) page.
+</Note>
+
+## Custom Rules and Scan Policies
+
+ZAP allows you to create custom scan rules and policies tailored to your specific needs.
+
+<Steps>
+  <Step title="Custom Scan Rules">
+    You can create custom scan rules to:
+    
+    - Test for organization-specific vulnerabilities
+    - Implement business logic testing
+    - Enhance existing scan rules
+    - Create rules for custom technologies
+    
+    Custom rules can be implemented as scripts or as Java plugins.
+  </Step>
+  <Step title="Custom Scan Policies">
+    Custom scan policies allow you to:
+    
+    - Select specific rules to include/exclude
+    - Set strength and threshold for each rule
+    - Create policies for different testing phases
+    - Target specific vulnerability types
+    - Optimize scanning performance
+  </Step>
+  <Step title="Alert Filters">
+    Alert filters help manage scan results by:
+    
+    - Suppressing false positives
+    - Changing risk levels for specific alerts
+    - Contextualizing alerts based on the application
+    - Creating organization-specific alert handling
+  </Step>
+</Steps>
+
+<Note>
+  For detailed instructions on custom rules and policies, see the [Custom Rules and Policies](/docs/owasp-zap/advanced-techniques/custom-rules) page.
+</Note>
+
+## Integration with Other Tools
+
+ZAP can be integrated with various other security tools and frameworks to create comprehensive security testing workflows.
+
+<Tabs defaultValue={"ci"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"ci"}>CI/CD Integration</TabsTrigger>
+    <TabsTrigger value={"vuln"}>Vulnerability Management</TabsTrigger>
+    <TabsTrigger value={"other"}>Other Security Tools</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"ci"}>
+    ### CI/CD Integration
+    
+    ZAP integrates with CI/CD systems:
+    
+    - **Jenkins**: Using the OWASP ZAP plugin
+    - **GitHub Actions**: Using ZAP GitHub Action
+    - **GitLab CI**: Using Docker containers
+    - **Azure DevOps**: Using extensions or Docker
+    - **CircleCI**: Using Docker containers
+    
+    Integration typically involves:
+    - Running ZAP in daemon or headless mode
+    - Executing automated scans
+    - Generating reports
+    - Setting quality gates based on findings
+  </TabsContent>
+  <TabsContent value={"vuln"}>
+    ### Vulnerability Management
+    
+    ZAP can export results to vulnerability management systems:
+    
+    - **DefectDojo**: Using the API or report imports
+    - **ThreadFix**: Using the ZAP ThreadFix plugin
+    - **JIRA**: Using the ZAP JIRA plugin
+    - **GitHub Issues**: Using custom scripts or the API
+    - **Generic issue trackers**: Using report exports
+  </TabsContent>
+  <TabsContent value={"other"}>
+    ### Other Security Tools
+    
+    ZAP works well with other security tools:
+    
+    - **Burp Suite**: Complementary testing
+    - **Selenium**: For automated browser testing
+    - **OWASP Dependency Check**: For component analysis
+    - **Metasploit**: For exploitation
+    - **Docker/Kubernetes**: For containerized testing
+  </TabsContent>
+</Tabs>
+
+<Note>
+  For detailed instructions on tool integration, see the [Tool Integration](/docs/owasp-zap/advanced-techniques/tool-integration) page.
+</Note>
+
+## Advanced Use Cases
+
+<Tabs defaultValue={"mobile"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"mobile"}>Mobile App Testing</TabsTrigger>
+    <TabsTrigger value={"cloud"}>Cloud Services</TabsTrigger>
+    <TabsTrigger value={"iot"}>IoT Security</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"mobile"}>
+    ### Mobile Application Testing
+    
+    ZAP can be used to test mobile applications:
+    
+    - Intercepting mobile app traffic
+    - Testing backend APIs used by mobile apps
+    - Certificate pinning bypass techniques
+    - Mobile-specific vulnerabilities
+    - Emulator/device configuration
+  </TabsContent>
+  <TabsContent value={"cloud"}>
+    ### Cloud Services Testing
+    
+    ZAP can test cloud-based applications:
+    
+    - Testing cloud APIs (AWS, Azure, GCP)
+    - Serverless function testing
+    - Cloud storage security
+    - Identity and access management
+    - Cloud-specific misconfigurations
+  </TabsContent>
+  <TabsContent value={"iot"}>
+    ### IoT Security Testing
+    
+    ZAP can assist with IoT security:
+    
+    - Testing IoT device APIs
+    - Analyzing IoT communication protocols
+    - Backend service testing
+    - Mobile companion app testing
+    - IoT-specific vulnerabilities
+  </TabsContent>
+</Tabs>
+
+<Note>
+  For detailed instructions on these advanced use cases, see the respective pages:
+  - [Mobile Testing](/docs/owasp-zap/advanced-techniques/mobile-testing)
+  - [Cloud Services Testing](/docs/owasp-zap/advanced-techniques/cloud-testing)
+  - [IoT Security Testing](/docs/owasp-zap/advanced-techniques/iot-testing)
+</Note>
+
+## Next Steps
+
+Now that you understand the advanced techniques available in OWASP ZAP, explore these topics in detail:
+
+- [Authentication Techniques](/docs/owasp-zap/advanced-techniques/authentication)
+- [Scripting](/docs/owasp-zap/advanced-techniques/scripting)
+- [Automation](/docs/owasp-zap/advanced-techniques/automation)
+- [API Security Testing](/docs/owasp-zap/advanced-techniques/api-security)
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

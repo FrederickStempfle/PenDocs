@@ -10,6 +10,126 @@ export type EachRoute = {
 
 export const ROUTES: EachRoute[] = [
   {
+    title: "Penetration Testing Guide",
+    href: "/pentesting",
+    noLink: true,
+    items: [
+      { title: "Introduction", href: "/introduction" }
+    ]
+  },
+  {
+    title: "Hashcat Guide",
+    href: "/hashcat",
+    noLink: true,
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      {
+        title: "Core Operations",
+        href: "/core-operations",
+        items: [
+          { title: "Basic Usage", href: "/basic-usage" },
+          { title: "Hash Types", href: "/hash-types" },
+          { title: "Attack Modes", href: "/attack-modes" }
+        ]
+      },
+      {
+        title: "Advanced Techniques",
+        href: "/advanced-techniques",
+        items: [
+          { title: "Rule-Based Attacks", href: "/rule-based-attacks" },
+          { title: "Mask Attacks", href: "/mask-attacks" },
+          { title: "Hybrid Attacks", href: "/hybrid-attacks" }
+        ]
+      },
+      { title: "Best Practices", href: "/best-practices" }
+    ]
+  },
+  {
+    title: "Hydra Guide",
+    href: "/hydra",
+    noLink: true,
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      {
+        title: "Core Operations",
+        href: "/core-operations",
+        items: [
+          { title: "Basic Usage", href: "/basic-usage" },
+          { title: "Supported Protocols", href: "/supported-protocols" },
+          { title: "Attack Options", href: "/attack-options" }
+        ]
+      },
+      {
+        title: "Advanced Techniques",
+        href: "/advanced-techniques",
+        items: [
+          { title: "Performance Tuning", href: "/performance-tuning" },
+          { title: "Custom Modules", href: "/custom-modules" }
+        ]
+      },
+      { title: "Protocol-Specific Guides", href: "/protocol-guides" },
+      { title: "Best Practices", href: "/best-practices" }
+    ]
+  },
+  {
+    title: "Nikto Guide",
+    href: "/nikto",
+    noLink: true,
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      {
+        title: "Core Operations",
+        href: "/core-operations",
+        items: [
+          { title: "Basic Usage", href: "/basic-usage" },
+          { title: "Scan Options", href: "/scan-options" },
+          { title: "Output Formats", href: "/output-formats" }
+        ]
+      },
+      {
+        title: "Advanced Techniques",
+        href: "/advanced-techniques",
+        items: [
+          { title: "Plugin Management", href: "/plugin-management" },
+          { title: "Plugin Development", href: "/plugin-development" },
+          { title: "Evasion Techniques", href: "/evasion-techniques" }
+        ]
+      },
+      { title: "Best Practices", href: "/best-practices" }
+    ]
+  },
+  {
+    title: "OWASP ZAP Guide",
+    href: "/owasp-zap",
+    noLink: true,
+    items: [
+      { title: "Introduction", href: "/introduction" },
+      {
+        title: "Core Operations",
+        href: "/core-operations",
+        items: [
+          { title: "Basic Usage", href: "/basic-usage" },
+          { title: "Scanning Options", href: "/scanning-options" },
+          { title: "Reporting", href: "/reporting" }
+        ]
+      },
+      {
+        title: "Advanced Techniques",
+        href: "/advanced-techniques",
+        items: [
+          { title: "Authentication", href: "/authentication" },
+          { title: "Scripting", href: "/scripting" },
+          { title: "Automation", href: "/automation" },
+          { title: "API Security Testing", href: "/api-security" },
+          { title: "Advanced Proxy Features", href: "/advanced-proxy" },
+          { title: "Custom Rules", href: "/custom-rules" },
+          { title: "Tool Integration", href: "/tool-integration" }
+        ]
+      },
+      { title: "Best Practices", href: "/best-practices" }
+    ]
+  },
+  {
     title: "Burp Suite Guide",
     href: "/burp-suite",
     noLink: true,

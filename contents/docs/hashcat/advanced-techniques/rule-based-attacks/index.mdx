@@ -1,0 +1,125 @@
+---
+title: Rule-Based Attacks
+description: Master rule-based attacks in Hashcat to transform wordlists and dramatically improve password cracking efficiency
+---
+
+# Rule-Based Attacks in Hashcat
+
+Rule-based attacks are one of the most powerful features in Hashcat, allowing you to apply transformations to wordlists to generate password candidates that match common patterns used by humans when creating passwords.
+
+## Understanding Rule-Based Attacks
+
+Rule-based attacks work by taking words from a wordlist and applying various transformations to them according to specified rules. These transformations can include:
+
+- Appending or prepending characters
+- Substituting characters (e.g., 'a' to '@')
+- Capitalizing letters
+- Reversing words
+- Duplicating characters
+- And many more operations
+
+This approach is highly effective because it leverages the fact that users often create passwords by modifying common words in predictable ways.
+
+## Basic Rule Syntax
+
+Hashcat rules consist of simple commands represented by single characters, often followed by parameters. Here are some basic rule functions:
+
+- `$1` - Append character '1'
+- `^1` - Prepend character '1'
+- `c` - Capitalize first letter
+- `u` - Convert to uppercase
+- `l` - Convert to lowercase
+- `r` - Reverse the word
+- `sa@` - Substitute 'a' with '@'
+
+Multiple rule functions can be combined on a single line to create complex transformations.
+
+## Using Built-in Rule Sets
+
+Hashcat comes with several built-in rule sets that are highly effective:
+
+```bash
+hashcat -a 0 -m 0 hashes.txt wordlist.txt -r /usr/share/hashcat/rules/best64.rule
+```
+
+Common built-in rule sets include:
+
+- **best64.rule** - A small but effective set of rules
+- **rockyou-30000.rule** - Derived from analysis of the RockYou password leak
+- **d3ad0ne.rule** - Comprehensive rule set for complex transformations
+- **OneRuleToRuleThemAll.rule** - A community-created "super rule"
+
+## Creating Custom Rules
+
+You can create custom rules tailored to specific target environments. Rules are stored in plain text files with one rule per line:
+
+```
+# Simple rule to add years
+$1$9$8$9
+$2$0$1$9
+$2$0$2$0
+$2$0$2$1
+$2$0$2$2
+```
+
+Save this to a file (e.g., `years.rule`) and use it with:
+
+```bash
+hashcat -a 0 -m 0 hashes.txt wordlist.txt -r years.rule
+```
+
+## Advanced Rule Functions
+
+For more complex password patterns, Hashcat offers advanced rule functions:
+
+- **Toggle case**: `t` toggles the case of a character
+- **Truncate**: `'4` keeps only the first 4 characters
+- **Duplicate**: `d` duplicates the entire word
+- **Rotate**: `}` rotates the word right, `{` rotates left
+- **Bitwise operations**: `L`, `R` for bit shifts
+
+## Rule Debugging and Testing
+
+To test rules before applying them to actual hash cracking, use the `--stdout` option:
+
+```bash
+hashcat -r myrule.rule --stdout wordlist.txt | head -20
+```
+
+This shows how your rules transform the words in your wordlist.
+
+## Rule Optimization
+
+When creating rules, consider these optimization tips:
+
+1. **Order matters** - Place more likely transformations earlier in your rule file
+2. **Avoid redundancy** - Remove rules that generate duplicate candidates
+3. **Test with samples** - Verify rule effectiveness with known passwords
+4. **Combine strategically** - Use multiple smaller rule files rather than one massive file
+
+## Practical Examples
+
+### Corporate Environment
+
+For a corporate environment with password policies requiring uppercase, numbers, and special characters:
+
+```
+c $1 $!
+c $2 $@
+c $3 $#
+```
+
+### Common Substitutions
+
+For targeting passwords with letter-to-symbol substitutions:
+
+```
+sa@ se3 si1 so0 ss$ st7
+```
+
+## Next Steps
+
+After mastering rule-based attacks, explore:
+
+- [Hybrid Attacks](/docs/hashcat/advanced-techniques/hybrid-attacks) - Combine dictionary and mask attacks
+- [Mask Attacks](/docs/hashcat/advanced-techniques/mask-attacks) - Target specific password patterns

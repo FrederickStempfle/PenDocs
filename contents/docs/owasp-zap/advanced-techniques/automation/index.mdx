@@ -1,0 +1,863 @@
+---
+title: OWASP ZAP Automation
+description: Automating security testing with OWASP ZAP's automation framework and integration capabilities
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Automation
+
+OWASP ZAP provides powerful automation capabilities that allow you to integrate security testing into your development lifecycle. This guide covers ZAP's automation framework and integration options for continuous security testing.
+
+## Automation Overview
+
+ZAP offers multiple approaches to automation:
+
+- **Automation Framework**: YAML-based configuration for consistent, repeatable testing
+- **Command Line Interface**: Run ZAP from scripts and CI/CD pipelines
+- **REST API**: Control ZAP remotely via HTTP requests
+- **Docker Images**: Run ZAP in containerized environments
+- **Client Libraries**: Integrate ZAP with various programming languages
+
+These approaches can be combined to create comprehensive security testing workflows tailored to your specific needs.
+
+## ZAP Automation Framework
+
+The Automation Framework is ZAP's newest and most powerful automation solution, introduced in ZAP 2.10.0.
+
+<Tabs defaultValue={"overview"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+    <TabsTrigger value={"structure"}>Structure</TabsTrigger>
+    <TabsTrigger value={"jobs"}>Available Jobs</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"overview"}>
+    ### Automation Framework Overview
+    
+    The Automation Framework provides:
+    
+    - YAML-based configuration
+    - Job-based execution model
+    - Integration with CI/CD systems
+    - Consistent, repeatable testing
+    - Headless operation
+    - Version control friendly
+    
+    It's designed to be simple to use while providing the flexibility needed for complex testing scenarios.
+  </TabsContent>
+  <TabsContent value={"structure"}>
+    ### Automation Plan Structure
+    
+    An automation plan consists of:
+    
+    - **env**: Environment configuration (contexts, URLs)
+    - **jobs**: Individual tasks to perform
+    - **parameters**: Global configuration options
+    
+    Each job has:
+    - A type (e.g., spider, passiveScan, activeScan)
+    - Job-specific parameters
+    - Optional dependencies on other jobs
+    
+    The jobs are executed in the order they appear in the plan, respecting dependencies.
+  </TabsContent>
+  <TabsContent value={"jobs"}>
+    ### Available Jobs
+    
+    The Automation Framework includes these built-in jobs:
+    
+    - **passiveScan-config**: Configure passive scanning
+    - **activeScan-config**: Configure active scanning
+    - **spider**: Traditional spider
+    - **ajaxSpider**: AJAX spider
+    - **passiveScan-wait**: Wait for passive scanning to complete
+    - **activeScan**: Perform active scanning
+    - **report**: Generate reports
+    - **delay**: Add a delay between jobs
+    - **requestor**: Make specific requests
+    - **alert-filter**: Filter alerts
+    - **vars**: Set variables
+    
+    Additional jobs may be available through add-ons.
+  </TabsContent>
+</Tabs>
+
+## Creating an Automation Plan
+
+<Steps>
+  <Step title="Create a Basic Plan">
+    Create a YAML file with the following structure:
+    
+    ```yaml
+    env:
+      contexts:
+        - name: "My Context"
+          urls:
+            - "https://example.com"
+    
+    jobs:
+      - type: spider
+        parameters:
+          context: "My Context"
+          url: "https://example.com"
+          maxDuration: 5
+    
+      - type: passiveScan-wait
+        parameters:
+          maxDuration: 10
+    
+      - type: activeScan
+        parameters:
+          context: "My Context"
+          maxDuration: 60
+    
+      - type: report
+        parameters:
+          template: traditional-html
+          reportDir: "/path/to/reports"
+          reportFile: "zap-report"
+    ```
+  </Step>
+  <Step title="Define Contexts">
+    Contexts define the scope of testing:
+    
+    ```yaml
+    env:
+      contexts:
+        - name: "My Context"
+          urls:
+            - "https://example.com"
+          includePaths:
+            - "https://example.com/.*"
+          excludePaths:
+            - "https://example.com/logout/.*"
+          authentication:
+            method: "form"
+            parameters:
+              loginUrl: "https://example.com/login"
+              loginRequestData: "username=%username%&password=%password%"
+              loginPageUrl: "https://example.com/login"
+            verification:
+              method: "response"
+              loggedInRegex: "Logout"
+              loggedOutRegex: "Login"
+          users:
+            - name: "User1"
+              credentials:
+                username: "testuser"
+                password: "testpass"
+    ```
+  </Step>
+  <Step title="Configure Jobs">
+    Configure each job with appropriate parameters:
+    
+    ```yaml
+    jobs:
+      - type: spider
+        parameters:
+          context: "My Context"
+          user: "User1"  # Optional, for authenticated scanning
+          url: "https://example.com"
+          maxDuration: 5
+          subtreeOnly: true
+    
+      - type: activeScan
+        parameters:
+          context: "My Context"
+          user: "User1"  # Optional, for authenticated scanning
+          policy: "Default Policy"
+          maxRuleDurationInMins: 5
+          maxScanDurationInMins: 60
+    ```
+  </Step>
+  <Step title="Add Report Generation">
+    Configure report generation:
+    
+    ```yaml
+    jobs:
+      # Other jobs...
+    
+      - type: report
+        parameters:
+          template: "traditional-html"
+          reportDir: "/path/to/reports"
+          reportFile: "zap-report"
+          reportTitle: "ZAP Security Report"
+          reportDescription: "This report contains the results of the automated security scan."
+          displayReport: false  # Set to true to open the report automatically
+    ```
+    
+    Available report formats include:
+    - traditional-html
+    - traditional-md
+    - traditional-xml
+    - traditional-json
+    - high-level-report
+  </Step>
+</Steps>
+
+## Running an Automation Plan
+
+<Tabs defaultValue={"cli"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"cli"}>Command Line</TabsTrigger>
+    <TabsTrigger value={"gui"}>GUI</TabsTrigger>
+    <TabsTrigger value={"docker"}>Docker</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"cli"}>
+    ### Running via Command Line
+    
+    Run an automation plan using the `-autorun` flag:
+    
+    ```bash
+    zap.sh -cmd -autorun /path/to/plan.yaml
+    ```
+    
+    Additional options:
+    
+    ```bash
+    # Run with debugging enabled
+    zap.sh -cmd -debug -autorun /path/to/plan.yaml
+    
+    # Run with a specific config file
+    zap.sh -cmd -config config.prop -autorun /path/to/plan.yaml
+    
+    # Run with environment variables
+    zap.sh -cmd -autorun /path/to/plan.yaml -env "key1=value1" -env "key2=value2"
+    ```
+  </TabsContent>
+  <TabsContent value={"gui"}>
+    ### Running via GUI
+    
+    To run an automation plan from the ZAP GUI:
+    
+    1. Go to **Automation > Automation Framework**
+    2. Click **Load Plan** and select your YAML file
+    3. Review and modify the plan if needed
+    4. Click **Run** to execute the plan
+    
+    You can also:
+    - Save the modified plan
+    - View the plan as YAML
+    - Generate a new plan from templates
+  </TabsContent>
+  <TabsContent value={"docker"}>
+    ### Running via Docker
+    
+    Run an automation plan using the ZAP Docker image:
+    
+    ```bash
+    # Mount the plan file and reports directory
+    docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable \
+      zap-automation -autorun /zap/wrk/plan.yaml
+    ```
+    
+    For packaged scans:
+    
+    ```bash
+    # Baseline scan
+    docker run -t owasp/zap2docker-stable zap-baseline.py -t https://example.com
+    
+    # Full scan
+    docker run -t owasp/zap2docker-stable zap-full-scan.py -t https://example.com
+    
+    # API scan
+    docker run -t owasp/zap2docker-stable zap-api-scan.py -t https://example.com/api -f openapi
+    ```
+  </TabsContent>
+</Tabs>
+
+## Advanced Automation Techniques
+
+### Authentication Automation
+
+<Steps>
+  <Step title="Form-Based Authentication">
+    Configure form-based authentication:
+    
+    ```yaml
+    env:
+      contexts:
+        - name: "My Context"
+          authentication:
+            method: "form"
+            parameters:
+              loginUrl: "https://example.com/login"
+              loginRequestData: "username=%username%&password=%password%"
+            verification:
+              method: "response"
+              loggedInRegex: "Logout"
+              loggedOutRegex: "Login"
+          users:
+            - name: "User1"
+              credentials:
+                username: "testuser"
+                password: "testpass"
+    ```
+  </Step>
+  <Step title="Script-Based Authentication">
+    For complex authentication flows:
+    
+    ```yaml
+    env:
+      contexts:
+        - name: "My Context"
+          authentication:
+            method: "script"
+            parameters:
+              script: "Authentication Script.js"
+              scriptEngine: "Oracle Nashorn"
+              loginUrl: "https://example.com/login"
+              # Additional script parameters
+            verification:
+              method: "response"
+              loggedInRegex: "Logout"
+              loggedOutRegex: "Login"
+          users:
+            - name: "User1"
+              credentials:
+                username: "testuser"
+                password: "testpass"
+                # Additional credentials required by the script
+    ```
+  </Step>
+  <Step title="Using Authentication in Jobs">
+    Specify the user for authenticated scanning:
+    
+    ```yaml
+    jobs:
+      - type: spider
+        parameters:
+          context: "My Context"
+          user: "User1"
+          url: "https://example.com"
+    
+      - type: activeScan
+        parameters:
+          context: "My Context"
+          user: "User1"
+          policy: "Default Policy"
+    ```
+  </Step>
+</Steps>
+
+### API Security Testing
+
+<Steps>
+  <Step title="API Definition Import">
+    Import API definitions:
+    
+    ```yaml
+    jobs:
+      - type: import
+        parameters:
+          type: "openapi"
+          file: "/path/to/openapi.json"
+          target: "https://example.com/api"
+    ```
+    
+    Supported formats:
+    - OpenAPI/Swagger
+    - SOAP/WSDL
+    - GraphQL
+  </Step>
+  <Step title="API Scanning">
+    Configure API-specific scanning:
+    
+    ```yaml
+    jobs:
+      - type: graphql
+        parameters:
+          endpoint: "https://example.com/graphql"
+          schemaFile: "/path/to/schema.graphql"
+          maxQueryDepth: 5
+          maxAdditionalQueryDepth: 5
+    
+      - type: activeScan
+        parameters:
+          context: "My Context"
+          policy: "API-Only"
+    ```
+  </Step>
+  <Step title="Custom API Requests">
+    Make specific API requests:
+    
+    ```yaml
+    jobs:
+      - type: requestor
+        parameters:
+          requests:
+            - url: "https://example.com/api/users"
+              method: "GET"
+              headers:
+                - "Content-Type: application/json"
+                - "Authorization: Bearer {%token%}"
+            - url: "https://example.com/api/data"
+              method: "POST"
+              headers:
+                - "Content-Type: application/json"
+              data: '{"key": "value"}'
+    ```
+  </Step>
+</Steps>
+
+## CI/CD Integration
+
+<Tabs defaultValue={"jenkins"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"jenkins"}>Jenkins</TabsTrigger>
+    <TabsTrigger value={"github"}>GitHub Actions</TabsTrigger>
+    <TabsTrigger value={"gitlab"}>GitLab CI</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"jenkins"}>
+    ### Jenkins Integration
+    
+    Using the OWASP ZAP Jenkins plugin:
+    
+    ```groovy
+    pipeline {
+        agent any
+        
+        stages {
+            stage('ZAP Security Scan') {
+                steps {
+                    script {
+                        // Run ZAP with automation plan
+                        sh 'docker run -v ${WORKSPACE}:/zap/wrk/:rw -t owasp/zap2docker-stable zap-automation -autorun /zap/wrk/zap-plan.yaml'
+                        
+                        // Archive the reports
+                        archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
+                        
+                        // Publish the report
+                        publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'reports',
+                            reportFiles: 'zap-report.html',
+                            reportName: 'ZAP Security Report'
+                        ])
+                    }
+                }
+            }
+        }
+    }
+    ```
+    
+    Alternatively, use the official ZAP Jenkins plugin:
+    
+    ```groovy
+    pipeline {
+        agent any
+        
+        stages {
+            stage('ZAP Security Scan') {
+                steps {
+                    script {
+                        zapStartNew()
+                        zapCrawler('https://example.com')
+                        zapActiveScan('https://example.com')
+                        zapReport()
+                        zapAlertCheck(failHighRisk: 1, failMediumRisk: 5)
+                    }
+                }
+            }
+        }
+    }
+    ```
+  </TabsContent>
+  <TabsContent value={"github"}>
+    ### GitHub Actions Integration
+    
+    Using the ZAP GitHub Action:
+    
+    ```yaml
+    name: ZAP Security Scan
+    
+    on:
+      push:
+        branches: [ main ]
+      pull_request:
+        branches: [ main ]
+    
+    jobs:
+      zap-scan:
+        runs-on: ubuntu-latest
+        
+        steps:
+        - uses: actions/checkout@v2
+        
+        - name: ZAP Scan
+          uses: zaproxy/action-baseline@v0.7.0
+          with:
+            target: 'https://example.com'
+            rules_file_name: '.zap/rules.tsv'
+            cmd_options: '-a'
+        
+        # For automation framework
+        - name: ZAP Automation Scan
+          uses: zaproxy/action-full-scan@v0.4.0
+          with:
+            target: 'https://example.com'
+            cmd_options: '-autorun .zap/automation-plan.yaml'
+    ```
+  </TabsContent>
+  <TabsContent value={"gitlab"}>
+    ### GitLab CI Integration
+    
+    Using ZAP in GitLab CI:
+    
+    ```yaml
+    stages:
+      - test
+      - security
+    
+    zap-scan:
+      stage: security
+      image: owasp/zap2docker-stable
+      script:
+        - mkdir -p /zap/wrk/reports
+        - zap-automation -autorun /zap/wrk/zap-plan.yaml
+      artifacts:
+        paths:
+          - reports/
+        expire_in: 1 week
+      allow_failure: true
+    ```
+    
+    For DAST scanning with GitLab's built-in capabilities:
+    
+    ```yaml
+    include:
+      - template: DAST.gitlab-ci.yml
+    
+    dast:
+      variables:
+        DAST_WEBSITE: https://example.com
+        DAST_FULL_SCAN_ENABLED: "true"
+    ```
+  </TabsContent>
+</Tabs>
+
+## Command Line Interface
+
+ZAP's command line interface provides various options for automation.
+
+<Steps>
+  <Step title="Basic Usage">
+    Run ZAP from the command line:
+    
+    ```bash
+    # Start ZAP in daemon mode
+    zap.sh -daemon -host 0.0.0.0 -port 8080
+    
+    # Run ZAP with no UI
+    zap.sh -cmd
+    ```
+  </Step>
+  <Step title="Packaged Scans">
+    ZAP includes several packaged scan scripts:
+    
+    ```bash
+    # Baseline scan (passive only)
+    zap-baseline.py -t https://example.com
+    
+    # Full scan (active)
+    zap-full-scan.py -t https://example.com
+    
+    # API scan
+    zap-api-scan.py -t https://example.com/api -f openapi
+    ```
+    
+    These scripts are available in the ZAP installation directory and in the Docker images.
+  </Step>
+  <Step title="Custom Command Line Scripts">
+    Create custom scripts using the ZAP API:
+    
+    ```bash
+    #!/bin/bash
+    
+    # Start ZAP in daemon mode
+    zap.sh -daemon -host 127.0.0.1 -port 8080 &
+    
+    # Wait for ZAP to start
+    sleep 10
+    
+    # Access the API
+    curl "http://localhost:8080/JSON/core/view/sites/"
+    
+    # Spider a URL
+    curl "http://localhost:8080/JSON/spider/action/scan/?url=https://example.com"
+    
+    # Wait for spider to complete
+    while [ "$(curl -s http://localhost:8080/JSON/spider/view/status/ | jq -r .status)" != "100" ]; do
+        sleep 5
+    done
+    
+    # Run active scan
+    curl "http://localhost:8080/JSON/ascan/action/scan/?url=https://example.com"
+    
+    # Wait for scan to complete
+    while [ "$(curl -s http://localhost:8080/JSON/ascan/view/status/ | jq -r .status)" != "100" ]; do
+        sleep 5
+    done
+    
+    # Generate report
+    curl "http://localhost:8080/OTHER/core/other/htmlreport/" > report.html
+    
+    # Shutdown ZAP
+    curl "http://localhost:8080/JSON/core/action/shutdown/"
+    ```
+  </Step>
+</Steps>
+
+## REST API
+
+ZAP provides a comprehensive REST API for remote control.
+
+<Tabs defaultValue={"usage"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"usage"}>Basic Usage</TabsTrigger>
+    <TabsTrigger value={"auth"}>Authentication</TabsTrigger>
+    <TabsTrigger value={"clients"}>Client Libraries</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"usage"}>
+    ### Basic API Usage
+    
+    Access the API via HTTP requests:
+    
+    ```
+    # View available sites
+    GET http://localhost:8080/JSON/core/view/sites/
+    
+    # Spider a URL
+    GET http://localhost:8080/JSON/spider/action/scan/?url=https://example.com
+    
+    # Check spider status
+    GET http://localhost:8080/JSON/spider/view/status/
+    
+    # Start active scan
+    GET http://localhost:8080/JSON/ascan/action/scan/?url=https://example.com
+    
+    # Get alerts
+    GET http://localhost:8080/JSON/alert/view/alerts/
+    ```
+    
+    The API is available in JSON, XML, HTML, and other formats by changing the URL prefix.
+  </TabsContent>
+  <TabsContent value={"auth"}>
+    ### API Authentication
+    
+    Secure the API with an API key:
+    
+    1. Set the API key in ZAP:
+       - Via GUI: **Tools > Options > API**
+       - Via command line: `-config api.key=myapikey`
+    
+    2. Include the API key in requests:
+    
+    ```
+    # With API key
+    GET http://localhost:8080/JSON/spider/action/scan/?apikey=myapikey&url=https://example.com
+    ```
+    
+    For additional security:
+    - Restrict API access to localhost
+    - Use HTTPS for API communication
+    - Set address restrictions in the API options
+  </TabsContent>
+  <TabsContent value={"clients"}>
+    ### Client Libraries
+    
+    ZAP provides official client libraries for:
+    
+    - **Python**:
+    
+    ```python
+    from zapv2 import ZAPv2
+    
+    # Initialize ZAP API client
+    zap = ZAPv2(apikey="myapikey", proxies={"http": "http://localhost:8080", "https": "http://localhost:8080"})
+    
+    # Spider a URL
+    scan_id = zap.spider.scan(url="https://example.com")
+    
+    # Wait for spider to complete
+    from time import sleep
+    while int(zap.spider.status(scan_id)) < 100:
+        sleep(1)
+    
+    # Start active scan
+    scan_id = zap.ascan.scan(url="https://example.com")
+    
+    # Wait for scan to complete
+    while int(zap.ascan.status(scan_id)) < 100:
+        sleep(5)
+    
+    # Get alerts
+    alerts = zap.alert.alerts()
+    ```
+    
+    - **Java**
+    - **Node.js**
+    - **.NET**
+    
+    These libraries simplify API interaction and provide type-safe access to ZAP functionality.
+  </TabsContent>
+</Tabs>
+
+## Docker Integration
+
+ZAP provides official Docker images for containerized security testing.
+
+<Steps>
+  <Step title="Available Images">
+    ZAP offers several Docker images:
+    
+    - **owasp/zap2docker-stable**: Latest stable release
+    - **owasp/zap2docker-weekly**: Latest weekly release
+    - **owasp/zap2docker-bare**: Minimal image without GUI
+    - **owasp/zap2docker-live**: Development version
+  </Step>
+  <Step title="Basic Usage">
+    Run ZAP in Docker:
+    
+    ```bash
+    # Run ZAP in daemon mode
+    docker run -p 8080:8080 -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080
+    
+    # Run a baseline scan
+    docker run -t owasp/zap2docker-stable zap-baseline.py -t https://example.com
+    
+    # Run with mounted directory for reports
+    docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable \
+      zap-full-scan.py -t https://example.com -r report.html
+    ```
+  </Step>
+  <Step title="Custom Docker Configurations">
+    Create a custom Dockerfile:
+    
+    ```dockerfile
+    FROM owasp/zap2docker-stable
+    
+    # Install additional tools
+    RUN apt-get update && apt-get install -q -y --fix-missing \
+        curl \
+        jq \
+        && rm -rf /var/lib/apt/lists/*
+    
+    # Add custom scripts
+    COPY scripts/ /zap/scripts/
+    
+    # Add custom configuration
+    COPY config/ /zap/config/
+    
+    # Set working directory
+    WORKDIR /zap/wrk
+    
+    # Default command
+    CMD ["zap-automation", "-autorun", "/zap/wrk/plan.yaml"]
+    ```
+  </Step>
+</Steps>
+
+## Best Practices for Automation
+
+<Steps>
+  <Step title="Scan Configuration">
+    - Start with a baseline scan before active scanning
+    - Define appropriate scope to avoid scanning unintended targets
+    - Use context definitions to properly scope tests
+    - Configure appropriate scan policies based on the application type
+    - Set reasonable timeouts to prevent scans from running too long
+  </Step>
+  <Step title="Resource Management">
+    - Allocate sufficient memory for ZAP (e.g., `-Xmx4G`)
+    - Consider using multiple ZAP instances for large applications
+    - Schedule scans during off-peak hours
+    - Use incremental scanning for large applications
+    - Monitor resource usage and adjust as needed
+  </Step>
+  <Step title="CI/CD Integration">
+    - Start with non-blocking security tests
+    - Gradually introduce quality gates as the application matures
+    - Use different scan types for different stages:
+      - Quick baseline scans for pull requests
+      - Full scans for nightly builds
+      - Comprehensive scans for releases
+    - Archive and compare reports to track security posture over time
+  </Step>
+  <Step title="Alert Management">
+    - Use alert filters to manage false positives
+    - Set appropriate risk thresholds for CI/CD pipelines
+    - Implement a process for reviewing and addressing alerts
+    - Track security debt over time
+    - Use context-specific alert handling
+  </Step>
+</Steps>
+
+## Troubleshooting Automation
+
+<Tabs defaultValue={"common"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"common"}>Common Issues</TabsTrigger>
+    <TabsTrigger value={"auth"}>Authentication Problems</TabsTrigger>
+    <TabsTrigger value={"performance"}>Performance Issues</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"common"}>
+    ### Common Issues
+    
+    - **ZAP fails to start**: Check memory allocation and permissions
+    - **Scans timeout**: Increase timeout values or reduce scope
+    - **Missing reports**: Verify report directory permissions
+    - **API connection errors**: Check network configuration and API key
+    
+    Enable debug logging for more information:
+    
+    ```bash
+    # Enable debug logging
+    zap.sh -debug -cmd -autorun plan.yaml
+    ```
+  </TabsContent>
+  <TabsContent value={"auth"}>
+    ### Authentication Problems
+    
+    - **Authentication fails**: Verify credentials and authentication configuration
+    - **Session not maintained**: Check session management configuration
+    - **CSRF tokens**: Enable anti-CSRF handling
+    
+    Test authentication manually before automation:
+    
+    1. Configure authentication in the GUI
+    2. Verify successful authentication
+    3. Export the context for automation
+  </TabsContent>
+  <TabsContent value={"performance"}>
+    ### Performance Issues
+    
+    - **Slow scanning**: Adjust scan policy and rule configuration
+    - **High memory usage**: Increase memory allocation or reduce concurrent threads
+    - **Incomplete scans**: Check for timeouts and increase duration limits
+    
+    Optimize performance:
+    
+    ```bash
+    # Increase memory allocation
+    zap.sh -Xmx4G -cmd -autorun plan.yaml
+    
+    # Reduce thread count
+    zap.sh -config scanner.threadPerHost=2 -cmd -autorun plan.yaml
+    ```
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand ZAP's automation capabilities, explore these related topics:
+
+- [API Security Testing](/docs/owasp-zap/advanced-techniques/api-security) - Automate API security testing
+- [Authentication Techniques](/docs/owasp-zap/advanced-techniques/authentication) - Configure authentication for automated testing
+- [Scripting](/docs/owasp-zap/advanced-techniques/scripting) - Extend automation with custom scripts
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

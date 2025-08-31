@@ -5,16 +5,16 @@ description: A comprehensive guide to full-site penetration testing with SQLMap
 
 Welcome to the comprehensive SQLMap guide. This documentation provides detailed instructions on using SQLMap, one of the most powerful and versatile SQL injection tools available for penetration testing.
 
-<Tabs defaultValue="overview" className="pt-5 pb-1">
+<Tabs defaultValue={"overview"} className="pt-5 pb-1">
   <TabsList>
-    <TabsTrigger value="overview">Overview</TabsTrigger>
-    <TabsTrigger value="features">Key Features</TabsTrigger>
-    <TabsTrigger value="versions">Version History</TabsTrigger>
+    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+    <TabsTrigger value={"features"}>Key Features</TabsTrigger>
+    <TabsTrigger value={"versions"}>Version History</TabsTrigger>
   </TabsList>
-  <TabsContent value="overview">
+  <TabsContent value={"overview"}>
     SQLMap is an open-source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws. It comes with a powerful detection engine, many niche features for the ultimate penetration tester, and a broad range of options for database fingerprinting, data fetching from the database, accessing the underlying file system, and executing commands on the operating system.
   </TabsContent>
-  <TabsContent value="features">
+  <TabsContent value={"features"}>
     - **Fully automated SQL injection tool**
     - **Support for multiple database systems**: MySQL, Oracle, PostgreSQL, Microsoft SQL Server, etc.
     - **Six SQL injection techniques**: boolean-based blind, time-based blind, error-based, UNION query, stacked queries, and out-of-band
@@ -22,7 +22,7 @@ Welcome to the comprehensive SQLMap guide. This documentation provides detailed 
     - **File system access and operating system command execution**
     - **Support for various authentication methods and proxy settings**
   </TabsContent>
-  <TabsContent value="versions">
+  <TabsContent value={"versions"}>
     - **SQLMap 1.7.2** (2023): Latest stable release with improved WAF detection
     - **SQLMap 1.6** (2022): Added support for new database systems and improved performance
     - **SQLMap 1.5** (2021): Enhanced evasion techniques and better handling of edge cases
@@ -41,20 +41,20 @@ Welcome to the comprehensive SQLMap guide. This documentation provides detailed 
 ## Getting Started with SQLMap
 
 <Stepper>
-  <StepperItem title="Install SQLMap">
+  <StepperItem title={"Install SQLMap"}>
     SQLMap comes pre-installed in many security-focused Linux distributions like Kali Linux. For other systems, you can install it from GitHub:
     ```bash
     git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git sqlmap-dev
     ```
   </StepperItem>
-  <StepperItem title="Verify Installation">
+  <StepperItem title={"Verify Installation"}>
     Test your installation by running:
     ```bash
     python sqlmap.py --version
     ```
     This should display the current version of SQLMap.
   </StepperItem>
-  <StepperItem title="Run Your First Scan">
+  <StepperItem title={"Run Your First Scan"}>
     Try a basic scan against a test URL:
     ```bash
     python sqlmap.py -u "http://testsite.com/page.php?id=1" --batch

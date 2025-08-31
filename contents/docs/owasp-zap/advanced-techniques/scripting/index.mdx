@@ -1,0 +1,887 @@
+---
+title: OWASP ZAP Scripting
+description: Extending OWASP ZAP functionality through custom scripts for advanced security testing
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Scripting
+
+OWASP ZAP's scripting capabilities allow you to extend its functionality, automate complex tasks, and customize its behavior to suit your specific testing needs. This guide covers the scripting features in ZAP and how to leverage them for advanced security testing.
+
+## Scripting Overview
+
+ZAP's scripting engine provides a powerful way to:
+
+- Automate repetitive tasks
+- Create custom scan rules
+- Modify requests and responses
+- Handle complex authentication flows
+- Process and analyze scan results
+- Integrate with external systems
+- Extend ZAP's functionality
+
+Scripts can be run on-demand or triggered by specific events within ZAP, making them versatile tools for security testing.
+
+## Scripting Engine
+
+<Tabs defaultValue={"languages"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"languages"}>Supported Languages</TabsTrigger>
+    <TabsTrigger value={"types"}>Script Types</TabsTrigger>
+    <TabsTrigger value={"interface"}>Scripting Interface</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"languages"}>
+    ### Supported Languages
+    
+    ZAP supports multiple scripting languages:
+    
+    - **JavaScript**: Most commonly used, based on Mozilla Rhino
+    - **Groovy**: Java-like syntax with additional features
+    - **Python**: Via Jython implementation
+    - **Ruby**: Via JRuby implementation
+    - **Zest**: ZAP's graphical security testing language
+    
+    The availability of languages depends on the installed scripting engines. JavaScript is included by default, while others may require additional add-ons.
+  </TabsContent>
+  <TabsContent value={"types"}>
+    ### Script Types
+    
+    ZAP supports various script types, each serving a specific purpose:
+    
+    - **Active Rules**: Custom active scanning rules
+    - **Authentication**: Handle complex authentication processes
+    - **Extender**: Add new functionality to ZAP
+    - **HTTP Sender**: Modify HTTP messages before they are sent/received
+    - **Passive Rules**: Custom passive scanning rules
+    - **Proxy**: Process proxied requests and responses
+    - **Standalone**: Scripts that can be run on-demand
+    - **Targeted**: Scripts that run against a specific target
+    - **Session Management**: Custom session handling
+    - **Variant**: Define custom input vectors for scanning
+    
+    Each script type has specific interfaces and methods that must be implemented.
+  </TabsContent>
+  <TabsContent value={"interface"}>
+    ### Scripting Interface
+    
+    ZAP provides a scripting interface accessible via:
+    
+    1. **Tools > Scripts**: Opens the Scripts tab
+    2. **Script Console**: Provides a console for writing and testing scripts
+    
+    The interface allows you to:
+    
+    - Create, edit, and delete scripts
+    - Organize scripts into categories
+    - Enable/disable scripts
+    - Run scripts on-demand
+    - View script output and errors
+    - Load scripts from files or templates
+    - Save scripts for future use
+  </TabsContent>
+</Tabs>
+
+## Getting Started with Scripting
+
+<Steps>
+  <Step title="Access the Scripts Interface">
+    1. Open ZAP
+    2. Go to **Tools > Scripts**
+    3. The Scripts tab will open, showing the script tree
+  </Step>
+  <Step title="Create a New Script">
+    1. Right-click on a script type in the tree
+    2. Select **New Script**
+    3. Enter a name for the script
+    4. Select the scripting language
+    5. Choose whether to load from a template or file
+    6. Click **OK**
+  </Step>
+  <Step title="Edit the Script">
+    1. Select your script in the tree
+    2. The script editor will open
+    3. Write or modify your script
+    4. Save the script using the save button
+  </Step>
+  <Step title="Run the Script">
+    For standalone scripts:
+    
+    1. Right-click on the script in the tree
+    2. Select **Run Script**
+    3. View the output in the script console
+    
+    For other script types, the execution depends on the type:
+    - Active/passive rules run during scanning
+    - HTTP Sender scripts run when requests are sent/received
+    - Proxy scripts run when requests are proxied
+  </Step>
+</Steps>
+
+## Script Types in Detail
+
+### Standalone Scripts
+
+Standalone scripts are the simplest type and can be run on-demand.
+
+```javascript
+// Example standalone script to list all URLs in the Sites tree
+function listAllUrls() {
+    var model = Java.type("org.parosproxy.paros.model.Model").getSingleton();
+    var session = model.getSession();
+    var sites = session.getSiteTree().getRoot();
+    
+    var urlList = [];
+    
+    function traverseSiteNode(node) {
+        if (node.isLeaf()) {
+            var historyReference = node.getHistoryReference();
+            if (historyReference) {
+                urlList.push(historyReference.getURI().toString());
+            }
+        }
+        
+        for (var i = 0; i < node.getChildCount(); i++) {
+            traverseSiteNode(node.getChildAt(i));
+        }
+    }
+    
+    traverseSiteNode(sites);
+    
+    print("Found " + urlList.length + " URLs:");
+    for (var i = 0; i < urlList.length; i++) {
+        print(urlList[i]);
+    }
+}
+
+listAllUrls();
+```
+
+### HTTP Sender Scripts
+
+HTTP Sender scripts allow you to modify requests and responses before they are sent or after they are received.
+
+```javascript
+// Example HTTP Sender script to add a custom header to all requests
+function sendingRequest(msg, initiator, helper) {
+    // Add a custom header to the request
+    var headers = msg.getRequestHeader();
+    headers.setHeader("X-Custom-Header", "ZAP-Test");
+    
+    // Log the modification
+    print("Added X-Custom-Header to request: " + headers.getURI().toString());
+}
+
+function responseReceived(msg, initiator, helper) {
+    // Process the response if needed
+    var responseCode = msg.getResponseHeader().getStatusCode();
+    if (responseCode == 403) {
+        print("Access forbidden: " + msg.getRequestHeader().getURI().toString());
+    }
+}
+```
+
+### Active Scan Rules
+
+Active scan rules allow you to create custom security tests that are executed during active scanning.
+
+```javascript
+// Example active scan rule to check for a specific vulnerability
+function scan(as, msg, param, value) {
+    // Create a test request
+    var testMsg = msg.cloneRequest();
+    var payload = "'; SELECT * FROM users; --";
+    
+    // Inject the payload
+    as.setParam(testMsg, param, payload);
+    
+    // Send the request
+    as.sendAndReceive(testMsg);
+    
+    // Check the response for signs of vulnerability
+    var responseBody = testMsg.getResponseBody().toString();
+    if (responseBody.indexOf("error in your SQL syntax") > -1) {
+        // Create an alert
+        as.newAlert()
+            .setRisk(3)  // High
+            .setConfidence(2)  // Medium
+            .setName("Custom SQL Injection Test")
+            .setDescription("SQL injection might be possible")
+            .setParam(param)
+            .setAttack(payload)
+            .setEvidence("error in your SQL syntax")
+            .setMessage(testMsg)
+            .raise();
+        
+        return true;  // Vulnerability found
+    }
+    
+    return false;  // No vulnerability found
+}
+```
+
+### Passive Scan Rules
+
+Passive scan rules analyze requests and responses without sending additional requests.
+
+```javascript
+// Example passive scan rule to detect insecure headers
+function scan(ps, msg, src) {
+    // Check for missing security headers
+    var headers = msg.getResponseHeader();
+    
+    if (!headers.getHeader("Content-Security-Policy")) {
+        // Create an alert for missing CSP
+        ps.newAlert()
+            .setRisk(1)  // Low
+            .setConfidence(2)  // Medium
+            .setName("Missing Content Security Policy Header")
+            .setDescription("Content Security Policy header is missing")
+            .setMessage(msg)
+            .raise();
+    }
+    
+    if (!headers.getHeader("X-XSS-Protection")) {
+        // Create an alert for missing XSS protection
+        ps.newAlert()
+            .setRisk(1)  // Low
+            .setConfidence(2)  // Medium
+            .setName("Missing X-XSS-Protection Header")
+            .setDescription("X-XSS-Protection header is missing")
+            .setMessage(msg)
+            .raise();
+    }
+    
+    return;
+}
+```
+
+### Authentication Scripts
+
+Authentication scripts handle complex authentication processes, as covered in the [Authentication Techniques](/docs/owasp-zap/advanced-techniques/authentication) page.
+
+### Proxy Scripts
+
+Proxy scripts process requests and responses as they pass through ZAP's proxy.
+
+```javascript
+// Example proxy script to log all form submissions
+function proxyRequest(msg) {
+    var uri = msg.getRequestHeader().getURI().toString();
+    var method = msg.getRequestHeader().getMethod();
+    
+    if (method === "POST") {
+        var body = msg.getRequestBody().toString();
+        print("Form submission detected:");
+        print("URL: " + uri);
+        print("Data: " + body);
+    }
+    
+    return true;  // Allow the request to proceed
+}
+
+function proxyResponse(msg) {
+    // Process the response if needed
+    return true;  // Allow the response to proceed
+}
+```
+
+## Advanced Scripting Techniques
+
+### Accessing ZAP's API
+
+Scripts can access ZAP's internal API to interact with the application.
+
+```javascript
+// Example of accessing ZAP's API
+function accessZapApi() {
+    // Get the control singleton
+    var control = Java.type("org.parosproxy.paros.control.Control").getSingleton();
+    
+    // Access the active scanner
+    var extAscan = control.getExtensionLoader().getExtension(
+        Java.type("org.zaproxy.zap.extension.ascan.ExtensionActiveScan").NAME);
+    
+    // Get all active scans
+    var activeScans = extAscan.getAllScans();
+    print("Active scans: " + activeScans.size());
+    
+    // Access the alert panel
+    var extAlert = control.getExtensionLoader().getExtension(
+        Java.type("org.zaproxy.zap.extension.alert.ExtensionAlert").NAME);
+    
+    // Get all alerts
+    var alerts = extAlert.getAllAlerts();
+    print("Total alerts: " + alerts.size());
+}
+```
+
+### Working with HTTP Messages
+
+Scripts can manipulate HTTP messages in various ways.
+
+```javascript
+// Example of working with HTTP messages
+function manipulateHttpMessage(helper) {
+    // Create a new HTTP message
+    var msg = helper.newHttpMessage();
+    
+    // Set the request
+    msg.setRequestHeader("GET /api/users HTTP/1.1\r\n" +
+                         "Host: example.com\r\n" +
+                         "User-Agent: ZAP\r\n" +
+                         "Accept: */*\r\n");
+    
+    // Send the request
+    helper.sendAndReceive(msg);
+    
+    // Process the response
+    var responseHeader = msg.getResponseHeader();
+    var responseBody = msg.getResponseBody().toString();
+    
+    print("Status code: " + responseHeader.getStatusCode());
+    print("Response body: " + responseBody);
+    
+    // Parse JSON response
+    try {
+        var json = JSON.parse(responseBody);
+        print("Users found: " + json.length);
+    } catch (e) {
+        print("Failed to parse JSON: " + e);
+    }
+}
+```
+
+### Integrating with External Tools
+
+Scripts can integrate with external tools and services.
+
+```javascript
+// Example of integrating with an external API
+function integrateWithExternalApi() {
+    // Import Java classes
+    var URL = Java.type("java.net.URL");
+    var HttpURLConnection = Java.type("java.net.HttpURLConnection");
+    var BufferedReader = Java.type("java.io.BufferedReader");
+    var InputStreamReader = Java.type("java.io.InputStreamReader");
+    var StringBuilder = Java.type("java.lang.StringBuilder");
+    
+    try {
+        // Create a connection to an external API
+        var url = new URL("https://api.example.com/data");
+        var connection = url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Accept", "application/json");
+        
+        // Read the response
+        var responseCode = connection.getResponseCode();
+        print("Response Code: " + responseCode);
+        
+        var reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        var response = new StringBuilder();
+        var line;
+        
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+        
+        print("Response: " + response.toString());
+        
+        // Process the data as needed
+        
+    } catch (e) {
+        print("Error: " + e);
+    }
+}
+```
+
+### Persistent Storage
+
+Scripts can use ZAP's global variables for persistent storage.
+
+```javascript
+// Example of using global variables for persistent storage
+function useGlobalVariables() {
+    // Access the extension
+    var extVar = Java.type("org.zaproxy.zap.extension.script.ScriptVars");
+    
+    // Set global variables
+    extVar.setGlobalVar("lastScanTime", new Date().toString());
+    extVar.setGlobalVar("scanCount", "1");
+    
+    // Get global variables
+    var lastScan = extVar.getGlobalVar("lastScanTime");
+    var count = extVar.getGlobalVar("scanCount");
+    
+    print("Last scan: " + lastScan);
+    print("Scan count: " + count);
+    
+    // Update the scan count
+    var newCount = parseInt(count) + 1;
+    extVar.setGlobalVar("scanCount", newCount.toString());
+}
+```
+
+## Zest Scripting Language
+
+Zest is ZAP's graphical security testing language, designed to be simple and accessible.
+
+<Tabs defaultValue={"overview"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+    <TabsTrigger value={"features"}>Key Features</TabsTrigger>
+    <TabsTrigger value={"usage"}>Using Zest</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"overview"}>
+    ### Zest Overview
+    
+    Zest is:
+    
+    - A graphical scripting language for security testing
+    - Designed to be simple and accessible
+    - Integrated into ZAP
+    - Able to be created and edited visually
+    - Recorded from browser actions
+    - Exported and imported as XML
+    
+    Zest scripts are particularly useful for:
+    - Automated testing
+    - Reproducing vulnerabilities
+    - Creating proof-of-concept exploits
+    - Teaching security concepts
+  </TabsContent>
+  <TabsContent value={"features"}>
+    ### Key Features of Zest
+    
+    Zest supports:
+    
+    - HTTP requests and responses
+    - Variables and assignments
+    - Conditionals (if/then/else)
+    - Loops
+    - Assertions
+    - Authentication
+    - Cookies and sessions
+    - File operations
+    - Script inclusions
+    - Comments and documentation
+    
+    Zest scripts can be:
+    - Created manually
+    - Recorded from browser actions
+    - Generated from existing requests
+    - Shared and reused
+  </TabsContent>
+  <TabsContent value={"usage"}>
+    ### Using Zest
+    
+    To create a Zest script:
+    
+    1. Go to **Tools > Scripts**
+    2. Right-click on a script type (e.g., Standalone)
+    3. Select **New Script**
+    4. Enter a name
+    5. Select **Zest** as the language
+    6. Click **OK**
+    
+    To record a Zest script:
+    
+    1. Right-click on a request in the History tab
+    2. Select **Add to Zest Script > New Zest Script**
+    3. Enter a name for the script
+    4. Browse through the application to record actions
+    5. Edit the script as needed
+    
+    The Zest editor provides a visual interface for editing scripts, with drag-and-drop functionality for adding and arranging statements.
+  </TabsContent>
+</Tabs>
+
+## Best Practices for Scripting
+
+<Steps>
+  <Step title="Script Organization">
+    - Use meaningful script names
+    - Organize scripts into logical categories
+    - Add comments to explain complex logic
+    - Use consistent formatting
+    - Break down complex scripts into smaller, reusable components
+  </Step>
+  <Step title="Error Handling">
+    - Implement proper error handling
+    - Use try/catch blocks for error-prone operations
+    - Log errors with meaningful messages
+    - Validate inputs and parameters
+    - Handle edge cases gracefully
+  </Step>
+  <Step title="Performance Considerations">
+    - Minimize unnecessary requests
+    - Avoid excessive logging
+    - Use efficient algorithms and data structures
+    - Consider the impact on scanning performance
+    - Test scripts with large inputs
+  </Step>
+  <Step title="Security Considerations">
+    - Don't hardcode sensitive information
+    - Be careful with external API calls
+    - Validate and sanitize data
+    - Consider the impact of scripts on target systems
+    - Follow ethical testing guidelines
+  </Step>
+</Steps>
+
+## Example Use Cases
+
+### Custom Vulnerability Scanner
+
+```javascript
+// Example of a custom vulnerability scanner for open redirects
+function scanForOpenRedirects(targetUrl) {
+    // Import required Java classes
+    var URL = Java.type("java.net.URL");
+    var HttpSender = Java.type("org.parosproxy.paros.network.HttpSender");
+    var HttpMessage = Java.type("org.parosproxy.paros.network.HttpMessage");
+    var URI = Java.type("org.apache.commons.httpclient.URI");
+    
+    // Create a new HTTP sender
+    var sender = new HttpSender(
+        HttpSender.MANUAL_REQUEST_INITIATOR);
+    
+    // Parse the target URL
+    var url = new URL(targetUrl);
+    var path = url.getPath();
+    var query = url.getQuery();
+    
+    // List of potential redirect parameters
+    var redirectParams = ["redirect", "url", "next", "target", "redir", "destination", "return", "returnUrl"];
+    
+    // List of payloads to test
+    var payloads = [
+        "https://evil.example.com",
+        "//evil.example.com",
+        "\\\\evil.example.com"
+    ];
+    
+    // Function to test a parameter
+    function testParameter(paramName, originalValue) {
+        for (var i = 0; i < payloads.length; i++) {
+            var payload = payloads[i];
+            
+            // Create a new query string with the payload
+            var newQuery = query.replace(
+                paramName + "=" + originalValue,
+                paramName + "=" + encodeURIComponent(payload)
+            );
+            
+            // Create a new URI with the modified query
+            var newUri = new URI(
+                url.getProtocol() + "://" +
+                url.getHost() +
+                (url.getPort() > 0 ? ":" + url.getPort() : "") +
+                path + "?" + newQuery,
+                true
+            );
+            
+            // Create and send the request
+            var msg = new HttpMessage(newUri);
+            sender.sendAndReceive(msg, true);
+            
+            // Check for open redirect
+            var location = msg.getResponseHeader().getHeader("Location");
+            if (location && (
+                location.indexOf("evil.example.com") > -1 ||
+                location.indexOf(payload) > -1
+            )) {
+                print("Potential open redirect found!");
+                print("URL: " + newUri.toString());
+                print("Location header: " + location);
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    // Parse query parameters
+    if (query) {
+        var params = query.split("&");
+        for (var i = 0; i < params.length; i++) {
+            var param = params[i].split("=");
+            if (param.length == 2) {
+                var name = param[0];
+                var value = param[1];
+                
+                // Check if this is a potential redirect parameter
+                if (redirectParams.indexOf(name.toLowerCase()) > -1 ||
+                    name.toLowerCase().indexOf("redirect") > -1 ||
+                    name.toLowerCase().indexOf("url") > -1) {
+                    
+                    print("Testing parameter: " + name);
+                    if (testParameter(name, value)) {
+                        // Vulnerability found, continue testing other parameters
+                    }
+                }
+            }
+        }
+    }
+    
+    print("Scan completed");
+}
+
+// Example usage
+// scanForOpenRedirects("https://example.com/login?redirect=/dashboard");
+```
+
+### Automated Authentication Testing
+
+```javascript
+// Example of automated authentication testing
+function testAuthenticationBypass(loginUrl, validUsername, validPassword) {
+    // Import required Java classes
+    var HttpSender = Java.type("org.parosproxy.paros.network.HttpSender");
+    var HttpMessage = Java.type("org.parosproxy.paros.network.HttpMessage");
+    var URI = Java.type("org.apache.commons.httpclient.URI");
+    
+    // Create a new HTTP sender
+    var sender = new HttpSender(
+        HttpSender.MANUAL_REQUEST_INITIATOR);
+    
+    // Function to send a login request
+    function sendLoginRequest(username, password) {
+        var msg = new HttpMessage(new URI(loginUrl, true));
+        msg.getRequestHeader().setMethod("POST");
+        msg.getRequestHeader().setHeader("Content-Type", "application/x-www-form-urlencoded");
+        msg.setRequestBody("username=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password));
+        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+        
+        sender.sendAndReceive(msg, true);
+        return msg;
+    }
+    
+    // Test cases to try
+    var testCases = [
+        // SQL Injection
+        { username: "admin' --", password: "anything" },
+        { username: "admin' OR '1'='1", password: "anything" },
+        
+        // Authentication Bypass
+        { username: "admin", password: "' OR '1'='1" },
+        { username: validUsername, password: "' OR '1'='1" },
+        
+        // NoSQL Injection
+        { username: "admin", password: "{\"$gt\": \"\"}" },
+        { username: "{\"$ne\": null}", password: "{\"$ne\": null}" },
+        
+        // Default Credentials
+        { username: "admin", password: "admin" },
+        { username: "admin", password: "password" },
+        { username: "root", password: "root" },
+        { username: "test", password: "test" }
+    ];
+    
+    // First, test with valid credentials to establish baseline
+    print("Testing with valid credentials...");
+    var validResponse = sendLoginRequest(validUsername, validPassword);
+    var validResponseBody = validResponse.getResponseBody().toString();
+    var validResponseCode = validResponse.getResponseHeader().getStatusCode();
+    
+    print("Valid login response code: " + validResponseCode);
+    
+    // Look for success indicators in the valid response
+    var successIndicators = [
+        "welcome",
+        "dashboard",
+        "logout",
+        "account",
+        "profile"
+    ];
+    
+    var successIndicator = null;
+    for (var i = 0; i < successIndicators.length; i++) {
+        if (validResponseBody.toLowerCase().indexOf(successIndicators[i]) > -1) {
+            successIndicator = successIndicators[i];
+            print("Success indicator found: " + successIndicator);
+            break;
+        }
+    }
+    
+    if (!successIndicator) {
+        print("Warning: Could not identify a success indicator in the valid response");
+    }
+    
+    // Now test each test case
+    print("\nTesting authentication bypass techniques...");
+    for (var i = 0; i < testCases.length; i++) {
+        var testCase = testCases[i];
+        print("\nTest case " + (i + 1) + ":");
+        print("Username: " + testCase.username);
+        print("Password: " + testCase.password);
+        
+        var response = sendLoginRequest(testCase.username, testCase.password);
+        var responseBody = response.getResponseBody().toString();
+        var responseCode = response.getResponseHeader().getStatusCode();
+        
+        print("Response code: " + responseCode);
+        
+        // Check if the response indicates successful login
+        var potentialBypass = false;
+        
+        if (responseCode == validResponseCode) {
+            potentialBypass = true;
+        }
+        
+        if (successIndicator && responseBody.toLowerCase().indexOf(successIndicator) > -1) {
+            potentialBypass = true;
+        }
+        
+        if (potentialBypass) {
+            print("POTENTIAL BYPASS FOUND! This combination may bypass authentication.");
+        } else {
+            print("Authentication not bypassed with this combination.");
+        }
+    }
+    
+    print("\nAuthentication testing completed.");
+}
+
+// Example usage
+// testAuthenticationBypass("https://example.com/login", "validuser", "validpass");
+```
+
+## Debugging Scripts
+
+<Steps>
+  <Step title="Using Print Statements">
+    The simplest way to debug scripts is to use print statements:
+    
+    ```javascript
+    print("Debug: Value of variable = " + myVariable);
+    ```
+    
+    Output appears in the Script Console.
+  </Step>
+  <Step title="Error Handling">
+    Use try/catch blocks to catch and diagnose errors:
+    
+    ```javascript
+    try {
+        // Code that might throw an error
+        var result = riskyFunction();
+        print("Result: " + result);
+    } catch (e) {
+        print("Error occurred: " + e);
+        print("Stack trace: " + e.stack);
+    }
+    ```
+  </Step>
+  <Step title="Inspecting Objects">
+    To inspect Java objects:
+    
+    ```javascript
+    function inspectObject(obj) {
+        print("Object type: " + Object.prototype.toString.call(obj));
+        
+        if (obj === null) {
+            print("Object is null");
+            return;
+        }
+        
+        if (obj === undefined) {
+            print("Object is undefined");
+            return;
+        }
+        
+        // For Java objects
+        if (typeof obj === 'object' && obj.getClass) {
+            print("Java class: " + obj.getClass().getName());
+        }
+        
+        // List methods and properties
+        print("Properties and methods:");
+        for (var prop in obj) {
+            try {
+                var value = obj[prop];
+                var type = typeof value;
+                if (type === 'function') {
+                    print(" - " + prop + "(): function");
+                } else {
+                    print(" - " + prop + ": " + type + " = " + value);
+                }
+            } catch (e) {
+                print(" - " + prop + ": [Error accessing: " + e + "]");
+            }
+        }
+    }
+    ```
+  </Step>
+  <Step title="Using the Script Console">
+    The Script Console provides an interactive environment:
+    
+    1. Go to **Tools > Options > Scripts**
+    2. Enable **Script Console Tab**
+    3. Go to the Script Console tab
+    4. Enter JavaScript commands directly
+    5. Use it to test snippets and inspect variables
+  </Step>
+</Steps>
+
+## Sharing and Importing Scripts
+
+<Steps>
+  <Step title="Exporting Scripts">
+    To share scripts with others:
+    
+    1. Right-click on a script in the Scripts tree
+    2. Select **Export**
+    3. Choose a location to save the script
+    4. Share the script file
+  </Step>
+  <Step title="Importing Scripts">
+    To import scripts:
+    
+    1. Right-click on a script type in the Scripts tree
+    2. Select **Import**
+    3. Browse to the script file
+    4. Click **Open**
+    
+    The script will be added to the selected script type.
+  </Step>
+  <Step title="Script Libraries">
+    For reusable code:
+    
+    1. Create a script in the **Script Libraries** section
+    2. Import this library in other scripts:
+    
+    ```javascript
+    // In JavaScript
+    var lib = this.getClass().getClassLoader()
+        .loadClass("org.zaproxy.zap.extension.script.ScriptVars")
+        .getMethod("getScriptVar", [java.lang.String, java.lang.String])
+        .invoke(null, ["ScriptLibraries", "myLibrary"]);
+    
+    // Now use functions from the library
+    lib.myFunction();
+    ```
+  </Step>
+  <Step title="Community Scripts">
+    ZAP has a repository of community scripts:
+    
+    1. Install the Community Scripts add-on
+    2. Access a wide range of example scripts
+    3. Use these as templates for your own scripts
+    4. Contribute your scripts back to the community
+    
+    The repository is available at: [github.com/zaproxy/community-scripts](https://github.com/zaproxy/community-scripts)
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you understand ZAP's scripting capabilities, explore these related topics:
+
+- [Authentication Techniques](/docs/owasp-zap/advanced-techniques/authentication) - Use scripts for complex authentication
+- [API Security Testing](/docs/owasp-zap/advanced-techniques/api-security) - Automate API testing with scripts
+- [Automation](/docs/owasp-zap/advanced-techniques/automation) - Integrate scripts into automated workflows
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

@@ -1,0 +1,727 @@
+---
+title: OWASP ZAP Scanning Options
+description: Detailed configuration of scanning features in OWASP ZAP for effective vulnerability discovery
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Scanning Options
+
+This guide provides detailed information on configuring and optimizing OWASP ZAP's scanning capabilities. Understanding these options will help you tailor scans to your specific needs, improve accuracy, and maximize effectiveness.
+
+## Scanning Types Overview
+
+ZAP offers several scanning mechanisms, each with different purposes and configuration options:
+
+<Tabs defaultValue={"passive"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"passive"}>Passive Scanning</TabsTrigger>
+    <TabsTrigger value={"active"}>Active Scanning</TabsTrigger>
+    <TabsTrigger value={"spider"}>Spider</TabsTrigger>
+    <TabsTrigger value={"ajax"}>AJAX Spider</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"passive"}>
+    ### Passive Scanning
+    
+    Passive scanning analyzes HTTP messages without sending additional requests:
+    
+    - **Automatic**: Runs automatically on all traffic passing through ZAP
+    - **Non-intrusive**: Doesn't generate additional traffic
+    - **Safe**: Cannot modify application state
+    
+    **Key capabilities**:
+    - Identifying information disclosure
+    - Detecting insecure headers
+    - Finding cookie issues
+    - Discovering content security policy problems
+    - Detecting outdated libraries
+  </TabsContent>
+  <TabsContent value={"active"}>
+    ### Active Scanning
+    
+    Active scanning sends test requests to identify vulnerabilities:
+    
+    - **On-demand**: Must be explicitly started
+    - **Intrusive**: Generates additional traffic
+    - **Potentially disruptive**: Can modify application state
+    
+    **Key capabilities**:
+    - Testing for injection flaws (SQL, NoSQL, OS Command)
+    - Identifying cross-site scripting (XSS)
+    - Detecting server-side request forgery (SSRF)
+    - Finding path traversal vulnerabilities
+    - Testing for XML external entity (XXE)
+  </TabsContent>
+  <TabsContent value={"spider"}>
+    ### Traditional Spider
+    
+    The traditional spider crawls web applications by parsing HTML and following links:
+    
+    - **Discovery tool**: Finds content and functionality
+    - **HTML-based**: Parses HTML to find links
+    - **Form handling**: Can submit forms with default values
+    
+    **Key capabilities**:
+    - Discovering URLs and directories
+    - Finding hidden content
+    - Building a site map
+    - Processing robots.txt and sitemap.xml
+  </TabsContent>
+  <TabsContent value={"ajax"}>
+    ### AJAX Spider
+    
+    The AJAX Spider uses a browser to discover content in JavaScript-heavy applications:
+    
+    - **JavaScript-aware**: Can handle dynamic content
+    - **Browser-based**: Uses a real browser to render pages
+    - **Event-driven**: Triggers JavaScript events
+    
+    **Key capabilities**:
+    - Discovering content in single-page applications (SPAs)
+    - Finding dynamically generated URLs
+    - Detecting client-side rendered content
+    - Handling complex JavaScript frameworks
+  </TabsContent>
+</Tabs>
+
+## Passive Scan Configuration
+
+Passive scanning happens automatically but can be fine-tuned for optimal performance and results.
+
+### Global Passive Scan Settings
+
+<Steps>
+  <Step title="Access Passive Scan Options">
+    1. Go to **Tools > Options > Passive Scanner**
+    2. This opens the passive scanner configuration panel
+  </Step>
+  <Step title="Configure General Settings">
+    - **Scan Only in Scope**: When enabled, only scans requests that are in scope
+    - **Scan Headers of All Requests**: When enabled, scans the headers of all requests (not just HTML responses)
+    - **Scan All Tags**: When enabled, scans all tags (not just those considered useful)
+    - **Max Alerts per Rule**: Limits the number of alerts each rule can raise (useful to prevent alert flooding)
+  </Step>
+  <Step title="Manage Scan Rules">
+    1. Click on the **Rules** tab
+    2. For each rule, you can:
+       - Enable/disable the rule
+       - Set the threshold (Off, Low, Medium, High)
+       - Configure rule-specific parameters
+    3. Use the **Filter** field to find specific rules
+  </Step>
+</Steps>
+
+### Passive Scan Rule Configuration
+
+<Tabs defaultValue={"info"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"info"}>Information Gathering</TabsTrigger>
+    <TabsTrigger value={"security"}>Security Headers</TabsTrigger>
+    <TabsTrigger value={"content"}>Content Issues</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"info"}>
+    ### Information Gathering Rules
+    
+    These rules identify information disclosure issues:
+    
+    | Rule | Description | Configuration |
+    |------|-------------|---------------|
+    | Application Error | Detects application error messages | Threshold: Adjust to reduce false positives |
+    | Private IP Disclosure | Finds private IP addresses in responses | None |
+    | Server Leaks Information | Detects server information leakage | None |
+    | Timestamp Disclosure | Finds timestamps in responses | Threshold: Adjust based on application |
+    | Username Disclosure | Detects potential usernames | Pattern: Add custom username patterns |
+  </TabsContent>
+  <TabsContent value={"security"}>
+    ### Security Header Rules
+    
+    These rules check for proper security headers:
+    
+    | Rule | Description | Configuration |
+    |------|-------------|---------------|
+    | Content Security Policy | Checks CSP headers | None |
+    | X-Content-Type-Options | Verifies presence of this header | None |
+    | X-Frame-Options | Checks for clickjacking protection | None |
+    | X-XSS-Protection | Verifies XSS protection header | None |
+    | Strict Transport Security | Checks HSTS configuration | None |
+  </TabsContent>
+  <TabsContent value={"content"}>
+    ### Content Issue Rules
+    
+    These rules analyze response content:
+    
+    | Rule | Description | Configuration |
+    |------|-------------|---------------|
+    | Cache Control | Checks cache control headers | None |
+    | Charset Missing | Verifies charset is specified | None |
+    | Cookie Issues | Analyzes cookie security | None |
+    | Cross Domain Script Inclusion | Checks for unsafe script sources | Whitelist: Add trusted domains |
+    | Outdated Library | Detects outdated JavaScript libraries | None |
+  </TabsContent>
+</Tabs>
+
+## Active Scan Configuration
+
+Active scanning is highly configurable to balance thoroughness with performance and impact.
+
+### Scan Policies
+
+<Steps>
+  <Step title="Access Scan Policies">
+    1. Go to **Tools > Options > Active Scan**
+    2. This opens the active scan policy configuration panel
+  </Step>
+  <Step title="Manage Existing Policies">
+    1. The default policy is always available
+    2. Select a policy to view or edit its settings
+    3. Click **Add** to create a new policy
+    4. Click **Remove** to delete a custom policy
+  </Step>
+  <Step title="Create a Custom Policy">
+    1. Click **Add** to create a new policy
+    2. Enter a name for the policy
+    3. Configure general settings:
+       - **Default Strength**: Overall strength of the scan
+       - **Default Threshold**: Overall threshold for raising alerts
+    4. Configure individual rules in the categories tabs
+  </Step>
+</Steps>
+
+### Rule Categories
+
+<Tabs defaultValue={"injection"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"injection"}>Injection</TabsTrigger>
+    <TabsTrigger value={"xss"}>Cross-Site Scripting</TabsTrigger>
+    <TabsTrigger value={"server"}>Server Side</TabsTrigger>
+    <TabsTrigger value={"client"}>Client Side</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"injection"}>
+    ### Injection Rules
+    
+    These rules test for various injection vulnerabilities:
+    
+    | Rule | Description | Strength | Threshold |
+    |------|-------------|----------|-----------|
+    | SQL Injection | Tests for SQL injection flaws | High: More test cases<br/>Medium: Balanced<br/>Low: Fewer tests | High: Fewer false positives<br/>Medium: Balanced<br/>Low: More alerts |
+    | Command Injection | Tests for OS command injection | High: More payloads<br/>Medium: Standard payloads<br/>Low: Basic checks | High: Requires clear evidence<br/>Medium: Standard evidence<br/>Low: More suspicious patterns |
+    | LDAP Injection | Tests for LDAP injection flaws | High: Comprehensive<br/>Medium: Standard<br/>Low: Basic | High: Strict matching<br/>Medium: Standard matching<br/>Low: Loose matching |
+    | XPath Injection | Tests for XPath injection | Similar to above | Similar to above |
+    | NoSQL Injection | Tests for NoSQL injection | Similar to above | Similar to above |
+  </TabsContent>
+  <TabsContent value={"xss"}>
+    ### Cross-Site Scripting Rules
+    
+    These rules test for XSS vulnerabilities:
+    
+    | Rule | Description | Strength | Threshold |
+    |------|-------------|----------|-----------|
+    | Reflected XSS | Tests for reflected XSS | High: Many vectors<br/>Medium: Common vectors<br/>Low: Basic vectors | High: Requires script execution<br/>Medium: Standard evidence<br/>Low: Potential vectors |
+    | Stored XSS | Tests for stored XSS | Similar to Reflected XSS | Similar to Reflected XSS |
+    | DOM XSS | Tests for DOM-based XSS | High: Deep analysis<br/>Medium: Standard checks<br/>Low: Basic checks | High: Confirmed sinks<br/>Medium: Probable sinks<br/>Low: Possible sinks |
+  </TabsContent>
+  <TabsContent value={"server"}>
+    ### Server-Side Rules
+    
+    These rules test for server-side vulnerabilities:
+    
+    | Rule | Description | Strength | Threshold |
+    |------|-------------|----------|-----------|
+    | Path Traversal | Tests for directory traversal | High: Many payloads<br/>Medium: Standard payloads<br/>Low: Basic checks | High: Requires file access<br/>Medium: Standard evidence<br/>Low: Suspicious patterns |
+    | Remote File Inclusion | Tests for RFI vulnerabilities | Similar to above | Similar to above |
+    | Server-Side Include | Tests for SSI vulnerabilities | Similar to above | Similar to above |
+    | SSRF | Tests for server-side request forgery | High: Advanced payloads<br/>Medium: Standard checks<br/>Low: Basic checks | High: Confirmed SSRF<br/>Medium: Probable SSRF<br/>Low: Possible SSRF |
+    | XXE | Tests for XML external entity | Similar to above | Similar to above |
+  </TabsContent>
+  <TabsContent value={"client"}>
+    ### Client-Side Rules
+    
+    These rules test for client-side vulnerabilities:
+    
+    | Rule | Description | Strength | Threshold |
+    |------|-------------|----------|-----------|
+    | CORS | Tests Cross-Origin Resource Sharing | High: Detailed checks<br/>Medium: Standard checks<br/>Low: Basic checks | High: Strict policy violations<br/>Medium: Standard violations<br/>Low: Minor issues |
+    | Cross-Site Request Forgery | Tests for CSRF vulnerabilities | High: All forms<br/>Medium: Important forms<br/>Low: Critical forms | High: No protection<br/>Medium: Weak protection<br/>Low: Partial protection |
+    | Clickjacking | Tests for clickjacking protection | Similar to above | Similar to above |
+  </TabsContent>
+</Tabs>
+
+### Active Scan Options
+
+When starting an active scan, you can configure various options:
+
+<Steps>
+  <Step title="Access Scan Dialog">
+    1. Right-click on a target in the Sites tree
+    2. Select **Attack > Active Scan**
+    3. The Active Scan dialog appears
+  </Step>
+  <Step title="Configure Scan Scope">
+    - **Starting Point**: The URL to start scanning from
+    - **Recurse**: When checked, scans all nodes under the starting point
+    - **Context**: Select a context to use its configuration
+    - **User**: Select a user for authenticated scanning
+  </Step>
+  <Step title="Configure Technology">
+    1. Click on the **Technology** tab
+    2. Select the technologies used by the target:
+       - **Operating Systems**: Windows, Linux, macOS, etc.
+       - **Databases**: MySQL, PostgreSQL, Oracle, etc.
+       - **Web Servers**: Apache, IIS, Nginx, etc.
+       - **Languages**: PHP, Java, .NET, etc.
+       - **Frameworks**: Spring, Django, Laravel, etc.
+    3. This helps ZAP focus on relevant tests
+  </Step>
+  <Step title="Configure Input Vectors">
+    1. Click on the **Input Vectors** tab
+    2. Select which elements to test:
+       - **URL Query String**: Parameters in the URL
+       - **POST Data**: Form parameters
+       - **HTTP Headers**: Request headers
+       - **Cookie Data**: Cookies
+       - **URL Path**: Path components
+    3. Configure how to handle specific input types
+  </Step>
+  <Step title="Advanced Options">
+    1. Click on the **Custom Vectors** tab to define custom input vectors
+    2. Click on the **DOM** tab to configure DOM-specific options
+    3. Click on the **Options** tab to set:
+       - **Inject plugin ID in header**: Helps identify which rule generated a request
+       - **Thread per host**: Number of threads per target host
+       - **Delay in milliseconds**: Delay between requests
+       - **Max rule duration**: Maximum time a rule can run
+  </Step>
+</Steps>
+
+## Spider Configuration
+
+### Traditional Spider Options
+
+<Steps>
+  <Step title="Access Spider Options">
+    1. Go to **Tools > Options > Spider**
+    2. This opens the spider configuration panel
+  </Step>
+  <Step title="Configure General Settings">
+    - **Max Depth**: Maximum depth to crawl (default: 5)
+    - **Thread Count**: Number of concurrent threads (default: 2)
+    - **Max Duration**: Maximum running time in minutes (0 for unlimited)
+    - **Max Children**: Maximum number of child nodes per node (0 for unlimited)
+  </Step>
+  <Step title="Configure Processing Options">
+    - **Process Forms**: When enabled, submits forms with default values
+    - **POST Forms**: When enabled, submits POST forms (potentially modifying data)
+    - **Parse Comments**: When enabled, looks for URLs in HTML comments
+    - **Parse robots.txt**: When enabled, processes robots.txt for URLs
+    - **Parse sitemap.xml**: When enabled, processes sitemap.xml for URLs
+    - **Parse SVN metadata**: When enabled, processes SVN metadata for URLs
+    - **Parse Git metadata**: When enabled, processes Git metadata for URLs
+  </Step>
+  <Step title="Configure Scope Options">
+    - **Skip URL regex**: URLs matching these patterns will be skipped
+    - **Handle OData-specific parameters**: When enabled, handles OData parameters
+    - **Domain whitelist**: Only follow links to these domains
+    - **Domain blacklist**: Don't follow links to these domains
+  </Step>
+</Steps>
+
+### AJAX Spider Options
+
+<Steps>
+  <Step title="Access AJAX Spider Options">
+    1. Go to **Tools > Options > AJAX Spider**
+    2. This opens the AJAX Spider configuration panel
+  </Step>
+  <Step title="Configure Browser Settings">
+    - **Browser**: Select which browser to use (Chrome, Firefox, HtmlUnit)
+    - **Browser arguments**: Additional arguments to pass to the browser
+  </Step>
+  <Step title="Configure Crawling Settings">
+    - **Number of browsers**: Number of concurrent browser instances
+    - **Max crawl depth**: Maximum depth to crawl
+    - **Max crawl states**: Maximum number of states to crawl
+    - **Max duration**: Maximum running time in minutes
+    - **Event wait time**: Time to wait after an event is fired
+    - **Reload wait time**: Time to wait after a page is reloaded
+  </Step>
+  <Step title="Configure Advanced Options">
+    - **Click elements once**: When enabled, clicks each element only once
+    - **Click default elements only**: When enabled, only clicks on default elements
+    - **Random inputs**: When enabled, uses random values for form inputs
+    - **Element wait time**: Time to wait for elements to appear
+  </Step>
+</Steps>
+
+## Advanced Scanning Techniques
+
+### Scan Hooks
+
+Scan hooks allow you to customize the scanning process programmatically:
+
+```javascript
+// Example scan hook script
+function scannerHook(helper, msg) {
+    // Add a custom header to all active scan requests
+    msg.getRequestHeader().setHeader('X-Scanner', 'ZAP');
+    return true;
+}
+
+function alertFilter(helper, alertList) {
+    // Filter out certain alerts
+    var filteredAlerts = [];
+    for (var i = 0; i < alertList.length; i++) {
+        var alert = alertList[i];
+        if (alert.getRisk() >= Alert.RISK_MEDIUM) {
+            filteredAlerts.push(alert);
+        }
+    }
+    return filteredAlerts;
+}
+```
+
+To use scan hooks:
+1. Go to **Tools > Options > Scripts**
+2. Add a new script in the **Scan Rules** category
+3. Implement the required functions
+4. Enable the script
+
+### Custom Scan Rules
+
+You can create custom scan rules to test for specific vulnerabilities:
+
+<Tabs defaultValue={"passive"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"passive"}>Custom Passive Rules</TabsTrigger>
+    <TabsTrigger value={"active"}>Custom Active Rules</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"passive"}>
+    ### Custom Passive Rules
+    
+    ```javascript
+    // Example passive scan rule
+    function scan(helper, msg) {
+        // Check if response contains sensitive information
+        var body = msg.getResponseBody().toString();
+        var url = msg.getRequestHeader().getURI().toString();
+        
+        if (/password|credential|token/i.test(body)) {
+            helper.newAlert()
+                .setRisk(Alert.RISK_MEDIUM)
+                .setConfidence(Alert.CONFIDENCE_MEDIUM)
+                .setName('Potential Sensitive Information Disclosure')
+                .setDescription('The response contains potentially sensitive information.')
+                .setUri(url)
+                .setEvidence(body.match(/password|credential|token/i)[0])
+                .raise();
+        }
+    }
+    ```
+    
+    To add a custom passive rule:
+    1. Go to **Tools > Options > Scripts**
+    2. Add a new script in the **Passive Rules** category
+    3. Implement the `scan` function
+    4. Enable the script
+  </TabsContent>
+  <TabsContent value={"active"}>
+    ### Custom Active Rules
+    
+    ```javascript
+    // Example active scan rule
+    function scan(helper, msg, param) {
+        // Test for a specific vulnerability
+        var attack = '"><script>alert(1)</script>';
+        var attackMsg = helper.prepareMessage();
+        helper.setParam(attackMsg, param, attack);
+        helper.sendAndReceive(attackMsg);
+        
+        var response = attackMsg.getResponseBody().toString();
+        if (response.indexOf('&lt;script&gt;alert(1)&lt;/script&gt;') >= 0) {
+            helper.newAlert()
+                .setRisk(Alert.RISK_HIGH)
+                .setConfidence(Alert.CONFIDENCE_MEDIUM)
+                .setName('Custom XSS Vulnerability')
+                .setDescription('A cross-site scripting vulnerability was detected.')
+                .setUri(attackMsg.getRequestHeader().getURI().toString())
+                .setParam(param)
+                .setAttack(attack)
+                .setEvidence('<script>alert(1)</script>')
+                .raise();
+            return true;
+        }
+        return false;
+    }
+    ```
+    
+    To add a custom active rule:
+    1. Go to **Tools > Options > Scripts**
+    2. Add a new script in the **Active Rules** category
+    3. Implement the `scan` function
+    4. Enable the script
+  </TabsContent>
+</Tabs>
+
+### Context-Specific Scanning
+
+<Steps>
+  <Step title="Create a Targeted Context">
+    1. Create a new context for your target
+    2. Define include/exclude patterns precisely
+    3. Configure authentication if needed
+    4. Set up users for authenticated scanning
+    5. Define technology scope to focus testing
+  </Step>
+  <Step title="Configure Input Vector Context">
+    1. Right-click on the context in the Sites tree
+    2. Select **Attack > Active Scan**
+    3. Go to the **Input Vectors** tab
+    4. Select only the relevant input vectors
+    5. This focuses testing on specific input types
+  </Step>
+  <Step title="Use Custom Scan Policy">
+    1. Create a custom scan policy for the context
+    2. Enable only relevant rules
+    3. Set appropriate strength and threshold
+    4. This ensures efficient and targeted scanning
+  </Step>
+  <Step title="Execute Context-Specific Scan">
+    1. Start the active scan with the context selected
+    2. Select a specific user if testing authenticated functionality
+    3. Monitor the scan progress
+    4. Review results in the context of the application
+  </Step>
+</Steps>
+
+## Performance Optimization
+
+### Optimizing Scan Speed
+
+<Tabs defaultValue={"active"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"active"}>Active Scan Performance</TabsTrigger>
+    <TabsTrigger value={"passive"}>Passive Scan Performance</TabsTrigger>
+    <TabsTrigger value={"spider"}>Spider Performance</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"active"}>
+    ### Active Scan Performance Tips
+    
+    1. **Adjust Thread Count**:
+       - Increase thread count for faster scanning (Tools > Options > Active Scan)
+       - Start with 5 threads per host and adjust based on performance
+       - Too many threads may overwhelm the target or your system
+    
+    2. **Focus Rule Selection**:
+       - Disable unnecessary rules for your environment
+       - Create custom policies for different testing phases
+       - Use technology filters to skip irrelevant tests
+    
+    3. **Optimize Scan Strength**:
+       - Use lower strength for initial scans
+       - Increase strength for targeted, in-depth testing
+       - Balance between speed and thoroughness
+    
+    4. **Target Input Vectors**:
+       - Disable testing of unnecessary input vectors
+       - Focus on the most relevant attack surfaces
+       - Use custom input vectors for specific tests
+  </TabsContent>
+  <TabsContent value={"passive"}>
+    ### Passive Scan Performance Tips
+    
+    1. **Manage Rule Set**:
+       - Disable rules that aren't relevant to your testing
+       - Focus on high-value rules for your environment
+       - Consider disabling heavy rules during initial exploration
+    
+    2. **Configure Alert Thresholds**:
+       - Set maximum alerts per rule to prevent flooding
+       - Use higher thresholds for rules prone to false positives
+       - Balance between completeness and manageability
+    
+    3. **Scope Limitation**:
+       - Enable "Scan only in scope" to focus on relevant targets
+       - Define scope carefully to exclude unnecessary content
+       - This significantly reduces processing overhead
+  </TabsContent>
+  <TabsContent value={"spider"}>
+    ### Spider Performance Tips
+    
+    1. **Traditional Spider**:
+       - Adjust max depth based on site structure
+       - Increase thread count for faster crawling
+       - Use domain whitelist to stay on target
+       - Disable unnecessary processing options
+    
+    2. **AJAX Spider**:
+       - Adjust browser count based on system resources
+       - Set reasonable max states and depth
+       - Use shorter wait times if the application is responsive
+       - Consider using HtmlUnit for faster processing
+    
+    3. **General Spider Tips**:
+       - Spider smaller sections of the application at a time
+       - Use targeted starting points rather than the entire site
+       - Exclude high-volume, low-value paths (e.g., search results)
+  </TabsContent>
+</Tabs>
+
+### Resource Management
+
+<Steps>
+  <Step title="Memory Allocation">
+    1. Increase memory allocation for ZAP:
+       - Edit `zap.bat` (Windows) or `zap.sh` (Linux/macOS)
+       - Modify the `-Xmx` parameter (e.g., `-Xmx2g` for 2GB)
+       - Restart ZAP for changes to take effect
+    2. Monitor memory usage in the status bar
+    3. Clear history periodically for long testing sessions
+  </Step>
+  <Step title="Database Management">
+    1. Go to **Tools > Options > Database**
+    2. Configure database settings:
+       - **Compact database on shutdown**: Reduces database size
+       - **Recovery log**: Controls transaction logging
+       - **Maximum request body size**: Limits stored request size
+       - **Maximum response body size**: Limits stored response size
+    3. These settings affect performance and disk usage
+  </Step>
+  <Step title="History Management">
+    1. Periodically clean history for long-running tests:
+       - Right-click on History tab and select **Purge History**
+       - Use **Analysis > Clear Passive Scan Results** to clear alerts
+    2. Export important findings before clearing
+    3. Consider using separate ZAP sessions for different testing phases
+  </Step>
+</Steps>
+
+## Scan Strategies
+
+### Risk-Based Scanning
+
+<Steps>
+  <Step title="Initial Reconnaissance">
+    1. Run passive scanning on the entire application
+    2. Use the traditional and AJAX spiders to discover content
+    3. Review the application structure and functionality
+    4. Identify high-value targets and sensitive functionality
+  </Step>
+  <Step title="Risk Assessment">
+    1. Prioritize targets based on:
+       - Business criticality
+       - Exposure (public vs. internal)
+       - Data sensitivity
+       - User privileges required
+    2. Create a risk-based testing plan
+  </Step>
+  <Step title="Tiered Scanning">
+    1. **Tier 1**: Quick scan of all discovered content
+       - Use a lightweight scan policy
+       - Focus on high-risk, low-false-positive rules
+       - Identify obvious vulnerabilities
+    
+    2. **Tier 2**: Detailed scan of high-risk areas
+       - Use a more comprehensive scan policy
+       - Include medium-risk rules
+       - Test all input vectors
+    
+    3. **Tier 3**: In-depth scan of critical functionality
+       - Use maximum strength settings
+       - Enable all relevant rules
+       - Perform manual testing alongside automated scanning
+  </Step>
+</Steps>
+
+### Incremental Scanning
+
+<Steps>
+  <Step title="Baseline Scan">
+    1. Perform an initial scan of the entire application
+    2. Document findings as a baseline
+    3. Address critical vulnerabilities
+  </Step>
+  <Step title="Change-Based Scanning">
+    1. For new features or changes:
+       - Spider the affected areas
+       - Run targeted active scans
+       - Compare with baseline results
+    2. Focus testing efforts on modified functionality
+    3. Verify that previous issues haven't been reintroduced
+  </Step>
+  <Step title="Regression Testing">
+    1. Periodically scan the entire application
+    2. Compare with previous baseline
+    3. Identify new vulnerabilities
+    4. Update the baseline after each cycle
+  </Step>
+</Steps>
+
+## Integration with Development Workflow
+
+### Continuous Integration
+
+<Steps>
+  <Step title="Set Up ZAP in CI/CD">
+    1. Use ZAP's automation framework or Docker container
+    2. Create a baseline scan configuration
+    3. Define thresholds for build failure
+  </Step>
+  <Step title="Configure CI Pipeline">
+    ```bash
+    # Example CI script using ZAP Docker
+    docker run -t owasp/zap2docker-stable zap-baseline.py \
+      -t https://example.com \
+      -c zap-baseline.conf \
+      -r testreport.html
+    ```
+    
+    The configuration file (`zap-baseline.conf`) can specify:
+    - Rules to include/exclude
+    - Alert levels that cause build failure
+    - Scan options and parameters
+  </Step>
+  <Step title="Review and Triage">
+    1. Generate reports in a format suitable for your workflow
+    2. Integrate results with issue tracking system
+    3. Implement a triage process for findings
+    4. Track vulnerability trends over time
+  </Step>
+</Steps>
+
+### API Testing
+
+<Steps>
+  <Step title="Import API Definition">
+    1. Go to **Tools > Import > OpenAPI Definition**
+    2. Import your OpenAPI/Swagger specification
+    3. ZAP will create Sites tree entries for all endpoints
+  </Step>
+  <Step title="Configure Authentication">
+    1. Set up appropriate authentication for the API
+    2. Create a context with the API endpoints
+    3. Configure users and authentication method
+  </Step>
+  <Step title="Create API-Specific Scan Policy">
+    1. Create a custom scan policy for API testing
+    2. Enable relevant rules for API vulnerabilities:
+       - Injection flaws
+       - Authorization issues
+       - Information disclosure
+       - Rate limiting
+    3. Disable irrelevant rules (e.g., browser-specific issues)
+  </Step>
+  <Step title="Execute API Scan">
+    1. Run the active scan with the API-specific policy
+    2. Monitor for false positives
+    3. Review findings in the context of API functionality
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you understand the scanning options in OWASP ZAP, explore these topics:
+
+- [Reporting](/docs/owasp-zap/core-operations/reporting) - Generating and customizing security reports
+- [Advanced Techniques](/docs/owasp-zap/advanced-techniques) - Advanced usage scenarios and features
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

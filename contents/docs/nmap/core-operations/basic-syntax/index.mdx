@@ -27,13 +27,13 @@ Each component serves a specific purpose:
 
 ## Basic Command Examples
 
-<Tabs defaultValue="simple" className="pt-5 pb-1">
+<Tabs defaultValue={"simple"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="simple">Simple Scans</TabsTrigger>
-    <TabsTrigger value="multiple">Multiple Targets</TabsTrigger>
-    <TabsTrigger value="output">Output Options</TabsTrigger>
+    <TabsTrigger value={"simple"}>Simple Scans</TabsTrigger>
+    <TabsTrigger value={"multiple"}>Multiple Targets</TabsTrigger>
+    <TabsTrigger value={"output"}>Output Options</TabsTrigger>
   </TabsList>
-  <TabsContent value="simple">
+  <TabsContent value={"simple"}>
     **Default Scan**
     ```bash
     nmap example.com
@@ -52,7 +52,7 @@ Each component serves a specific purpose:
     ```
     Scans ports 1 through 1000.
   </TabsContent>
-  <TabsContent value="multiple">
+  <TabsContent value={"multiple"}>
     **Multiple IP Addresses**
     ```bash
     nmap 192.168.1.1 192.168.1.2 192.168.1.3
@@ -71,7 +71,7 @@ Each component serves a specific purpose:
     ```
     Scans IP addresses from 192.168.1.1 to 192.168.1.50.
   </TabsContent>
-  <TabsContent value="output">
+  <TabsContent value={"output"}>
     **Normal Output to File**
     ```bash
     nmap -oN scan_results.txt example.com

@@ -1,0 +1,796 @@
+---
+title: OWASP ZAP Reporting
+description: Generating and customizing security reports with OWASP ZAP
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Reporting
+
+Effective reporting is a crucial part of any security assessment. OWASP ZAP provides various reporting options to document findings, share results with stakeholders, and integrate with other security tools. This guide covers all aspects of generating, customizing, and working with ZAP reports.
+
+## Report Types Overview
+
+ZAP supports multiple report formats, each suited for different purposes:
+
+<Tabs defaultValue={"html"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"html"}>HTML Reports</TabsTrigger>
+    <TabsTrigger value={"xml"}>XML Reports</TabsTrigger>
+    <TabsTrigger value={"json"}>JSON Reports</TabsTrigger>
+    <TabsTrigger value={"md"}>Markdown Reports</TabsTrigger>
+    <TabsTrigger value={"pdf"}>PDF Reports</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"html"}>
+    ### HTML Reports
+    
+    HTML reports are human-readable and provide interactive features:
+    
+    - **Advantages**:
+      - Visually appealing and easy to navigate
+      - Interactive elements (expandable sections, filtering)
+      - Can be viewed in any web browser
+      - Includes CSS for styling
+    
+    - **Best for**:
+      - Sharing with technical and non-technical stakeholders
+      - Detailed review of findings
+      - Including in security assessment documentation
+    
+    - **Example usage**:
+      ```
+      Reports > Generate HTML Report...
+      ```
+  </TabsContent>
+  <TabsContent value={"xml"}>
+    ### XML Reports
+    
+    XML reports provide structured data for integration with other tools:
+    
+    - **Advantages**:
+      - Machine-readable format
+      - Structured data with clear hierarchy
+      - Can be transformed using XSLT
+      - Easily parsed by automation tools
+    
+    - **Best for**:
+      - Integration with other security tools
+      - Custom processing and analysis
+      - Compliance documentation
+    
+    - **Example usage**:
+      ```
+      Reports > Generate XML Report...
+      ```
+  </TabsContent>
+  <TabsContent value={"json"}>
+    ### JSON Reports
+    
+    JSON reports are ideal for programmatic processing:
+    
+    - **Advantages**:
+      - Lightweight and easy to parse
+      - Native format for many programming languages
+      - Ideal for API integration
+      - Supports complex nested structures
+    
+    - **Best for**:
+      - Integration with modern tools and dashboards
+      - Custom data processing
+      - Building security metrics
+    
+    - **Example usage**:
+      ```
+      Reports > Generate JSON Report...
+      ```
+  </TabsContent>
+  <TabsContent value={"md"}>
+    ### Markdown Reports
+    
+    Markdown reports provide simple text-based documentation:
+    
+    - **Advantages**:
+      - Plain text format with simple formatting
+      - Easy to include in documentation
+      - Works well with version control systems
+      - Can be converted to other formats
+    
+    - **Best for**:
+      - Including in GitHub/GitLab repositories
+      - Technical documentation
+      - Simple sharing of results
+    
+    - **Example usage**:
+      ```
+      Reports > Generate Markdown Report...
+      ```
+  </TabsContent>
+  <TabsContent value={"pdf"}>
+    ### PDF Reports
+    
+    PDF reports provide a professional format for formal documentation:
+    
+    - **Advantages**:
+      - Professional appearance
+      - Fixed layout for consistent viewing
+      - Can be digitally signed
+      - Widely accepted format for formal reports
+    
+    - **Best for**:
+      - Formal security assessments
+      - Client deliverables
+      - Compliance documentation
+    
+    - **Example usage**:
+      ```
+      Reports > Generate PDF Report...
+      ```
+      
+    **Note**: PDF generation requires the "Report Generation" add-on to be installed.
+  </TabsContent>
+</Tabs>
+
+## Generating Basic Reports
+
+<Steps>
+  <Step title="Access Report Generation">
+    1. In ZAP, go to **Report > Generate Report...**
+    2. Alternatively, use the keyboard shortcut **Ctrl+R**
+  </Step>
+  <Step title="Select Report Format">
+    1. Choose the desired report format:
+       - HTML (default)
+       - XML
+       - JSON
+       - Markdown
+       - PDF (requires add-on)
+    2. Each format has its own template options
+  </Step>
+  <Step title="Configure Report Options">
+    1. **Title**: Enter a title for the report
+    2. **Template**: Select a template for the chosen format
+    3. **Report Directory**: Choose where to save the report
+    4. **File Name**: Specify the report file name
+    5. **Description**: Add an optional description
+    6. **Contexts**: Select which contexts to include
+  </Step>
+  <Step title="Filter Report Content">
+    1. **Include only URLs in scope**: When checked, only includes in-scope items
+    2. **Include only URLs in context**: When checked, only includes items in the selected contexts
+    3. **Risk levels to include**: Select which risk levels to include (High, Medium, Low, Informational)
+    4. **Confidence levels to include**: Select which confidence levels to include (High, Medium, Low)
+  </Step>
+  <Step title="Generate the Report">
+    1. Click **Generate Report**
+    2. ZAP will create the report in the specified location
+    3. A confirmation dialog will appear when complete
+    4. Option to open the report directly from the dialog
+  </Step>
+</Steps>
+
+## Customizing Report Content
+
+### Filtering Alerts
+
+<Steps>
+  <Step title="Use the Alert Filters Add-on">
+    1. Install the Alert Filters add-on if not already installed
+    2. Go to **Tools > Options > Alert Filters**
+    3. Click **Add** to create a new filter
+    4. Configure filter criteria:
+       - **Rule ID**: Specific rule to filter
+       - **URL**: URL pattern to match
+       - **Parameter**: Parameter name to match
+       - **Attack**: Attack pattern to match
+       - **Evidence**: Evidence pattern to match
+       - **New Risk Level**: Risk level to assign (can be used to hide alerts by setting to False Positive)
+    5. Apply filters before generating reports
+  </Step>
+  <Step title="Use Context Alert Filters">
+    1. Right-click on a context in the Sites tree
+    2. Select **Edit Context**
+    3. Go to the **Alert Filters** panel
+    4. Add filters specific to this context
+    5. These filters will apply when generating reports for this context
+  </Step>
+  <Step title="Filter During Report Generation">
+    In the report generation dialog:
+    1. Select specific risk levels to include
+    2. Select specific confidence levels to include
+    3. Choose to include only in-scope URLs
+    4. Select specific contexts to include
+  </Step>
+</Steps>
+
+### Report Templates
+
+<Tabs defaultValue={"traditional"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"traditional"}>Traditional Templates</TabsTrigger>
+    <TabsTrigger value={"modern"}>Modern Templates</TabsTrigger>
+    <TabsTrigger value={"custom"}>Custom Templates</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"traditional"}>
+    ### Traditional Templates
+    
+    ZAP includes several built-in templates:
+    
+    - **Traditional HTML Report**: Standard HTML report with ZAP branding
+    - **Traditional XML Report**: Standard XML structure for alerts
+    - **Traditional JSON Report**: Standard JSON structure for alerts
+    - **Traditional Markdown Report**: Simple markdown format
+    
+    These templates include:
+    - Summary of alerts by risk level
+    - Detailed information about each alert
+    - Evidence and solutions
+    - References to additional resources
+  </TabsContent>
+  <TabsContent value={"modern"}>
+    ### Modern Templates
+    
+    Modern templates provide enhanced features:
+    
+    - **Modern HTML Report**: Responsive design with improved navigation
+    - **High-Level Report**: Executive summary focused on key findings
+    - **Risk & Confidence Report**: Emphasizes risk and confidence levels
+    - **OWASP Top 10 Report**: Maps findings to OWASP Top 10 categories
+    
+    These templates often include:
+    - Interactive charts and graphs
+    - Filtering capabilities
+    - Improved visual design
+    - Additional context for findings
+  </TabsContent>
+  <TabsContent value={"custom"}>
+    ### Custom Templates
+    
+    You can create custom report templates:
+    
+    1. **HTML Templates**:
+       - Create a new HTML file with your desired structure
+       - Use ZAP template variables (e.g., `{{alertsJson}}`)
+       - Include CSS for styling
+       - Place in the `reports` directory in the ZAP home folder
+    
+    2. **XSLT Templates for XML**:
+       - Create an XSLT file to transform XML reports
+       - Customize the output format and structure
+       - Place in the `xml` directory in the ZAP home folder
+    
+    3. **JavaScript Templates for JSON**:
+       - Create a JavaScript file to process JSON data
+       - Generate custom HTML or other formats
+       - Place in the `reports` directory in the ZAP home folder
+  </TabsContent>
+</Tabs>
+
+## Advanced Reporting Features
+
+### Report Automation
+
+<Steps>
+  <Step title="Using the ZAP API">
+    ZAP provides a REST API for report generation:
+    
+    ```bash
+    # Generate an HTML report via the API
+    curl "http://localhost:8080/JSON/reports/action/generate/?apikey=YOUR-API-KEY&title=My%20Report&template=traditional&theme=&description=&contexts=&sites=&sections=&includedConfidences=&includedRisks=&reportFileName=zap-report.html&reportFileNamePattern=&reportDir=/path/to/reports/&display=false"
+    ```
+    
+    Key parameters:
+    - `title`: Report title
+    - `template`: Report template to use
+    - `reportFileName`: Output file name
+    - `reportDir`: Directory to save the report
+    - `contexts`: Contexts to include (comma-separated)
+    - `includedRisks`: Risk levels to include (comma-separated)
+  </Step>
+  <Step title="Using the Automation Framework">
+    ZAP's Automation Framework allows report generation in scripts:
+    
+    ```yaml
+    # Example automation framework configuration
+    env:
+      contexts:
+        - name: "Test Context"
+          urls:
+            - "https://example.com"
+    
+    jobs:
+      - type: spider
+        parameters:
+          context: "Test Context"
+          url: "https://example.com"
+      - type: activeScan
+        parameters:
+          context: "Test Context"
+      - type: report
+        parameters:
+          template: "traditional-html"
+          reportDir: "/path/to/reports/"
+          reportFile: "zap-report.html"
+          reportTitle: "ZAP Security Report"
+          reportDescription: "This report contains the results of the scan."
+          displayReport: false
+    ```
+    
+    Run with:
+    ```bash
+    zap.sh -cmd -autorun /path/to/config.yaml
+    ```
+  </Step>
+  <Step title="Scheduled Reporting">
+    For regular reporting:
+    
+    1. Create a script to run ZAP and generate reports
+    2. Schedule the script using cron (Linux/macOS) or Task Scheduler (Windows)
+    3. Configure the script to:
+       - Start ZAP in daemon mode
+       - Run required scans
+       - Generate reports
+       - Distribute reports (e.g., email, upload to server)
+    
+    Example bash script:
+    ```bash
+    #!/bin/bash
+    
+    # Start ZAP in daemon mode
+    zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.key=12345 &
+    ZAP_PID=$!
+    
+    # Wait for ZAP to start
+    sleep 30
+    
+    # Run automation framework
+    curl "http://localhost:8080/JSON/automation/action/runPlan/?apikey=12345&planFilePath=/path/to/config.yaml"
+    
+    # Wait for completion
+    sleep 60
+    
+    # Stop ZAP
+    kill $ZAP_PID
+    ```
+  </Step>
+</Steps>
+
+### Integration with Other Tools
+
+<Tabs defaultValue={"jenkins"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"jenkins"}>Jenkins</TabsTrigger>
+    <TabsTrigger value={"jira"}>Jira</TabsTrigger>
+    <TabsTrigger value={"defectdojo"}>DefectDojo</TabsTrigger>
+    <TabsTrigger value={"custom"}>Custom Integrations</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"jenkins"}>
+    ### Jenkins Integration
+    
+    Integrate ZAP reports with Jenkins CI/CD:
+    
+    1. **Install Required Plugins**:
+       - OWASP ZAP Plugin
+       - HTML Publisher Plugin
+    
+    2. **Configure Jenkins Pipeline**:
+    
+    ```groovy
+    pipeline {
+        agent any
+        
+        stages {
+            stage('ZAP Scan') {
+                steps {
+                    sh 'docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r zap-report.html'
+                }
+                post {
+                    always {
+                        publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: '.',
+                            reportFiles: 'zap-report.html',
+                            reportName: 'ZAP Security Report'
+                        ])
+                    }
+                }
+            }
+        }
+    }
+    ```
+    
+    3. **Configure Thresholds**:
+       - Set build to fail based on high-risk findings
+       - Use the ZAP plugin's threshold settings
+  </TabsContent>
+  <TabsContent value={"jira"}>
+    ### Jira Integration
+    
+    Create Jira issues from ZAP findings:
+    
+    1. **Install the Report to Jira Add-on**:
+       - Go to **Manage Add-ons** in ZAP
+       - Install "Report to Jira"
+    
+    2. **Configure Jira Connection**:
+       - Go to **Tools > Options > Report to Jira**
+       - Enter Jira URL, API token/password, and project key
+    
+    3. **Create Issues**:
+       - Right-click on an alert in ZAP
+       - Select **Report to Jira**
+       - Configure issue details
+       - Submit to create a Jira issue
+    
+    4. **Bulk Creation**:
+       - Select multiple alerts
+       - Right-click and select **Report to Jira**
+       - Configure common settings
+       - Submit to create multiple issues
+  </TabsContent>
+  <TabsContent value={"defectdojo"}>
+    ### DefectDojo Integration
+    
+    Import ZAP findings into DefectDojo:
+    
+    1. **Generate a ZAP Report**:
+       - Create a report in XML or JSON format
+    
+    2. **Import to DefectDojo**:
+       - In DefectDojo, go to **Engagements > Add Finding**
+       - Select "OWASP Zed Attack Proxy" as the scan type
+       - Upload the ZAP report file
+       - Configure import settings
+       - Submit to import findings
+    
+    3. **Automation**:
+       - Use DefectDojo's API for automated imports
+       
+       ```bash
+       curl -X POST "https://defectdojo.example.com/api/v2/import-scan/" \
+         -H "Authorization: Token <your-token>" \
+         -F "scan_type=ZAP Scan" \
+         -F "file=@/path/to/zap-report.xml" \
+         -F "engagement=<engagement_id>" \
+         -F "verified=true"
+       ```
+  </TabsContent>
+  <TabsContent value={"custom"}>
+    ### Custom Integrations
+    
+    Build custom integrations using ZAP's API and reports:
+    
+    1. **Using the ZAP API**:
+       - Get alerts via the API
+       
+       ```bash
+       curl "http://localhost:8080/JSON/alert/view/alerts/?apikey=<api-key>&baseurl=https://example.com"
+       ```
+       
+       - Process the JSON response in your application
+    
+    2. **Processing Report Files**:
+       - Generate reports in a structured format (XML, JSON)
+       - Use scripts to parse and process the reports
+       - Transform data into the format required by your tools
+       
+       Example Python script to process JSON reports:
+       ```python
+       import json
+       import requests
+       
+       # Load ZAP report
+       with open('zap-report.json', 'r') as f:
+           zap_data = json.load(f)
+           
+       # Process findings
+       for site in zap_data['site']:
+           for alert in site.get('alerts', []):
+               # Send to custom system
+               requests.post('https://your-system.example.com/api/vulnerabilities', 
+                            json={
+                                'title': alert['name'],
+                                'severity': alert['riskdesc'],
+                                'description': alert['desc'],
+                                'solution': alert['solution'],
+                                'url': alert['instances'][0]['uri'] if alert['instances'] else '',
+                            })
+       ```
+  </TabsContent>
+</Tabs>
+
+## Report Customization Examples
+
+### HTML Report Customization
+
+<Steps>
+  <Step title="Create a Custom Template">
+    1. Locate the ZAP home directory:
+       - Windows: `%USERPROFILE%\.ZAP`
+       - Linux/macOS: `~/.ZAP`
+    
+    2. Create a `reports` directory if it doesn't exist
+    
+    3. Create a new HTML template file, e.g., `custom-template.html`:
+    
+    ```html
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{title}}</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .risk-high { background-color: #ff5555; }
+            .risk-medium { background-color: #ffaa00; }
+            .risk-low { background-color: #ffff00; }
+            .risk-info { background-color: #00aaff; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; }
+            th { background-color: #f2f2f2; }
+        </style>
+    </head>
+    <body>
+        <h1>{{title}}</h1>
+        <p>{{description}}</p>
+        
+        <h2>Summary</h2>
+        <table>
+            <tr>
+                <th>Risk Level</th>
+                <th>Number of Alerts</th>
+            </tr>
+            {{#alertsSeverityBreakdown}}
+            <tr>
+                <td>{{severity}}</td>
+                <td>{{count}}</td>
+            </tr>
+            {{/alertsSeverityBreakdown}}
+        </table>
+        
+        <h2>Alerts</h2>
+        {{#alerts}}
+        <div class="alert risk-{{riskLowercase}}">
+            <h3>{{name}} ({{risk}})</h3>
+            <p><strong>Description:</strong> {{desc}}</p>
+            <p><strong>Solution:</strong> {{solution}}</p>
+            <p><strong>Reference:</strong> {{reference}}</p>
+            
+            <h4>Instances</h4>
+            <ul>
+            {{#instances}}
+                <li>
+                    <p><strong>URL:</strong> {{uri}}</p>
+                    <p><strong>Method:</strong> {{method}}</p>
+                    {{#param}}<p><strong>Parameter:</strong> {{param}}</p>{{/param}}
+                    {{#attack}}<p><strong>Attack:</strong> {{attack}}</p>{{/attack}}
+                    {{#evidence}}<p><strong>Evidence:</strong> {{evidence}}</p>{{/evidence}}
+                </li>
+            {{/instances}}
+            </ul>
+        </div>
+        {{/alerts}}
+    </body>
+    </html>
+    ```
+  </Step>
+  <Step title="Use the Custom Template">
+    1. In ZAP, go to **Report > Generate Report...**
+    2. Select **HTML** as the report format
+    3. In the Template dropdown, select your custom template
+    4. Configure other report options as needed
+    5. Generate the report
+  </Step>
+  <Step title="Customize Further">
+    You can enhance your template with:
+    
+    - Company branding and logos
+    - Interactive JavaScript elements
+    - Charts and graphs using libraries like Chart.js
+    - Custom CSS for better styling
+    - Additional sections for methodology, scope, etc.
+    
+    Available template variables include:
+    - `{{title}}` - Report title
+    - `{{description}}` - Report description
+    - `{{alerts}}` - All alerts
+    - `{{alertsSeverityBreakdown}}` - Summary of alerts by severity
+    - `{{alertsJson}}` - All alerts in JSON format (for JavaScript processing)
+  </Step>
+</Steps>
+
+### XML Report Transformation
+
+<Steps>
+  <Step title="Create an XSLT Template">
+    1. Create an XSLT file, e.g., `custom-transform.xslt`:
+    
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+        <xsl:output method="html" indent="yes"/>
+        
+        <xsl:template match="/">
+            <html>
+                <head>
+                    <title>Security Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        .high { color: red; }
+                        .medium { color: orange; }
+                        .low { color: yellow; }
+                        .info { color: blue; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Security Assessment Report</h1>
+                    
+                    <h2>Summary</h2>
+                    <table border="1">
+                        <tr>
+                            <th>Risk Level</th>
+                            <th>Count</th>
+                        </tr>
+                        <tr>
+                            <td class="high">High</td>
+                            <td><xsl:value-of select="count(//alertitem[riskcode='3'])"/></td>
+                        </tr>
+                        <tr>
+                            <td class="medium">Medium</td>
+                            <td><xsl:value-of select="count(//alertitem[riskcode='2'])"/></td>
+                        </tr>
+                        <tr>
+                            <td class="low">Low</td>
+                            <td><xsl:value-of select="count(//alertitem[riskcode='1'])"/></td>
+                        </tr>
+                        <tr>
+                            <td class="info">Informational</td>
+                            <td><xsl:value-of select="count(//alertitem[riskcode='0'])"/></td>
+                        </tr>
+                    </table>
+                    
+                    <h2>Findings</h2>
+                    <xsl:for-each select="//alertitem">
+                        <xsl:sort select="riskcode" order="descending"/>
+                        <div>
+                            <h3>
+                                <xsl:attribute name="class">
+                                    <xsl:choose>
+                                        <xsl:when test="riskcode='3'">high</xsl:when>
+                                        <xsl:when test="riskcode='2'">medium</xsl:when>
+                                        <xsl:when test="riskcode='1'">low</xsl:when>
+                                        <xsl:otherwise>info</xsl:otherwise>
+                                    </xsl:choose>
+                                </xsl:attribute>
+                                <xsl:value-of select="name"/> (<xsl:value-of select="risk"/>)
+                            </h3>
+                            <p><strong>Description:</strong> <xsl:value-of select="desc"/></p>
+                            <p><strong>Solution:</strong> <xsl:value-of select="solution"/></p>
+                            <p><strong>Reference:</strong> <xsl:value-of select="reference"/></p>
+                            
+                            <h4>Instances</h4>
+                            <ul>
+                                <xsl:for-each select="instances/instance">
+                                    <li>
+                                        <p><strong>URL:</strong> <xsl:value-of select="uri"/></p>
+                                        <p><strong>Method:</strong> <xsl:value-of select="method"/></p>
+                                        <xsl:if test="param">
+                                            <p><strong>Parameter:</strong> <xsl:value-of select="param"/></p>
+                                        </xsl:if>
+                                        <xsl:if test="attack">
+                                            <p><strong>Attack:</strong> <xsl:value-of select="attack"/></p>
+                                        </xsl:if>
+                                        <xsl:if test="evidence">
+                                            <p><strong>Evidence:</strong> <xsl:value-of select="evidence"/></p>
+                                        </xsl:if>
+                                    </li>
+                                </xsl:for-each>
+                            </ul>
+                        </div>
+                    </xsl:for-each>
+                </body>
+            </html>
+        </xsl:template>
+    </xsl:stylesheet>
+    ```
+  </Step>
+  <Step title="Apply the Transformation">
+    1. Generate an XML report from ZAP
+    2. Use an XSLT processor to transform the report:
+    
+    ```bash
+    # Using xsltproc (Linux/macOS)
+    xsltproc custom-transform.xslt zap-report.xml > transformed-report.html
+    
+    # Using Saxon (Java)
+    java -jar saxon.jar -s:zap-report.xml -xsl:custom-transform.xslt -o:transformed-report.html
+    ```
+    
+    3. View or distribute the transformed report
+  </Step>
+</Steps>
+
+## Best Practices for Reporting
+
+### Effective Report Structure
+
+<Steps>
+  <Step title="Include an Executive Summary">
+    - Brief overview of the assessment
+    - Key findings and risk levels
+    - High-level recommendations
+    - Visual summary (charts, graphs)
+    
+    This section should be understandable by non-technical stakeholders.
+  </Step>
+  <Step title="Provide Clear Methodology">
+    - Scope of the assessment
+    - Testing approach and tools used
+    - Testing environment and conditions
+    - Limitations and constraints
+    
+    This helps establish the context and boundaries of the assessment.
+  </Step>
+  <Step title="Organize Findings by Risk">
+    - Group findings by risk level (High, Medium, Low, Informational)
+    - Within each risk level, organize by vulnerability type
+    - Include clear titles that describe the issue
+    - Use consistent formatting for all findings
+  </Step>
+  <Step title="Include Detailed Finding Information">
+    For each finding, include:
+    - Description of the vulnerability
+    - Technical impact and business risk
+    - Steps to reproduce
+    - Affected components/URLs
+    - Evidence (screenshots, request/response data)
+    - Remediation recommendations
+    - References to standards or best practices
+  </Step>
+  <Step title="Add Remediation Guidance">
+    - Provide clear, actionable remediation steps
+    - Include code examples where applicable
+    - Reference industry best practices
+    - Suggest verification methods
+    - Prioritize fixes based on risk
+  </Step>
+</Steps>
+
+### Report Distribution and Security
+
+<Steps>
+  <Step title="Secure Report Distribution">
+    - Encrypt reports containing sensitive information
+    - Use secure channels for report distribution
+    - Limit access to reports on a need-to-know basis
+    - Consider using secure document sharing platforms
+    - Include confidentiality notices in reports
+  </Step>
+  <Step title="Sanitize Sensitive Data">
+    - Remove or mask sensitive data in reports:
+      - Personally identifiable information (PII)
+      - Authentication credentials
+      - Session tokens
+      - Internal IP addresses and hostnames
+      - Detailed internal architecture information
+    - Use placeholders or redaction for sensitive data
+  </Step>
+  <Step title="Version Control and Tracking">
+    - Include version information in reports
+    - Maintain an audit trail of report distribution
+    - Track remediation progress against findings
+    - Update reports as vulnerabilities are fixed
+    - Archive reports securely for compliance purposes
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you understand OWASP ZAP's reporting capabilities, explore these topics:
+
+- [Advanced Techniques](/docs/owasp-zap/advanced-techniques) - Advanced usage scenarios and features
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP
+- [Automation Framework](/docs/owasp-zap/advanced-techniques/automation) - Automating ZAP for continuous security testing

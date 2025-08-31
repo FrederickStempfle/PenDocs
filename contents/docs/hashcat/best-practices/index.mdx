@@ -1,0 +1,176 @@
+---
+title: Hashcat Best Practices
+description: Optimize your password cracking operations with these hashcat best practices and recommendations
+---
+
+# Hashcat Best Practices
+
+This guide outlines best practices for using hashcat effectively in penetration testing and security assessment scenarios. Following these recommendations will help optimize your password cracking operations.
+
+## Hardware Optimization
+
+### GPU Selection and Configuration
+
+Hashcat performs best with modern GPUs that have:
+
+- High core counts
+- Sufficient VRAM (8GB+ recommended)
+- Good cooling solutions
+
+```bash
+# Check if your GPU is properly detected
+hashcat -I
+
+# Benchmark your hardware
+hashcat -b
+```
+
+### Multi-GPU Setups
+
+When using multiple GPUs:
+
+```bash
+# Use specific devices
+hashcat -d 1,2 -a 0 -m 1000 hashes.txt wordlist.txt
+
+# Optimize workload distribution
+hashcat -d 1,2 --opencl-device-types 1,2 -a 0 -m 1000 hashes.txt wordlist.txt
+```
+
+## Attack Efficiency
+
+### Targeted Wordlists
+
+Create targeted wordlists based on:
+
+- Organization-specific information
+- Industry terminology
+- Previously cracked passwords
+
+```bash
+# Combine multiple wordlists
+cat wordlist1.txt wordlist2.txt | sort -u > combined.txt
+
+# Filter for password policy compliance
+hashcat --stdout wordlist.txt | grep -E '.{8,}' | grep -E '[A-Z]' | grep -E '[0-9]' > policy_compliant.txt
+```
+
+### Rule Optimization
+
+```bash
+# Start with efficient rules
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt -r rules/best64.rule
+
+# Use multiple rule files in sequence
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt -r rules/best64.rule
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt -r rules/d3ad0ne.rule
+```
+
+### Attack Mode Selection
+
+Choose the appropriate attack mode based on:
+
+- Available time
+- Target hash type
+- Expected password complexity
+
+```bash
+# Dictionary attack for common passwords
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt
+
+# Combination attack for multi-word passwords
+hashcat -a 1 -m 1000 hashes.txt wordlist1.txt wordlist2.txt
+
+# Mask attack for pattern-based passwords
+hashcat -a 3 -m 1000 hashes.txt ?u?l?l?l?l?l?d?d
+```
+
+## Performance Tuning
+
+### Workload Profiles
+
+```bash
+# Low: For using the computer while cracking
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt -w 1
+
+# High: Dedicated cracking machine
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt -w 3
+```
+
+### Optimizing Kernel Parameters
+
+```bash
+# Adjust kernel accel
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt --kernel-accel 2
+
+# Adjust kernel loops
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt --kernel-loops 1024
+```
+
+## Session Management
+
+### Checkpoints and Restoration
+
+Always use session management to resume interrupted cracking:
+
+```bash
+# Start a named session
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt --session=project_x
+
+# Resume a session
+hashcat --session=project_x --restore
+```
+
+### Status Monitoring
+
+```bash
+# Show status every 10 seconds
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt --status --status-timer=10
+
+# Output results to a file
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt --outfile=cracked.txt
+```
+
+## Operational Security
+
+### Hash and Result Handling
+
+- Store hash files securely with appropriate access controls
+- Sanitize cracked passwords in reports
+- Use secure channels when transferring hash files
+
+### Resource Management
+
+```bash
+# Limit power consumption
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt --hwmon-temp-abort=85
+
+# Schedule operations during off-hours
+at 01:00 << EOF
+hashcat -a 0 -m 1000 hashes.txt wordlist.txt --session=overnight
+EOF
+```
+
+## Documentation and Reporting
+
+Maintain detailed records of:
+
+- Command-line parameters used
+- Success rates for different approaches
+- Time required for successful cracks
+- Hardware configurations
+
+This documentation helps:
+
+- Reproduce successful approaches
+- Justify recommendations for password policy improvements
+- Demonstrate the impact of weak password practices
+
+## Ethical Considerations
+
+- Always operate within authorized scope
+- Handle discovered credentials responsibly
+- Follow proper disclosure procedures
+- Adhere to legal and regulatory requirements
+
+By following these best practices, you'll maximize the effectiveness of hashcat while maintaining operational security and ethical standards.

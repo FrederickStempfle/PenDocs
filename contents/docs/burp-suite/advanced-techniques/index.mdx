@@ -483,8 +483,8 @@ Example evasion techniques for XSS:
 Standard: <script>alert(1)</script>
 Evasion 1: <sCrIpT>alert(1)</sCrIpT>
 Evasion 2: <script>al\u0065rt(1)</script>
-Evasion 3: <img src=x onerror="alert(1)">
-Evasion 4: <svg/onload=alert(1)>
+Evasion 3: &lt;img src="x" onerror="alert(1)"&gt;
+Evasion 4: &lt;svg/onload="alert(1)"&gt;
 ```
 
 Understanding evasion techniques helps security teams improve their defensive measures and build more robust protections.

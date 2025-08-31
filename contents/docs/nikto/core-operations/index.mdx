@@ -1,0 +1,245 @@
+---
+title: Nikto Core Operations
+description: Learn about the core operations and essential functionality of Nikto web vulnerability scanner
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nikto Core Operations
+
+This guide covers the core operations and essential functionality of Nikto, a powerful web server scanner used for vulnerability assessment and penetration testing.
+
+## Command Line Structure
+
+Nikto uses a straightforward command line structure:
+
+```bash
+nikto [options] -h host
+```
+
+Where:
+- `[options]` are various flags and parameters to customize the scan
+- `-h host` specifies the target host (required)
+
+## Essential Options
+
+Here are the most commonly used Nikto options:
+
+### Target Specification
+
+```bash
+# Scan a single host
+nikto -h example.com
+
+# Scan a host on a specific port
+nikto -h example.com -p 8080
+
+# Scan multiple ports
+nikto -h example.com -p 80,443,8080
+
+# Scan a range of ports
+nikto -h example.com -p 80-443
+
+# Scan multiple hosts from a file
+nikto -h hosts.txt
+```
+
+### Authentication Options
+
+```bash
+# Basic authentication
+nikto -h example.com -id username:password
+
+# Form-based authentication
+nikto -h example.com -id username:password -form /login.php
+```
+
+### Output Control
+
+```bash
+# Save output to a file
+nikto -h example.com -o report.txt
+
+# Save output in HTML format
+nikto -h example.com -o report.html -Format htm
+
+# Save output in CSV format
+nikto -h example.com -o report.csv -Format csv
+
+# Save output in XML format
+nikto -h example.com -o report.xml -Format xml
+
+# Save output in JSON format
+nikto -h example.com -o report.json -Format json
+```
+
+### Scan Control
+
+```bash
+# Set scan tuning options
+nikto -h example.com -Tuning 123
+
+# Enable SSL/TLS
+nikto -h example.com -ssl
+
+# Specify a proxy
+nikto -h example.com -useproxy http://proxy:8080
+
+# Set timeout (in seconds)
+nikto -h example.com -timeout 10
+```
+
+## Scan Modes and Tuning
+
+Nikto offers various scan modes and tuning options to focus on specific types of tests:
+
+<Tabs defaultValue={"tuning"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"tuning"}>Scan Tuning</TabsTrigger>
+    <TabsTrigger value={"plugins"}>Plugins</TabsTrigger>
+    <TabsTrigger value={"evasion"}>Evasion Techniques</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"tuning"}>
+    ### Scan Tuning
+    
+    The `-Tuning` option allows you to specify which tests to run:
+    
+    ```bash
+    # Run all tests
+    nikto -h example.com -Tuning x
+    
+    # Run only file upload tests
+    nikto -h example.com -Tuning 7
+    
+    # Run multiple test categories
+    nikto -h example.com -Tuning 123
+    ```
+    
+    **Tuning Options:**
+    
+    - 0 - File Upload
+    - 1 - Interesting File / Seen in logs
+    - 2 - Misconfiguration / Default File
+    - 3 - Information Disclosure
+    - 4 - Injection (XSS/Script/HTML)
+    - 5 - Remote File Retrieval (Inside Web Root)
+    - 6 - Denial of Service
+    - 7 - Remote File Retrieval (Server Wide)
+    - 8 - Command Execution / Remote Shell
+    - 9 - SQL Injection
+    - a - Authentication Bypass
+    - b - Software Identification
+    - c - Remote Source Inclusion
+    - x - Reverse Tuning Options (exclude)
+  </TabsContent>
+  <TabsContent value={"plugins"}>
+    ### Plugins
+    
+    Nikto uses plugins to organize its tests:
+    
+    ```bash
+    # List available plugins
+    nikto -list-plugins
+    
+    # Run specific plugins
+    nikto -h example.com -Plugins "@@default;apache_expect_xss"
+    
+    # Disable specific plugins
+    nikto -h example.com -Plugins "@@default;-paths"
+    ```
+    
+    **Common Plugins:**
+    
+    - `apache_expect_xss` - Tests for Apache Expect XSS
+    - `apacheusers` - Checks for Apache user directories
+    - `cgi` - Scans for CGI vulnerabilities
+    - `cookies` - Analyzes cookies
+    - `headers` - Checks HTTP headers
+    - `msgs` - Looks for error messages
+    - `outdated` - Checks for outdated software
+    - `paths` - Tests for dangerous paths
+    - `report_csv` - CSV report format
+    - `report_html` - HTML report format
+    - `report_xml` - XML report format
+  </TabsContent>
+  <TabsContent value={"evasion"}>
+    ### Evasion Techniques
+    
+    Nikto can use various evasion techniques to bypass IDS/IPS systems:
+    
+    ```bash
+    # Use random URI encoding
+    nikto -h example.com -evasion 1
+    
+    # Use multiple evasion techniques
+    nikto -h example.com -evasion 1267
+    ```
+    
+    **Evasion Options:**
+    
+    - 1 - Random URI encoding (non-UTF8)
+    - 2 - Directory self-reference (/./)
+    - 3 - Premature URL ending
+    - 4 - Prepend long random string
+    - 5 - Fake parameter
+    - 6 - TAB as request spacer
+    - 7 - Change the case of the URL
+    - 8 - Use Windows directory separator (\)
+    - A - Use a carriage return (0x0d) as a request spacer
+    - B - Use binary value 0x0b as a request spacer
+  </TabsContent>
+</Tabs>
+
+## Understanding Nikto Output
+
+Nikto provides detailed output about discovered vulnerabilities and issues:
+
+```
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          192.168.1.100
++ Target Hostname:    example.com
++ Target Port:        80
++ Start Time:         2023-10-15 12:34:56 (GMT-4)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.41 (Ubuntu)
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Apache/2.4.41 appears to be outdated (current is at least Apache/2.4.37). Apache 2.2.34 is the EOL for the 2.x branch.
++ Web Server returns a valid response with junk HTTP methods, this may cause false positives.
++ OSVDB-3233: /icons/README: Apache default file found.
++ 7915 requests: 0 error(s) and 7 item(s) reported on remote host
++ End Time:           2023-10-15 12:40:23 (GMT-4) (327 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+```
+
+### Key Output Elements
+
+1. **Header Information**: Target details and scan start time
+2. **Server Information**: Web server type and version
+3. **Vulnerability Findings**: Discovered issues with references
+4. **Statistics**: Number of requests, errors, and findings
+5. **Timing Information**: Scan duration and completion time
+
+### Severity Indicators
+
+Nikto uses symbols to indicate the severity of findings:
+
+- `+` - Informational item
+- `-` - Negative (not vulnerable)
+- `*` - Vulnerability found
+- `!` - Critical vulnerability
+
+## Next Steps
+
+Now that you understand the core operations of Nikto, explore the following topics:
+
+- [Basic Usage](/docs/nikto/core-operations/basic-usage) - Learn how to perform common scanning tasks
+- [Scan Options](/docs/nikto/core-operations/scan-options) - Explore detailed scanning configuration options
+- [Output Formats](/docs/nikto/core-operations/output-formats) - Learn about different output formats and reporting
+- [Advanced Techniques](/docs/nikto/advanced-techniques) - Discover advanced usage scenarios and techniques

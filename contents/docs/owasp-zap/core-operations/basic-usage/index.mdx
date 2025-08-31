@@ -1,0 +1,736 @@
+---
+title: OWASP ZAP Basic Usage
+description: Step-by-step guide for common testing scenarios using OWASP ZAP
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Basic Usage
+
+This guide provides step-by-step instructions for common testing scenarios using OWASP ZAP. Whether you're new to ZAP or need a refresher, these workflows will help you get started quickly.
+
+## Installation and Setup
+
+<Tabs defaultValue={"desktop"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"desktop"}>Desktop Installation</TabsTrigger>
+    <TabsTrigger value={"docker"}>Docker</TabsTrigger>
+    <TabsTrigger value={"cli"}>Command Line</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"desktop"}>
+    ### Desktop Installation
+    
+    <Steps>
+      <Step title="Download ZAP">
+        1. Go to the [OWASP ZAP download page](https://www.zaproxy.org/download/)
+        2. Select the appropriate package for your operating system
+        3. Download the installer
+      </Step>
+      <Step title="Install ZAP">
+        **Windows**:
+        1. Run the downloaded `.exe` file
+        2. Follow the installation wizard
+        3. Accept the license agreement
+        4. Choose installation location
+        5. Complete the installation
+        
+        **macOS**:
+        1. Open the downloaded `.dmg` file
+        2. Drag ZAP to the Applications folder
+        3. Right-click the app and select "Open" (first time only)
+        
+        **Linux**:
+        1. Make the downloaded file executable: `chmod +x ZAP_*.sh`
+        2. Run the installer: `./ZAP_*.sh`
+        3. Follow the installation wizard
+      </Step>
+      <Step title="Initial Configuration">
+        1. Launch ZAP
+        2. On first run, you'll see the initial configuration dialog
+        3. Choose between **Standard** or **Safe** mode
+        4. Accept or modify the default configurations
+        5. Click **Start** to begin using ZAP
+      </Step>
+    </Steps>
+  </TabsContent>
+  <TabsContent value={"docker"}>
+    ### Docker Installation
+    
+    <Steps>
+      <Step title="Pull the ZAP Docker Image">
+        ```bash
+        # Pull the stable version
+        docker pull owasp/zap2docker-stable
+        
+        # Or pull the weekly version
+        docker pull owasp/zap2docker-weekly
+        ```
+      </Step>
+      <Step title="Run ZAP in Docker">
+        **Run ZAP with GUI (X11 forwarding)**:
+        ```bash
+        # Linux/macOS
+        docker run -u zap -p 8080:8080 -p 8090:8090 -i \
+          -e DISPLAY=:0.0 -v /tmp/.X11-unix:/tmp/.X11-unix \
+          owasp/zap2docker-stable zap-x.sh
+        ```
+        
+        **Run ZAP in headless mode**:
+        ```bash
+        # Run ZAP in daemon mode
+        docker run -u zap -p 8080:8080 -p 8090:8090 -i \
+          owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080
+        ```
+      </Step>
+      <Step title="Access ZAP">
+        - If using GUI mode, the ZAP interface will appear
+        - If using daemon mode, connect to ZAP using:
+          - The ZAP API at `http://localhost:8080/`
+          - ZAP WebSwing interface at `http://localhost:8090/zap/`
+      </Step>
+    </Steps>
+  </TabsContent>
+  <TabsContent value={"cli"}>
+    ### Command Line Installation
+    
+    <Steps>
+      <Step title="Download ZAP">
+        ```bash
+        # Linux
+        wget https://github.com/zaproxy/zaproxy/releases/download/v2.12.0/ZAP_2.12.0_Linux.tar.gz
+        
+        # macOS
+        curl -L https://github.com/zaproxy/zaproxy/releases/download/v2.12.0/ZAP_2.12.0_macOS.dmg -o ZAP_macOS.dmg
+        ```
+      </Step>
+      <Step title="Install ZAP">
+        ```bash
+        # Linux
+        tar -xvf ZAP_2.12.0_Linux.tar.gz
+        cd ZAP_2.12.0
+        
+        # macOS (after downloading DMG)
+        hdiutil attach ZAP_macOS.dmg
+        cp -R /Volumes/OWASP\ ZAP/OWASP\ ZAP.app /Applications/
+        hdiutil detach /Volumes/OWASP\ ZAP
+        ```
+      </Step>
+      <Step title="Run ZAP from Command Line">
+        ```bash
+        # Linux
+        ./zap.sh -cmd
+        
+        # macOS
+        /Applications/OWASP\ ZAP.app/Contents/Java/zap.sh -cmd
+        
+        # Windows (from installation directory)
+        zap.bat -cmd
+        ```
+      </Step>
+    </Steps>
+  </TabsContent>
+</Tabs>
+
+## Quick Start Guide
+
+<Steps>
+  <Step title="Launch ZAP">
+    1. Start ZAP from your applications menu or command line
+    2. Wait for ZAP to initialize
+    3. The Quick Start tab should be displayed by default
+  </Step>
+  <Step title="Automated Scan">
+    1. In the Quick Start tab, enter the URL you want to scan (e.g., `https://example.com`)
+    2. Click **Attack**
+    3. ZAP will:
+       - Spider the site to discover content
+       - Perform an active scan to find vulnerabilities
+       - Display results in the Alerts tab
+  </Step>
+  <Step title="Review Results">
+    1. Go to the **Alerts** tab
+    2. Review the discovered vulnerabilities
+    3. Click on each alert to see:
+       - Description of the vulnerability
+       - Evidence found
+       - Solution recommendations
+       - References for further reading
+  </Step>
+</Steps>
+
+<Note>
+  The Quick Start scan is useful for a basic assessment but has limitations. For thorough testing, follow the manual testing workflow below.
+</Note>
+
+## Manual Testing Workflow
+
+### 1. Configure Browser and Proxy
+
+<Tabs defaultValue={"auto"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"auto"}>Automated Setup</TabsTrigger>
+    <TabsTrigger value={"manual"}>Manual Setup</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"auto"}>
+    ### Automated Browser Setup
+    
+    <Steps>
+      <Step title="Launch Browser from ZAP">
+        1. In ZAP, go to **Tools > Launch Browser**
+        2. Select your preferred browser
+        3. ZAP will launch the browser with the correct proxy settings
+      </Step>
+      <Step title="Install SSL Certificate">
+        1. In the launched browser, navigate to http://zap/
+        2. Click **Download ZAP Root CA Certificate**
+        3. Follow the browser-specific instructions to install the certificate
+      </Step>
+      <Step title="Verify Connection">
+        1. Visit a HTTPS website (e.g., https://example.com)
+        2. Check that the connection is secure without warnings
+        3. Verify that the traffic appears in ZAP's History tab
+      </Step>
+    </Steps>
+  </TabsContent>
+  <TabsContent value={"manual"}>
+    ### Manual Browser Setup
+    
+    <Steps>
+      <Step title="Configure Browser Proxy">
+        **Firefox**:
+        1. Open Firefox preferences
+        2. Search for "proxy"
+        3. Click **Settings**
+        4. Select **Manual proxy configuration**
+        5. Set HTTP Proxy to `127.0.0.1` and Port to `8080`
+        6. Check **Also use this proxy for HTTPS**
+        7. Click **OK**
+        
+        **Chrome**:
+        1. Open Chrome settings
+        2. Search for "proxy"
+        3. Click **Open your computer's proxy settings**
+        4. Configure system proxy settings:
+           - **Windows**: Set proxy server to `127.0.0.1:8080`
+           - **macOS**: Set Web Proxy and Secure Web Proxy to `127.0.0.1:8080`
+           - **Linux**: Set HTTP and HTTPS proxy to `127.0.0.1:8080`
+      </Step>
+      <Step title="Install SSL Certificate">
+        1. In ZAP, go to **Tools > Options > Network > Server Certificates**
+        2. Click **Save** to export the ZAP Root CA certificate
+        3. Save the certificate to your computer
+        
+        **Firefox**:
+        1. Open Firefox preferences
+        2. Search for "certificates"
+        3. Click **View Certificates**
+        4. Go to **Authorities** tab
+        5. Click **Import** and select the saved certificate
+        6. Check **Trust this CA to identify websites**
+        7. Click **OK**
+        
+        **Chrome**:
+        1. Open Chrome settings
+        2. Search for "certificates"
+        3. Click **Manage certificates**
+        4. Go to **Trusted Root Certification Authorities** tab
+        5. Click **Import** and select the saved certificate
+        6. Follow the certificate import wizard
+      </Step>
+      <Step title="Verify Connection">
+        1. Visit a HTTPS website (e.g., https://example.com)
+        2. Check that the connection is secure without warnings
+        3. Verify that the traffic appears in ZAP's History tab
+      </Step>
+    </Steps>
+  </TabsContent>
+</Tabs>
+
+### 2. Define Target and Scope
+
+<Steps>
+  <Step title="Create a New Context">
+    1. Right-click on **Sites** in the tree view
+    2. Select **New Context**
+    3. Enter a name for your context (e.g., "Test Application")
+  </Step>
+  <Step title="Define Context Scope">
+    1. In the context dialog, select **Include in Context**
+    2. Click **Add** to add URL patterns
+    3. Enter the base URL of your target (e.g., `https://example.com/.*`)
+    4. Click **OK**
+    
+    **Optional**: Add exclusion patterns for areas to avoid testing:
+    1. Select **Exclude from Context**
+    2. Click **Add** to add exclusion patterns
+    3. Enter patterns for areas to exclude (e.g., `https://example.com/logout.*`)
+  </Step>
+  <Step title="Set as Default Context">
+    1. Right-click on your new context in the Sites tree
+    2. Select **Set as Default Context**
+  </Step>
+</Steps>
+
+### 3. Explore the Application
+
+<Steps>
+  <Step title="Manual Browsing">
+    1. Using your proxied browser, navigate through the application
+    2. Log in if the application requires authentication
+    3. Access all important functionality
+    4. Submit forms with valid data
+    5. ZAP will record all traffic in the History tab
+  </Step>
+  <Step title="Run the Spider">
+    1. Right-click on your target in the Sites tree
+    2. Select **Attack > Spider**
+    3. Configure spider options:
+       - **Max depth**: How deep to crawl (e.g., 5)
+       - **Thread count**: Number of threads (e.g., 2)
+       - Check **Spider Subtree Only** to stay within the selected site
+    4. Click **Start Scan**
+    5. Monitor progress in the Spider tab
+  </Step>
+  <Step title="Run the AJAX Spider">
+    For JavaScript-heavy applications:
+    1. Right-click on your target in the Sites tree
+    2. Select **Attack > AJAX Spider**
+    3. Configure AJAX spider options:
+       - Select the browser to use
+       - Set max duration (e.g., 10 minutes)
+    4. Click **Start Scan**
+    5. Monitor progress in the AJAX Spider tab
+  </Step>
+</Steps>
+
+### 4. Analyze Passively
+
+<Steps>
+  <Step title="Review Passive Scan Results">
+    1. Go to the **Alerts** tab
+    2. Review issues identified by passive scanning
+    3. These are issues found without sending additional requests
+    4. Focus on information disclosure and configuration issues
+  </Step>
+  <Step title="Examine the Site Structure">
+    1. Explore the Sites tree to understand the application structure
+    2. Look for interesting endpoints, parameters, and functionality
+    3. Identify potential entry points for attacks
+  </Step>
+  <Step title="Analyze Parameters">
+    1. Go to the **Params** tab
+    2. Review parameters discovered across the application
+    3. Look for sensitive parameters (e.g., IDs, tokens)
+    4. Note parameters that might be vulnerable to injection
+  </Step>
+</Steps>
+
+### 5. Active Scanning
+
+<Steps>
+  <Step title="Configure Scan Policy">
+    1. Go to **Tools > Options > Active Scan**
+    2. Review the default policy or create a new one
+    3. Adjust scan strength and threshold as needed
+    4. Enable/disable specific scan rules based on your needs
+  </Step>
+  <Step title="Start Active Scan">
+    1. Right-click on your target in the Sites tree
+    2. Select **Attack > Active Scan**
+    3. Configure scan options:
+       - Select your scan policy
+       - Check **Recurse** to scan all nodes
+       - Select context if applicable
+       - Select user if testing authenticated functionality
+    4. Click **Start Scan**
+  </Step>
+  <Step title="Monitor Scan Progress">
+    1. Go to the **Active Scan** tab
+    2. Monitor the progress of the scan
+    3. Watch for new alerts appearing in the Alerts tab
+    4. The scan may take several minutes to hours depending on the site size
+  </Step>
+</Steps>
+
+<Note>
+  Active scanning sends test requests that could potentially modify data or trigger security mechanisms. Always ensure you have proper authorization before active scanning.
+</Note>
+
+### 6. Manual Testing
+
+<Tabs defaultValue={"intercept"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"intercept"}>Request Interception</TabsTrigger>
+    <TabsTrigger value={"resend"}>Resending Requests</TabsTrigger>
+    <TabsTrigger value={"fuzz"}>Fuzzing</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"intercept"}>
+    ### Request Interception
+    
+    <Steps>
+      <Step title="Enable Break Points">
+        1. Click the green ball icon in the toolbar to enable the break point
+        2. Select where to break:
+           - **Request**: Break on requests
+           - **Response**: Break on responses
+           - **Both**: Break on both requests and responses
+      </Step>
+      <Step title="Intercept and Modify Requests">
+        1. In your browser, perform an action (e.g., submit a form)
+        2. ZAP will intercept the request and show it in the Break tab
+        3. Modify the request as needed:
+           - Change parameters
+           - Add/modify headers
+           - Alter cookies
+        4. Click **Submit** to forward the modified request
+      </Step>
+      <Step title="Analyze the Response">
+        1. If you enabled response break points, ZAP will show the response
+        2. Review the response content
+        3. Modify the response if needed
+        4. Click **Submit** to forward the response to the browser
+      </Step>
+    </Steps>
+  </TabsContent>
+  <TabsContent value={"resend"}>
+    ### Resending Requests
+    
+    <Steps>
+      <Step title="Find a Request">
+        1. Go to the **History** tab
+        2. Find a request you want to manipulate
+        3. Right-click on the request
+        4. Select **Open/Resend with Request Editor**
+      </Step>
+      <Step title="Modify and Resend">
+        1. In the Request Editor, modify the request:
+           - Change the URL
+           - Modify parameters
+           - Add/change headers
+        2. Click **Send** to send the modified request
+        3. View the response in the Response panel
+      </Step>
+      <Step title="Save for Reuse">
+        1. To save the request for later use:
+           - Right-click in the Request Editor
+           - Select **Save Request to File**
+        2. To load a saved request:
+           - Right-click in the Request Editor
+           - Select **Load Request from File**
+      </Step>
+    </Steps>
+  </TabsContent>
+  <TabsContent value={"fuzz"}>
+    ### Fuzzing
+    
+    <Steps>
+      <Step title="Select a Request to Fuzz">
+        1. Find a request in the History tab
+        2. Right-click on the request
+        3. Select **Attack > Fuzz**
+      </Step>
+      <Step title="Configure Fuzzing Points">
+        1. In the request editor, select the text you want to fuzz
+        2. Click **Add** to add a fuzzing point
+        3. Select a fuzz source:
+           - **File**: Use a wordlist file
+           - **Built-in**: Use built-in payloads
+           - **Regex**: Generate payloads using regex
+        4. Select or configure the payload list
+        5. Click **Add** to add the fuzzer
+      </Step>
+      <Step title="Start Fuzzing">
+        1. Click **Start Fuzzing** to begin
+        2. Monitor results in the Fuzzer tab
+        3. Look for interesting responses:
+           - Different status codes
+           - Varying response sizes
+           - Different response times
+           - Error messages
+      </Step>
+    </Steps>
+  </TabsContent>
+</Tabs>
+
+### 7. Reporting
+
+<Steps>
+  <Step title="Generate a Report">
+    1. Go to **Report > Generate Report**
+    2. Select the report format:
+       - **HTML**: Human-readable web format
+       - **XML**: Structured format for integration
+       - **Markdown**: Text-based format
+       - **JSON**: Machine-readable format
+    3. Configure report options:
+       - Include only in-scope items
+       - Include passive alerts
+       - Set confidence/risk threshold
+    4. Choose the destination file
+    5. Click **Generate Report**
+  </Step>
+  <Step title="Review and Customize">
+    1. Open the generated report
+    2. Review the findings
+    3. For HTML reports, you can customize the CSS if needed
+    4. For XML/JSON reports, you can process them with other tools
+  </Step>
+  <Step title="Export Issues">
+    For specific issues or integration with other tools:
+    1. Go to the **Alerts** tab
+    2. Select the alerts you want to export
+    3. Right-click and select **Export Selected Alerts**
+    4. Choose the export format
+    5. Save the exported alerts
+  </Step>
+</Steps>
+
+## Common Testing Scenarios
+
+### Testing an Authenticated Application
+
+<Steps>
+  <Step title="Set Up Authentication">
+    1. Create and configure a context for your target
+    2. Go to the context properties
+    3. Select **Authentication**
+    4. Choose the authentication method:
+       - **Form-based Authentication**: For standard login forms
+       - **HTTP Authentication**: For Basic/Digest authentication
+       - **Script-based Authentication**: For complex flows
+    5. Configure the authentication parameters
+  </Step>
+  <Step title="Define Logged-in/out Indicators">
+    1. In the Authentication panel, set:
+       - **Logged in indicator**: Regex pattern that appears when logged in (e.g., "Logout|Welcome")
+       - **Logged out indicator**: Regex pattern that appears when logged out (e.g., "Login|Sign in")
+  </Step>
+  <Step title="Create Users">
+    1. In the context properties, select **Users**
+    2. Click **Add** to create a new user
+    3. Enter user details:
+       - **Name**: User identifier
+       - **Username/Password**: Credentials for authentication
+    4. Enable the user for testing
+  </Step>
+  <Step title="Configure Forced User Mode">
+    1. Select your user in the Users panel
+    2. Click **Set as Forced User**
+    3. Enable forced user mode by clicking the "person" icon in the toolbar
+    4. ZAP will now authenticate as this user for all requests
+  </Step>
+  <Step title="Verify Authentication">
+    1. Browse the application through ZAP
+    2. Confirm that ZAP maintains the session
+    3. Check that protected resources are accessible
+  </Step>
+  <Step title="Scan Authenticated Areas">
+    1. Run the Spider with your configured user
+    2. Run the Active Scanner with your configured user
+    3. Review findings in the Alerts tab
+  </Step>
+</Steps>
+
+### Testing a REST API
+
+<Tabs defaultValue={"manual"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"manual"}>Manual Testing</TabsTrigger>
+    <TabsTrigger value={"openapi"}>OpenAPI/Swagger</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"manual"}>
+    ### Manual API Testing
+    
+    <Steps>
+      <Step title="Set Up API Context">
+        1. Create a new context for your API
+        2. Include the API base URL in the context
+        3. Configure authentication if required
+      </Step>
+      <Step title="Add API Endpoints">
+        1. Use the Request Editor to create requests for each endpoint
+        2. Set appropriate HTTP methods (GET, POST, PUT, DELETE)
+        3. Add required headers:
+           - `Content-Type: application/json`
+           - `Authorization: Bearer token` (if needed)
+        4. Add request body for POST/PUT requests
+      </Step>
+      <Step title="Test API Endpoints">
+        1. Send requests to each endpoint
+        2. Analyze responses
+        3. Look for security issues:
+           - Missing authentication
+           - Improper authorization
+           - Information disclosure
+           - Injection vulnerabilities
+      </Step>
+      <Step title="Active Scan API Endpoints">
+        1. Right-click on API endpoints in the Sites tree
+        2. Select **Attack > Active Scan**
+        3. Configure scan options for API testing
+        4. Start the scan
+      </Step>
+    </Steps>
+  </TabsContent>
+  <TabsContent value={"openapi"}>
+    ### OpenAPI/Swagger Testing
+    
+    <Steps>
+      <Step title="Import OpenAPI Definition">
+        1. Go to **Tools > Import > OpenAPI Definition**
+        2. Select your OpenAPI/Swagger file or enter URL
+        3. Configure import options
+        4. Click **Import**
+        5. ZAP will create Sites tree entries for all API endpoints
+      </Step>
+      <Step title="Configure Authentication">
+        1. Set up authentication for the API context
+        2. For token-based auth, use a script to handle token acquisition
+        3. Configure the script to add the token to each request
+      </Step>
+      <Step title="Test API Endpoints">
+        1. Browse the imported endpoints in the Sites tree
+        2. Use the Request Editor to send test requests
+        3. Verify that authentication is working
+      </Step>
+      <Step title="Scan API">
+        1. Right-click on the API root in the Sites tree
+        2. Select **Attack > Active Scan**
+        3. Use an API-focused scan policy
+        4. Start the scan
+      </Step>
+    </Steps>
+  </TabsContent>
+</Tabs>
+
+### Testing a Single-Page Application (SPA)
+
+<Steps>
+  <Step title="Configure Browser">
+    Set up your browser to use ZAP as a proxy, as described earlier
+  </Step>
+  <Step title="Manual Exploration">
+    1. Browse through the SPA manually
+    2. Interact with all features and functionality
+    3. Ensure all AJAX requests are captured by ZAP
+  </Step>
+  <Step title="Run AJAX Spider">
+    1. Right-click on the SPA in the Sites tree
+    2. Select **Attack > AJAX Spider**
+    3. Configure options:
+       - Select a modern browser (Chrome or Firefox)
+       - Set adequate max duration (e.g., 10-15 minutes)
+       - Configure any required authentication
+    4. Click **Start Scan**
+    5. The AJAX Spider will interact with the application and discover content
+  </Step>
+  <Step title="Analyze Client-Side Code">
+    1. In the Sites tree, find JavaScript files
+    2. Review JavaScript code for:
+       - Hardcoded credentials
+       - API keys
+       - Insecure configurations
+       - Client-side validation that can be bypassed
+    3. Use the DOM XSS scanner to find client-side XSS vulnerabilities
+  </Step>
+  <Step title="Test API Endpoints">
+    1. Identify API endpoints used by the SPA
+    2. Test these endpoints directly using the Request Editor
+    3. Look for security issues in the API layer
+  </Step>
+  <Step title="Active Scan">
+    Run an active scan focusing on:
+    1. API endpoints
+    2. Parameters in AJAX requests
+    3. Client-side vulnerabilities
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<Tabs defaultValue={"proxy"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"proxy"}>Proxy Issues</TabsTrigger>
+    <TabsTrigger value={"ssl"}>SSL/TLS Problems</TabsTrigger>
+    <TabsTrigger value={"performance"}>Performance Issues</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"proxy"}>
+    ### Proxy Connection Issues
+    
+    **Problem**: Browser cannot connect through ZAP proxy
+    
+    **Solutions**:
+    1. Verify ZAP is running and the proxy is listening:
+       - Check **Tools > Options > Network > Local Servers/Proxies**
+       - Default address is 127.0.0.1:8080
+    
+    2. Confirm browser proxy settings:
+       - Check that the browser is configured to use 127.0.0.1:8080
+       - Try restarting the browser
+    
+    3. Check for conflicts:
+       - Another application might be using port 8080
+       - Change ZAP's port in Options if needed
+    
+    4. Test connectivity:
+       ```bash
+       curl -x http://127.0.0.1:8080 http://example.com
+       ```
+  </TabsContent>
+  <TabsContent value={"ssl"}>
+    ### SSL/TLS Problems
+    
+    **Problem**: Browser shows certificate warnings or cannot connect to HTTPS sites
+    
+    **Solutions**:
+    1. Verify ZAP's root certificate is installed:
+       - Go to http://zap/ in your proxied browser
+       - Download and install the certificate again
+    
+    2. Check certificate installation:
+       - **Firefox**: Preferences > Privacy & Security > Certificates > View Certificates > Authorities
+       - **Chrome**: Settings > Privacy and security > Security > Manage certificates > Authorities
+    
+    3. Enable all SSL/TLS protocols:
+       - Go to **Tools > Options > Network > SSL/TLS**
+       - Enable all protocols
+    
+    4. For specific SSL issues:
+       - Try **Tools > Options > Network > SSL/TLS > Enable all workarounds**
+  </TabsContent>
+  <TabsContent value={"performance"}>
+    ### Performance Issues
+    
+    **Problem**: ZAP becomes slow or unresponsive
+    
+    **Solutions**:
+    1. Allocate more memory:
+       - Close ZAP
+       - Edit `zap.bat` (Windows) or `zap.sh` (Linux/macOS)
+       - Increase `-Xmx` value (e.g., `-Xmx2g` for 2GB)
+    
+    2. Reduce history size:
+       - Go to **Tools > Options > Database**
+       - Set a lower value for history retention
+    
+    3. Optimize active scanning:
+       - Reduce thread count in active scan options
+       - Use more targeted scan policies
+       - Scan smaller portions of the application at a time
+    
+    4. Clear unnecessary data:
+       - Right-click on the History tab and select **Purge History**
+       - Go to **Analysis > Clear Passive Scan Results**
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand the basic usage of OWASP ZAP, explore these topics:
+
+- [Scanning Options](/docs/owasp-zap/core-operations/scanning-options) - Detailed configuration of scanning features
+- [Reporting](/docs/owasp-zap/core-operations/reporting) - Generating and customizing security reports
+- [Advanced Techniques](/docs/owasp-zap/advanced-techniques) - Advanced usage scenarios and features
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

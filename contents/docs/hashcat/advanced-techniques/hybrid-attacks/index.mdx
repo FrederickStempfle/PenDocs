@@ -1,0 +1,137 @@
+---
+title: Hybrid Attacks
+description: Learn how to combine dictionary and brute force techniques in Hashcat for more effective password cracking
+---
+
+# Hybrid Attacks in Hashcat
+
+Hybrid attacks in Hashcat combine the efficiency of dictionary attacks with the thoroughness of brute force approaches. This technique is particularly effective when you suspect passwords are based on dictionary words with predictable modifications.
+
+## Understanding Hybrid Attacks
+
+A hybrid attack uses a wordlist as a base and then either appends or prepends character masks to each word. This approach is ideal for cracking passwords that consist of:
+
+- A dictionary word followed by numbers (e.g., password123)
+- Numbers followed by a dictionary word (e.g., 2022password)
+- A dictionary word with special characters added (e.g., password!@#)
+
+## Hybrid Attack Modes
+
+Hashcat offers two primary hybrid attack modes:
+
+1. **Mode 6 (dict + mask)**: Appends a brute force mask to each dictionary word
+2. **Mode 7 (mask + dict)**: Prepends a brute force mask to each dictionary word
+
+## Basic Syntax
+
+### Dictionary + Mask (Mode 6)
+
+To append digits to dictionary words:
+
+```bash
+hashcat -a 6 -m 0 hashes.txt wordlist.txt ?d?d?d?d
+```
+
+This command tries each word in the wordlist followed by four digits (0000-9999).
+
+### Mask + Dictionary (Mode 7)
+
+To prepend digits to dictionary words:
+
+```bash
+hashcat -a 7 -m 0 hashes.txt ?d?d?d?d wordlist.txt
+```
+
+This command tries four digits followed by each word in the wordlist.
+
+## Mask Syntax for Hybrid Attacks
+
+The mask portion uses the same syntax as regular mask attacks:
+
+- `?l` - lowercase ASCII letters (a-z)
+- `?u` - uppercase ASCII letters (A-Z)
+- `?d` - digits (0-9)
+- `?s` - special characters (!"#$%, etc.)
+- `?a` - all characters (lowercase, uppercase, digits, special)
+
+For example, to try words followed by two digits and a special character:
+
+```bash
+hashcat -a 6 -m 0 hashes.txt wordlist.txt ?d?d?s
+```
+
+## Optimizing Hybrid Attacks
+
+### Targeted Masks
+
+Create masks based on known password policies or common patterns:
+
+```bash
+# For organizations requiring a capital letter and two digits at the end
+hashcat -a 6 -m 0 hashes.txt wordlist.txt ?u?d?d
+```
+
+### Custom Character Sets
+
+Define custom character sets for more specific targeting:
+
+```bash
+# Define custom set of special characters
+hashcat -a 6 -m 0 hashes.txt wordlist.txt -1 !@#$%^ ?1?1
+```
+
+This tries each word followed by two characters from the set `!@#$%^`.
+
+## Practical Examples
+
+### Corporate Environment
+
+For a corporate environment with a policy requiring words followed by a year:
+
+```bash
+hashcat -a 6 -m 0 hashes.txt wordlist.txt ?d?d?d?d
+```
+
+Common variations:
+
+```bash
+# Words followed by current/recent years
+hashcat -a 6 -m 0 hashes.txt wordlist.txt 2023
+hashcat -a 6 -m 0 hashes.txt wordlist.txt 2022
+```
+
+### Common Patterns
+
+For passwords with common special character suffixes:
+
+```bash
+# Words followed by common special character patterns
+hashcat -a 6 -m 0 hashes.txt wordlist.txt -1 !@#$%^ ?1
+hashcat -a 6 -m 0 hashes.txt wordlist.txt ?d?d?s
+```
+
+## Performance Considerations
+
+Hybrid attacks can generate a large number of candidates. Consider these optimization strategies:
+
+1. **Start specific**: Begin with the most likely patterns before trying more general ones
+2. **Use smaller wordlists**: For initial attempts, use a smaller, high-quality wordlist
+3. **Segment attacks**: Break large attacks into smaller segments using the `--skip` and `--limit` options
+4. **Prioritize by probability**: Try the most common patterns first (e.g., 123, year numbers)
+
+## Combining with Rules
+
+For even more powerful attacks, combine hybrid attacks with rules:
+
+```bash
+hashcat -a 6 -m 0 hashes.txt wordlist.txt ?d?d?d -r rules/best64.rule
+```
+
+This applies the best64 rule set to each word before appending three digits.
+
+## Next Steps
+
+After exploring hybrid attacks, you may want to learn about:
+
+- [Mask Attacks](/docs/hashcat/advanced-techniques/mask-attacks) - For targeting specific password patterns
+- [Rule-Based Attacks](/docs/hashcat/advanced-techniques/rule-based-attacks) - For applying transformations to wordlists

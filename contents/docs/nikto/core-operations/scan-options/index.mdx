@@ -1,0 +1,416 @@
+---
+title: Nikto Scan Options
+description: Detailed guide to Nikto's scanning configuration options and parameters
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nikto Scan Options
+
+This guide provides a comprehensive overview of Nikto's scanning configuration options and parameters. Understanding these options will help you customize scans for different scenarios and requirements.
+
+## Target Specification Options
+
+### Host Options
+
+```bash
+# Scan a single host
+nikto -h example.com
+
+# Scan multiple hosts from a file (one per line)
+nikto -h hosts.txt
+
+# Scan a specific IP address
+nikto -h 192.168.1.100
+```
+
+### Port Options
+
+```bash
+# Scan default port (80)
+nikto -h example.com
+
+# Scan specific port
+nikto -h example.com -p 8080
+
+# Scan multiple specific ports
+nikto -h example.com -p 80,443,8080,8443
+
+# Scan a range of ports
+nikto -h example.com -p 80-100
+
+# Scan all ports
+nikto -h example.com -p-
+```
+
+### Protocol Options
+
+```bash
+# Force SSL/TLS
+nikto -h example.com -ssl
+
+# Specify both host and port with protocol
+nikto -h https://example.com:8443
+```
+
+## Authentication Options
+
+### Basic Authentication
+
+```bash
+# HTTP Basic Authentication
+nikto -h example.com -id username:password
+```
+
+### Form-Based Authentication
+
+```bash
+# Form-based authentication with login page
+nikto -h example.com -id username:password -form /login.php
+```
+
+### Cookie-Based Authentication
+
+```bash
+# Use specific cookies
+nikto -h example.com -Cookies "sessionid:abc123; auth:xyz456"
+```
+
+## Scan Tuning Options
+
+### Test Selection
+
+<Tabs defaultValue={"categories"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"categories"}>Test Categories</TabsTrigger>
+    <TabsTrigger value={"exclusion"}>Test Exclusion</TabsTrigger>
+    <TabsTrigger value={"plugins"}>Plugin Selection</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"categories"}>
+    ### Test Categories
+    
+    Select specific test categories with the `-Tuning` option:
+    
+    ```bash
+    # Run all tests
+    nikto -h example.com -Tuning x
+    
+    # Run only file upload tests
+    nikto -h example.com -Tuning 0
+    
+    # Run multiple test categories
+    nikto -h example.com -Tuning 123
+    ```
+    
+    **Available Categories:**
+    
+    - 0 - File Upload
+    - 1 - Interesting File / Seen in logs
+    - 2 - Misconfiguration / Default File
+    - 3 - Information Disclosure
+    - 4 - Injection (XSS/Script/HTML)
+    - 5 - Remote File Retrieval (Inside Web Root)
+    - 6 - Denial of Service
+    - 7 - Remote File Retrieval (Server Wide)
+    - 8 - Command Execution / Remote Shell
+    - 9 - SQL Injection
+    - a - Authentication Bypass
+    - b - Software Identification
+    - c - Remote Source Inclusion
+  </TabsContent>
+  <TabsContent value={"exclusion"}>
+    ### Test Exclusion
+    
+    Exclude specific test categories:
+    
+    ```bash
+    # Run all tests except DoS
+    nikto -h example.com -Tuning x6
+    
+    # Run all tests except DoS and file upload
+    nikto -h example.com -Tuning x06
+    ```
+    
+    The `x` before a number indicates exclusion of that category.
+    
+    You can also exclude specific tests by ID:
+    
+    ```bash
+    # Exclude specific test IDs
+    nikto -h example.com -Tuning x -id 999999,999998
+    ```
+  </TabsContent>
+  <TabsContent value={"plugins"}>
+    ### Plugin Selection
+    
+    Select specific plugins to run:
+    
+    ```bash
+    # List available plugins
+    nikto -list-plugins
+    
+    # Run only specific plugins
+    nikto -h example.com -Plugins "headers;report_text"
+    
+    # Run default plugins plus additional ones
+    nikto -h example.com -Plugins "@@default;apache_expect_xss"
+    
+    # Run default plugins except specific ones
+    nikto -h example.com -Plugins "@@default;-paths"
+    ```
+    
+    **Common Plugins:**
+    
+    - `@@default` - All default plugins
+    - `apache_expect_xss` - Apache Expect XSS tests
+    - `apacheusers` - Apache user enumeration
+    - `auth` - Authentication bypass tests
+    - `cgi` - CGI vulnerability tests
+    - `cookies` - Cookie analysis
+    - `headers` - HTTP header analysis
+    - `msgs` - Error message tests
+    - `outdated` - Outdated software detection
+    - `paths` - Path discovery
+    - `report_*` - Various report formats
+    - `shellshock` - Shellshock vulnerability tests
+  </TabsContent>
+</Tabs>
+
+### Directory Scanning Options
+
+```bash
+# Check all possible CGI directories
+nikto -h example.com -C all
+
+# Check specific CGI directories
+nikto -h example.com -C cgi-bin,scripts,cgi
+
+# Scan specific directories
+nikto -h example.com -root /admin/
+```
+
+## Output Control Options
+
+### Format Options
+
+```bash
+# Save output to a file in text format
+nikto -h example.com -o report.txt -Format txt
+
+# Save in HTML format
+nikto -h example.com -o report.html -Format htm
+
+# Save in CSV format
+nikto -h example.com -o report.csv -Format csv
+
+# Save in XML format
+nikto -h example.com -o report.xml -Format xml
+
+# Save in JSON format
+nikto -h example.com -o report.json -Format json
+```
+
+### Display Options
+
+```bash
+# Control what information is displayed
+nikto -h example.com -Display V
+
+# Display only vulnerabilities
+nikto -h example.com -Display 1
+
+# Display vulnerabilities and information
+nikto -h example.com -Display 12
+
+# Display all information except debug
+nikto -h example.com -Display 1234
+
+# Disable output to terminal (save to file only)
+nikto -h example.com -o report.txt -Display 0
+```
+
+**Display Options:**
+
+- 1 - Show vulnerabilities only
+- 2 - Show information items
+- 3 - Show positive items (things that were found)
+- 4 - Show negative items (things that were not found)
+- D - Debug output
+- E - Error messages
+- P - Progress reporting
+- S - Status messages
+- V - Verbose output (everything)
+
+### Verbosity Control
+
+```bash
+# Show full HTTP requests and responses
+nikto -h example.com -Display V -show
+
+# Show redirects
+nikto -h example.com -Display V -followredirects
+```
+
+## Scan Behavior Options
+
+### Timing Options
+
+```bash
+# Set request timeout in seconds
+nikto -h example.com -timeout 10
+
+# Add delay between requests (in seconds)
+nikto -h example.com -delay 2
+
+# Set maximum scan time
+nikto -h example.com -maxtime 1h
+```
+
+### Retry Options
+
+```bash
+# Set number of retries for failed requests
+nikto -h example.com -retries 3
+```
+
+### Depth Options
+
+```bash
+# Set maximum recursion depth
+nikto -h example.com -maxdepth 3
+```
+
+## Evasion Options
+
+### IDS/IPS Evasion
+
+```bash
+# Use random URI encoding
+nikto -h example.com -evasion 1
+
+# Use multiple evasion techniques
+nikto -h example.com -evasion 1267
+```
+
+**Evasion Techniques:**
+
+- 1 - Random URI encoding (non-UTF8)
+- 2 - Directory self-reference (/./)
+- 3 - Premature URL ending
+- 4 - Prepend long random string
+- 5 - Fake parameter
+- 6 - TAB as request spacer
+- 7 - Change the case of the URL
+- 8 - Use Windows directory separator (\)
+- A - Use a carriage return (0x0d) as a request spacer
+- B - Use binary value 0x0b as a request spacer
+
+### User Agent Options
+
+```bash
+# Use a specific User-Agent string
+nikto -h example.com -useragent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+
+# Use a random User-Agent
+nikto -h example.com -useragent FUZZ
+```
+
+## Proxy and Network Options
+
+### Proxy Configuration
+
+```bash
+# Use a proxy
+nikto -h example.com -useproxy http://proxy:8080
+
+# Use a proxy with authentication
+nikto -h example.com -useproxy http://username:password@proxy:8080
+```
+
+### Network Options
+
+```bash
+# Specify source IP address
+nikto -h example.com -vhost example.com
+
+# Set specific host header
+nikto -h example.com -vhost "internal.example.com"
+```
+
+## Database Options
+
+### Update Options
+
+```bash
+# Update Nikto database
+nikto -update
+
+# Check for updates
+nikto -Version
+```
+
+### Database Path
+
+```bash
+# Specify custom database path
+nikto -h example.com -dbcheck /path/to/databases
+```
+
+## Advanced Configuration Options
+
+### Configuration File
+
+```bash
+# Use a specific configuration file
+nikto -h example.com -config /path/to/nikto.conf
+```
+
+### Plugin Options
+
+```bash
+# Pass options to plugins
+nikto -h example.com -Plugins "@@default" -404code 302
+```
+
+## Combining Multiple Options
+
+### Comprehensive Scan Example
+
+```bash
+nikto -h example.com -ssl -p 443 -Tuning 123abc -Plugins "@@default;-outdated" -C all -Display 123 -o report.html -Format htm -useragent "Mozilla/5.0" -timeout 30 -maxtime 2h
+```
+
+This command:
+- Scans example.com on port 443 using SSL
+- Runs tests in categories 1, 2, 3, a, b, c
+- Uses all default plugins except the outdated plugin
+- Checks all possible CGI directories
+- Displays vulnerabilities, information, and positive findings
+- Saves output to report.html in HTML format
+- Uses a specific User-Agent
+- Sets a 30-second timeout per request
+- Limits the total scan time to 2 hours
+
+### Stealthy Scan Example
+
+```bash
+nikto -h example.com -Tuning 123b -Plugins "headers;auth" -evasion 1267 -delay 5 -useragent "Mozilla/5.0" -timeout 60 -Display 1 -o stealth_report.txt
+```
+
+This command:
+- Focuses on information gathering and authentication tests
+- Uses multiple evasion techniques
+- Adds a 5-second delay between requests
+- Uses a common User-Agent
+- Only displays vulnerabilities
+- Saves output to a text file
+
+## Next Steps
+
+Now that you understand Nikto's scan options, explore the following topics:
+
+- [Output Formats](/docs/nikto/core-operations/output-formats) - Learn about different output formats and reporting
+- [Advanced Techniques](/docs/nikto/advanced-techniques) - Discover advanced usage scenarios and techniques
+- [Best Practices](/docs/nikto/best-practices) - Learn best practices for effective and ethical use of Nikto

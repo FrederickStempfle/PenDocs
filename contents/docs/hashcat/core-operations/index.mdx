@@ -1,0 +1,246 @@
+---
+title: Hashcat Core Operations
+description: Learn about the core operations and fundamental features of Hashcat for password cracking
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hashcat Core Operations
+
+Hashcat is the world's fastest and most advanced password recovery utility, supporting five unique attack modes for over 300 highly-optimized hashing algorithms. This section covers the core operations and fundamental features of Hashcat.
+
+## Overview
+
+Hashcat leverages the power of your computer's CPU and GPU to perform high-speed password cracking operations. Understanding the core operations is essential for effective password recovery and security testing.
+
+<Tabs defaultValue="basics" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="basics">Basic Concepts</TabsTrigger>
+    <TabsTrigger value="workflow">Typical Workflow</TabsTrigger>
+    <TabsTrigger value="components">Key Components</TabsTrigger>
+  </TabsList>
+  <TabsContent value="basics">
+    ### Basic Concepts
+    
+    Hashcat operates on a few fundamental principles:
+    
+    1. **Hashing**: One-way mathematical functions that convert input data into fixed-length strings
+    2. **Password Recovery**: The process of finding the original input that produced a specific hash
+    3. **Attack Modes**: Different strategies for attempting to recover passwords
+    4. **Optimization**: Techniques to maximize cracking speed and efficiency
+    5. **Rule-Based Processing**: Transformations applied to wordlists to generate additional candidates
+    
+    Understanding these concepts is crucial for effective password cracking operations.
+  </TabsContent>
+  <TabsContent value="workflow">
+    ### Typical Workflow
+    
+    A standard Hashcat workflow includes:
+    
+    1. **Identify Hash Type**: Determine the algorithm used to generate the hash
+    2. **Select Attack Mode**: Choose the most appropriate attack strategy
+    3. **Prepare Resources**: Set up wordlists, rules, masks, or other required files
+    4. **Execute Attack**: Run Hashcat with appropriate parameters
+    5. **Monitor Progress**: Track cracking speed, progress, and recovered passwords
+    6. **Adjust Strategy**: Modify approach based on results and performance
+    7. **Extract Results**: Collect and analyze recovered passwords
+    
+    This workflow can be adapted based on specific requirements and constraints.
+  </TabsContent>
+  <TabsContent value="components">
+    ### Key Components
+    
+    Hashcat consists of several important components:
+    
+    1. **Core Engine**: Handles hash processing and candidate generation
+    2. **OpenCL/CUDA Support**: Enables GPU acceleration
+    3. **Attack Modes**: Different strategies for password recovery
+    4. **Rule Processors**: Apply transformations to wordlists
+    5. **Optimized Kernels**: Algorithm-specific code for maximum performance
+    6. **Monitoring Tools**: Track progress and performance
+    7. **Utilities**: Additional tools for hash manipulation and analysis
+    
+    These components work together to provide a powerful and flexible password recovery platform.
+  </TabsContent>
+</Tabs>
+
+## Core Operations
+
+Hashcat's core operations include:
+
+<Steps>
+  <Step title="Hash Identification">
+    Before starting any cracking attempt, you need to identify the hash type:
+    
+    ```bash
+    # Example hash identification
+    hashcat --identify 5f4dcc3b5aa765d61d8327deb882cf99
+    ```
+    
+    Hashcat can sometimes identify the hash type automatically, but external tools like `hash-identifier` or online services may also be helpful.
+  </Step>
+  <Step title="Selecting Attack Mode">
+    Choose the appropriate attack mode based on your scenario:
+    
+    - **Dictionary Attack** (mode 0): Uses a wordlist
+    - **Combinator Attack** (mode 1): Combines words from multiple wordlists
+    - **Mask Attack** (mode 3): Uses specified patterns
+    - **Hybrid Attack** (modes 6 and 7): Combines dictionary and mask approaches
+    - **Rule-Based Attack**: Applies transformation rules to wordlists
+    
+    Each mode has specific use cases and efficiency considerations.
+  </Step>
+  <Step title="Executing the Attack">
+    Run Hashcat with the appropriate parameters:
+    
+    ```bash
+    # Basic dictionary attack example
+    hashcat -m 0 -a 0 hashes.txt wordlist.txt
+    
+    # Mask attack example
+    hashcat -m 0 -a 3 hashes.txt ?a?a?a?a?a?a
+    
+    # Rule-based attack example
+    hashcat -m 0 -a 0 hashes.txt wordlist.txt -r rules/best64.rule
+    ```
+    
+    The `-m` parameter specifies the hash type, and `-a` specifies the attack mode.
+  </Step>
+  <Step title="Monitoring and Management">
+    Monitor the cracking process and manage resources:
+    
+    ```bash
+    # Show status during cracking
+    hashcat -m 0 -a 0 hashes.txt wordlist.txt --status
+    
+    # Pause and resume functionality
+    # (Press 'p' to pause, 'r' to resume during operation)
+    
+    # Checkpoint saving (automatic)
+    # Hashcat creates .restore files that allow resuming interrupted sessions
+    hashcat --restore # Resume from last session
+    ```
+    
+    Effective monitoring helps optimize resource usage and track progress.
+  </Step>
+</Steps>
+
+## Key Features
+
+<Tabs defaultValue="performance" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="performance">Performance Optimization</TabsTrigger>
+    <TabsTrigger value="distributed">Distributed Cracking</TabsTrigger>
+    <TabsTrigger value="advanced">Advanced Options</TabsTrigger>
+  </TabsList>
+  <TabsContent value="performance">
+    ### Performance Optimization
+    
+    Maximize Hashcat's performance with these techniques:
+    
+    1. **Workload Profiles**:
+       ```bash
+       hashcat -w 3 # High workload profile
+       ```
+       
+    2. **Optimized Kernels**:
+       ```bash
+       hashcat --kernel-accel 2 --kernel-loops 1024
+       ```
+       
+    3. **Device Selection**:
+       ```bash
+       hashcat -d 1 # Use device #1 (typically first GPU)
+       ```
+       
+    4. **Segment Size Adjustment**:
+       ```bash
+       hashcat --segment-size 512
+       ```
+       
+    5. **Disable Slow Candidates**:
+       ```bash
+       hashcat --skip-self-test
+       ```
+    
+    These optimizations can significantly improve cracking speed, but may affect stability.
+  </TabsContent>
+  <TabsContent value="distributed">
+    ### Distributed Cracking
+    
+    Distribute cracking workloads across multiple systems:
+    
+    1. **Keyspace Distribution**:
+       ```bash
+       # On system 1
+       hashcat -a 3 -m 0 hash.txt ?a?a?a?a?a?a --skip=0 --limit=10000000
+       
+       # On system 2
+       hashcat -a 3 -m 0 hash.txt ?a?a?a?a?a?a --skip=10000000 --limit=10000000
+       ```
+       
+    2. **Brain Server**:
+       ```bash
+       # Start brain server
+       hashcat --brain-server
+       
+       # Connect clients
+       hashcat -a 0 -m 0 hash.txt wordlist.txt --brain-client --brain-host 192.168.1.100
+       ```
+       
+    3. **Session Sharing**:
+       ```bash
+       # Create shareable session files
+       hashcat --session=shared_session -a 0 -m 0 hash.txt wordlist.txt
+       ```
+    
+    Distributed cracking can dramatically reduce time requirements for complex tasks.
+  </TabsContent>
+  <TabsContent value="advanced">
+    ### Advanced Options
+    
+    Fine-tune Hashcat with advanced options:
+    
+    1. **Markov Chains**:
+       ```bash
+       hashcat -a 0 -m 0 hash.txt wordlist.txt --markov-hcstat markov.hcstat
+       ```
+       
+    2. **Custom Charsets**:
+       ```bash
+       hashcat -a 3 -m 0 hash.txt -1 ?l?d?s ?1?1?1?1?1?1
+       ```
+       
+    3. **Increment Mode**:
+       ```bash
+       hashcat -a 3 -m 0 hash.txt ?a?a?a?a?a?a --increment
+       ```
+       
+    4. **Potfile Management**:
+       ```bash
+       hashcat --potfile-path=custom.pot -m 0 hash.txt wordlist.txt
+       ```
+       
+    5. **Debug Mode**:
+       ```bash
+       hashcat -m 0 hash.txt wordlist.txt --debug-mode=1
+       ```
+    
+    These advanced options provide greater control over the cracking process.
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand the core operations of Hashcat, explore these specific topics in more detail:
+
+- [Basic Usage](/docs/hashcat/core-operations/basic-usage) - Learn how to use Hashcat for common tasks
+- [Hash Types](/docs/hashcat/core-operations/hash-types) - Understand the various hash algorithms supported by Hashcat
+- [Attack Modes](/docs/hashcat/core-operations/attack-modes) - Explore different strategies for password recovery
+
+For more advanced usage, check out:
+
+- [Advanced Techniques](/docs/hashcat/advanced-techniques) - Learn about more sophisticated cracking methods
+- [Best Practices](/docs/hashcat/best-practices) - Discover recommended practices for efficient password cracking

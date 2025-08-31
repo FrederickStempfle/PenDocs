@@ -1,0 +1,640 @@
+---
+title: OWASP ZAP Advanced Proxy Features
+description: Advanced proxy configuration, interception, manipulation, and traffic analysis techniques in OWASP ZAP
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Advanced Proxy Features in OWASP ZAP
+
+OWASP ZAP's proxy is one of its most powerful components, offering far more than basic request interception. This guide explores advanced proxy features that can significantly enhance your security testing capabilities.
+
+## Proxy Configuration
+
+<Tabs defaultValue={"network"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"network"}>Network Settings</TabsTrigger>
+    <TabsTrigger value={"certificates"}>Certificate Management</TabsTrigger>
+    <TabsTrigger value={"chaining"}>Proxy Chaining</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"network"}>
+    ### Network Configuration
+    
+    Configure advanced network settings:
+    
+    1. **Local Proxies**:
+       - Configure multiple listening interfaces
+       - Set up different ports for different applications
+       - Enable IPv6 support
+       - Configure connection timeouts
+    
+    2. **Connection Settings**:
+       - Configure DNS resolution
+       - Set up connection timeouts
+       - Configure socket permissions
+       - Enable/disable HTTP/2 support
+  </TabsContent>
+  <TabsContent value={"certificates"}>
+    ### Certificate Management
+    
+    Advanced certificate handling:
+    
+    1. **Custom Certificates**:
+       - Generate custom root certificates
+       - Import existing certificates
+       - Configure certificate validity periods
+       - Set up custom certificate properties
+    
+    2. **Certificate Pinning Bypass**:
+       - Detect certificate pinning
+       - Use dynamic certificate generation
+       - Implement certificate pinning bypass techniques
+       - Handle mobile application certificate pinning
+  </TabsContent>
+  <TabsContent value={"chaining"}>
+    ### Proxy Chaining
+    
+    Configure proxy chaining for complex environments:
+    
+    1. **Upstream Proxies**:
+       - Configure upstream proxy settings
+       - Set up authentication for upstream proxies
+       - Configure exclusion patterns
+       - Handle SSL/TLS with upstream proxies
+    
+    2. **Specialized Configurations**:
+       - Chain with Tor for anonymous testing
+       - Configure corporate proxy integration
+       - Set up geographic IP routing
+       - Implement load balancing across proxies
+  </TabsContent>
+</Tabs>
+
+## Request and Response Interception
+
+<Steps>
+  <Step title="Break Points Configuration">
+    Configure advanced break points:
+    
+    1. Configure conditional break points:
+       - Break on specific URLs or patterns
+       - Break on specific HTTP methods
+       - Break on request/response headers
+       - Break on request/response body content
+    
+    2. Set up break point rules:
+       - Create complex break point conditions
+       - Combine multiple conditions
+       - Configure break point scope
+       - Set up break point timing
+  </Step>
+  <Step title="Request Manipulation">
+    Advanced request manipulation:
+    
+    1. Modify request components:
+       - Edit headers on-the-fly
+       - Manipulate cookies
+       - Modify request body content
+       - Change HTTP methods
+    
+    2. Use specialized editors:
+       - Structured editors for JSON/XML
+       - Hex editor for binary content
+       - Syntax highlighting for various formats
+       - Format validation and beautification
+  </Step>
+  <Step title="Response Manipulation">
+    Advanced response manipulation:
+    
+    1. Modify response components:
+       - Edit status codes
+       - Manipulate response headers
+       - Modify response body content
+       - Change content encoding
+    
+    2. Use specialized techniques:
+       - Inject JavaScript into HTML responses
+       - Modify JSON/XML structures
+       - Manipulate binary responses
+       - Handle compressed content
+  </Step>
+</Steps>
+
+## Traffic Manipulation
+
+<Tabs defaultValue={"replacer"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"replacer"}>Replacer</TabsTrigger>
+    <TabsTrigger value={"rewrite"}>Rewrite Rules</TabsTrigger>
+    <TabsTrigger value={"scripts"}>Proxy Scripts</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"replacer"}>
+    ### Replacer
+    
+    The Replacer add-on allows automatic content replacement:
+    
+    1. **Configuration**:
+       - Set up match and replacement strings
+       - Configure replacement scope
+       - Define replacement triggers
+       - Set up replacement rules priority
+    
+    2. **Advanced Use Cases**:
+       - Replace authentication tokens
+       - Modify security headers
+       - Inject tracking parameters
+       - Remove security controls for testing
+       - Automate repetitive modifications
+    
+    Example replacer rule to add a security header:
+    
+    - **Match Type**: Response Header
+    - **Match String**: (Leave empty to add a new header)
+    - **Replacement**: `Content-Security-Policy: default-src 'self'`
+    - **Enable**: Checked
+    - **Match Type**: Regex
+    - **Description**: Add CSP header
+  </TabsContent>
+  <TabsContent value={"rewrite"}>
+    ### Rewrite Rules
+    
+    Configure advanced rewrite rules:
+    
+    1. **URL Rewriting**:
+       - Redirect requests to different hosts
+       - Modify URL paths
+       - Change query parameters
+       - Transform URL structures
+    
+    2. **Content Rewriting**:
+       - Modify HTML content
+       - Transform API responses
+       - Inject content into responses
+       - Replace sensitive information
+    
+    Example URL rewriting rule:
+    
+    ```
+    # Redirect API requests to a test server
+    ^https://api\.production\.com/(.*)$ https://api.test.com/$1
+    ```
+  </TabsContent>
+  <TabsContent value={"scripts"}>
+    ### Proxy Scripts
+    
+    Use proxy scripts for advanced manipulation:
+    
+    1. **Script Types**:
+       - HTTP Sender scripts
+       - Proxy scripts
+       - Targeted scripts
+    
+    2. **Script Capabilities**:
+       - Dynamic request modification
+       - Conditional response handling
+       - Complex transformation logic
+       - State tracking across requests
+    
+    Example proxy script to add a custom header:
+    
+    ```javascript
+    // Add a custom header to all requests to a specific domain
+    function proxyRequest(msg) {
+        var url = msg.getRequestHeader().getURI().toString();
+        if (url.indexOf("example.com") > 0) {
+            msg.getRequestHeader().setHeader("X-Custom-Header", "TestValue");
+        }
+        return true;
+    }
+    
+    function proxyResponse(msg) {
+        // Process responses if needed
+        return true;
+    }
+    ```
+  </TabsContent>
+</Tabs>
+
+## Advanced Traffic Analysis
+
+<Steps>
+  <Step title="Traffic Filtering">
+    Configure advanced traffic filtering:
+    
+    1. Set up filter criteria:
+       - Filter by request/response size
+       - Filter by status code
+       - Filter by content type
+       - Filter by request method
+       - Filter by response time
+    
+    2. Create complex filters:
+       - Combine multiple filter conditions
+       - Use regular expressions for filtering
+       - Save and reuse filter configurations
+       - Export filtered results
+  </Step>
+  <Step title="Traffic Analysis">
+    Advanced traffic analysis techniques:
+    
+    1. Analyze traffic patterns:
+       - Identify request sequences
+       - Detect authentication flows
+       - Map application functionality
+       - Discover hidden endpoints
+    
+    2. Use specialized analysis:
+       - Compare requests and responses
+       - Analyze parameter usage
+       - Detect information leakage
+       - Identify security patterns
+  </Step>
+  <Step title="Traffic Visualization">
+    Visualize traffic for better understanding:
+    
+    1. Use built-in visualization:
+       - View site structure
+       - Analyze request/response sizes
+       - Track response times
+       - Visualize request relationships
+    
+    2. Export for external analysis:
+       - Export to HAR format
+       - Generate traffic reports
+       - Create custom visualizations
+       - Integrate with external tools
+  </Step>
+</Steps>
+
+## WebSockets
+
+<Tabs defaultValue={"intercept"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"intercept"}>WebSocket Interception</TabsTrigger>
+    <TabsTrigger value={"manipulation"}>Message Manipulation</TabsTrigger>
+    <TabsTrigger value={"analysis"}>WebSocket Analysis</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"intercept"}>
+    ### WebSocket Interception
+    
+    Intercept and analyze WebSocket connections:
+    
+    1. **Connection Handling**:
+       - View active WebSocket connections
+       - Track connection establishment
+       - Monitor connection status
+       - Handle secure WebSocket connections
+    
+    2. **Message Interception**:
+       - Configure break points for WebSocket messages
+       - Set up conditional breaks
+       - View message metadata
+       - Track message sequence
+  </TabsContent>
+  <TabsContent value={"manipulation"}>
+    ### WebSocket Message Manipulation
+    
+    Manipulate WebSocket messages:
+    
+    1. **Message Editing**:
+       - Edit message content
+       - Modify message direction
+       - Change message format
+       - Inject custom messages
+    
+    2. **Advanced Manipulation**:
+       - Use structured editors for JSON/XML
+       - Apply transformations to messages
+       - Replay modified messages
+       - Create message sequences
+    
+    Example WebSocket message manipulation:
+    
+    1. Set a break point on WebSocket messages
+    2. When a message is intercepted, modify the JSON payload
+    3. Forward the modified message
+    4. Observe application behavior with the modified data
+  </TabsContent>
+  <TabsContent value={"analysis"}>
+    ### WebSocket Analysis
+    
+    Analyze WebSocket traffic:
+    
+    1. **Traffic Analysis**:
+       - Filter WebSocket messages
+       - Search within message content
+       - Group related messages
+       - Export messages for analysis
+    
+    2. **Security Testing**:
+       - Identify sensitive information in messages
+       - Test for injection vulnerabilities
+       - Check for authentication issues
+       - Verify message integrity controls
+    
+    WebSocket security testing techniques:
+    
+    - Inject malicious payloads into message content
+    - Modify authentication tokens in messages
+    - Test for message replay vulnerabilities
+    - Check for proper input validation in WebSocket handlers
+  </TabsContent>
+</Tabs>
+
+## HTTP/2 and HTTP/3 Support
+
+<Steps>
+  <Step title="HTTP/2 Configuration">
+    Configure HTTP/2 support:
+    
+    1. Enable HTTP/2 support:
+       - Go to Tools > Options > Network
+       - Enable HTTP/2 support
+       - Configure HTTP/2 settings
+    
+    2. HTTP/2-specific features:
+       - View HTTP/2 streams
+       - Analyze HTTP/2 headers
+       - Test for HTTP/2-specific vulnerabilities
+       - Handle HTTP/2 server push
+  </Step>
+  <Step title="HTTP/3 Support">
+    Work with HTTP/3 (QUIC):
+    
+    1. Configure HTTP/3 support:
+       - Install required add-ons
+       - Configure HTTP/3 settings
+       - Set up QUIC parameters
+    
+    2. HTTP/3-specific testing:
+       - Test for HTTP/3 compatibility
+       - Analyze QUIC connections
+       - Identify HTTP/3-specific security issues
+       - Compare behavior across HTTP versions
+  </Step>
+  <Step title="Protocol Comparison">
+    Compare behavior across protocol versions:
+    
+    1. Test application with different protocols:
+       - Force specific HTTP versions
+       - Compare performance characteristics
+       - Identify version-specific vulnerabilities
+       - Test protocol downgrade scenarios
+    
+    2. Security implications:
+       - Analyze header handling differences
+       - Test for protocol-specific vulnerabilities
+       - Check for inconsistent security controls
+       - Verify proper protocol negotiation
+  </Step>
+</Steps>
+
+## Mobile Application Testing
+
+<Tabs defaultValue={"setup"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"setup"}>Mobile Proxy Setup</TabsTrigger>
+    <TabsTrigger value={"cert"}>Certificate Installation</TabsTrigger>
+    <TabsTrigger value={"bypass"}>Certificate Pinning Bypass</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"setup"}>
+    ### Mobile Proxy Setup
+    
+    Configure ZAP for mobile application testing:
+    
+    1. **Network Configuration**:
+       - Configure proxy to listen on all interfaces
+       - Set up appropriate port forwarding
+       - Configure mobile device network settings
+       - Test connectivity between mobile and ZAP
+    
+    2. **Platform-Specific Setup**:
+       - Configure iOS proxy settings
+       - Set up Android proxy configuration
+       - Handle emulator/simulator proxy settings
+       - Configure VPN-based proxying
+  </TabsContent>
+  <TabsContent value={"cert"}>
+    ### Certificate Installation
+    
+    Install ZAP certificates on mobile devices:
+    
+    1. **Android Certificate Installation**:
+       - Export ZAP root certificate
+       - Install as user certificate (Android 7+)
+       - Configure network security config
+       - Handle certificate trust issues
+    
+    2. **iOS Certificate Installation**:
+       - Export ZAP root certificate
+       - Install profile on iOS device
+       - Enable full trust for root certificates
+       - Troubleshoot certificate issues
+  </TabsContent>
+  <TabsContent value={"bypass"}>
+    ### Certificate Pinning Bypass
+    
+    Bypass certificate pinning in mobile applications:
+    
+    1. **Detection and Analysis**:
+       - Identify certificate pinning implementation
+       - Analyze application code if available
+       - Test for different pinning mechanisms
+       - Determine pinning scope
+    
+    2. **Bypass Techniques**:
+       - Use Frida for dynamic instrumentation
+       - Apply Objection for runtime manipulation
+       - Modify application packages
+       - Use emulator-based approaches
+    
+    Example Frida script for certificate pinning bypass:
+    
+    ```javascript
+    // Basic Android certificate pinning bypass
+    setTimeout(function() {
+        Java.perform(function() {
+            console.log("[+] Bypassing certificate pinning");
+            
+            var X509TrustManager = Java.use('javax.net.ssl.X509TrustManager');
+            var SSLContext = Java.use('javax.net.ssl.SSLContext');
+            
+            // TrustManager implementation
+            var TrustManager = Java.registerClass({
+                name: 'com.example.TrustManager',
+                implements: [X509TrustManager],
+                methods: {
+                    checkClientTrusted: function(chain, authType) {},
+                    checkServerTrusted: function(chain, authType) {},
+                    getAcceptedIssuers: function() { return []; }
+                }
+            });
+            
+            // Create a new TrustManager instance
+            var TrustManagers = [TrustManager.$new()];
+            
+            // Override SSLContext.init to use our TrustManager
+            var SSLContext_init = SSLContext.init.overload(
+                '[Ljavax.net.ssl.KeyManager;', 
+                '[Ljavax.net.ssl.TrustManager;', 
+                'java.security.SecureRandom'
+            );
+            
+            SSLContext_init.implementation = function(keyManager, trustManager, secureRandom) {
+                console.log("[+] Overriding SSLContext.init");
+                SSLContext_init.call(this, keyManager, TrustManagers, secureRandom);
+            };
+            
+            console.log("[+] Certificate pinning bypassed");
+        });
+    }, 1000);
+    ```
+  </TabsContent>
+</Tabs>
+
+## Proxy Extensions and Add-ons
+
+<Steps>
+  <Step title="Essential Proxy Add-ons">
+    Key add-ons for enhanced proxy functionality:
+    
+    1. **Replacer**:
+       - Automatically replace content in requests and responses
+       - Configure match and replacement rules
+       - Apply conditional replacements
+    
+    2. **Advanced Proxy Settings**:
+       - Configure additional proxy options
+       - Set up specialized proxy behaviors
+       - Customize proxy response handling
+    
+    3. **WebSockets**:
+       - Intercept and manipulate WebSocket connections
+       - Analyze WebSocket traffic
+       - Test WebSocket security
+  </Step>
+  <Step title="Custom Proxy Scripts">
+    Create custom proxy scripts:
+    
+    1. Script types:
+       - HTTP Sender scripts
+       - Proxy scripts
+       - Targeted scripts
+    
+    2. Script capabilities:
+       - Modify requests and responses
+       - Implement custom logic
+       - Integrate with external tools
+       - Automate complex workflows
+    
+    Example proxy script for request modification:
+    
+    ```javascript
+    // Add a timestamp header to all requests
+    function proxyRequest(msg) {
+        var header = "X-Request-Timestamp";
+        var timestamp = new Date().toISOString();
+        msg.getRequestHeader().setHeader(header, timestamp);
+        return true;
+    }
+    
+    function proxyResponse(msg) {
+        // Process responses if needed
+        return true;
+    }
+    ```
+  </Step>
+  <Step title="External Tool Integration">
+    Integrate with external tools:
+    
+    1. Forward proxy traffic:
+       - Configure ZAP as upstream proxy
+       - Forward specific traffic to external tools
+       - Chain multiple security tools
+    
+    2. API integration:
+       - Use ZAP API to control proxy behavior
+       - Integrate with custom tools
+       - Automate proxy configuration
+       - Implement custom proxy workflows
+  </Step>
+</Steps>
+
+## Case Studies and Examples
+
+<Tabs defaultValue={"api"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"api"}>API Testing</TabsTrigger>
+    <TabsTrigger value={"spa"}>Single Page Applications</TabsTrigger>
+    <TabsTrigger value={"mobile"}>Mobile Applications</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"api"}>
+    ### API Testing with Advanced Proxy
+    
+    1. **Scenario**:
+       Testing a REST API with JWT authentication
+    
+    2. **Approach**:
+       - Configure proxy to intercept API requests
+       - Use Replacer to automatically add authentication headers
+       - Create custom scripts to validate and modify JWT tokens
+       - Set up break points for specific API endpoints
+       - Use WebSockets for real-time API testing
+    
+    3. **Results**:
+       - Identified authentication bypass vulnerabilities
+       - Discovered insecure JWT implementation
+       - Found authorization flaws in API endpoints
+       - Detected information leakage in error responses
+  </TabsContent>
+  <TabsContent value={"spa"}>
+    ### Single Page Application Testing
+    
+    1. **Scenario**:
+       Testing a React-based SPA with complex state management
+    
+    2. **Approach**:
+       - Configure proxy to handle AJAX and fetch requests
+       - Use WebSockets interception for real-time communication
+       - Create custom scripts to maintain application state
+       - Implement automatic token refresh handling
+       - Use break points to analyze application flow
+    
+    3. **Results**:
+       - Identified client-side security vulnerabilities
+       - Discovered insecure state management
+       - Found authentication flaws in SPA implementation
+       - Detected sensitive information exposure
+  </TabsContent>
+  <TabsContent value={"mobile"}>
+    ### Mobile Application Testing
+    
+    1. **Scenario**:
+       Testing an Android banking application with certificate pinning
+    
+    2. **Approach**:
+       - Configure proxy for mobile device
+       - Install ZAP certificate on device
+       - Use Frida to bypass certificate pinning
+       - Create custom scripts to handle mobile-specific protocols
+       - Implement automatic session handling
+    
+    3. **Results**:
+       - Bypassed certificate pinning protection
+       - Identified insecure data storage
+       - Discovered authentication vulnerabilities
+       - Found sensitive information in API responses
+       - Detected insecure cryptographic implementations
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand advanced proxy features in OWASP ZAP, explore these related topics:
+
+- [Authentication Techniques](/docs/owasp-zap/advanced-techniques/authentication) - Configure authentication for testing
+- [API Security Testing](/docs/owasp-zap/advanced-techniques/api-security) - Test API security with ZAP
+- [Scripting](/docs/owasp-zap/advanced-techniques/scripting) - Create custom scripts for ZAP
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

@@ -1,0 +1,360 @@
+---
+title: The Expert's Nikto Guide
+description: A comprehensive guide to web server scanning and vulnerability assessment with Nikto
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+import { FileTree } from "@/components/markdown/file-sys"
+
+# The Expert's Nikto Guide
+
+Nikto is a powerful open-source web server scanner designed to identify potential vulnerabilities, misconfigurations, and security issues in web servers and web applications. This comprehensive tool performs comprehensive tests against web servers for multiple items, including over 6700 potentially dangerous files/programs, checks for outdated versions of over 1250 servers, and version-specific problems on over 270 servers.
+
+<Tabs defaultValue={"overview"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+    <TabsTrigger value={"features"}>Key Features</TabsTrigger>
+    <TabsTrigger value={"versions"}>Version History</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"overview"}>
+    Nikto is an open-source web server scanner that performs comprehensive tests against web servers for multiple security issues. It scans for outdated server software, dangerous files, misconfigurations, and other vulnerabilities. Unlike many other security scanners, Nikto is designed to be fast, thorough, and easy to use, making it an essential tool for security professionals conducting web application assessments. It's not designed to be stealthy, but rather to provide a complete and thorough examination of the target web server.
+  </TabsContent>
+  <TabsContent value={"features"}>
+    - **Comprehensive scanning**: Tests for over 6700 potentially dangerous files and programs
+    - **Version checking**: Identifies outdated versions of over 1250 servers
+    - **Server enumeration**: Detects installed web servers and software
+    - **SSL support**: Full HTTPS scanning capabilities
+    - **Multiple report formats**: Plain text, HTML, CSV, XML, and JSON output options
+    - **Tunable scan options**: Customize tests based on requirements
+    - **Proxy support**: Route scans through proxy servers
+    - **Authentication**: Support for Basic, NTLM, and form-based authentication
+    - **Plugin architecture**: Extensible with custom tests and checks
+    - **Integration capabilities**: Works with Metasploit and other security tools
+  </TabsContent>
+  <TabsContent value={"versions"}>
+    - **Nikto 2.1.6** (2020): Latest stable release with improved scanning capabilities
+    - **Nikto 2.1.5** (2014): Added JSON output and improved SSL support
+    - **Nikto 2.1.4** (2011): Enhanced plugin system and reporting features
+    - **Nikto 2.0.0** (2008): Major rewrite with modular architecture
+    - **Nikto 1.0** (2001): Initial public release
+  </TabsContent>
+</Tabs>
+
+## Why Use Nikto?
+
+- **Comprehensive Coverage**: Tests for thousands of potential issues and vulnerabilities
+- **Ease of Use**: Simple command-line interface with straightforward options
+- **Thorough Reporting**: Detailed output with multiple format options
+- **Active Development**: Regularly updated with new vulnerability checks
+- **Integration Capabilities**: Works well with other penetration testing tools
+- **Free and Open Source**: Available to everyone with an active community
+- **Low Resource Requirements**: Runs efficiently on modest hardware
+
+## Getting Started with Nikto
+
+<Steps>
+  <Step title="Install Nikto">
+    Nikto comes pre-installed in many security-focused Linux distributions like Kali Linux. For other systems:
+    
+    **Debian/Ubuntu**:
+    ```bash
+    sudo apt update
+    sudo apt install nikto
+    ```
+    
+    **Fedora/RHEL**:
+    ```bash
+    sudo dnf install nikto
+    ```
+    
+    **From Source**:
+    ```bash
+    git clone https://github.com/sullo/nikto.git
+    cd nikto/program
+    ```
+    
+    **Docker**:
+    ```bash
+    docker pull sullo/nikto
+    docker run -it sullo/nikto -h example.com
+    ```
+  </Step>
+  <Step title="Verify Installation">
+    Test your installation by running:
+    ```bash
+    nikto -Version
+    ```
+    
+    This should display the current version of Nikto and its components.
+  </Step>
+  <Step title="Understand Basic Syntax">
+    The basic syntax for Nikto is:
+    ```bash
+    nikto -h [target host]
+    ```
+    
+    For example, to scan a website:
+    ```bash
+    nikto -h https://example.com
+    ```
+    
+    This will perform a comprehensive scan of the target web server.
+  </Step>
+</Steps>
+
+## Core Scanning Options
+
+### Basic Scanning
+
+The most basic Nikto scan requires only a target:
+
+```bash
+nikto -h target.com
+```
+
+For HTTPS sites, you can specify the protocol:
+
+```bash
+nikto -h https://target.com
+```
+
+To specify a non-standard port:
+
+```bash
+nikto -h target.com -p 8080
+```
+
+### Authentication
+
+Nikto supports various authentication methods:
+
+```bash
+# Basic authentication
+nikto -h target.com -id username:password
+
+# Form-based authentication
+nikto -h target.com -id username:password -form /login.php
+```
+
+### Tuning Scan Options
+
+Customize the scan with tuning options:
+
+```bash
+# Scan only for specific vulnerabilities
+nikto -h target.com -Tuning 123
+```
+
+Tuning options include:
+- 0: File Upload
+- 1: Interesting File / Seen in logs
+- 2: Misconfiguration / Default File
+- 3: Information Disclosure
+- 4: Injection (XSS/Script/HTML)
+- 5: Remote File Retrieval
+- 6: Denial of Service
+- 7: Remote File Retrieval
+- 8: Command Execution / Remote Shell
+- 9: SQL Injection
+- a: Authentication Bypass
+- b: Software Identification
+- c: Remote Source Inclusion
+- x: Reverse Tuning Options (disable these)
+
+## Output and Reporting
+
+Nikto offers multiple output formats for reporting:
+
+<Tabs defaultValue={"text"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"text"}>Text</TabsTrigger>
+    <TabsTrigger value={"html"}>HTML</TabsTrigger>
+    <TabsTrigger value={"csv"}>CSV</TabsTrigger>
+    <TabsTrigger value={"xml"}>XML/JSON</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"text"}>
+    Default plain text output to console or file:
+    
+    ```bash
+    nikto -h target.com -o report.txt -Format txt
+    ```
+    
+    This creates a human-readable text report.
+  </TabsContent>
+  <TabsContent value={"html"}>
+    HTML formatted report with color-coding:
+    
+    ```bash
+    nikto -h target.com -o report.html -Format html
+    ```
+    
+    The HTML report is useful for sharing with non-technical stakeholders.
+  </TabsContent>
+  <TabsContent value={"csv"}>
+    CSV format for data analysis:
+    
+    ```bash
+    nikto -h target.com -o report.csv -Format csv
+    ```
+    
+    CSV output is ideal for importing into spreadsheets or databases.
+  </TabsContent>
+  <TabsContent value={"xml"}>
+    XML and JSON formats for integration:
+    
+    ```bash
+    # XML output
+    nikto -h target.com -o report.xml -Format xml
+    
+    # JSON output
+    nikto -h target.com -o report.json -Format json
+    ```
+    
+    These formats are ideal for integration with other tools and systems.
+  </TabsContent>
+</Tabs>
+
+## Advanced Options
+
+### Proxy Support
+
+Route scans through a proxy server:
+
+```bash
+nikto -h target.com -useproxy http://proxy.example.com:8080
+```
+
+### SSL/TLS Options
+
+Customize SSL/TLS behavior:
+
+```bash
+# Specify SSL version
+nikto -h target.com -ssl -sslv 1.2
+
+# No certificate validation
+nikto -h target.com -ssl -nossl
+```
+
+### Plugin Management
+
+Nikto uses a plugin architecture for its tests:
+
+```bash
+# List available plugins
+nikto -list-plugins
+
+# Enable specific plugins
+nikto -h target.com -Plugins "apacheusers(users:admin;root;user),report_html"
+
+# Update plugins database
+nikto -update
+```
+
+### Evasion Techniques
+
+Nikto offers several evasion options to avoid detection:
+
+```bash
+nikto -h target.com -evasion 1
+```
+
+Evasion options include:
+1. Random URI encoding
+2. Directory self-reference (/./)
+3. Premature URL ending
+4. Prepend long random string
+5. Fake parameter
+6. TAB as request spacer
+7. Change the case of the URL
+8. Use Windows directory separator (\)
+A. Use a carriage return (0x0d) as a request spacer
+B. Use binary value 0x0b as a request spacer
+
+<Note>
+Evasion techniques may cause false negatives as some servers might not process the requests correctly.
+</Note>
+
+## Practical Examples
+
+### Basic Web Server Scan
+
+```bash
+nikto -h example.com
+```
+
+### Comprehensive Scan with Full Options
+
+```bash
+nikto -h example.com -port 443 -ssl -Tuning x6 -Display V -o report.html -Format html
+```
+
+This performs a scan:
+- Against HTTPS (port 443)
+- Excluding DoS tests (x6)
+- With verbose output (-Display V)
+- Saving results to an HTML file
+
+### Multiple Host Scanning
+
+```bash
+nikto -h target1.com target2.com
+```
+
+Or scan from a file:
+
+```bash
+nikto -h hosts.txt
+```
+
+### Integration with Other Tools
+
+Nikto can be integrated with Metasploit:
+
+```bash
+# In Metasploit
+msf> load nikto
+msf> nikto_scan -h target.com
+```
+
+## Interpreting Results
+
+Nikto scan results are organized by severity and include:
+
+1. **Server Information**: Web server type, version, and configuration details
+2. **Vulnerabilities**: Potential security issues found
+3. **Misconfigurations**: Server setup problems
+4. **Information Disclosure**: Sensitive data exposure
+5. **Outdated Software**: Deprecated or vulnerable components
+
+Each finding includes:
+- Description of the issue
+- URL or path where it was found
+- Severity indication
+- References to related vulnerabilities (CVE, OSVDB)
+
+<Note>
+Nikto may report false positives. Always verify findings manually before taking action.
+</Note>
+
+## Guide Structure
+
+This guide is organized into several sections:
+
+1. **Core Operations**: Basic syntax, scanning options, and fundamental usage
+2. **Advanced Techniques**: Customization options, evasion methods, and specialized approaches
+3. **Integration**: Using Nikto with other security tools
+4. **Best Practices**: Optimizing scans and interpreting results accurately
+
+Each section provides detailed explanations, command examples, and real-world use cases to help you master Nikto for ethical penetration testing and security assessment.
+
+## Next Steps
+
+Now that you understand the basics of Nikto, explore the following sections to deepen your knowledge:
+
+- [Core Operations](/docs/nikto/core-operations) - Learn the fundamental commands and operations
+- [Advanced Techniques](/docs/nikto/advanced-techniques) - Explore sophisticated scanning strategies
+- [Integration Guide](/docs/nikto/integration) - Learn how to use Nikto with other security tools
+- [Best Practices](/docs/nikto/best-practices) - Optimize your workflow and ensure accurate results

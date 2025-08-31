@@ -573,7 +573,7 @@ Testing for XSS vulnerabilities:
 3. **Evasion techniques**
    - Case variation: `<ScRiPt>alert(1)</sCrIpT>`
    - Encoding: `%3Cscript%3Ealert(1)%3C/script%3E`
-   - Alternative syntax: `<img src=x onerror=alert(1)>`
+   - Alternative syntax: `&lt;img src="x" onerror="alert(1)"&gt;`
 
 4. **Analysis techniques**
    - Look for unfiltered payloads in responses

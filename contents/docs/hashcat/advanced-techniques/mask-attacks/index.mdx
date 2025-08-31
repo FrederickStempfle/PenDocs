@@ -1,0 +1,160 @@
+---
+title: Mask Attacks
+description: Master mask attacks in Hashcat to efficiently crack passwords with specific patterns and character compositions
+---
+
+# Mask Attacks in Hashcat
+
+Mask attacks are a powerful technique in Hashcat that allow you to target passwords with specific patterns, lengths, and character compositions. This approach is particularly effective when you have knowledge about the password policy or likely patterns used in your target environment.
+
+## Understanding Mask Attacks
+
+A mask attack is essentially a smart brute force approach that uses placeholders to represent different character sets. Instead of trying every possible combination of characters, you define patterns that passwords are likely to follow, significantly reducing the search space and increasing efficiency.
+
+## Basic Mask Syntax
+
+Hashcat uses the following built-in character sets for masks:
+
+- `?l` - lowercase ASCII letters (a-z)
+- `?u` - uppercase ASCII letters (A-Z)
+- `?d` - digits (0-9)
+- `?s` - special characters (!"#$%, etc.)
+- `?a` - all characters (lowercase, uppercase, digits, special)
+- `?h` - hexadecimal digits lowercase (0-9, a-f)
+- `?H` - hexadecimal digits uppercase (0-9, A-F)
+
+To use a mask attack, specify attack mode 3 (`-a 3`):
+
+```bash
+hashcat -a 3 -m 0 hashes.txt ?u?l?l?l?l?d?d?d
+```
+
+This example tries all passwords that start with one uppercase letter, followed by four lowercase letters, followed by three digits.
+
+## Custom Character Sets
+
+You can define up to four custom character sets using `-1` through `-4`:
+
+```bash
+# Define a custom set of special characters
+hashcat -a 3 -m 0 hashes.txt -1 !@#$%^ ?l?l?l?1?1
+```
+
+This tries all passwords with three lowercase letters followed by two characters from the set `!@#$%^`.
+
+## Practical Mask Examples
+
+### Common Password Patterns
+
+```bash
+# 8-character password: 1 uppercase, 6 lowercase, 1 digit
+hashcat -a 3 -m 0 hashes.txt ?u?l?l?l?l?l?l?d
+
+# 8-character password: all lowercase with 2 digits at the end
+hashcat -a 3 -m 0 hashes.txt ?l?l?l?l?l?l?d?d
+
+# 10-character password: uppercase, lowercase, 2 special chars, 2 digits
+hashcat -a 3 -m 0 hashes.txt -1 !@#$%^&* ?u?l?l?l?l?l?1?1?d?d
+```
+
+### Targeting Specific Patterns
+
+For passwords with known structures:
+
+```bash
+# PIN codes (4 digits)
+hashcat -a 3 -m 0 hashes.txt ?d?d?d?d
+
+# Common pattern: word + year
+hashcat -a 3 -m 0 hashes.txt ?l?l?l?l?l?l2023
+```
+
+## Optimizing Mask Attacks
+
+### Length Incrementation
+
+To try masks of varying lengths:
+
+```bash
+# Try passwords from 5 to 8 characters
+hashcat -a 3 -m 0 hashes.txt --increment --increment-min 5 --increment-max 8 ?a?a?a?a?a?a?a?a
+```
+
+### Mask Files
+
+For complex attacks, create a mask file with multiple masks:
+
+```
+# masks.hcmask
+?d?d?d?d?d?d
+?d?d?d?d?d?d?d?d
+?l?l?l?l?d?d?d?d
+?u?l?l?l?l?d?d?d
+```
+
+Then use it with:
+
+```bash
+hashcat -a 3 -m 0 hashes.txt masks.hcmask
+```
+
+## Performance Considerations
+
+Mask attacks can generate enormous keyspaces. Consider these optimization strategies:
+
+1. **Start specific**: Begin with the most likely patterns before trying more general ones
+2. **Limit character sets**: Use only necessary character sets for each position
+3. **Use keyspace command**: Check the size of your attack before running it
+   ```bash
+   hashcat -a 3 ?a?a?a?a?a?a?a?a --keyspace
+   ```
+4. **Segment attacks**: Break large attacks into smaller segments using `--skip` and `--limit`
+
+## Advanced Techniques
+
+### Markov Chains
+
+Combine mask attacks with Markov chains to prioritize more likely character combinations:
+
+```bash
+hashcat -a 3 -m 0 hashes.txt ?a?a?a?a?a?a?a?a --markov-hcstat markov.hcstat
+```
+
+### Positional Masks
+
+Target specific positions with different character sets:
+
+```bash
+# First char uppercase, last char digit, middle chars lowercase
+hashcat -a 3 -m 0 hashes.txt ?u?l?l?l?l?l?l?d
+```
+
+## Real-World Applications
+
+### Password Policy Analysis
+
+Mask attacks are excellent for testing password policies. For a policy requiring 8+ characters with mixed case, numbers, and symbols:
+
+```bash
+# At least 8 chars with all required elements
+hashcat -a 3 -m 0 hashes.txt -1 ?u?l?d?s ?1?1?1?1?1?1?1?1
+```
+
+### Targeted Cracking
+
+For specific applications like PINs or phone-based passwords:
+
+```bash
+# 4-digit PIN
+hashcat -a 3 -m 0 hashes.txt ?d?d?d?d
+
+# Phone-based password (letters from phone keypad)
+hashcat -a 3 -m 0 hashes.txt -1 abcdefghijklmnopqrstuvwxyz ?1?1?1?1?1?1
+```
+
+## Next Steps
+
+After mastering mask attacks, you may want to explore:
+
+- [Hybrid Attacks](/docs/hashcat/advanced-techniques/hybrid-attacks) - Combine dictionary and mask approaches
+- [Rule-Based Attacks](/docs/hashcat/advanced-techniques/rule-based-attacks) - Apply transformations to wordlists

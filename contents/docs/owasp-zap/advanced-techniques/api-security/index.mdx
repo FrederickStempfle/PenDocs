@@ -1,0 +1,856 @@
+---
+title: OWASP ZAP API Security Testing
+description: Advanced techniques for testing API security with OWASP ZAP including REST, GraphQL, and SOAP APIs
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# API Security Testing with OWASP ZAP
+
+Modern applications heavily rely on APIs for communication between components and services. OWASP ZAP provides specialized features for testing the security of various API types, including REST, GraphQL, SOAP, and more. This guide covers advanced techniques for comprehensive API security testing.
+
+## API Testing Overview
+
+<Tabs defaultValue={"rest"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"rest"}>REST APIs</TabsTrigger>
+    <TabsTrigger value={"graphql"}>GraphQL</TabsTrigger>
+    <TabsTrigger value={"soap"}>SOAP/XML</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"rest"}>
+    ### REST API Testing
+    
+    ZAP can test REST APIs through:
+    
+    - OpenAPI/Swagger definition import
+    - Manual request creation
+    - API-specific scan rules
+    - Authentication handling
+    - Parameter fuzzing
+    
+    The OpenAPI Support add-on enhances ZAP's capabilities for REST API testing by automatically generating requests based on API specifications.
+  </TabsContent>
+  <TabsContent value={"graphql"}>
+    ### GraphQL Testing
+    
+    ZAP's GraphQL support includes:
+    
+    - GraphQL schema import
+    - Query generation
+    - Introspection query analysis
+    - GraphQL-specific vulnerabilities
+    - Custom query testing
+    
+    The GraphQL Support add-on is required for these features and provides specialized tools for testing GraphQL endpoints.
+  </TabsContent>
+  <TabsContent value={"soap"}>
+    ### SOAP/XML Web Services
+    
+    ZAP can test SOAP and XML-based web services:
+    
+    - WSDL import
+    - XML external entity (XXE) testing
+    - XML injection
+    - SOAP action spoofing
+    - WS-Security testing
+    
+    The SOAP Scanner add-on enhances ZAP's capabilities for SOAP services by parsing WSDL files and generating appropriate test requests.
+  </TabsContent>
+</Tabs>
+
+## Setting Up for API Testing
+
+<Steps>
+  <Step title="Install Required Add-ons">
+    1. Open ZAP
+    2. Go to **Marketplace** (in the Manage Add-ons dialog)
+    3. Install the following add-ons:
+       - OpenAPI Support
+       - GraphQL Support (if testing GraphQL)
+       - SOAP Scanner (if testing SOAP)
+       - Import/Export
+       - Fuzzer
+  </Step>
+  <Step title="Configure API Options">
+    1. Go to **Tools > Options**
+    2. Configure relevant sections:
+       - **API**: Set API configurations
+       - **Network**: Configure proxy settings if needed
+       - **Authentication**: Set up authentication if required
+  </Step>
+  <Step title="Prepare API Documentation">
+    Gather API documentation:
+    - OpenAPI/Swagger specifications for REST APIs
+    - GraphQL schemas
+    - WSDL files for SOAP services
+    
+    These will be imported into ZAP to generate requests automatically.
+  </Step>
+</Steps>
+
+## Testing REST APIs
+
+### Importing OpenAPI Definitions
+
+<Steps>
+  <Step title="Import OpenAPI Definition">
+    1. Go to **Import > Import an OpenAPI definition**
+    2. Select your OpenAPI file (JSON or YAML) or provide a URL
+    3. Configure import options:
+       - Target URL (if different from the one in the definition)
+       - Context name
+    4. Click **Import**
+    
+    ZAP will parse the definition and add the endpoints to the Sites tree.
+  </Step>
+  <Step title="Review Imported Endpoints">
+    1. Expand the imported site in the Sites tree
+    2. Review the endpoints and parameters
+    3. Right-click on endpoints to:
+       - Send to Spider
+       - Send to Active Scanner
+       - Open in Request Editor
+  </Step>
+  <Step title="Generate Requests">
+    The OpenAPI add-on provides two ways to generate requests:
+    
+    1. **Automatic Request Generation**:
+       - Right-click on the imported API
+       - Select **OpenAPI > Generate Full Requests**
+       - ZAP will generate requests with example values
+    
+    2. **Manual Request Creation**:
+       - Right-click on an endpoint
+       - Select **Open/Resend with Request Editor**
+       - Modify parameters as needed
+       - Send the request
+  </Step>
+</Steps>
+
+### API Scanning Strategies
+
+<Tabs defaultValue={"passive"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"passive"}>Passive Scanning</TabsTrigger>
+    <TabsTrigger value={"active"}>Active Scanning</TabsTrigger>
+    <TabsTrigger value={"fuzzing"}>Fuzzing</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"passive"}>
+    ### Passive Scanning
+    
+    Passive scanning analyzes requests and responses without sending additional requests:
+    
+    1. Generate API requests using the OpenAPI definition
+    2. ZAP automatically performs passive scanning on all traffic
+    3. Review passive scan alerts in the Alerts tab
+    
+    Passive scanning can detect:
+    - Information disclosure
+    - Insecure configurations
+    - Missing security headers
+    - Sensitive data exposure
+    - Content security policy issues
+  </TabsContent>
+  <TabsContent value={"active"}>
+    ### Active Scanning
+    
+    Active scanning sends additional requests to test for vulnerabilities:
+    
+    1. Right-click on the API in the Sites tree
+    2. Select **Attack > Active Scan**
+    3. Configure scan options:
+       - Select appropriate scan policy
+       - Configure authentication if needed
+       - Set scan scope
+    4. Click **Start Scan**
+    
+    For API-specific scanning:
+    1. Go to **Tools > Options > Active Scan**
+    2. Enable relevant rules for API testing
+    3. Disable rules that are not applicable to APIs
+    
+    Consider creating a custom scan policy specifically for APIs.
+  </TabsContent>
+  <TabsContent value={"fuzzing"}>
+    ### Fuzzing
+    
+    Fuzzing tests API endpoints with various inputs:
+    
+    1. Right-click on a request in the Sites tree or History tab
+    2. Select **Attack > Fuzz**
+    3. Select parameters to fuzz
+    4. Add fuzz payloads:
+       - Select from built-in payload lists
+       - Import custom payloads
+       - Generate payloads using scripts
+    5. Configure fuzzing options
+    6. Click **Start Fuzzer**
+    
+    Effective fuzzing payloads for APIs include:
+    - SQL injection patterns
+    - NoSQL injection patterns
+    - Command injection payloads
+    - JSON/XML specific payloads
+    - Large values for testing buffer overflows
+  </TabsContent>
+</Tabs>
+
+### Authentication for REST APIs
+
+<Steps>
+  <Step title="API Key Authentication">
+    For API key authentication:
+    
+    1. Use the HTTP Headers tab in the Request Editor
+    2. Add the appropriate header (e.g., `X-API-Key: your-api-key`)
+    3. Alternatively, use the Replacer add-on to automatically add the header to all requests
+  </Step>
+  <Step title="OAuth 2.0 Authentication">
+    For OAuth 2.0:
+    
+    1. Install the OAuth Support add-on
+    2. Configure OAuth settings:
+       - Go to **Tools > Options > Authentication > OAuth 2.0**
+       - Set client ID, client secret, token endpoint, etc.
+    3. Create a context with OAuth authentication
+    4. Use the context for scanning
+  </Step>
+  <Step title="JWT Authentication">
+    For JWT-based authentication:
+    
+    1. Install the JWT Support add-on
+    2. Obtain a valid JWT token (via login or other means)
+    3. Configure the Authorization header:
+       - `Authorization: Bearer your-jwt-token`
+    4. Use the JWT Support add-on to:
+       - Decode and analyze tokens
+       - Test for JWT vulnerabilities
+       - Fuzz JWT claims
+  </Step>
+</Steps>
+
+## Testing GraphQL APIs
+
+### Working with GraphQL
+
+<Steps>
+  <Step title="Import GraphQL Schema">
+    1. Go to **Import > Import a GraphQL Schema**
+    2. Provide the GraphQL endpoint URL or schema file
+    3. Configure import options:
+       - Endpoint URL
+       - Query generation options
+    4. Click **Import**
+    
+    ZAP will parse the schema and generate queries for all available operations.
+  </Step>
+  <Step title="Generate GraphQL Queries">
+    The GraphQL add-on automatically generates:
+    
+    1. **Queries**: For retrieving data
+    2. **Mutations**: For modifying data
+    3. **Subscriptions**: For real-time data (if supported)
+    
+    You can configure query generation options:
+    - Maximum query depth
+    - Arguments generation
+    - Optional fields inclusion
+  </Step>
+  <Step title="Send GraphQL Queries">
+    1. Navigate to the GraphQL tab
+    2. Select a generated query
+    3. Modify the query if needed
+    4. Click **Send** to execute the query
+    5. Review the response
+    
+    All queries and responses are added to the History tab for further analysis.
+  </Step>
+</Steps>
+
+### GraphQL-Specific Vulnerabilities
+
+<Tabs defaultValue={"introspection"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"introspection"}>Introspection</TabsTrigger>
+    <TabsTrigger value={"dos"}>DoS Attacks</TabsTrigger>
+    <TabsTrigger value={"injection"}>Injection</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"introspection"}>
+    ### Introspection Vulnerabilities
+    
+    GraphQL introspection allows clients to query the schema structure:
+    
+    1. Test if introspection is enabled:
+       ```graphql
+       {
+         __schema {
+           types {
+             name
+             fields {
+               name
+             }
+           }
+         }
+       }
+       ```
+    
+    2. If introspection is enabled in production, it may expose sensitive information about the API structure
+    
+    3. Use the GraphQL add-on to:
+       - Automatically detect enabled introspection
+       - Generate alerts for introspection in production
+       - Map the API structure using introspection
+  </TabsContent>
+  <TabsContent value={"dos"}>
+    ### Denial of Service Attacks
+    
+    GraphQL is vulnerable to resource-intensive queries:
+    
+    1. Test for nested query vulnerabilities:
+       ```graphql
+       {
+         users {
+           friends {
+             friends {
+               friends {
+                 # Deep nesting continues
+               }
+             }
+           }
+         }
+       }
+       ```
+    
+    2. Test for batch query attacks:
+       ```graphql
+       [
+         { query: "{ users { id name } }" },
+         { query: "{ users { id name } }" },
+         # Many duplicate queries
+       ]
+       ```
+    
+    3. Use the GraphQL add-on to:
+       - Test query depth limits
+       - Test query complexity limits
+       - Test batch query limits
+  </TabsContent>
+  <TabsContent value={"injection"}>
+    ### Injection Vulnerabilities
+    
+    GraphQL can be vulnerable to injection attacks:
+    
+    1. Test for SQL injection in arguments:
+       ```graphql
+       {
+         user(id: "1' OR '1'='1") {
+           name
+           email
+         }
+       }
+       ```
+    
+    2. Test for NoSQL injection:
+       ```graphql
+       {
+         user(filter: "{\"$gt\": \"\"}") {
+           name
+           email
+         }
+       }
+       ```
+    
+    3. Use the Active Scanner and Fuzzer to:
+       - Test arguments with injection payloads
+       - Test variables with injection payloads
+       - Test directives with injection payloads
+  </TabsContent>
+</Tabs>
+
+## Testing SOAP/XML Web Services
+
+### Working with SOAP Services
+
+<Steps>
+  <Step title="Import WSDL Definition">
+    1. Go to **Import > Import a WSDL file**
+    2. Select your WSDL file or provide a URL
+    3. Configure import options
+    4. Click **Import**
+    
+    ZAP will parse the WSDL and add the SOAP endpoints to the Sites tree.
+  </Step>
+  <Step title="Generate SOAP Requests">
+    1. Right-click on a SOAP operation in the Sites tree
+    2. Select **Open/Resend with Request Editor**
+    3. ZAP will generate a template SOAP request
+    4. Modify the request parameters as needed
+    5. Send the request
+  </Step>
+  <Step title="SOAP-Specific Testing">
+    Test for SOAP-specific vulnerabilities:
+    
+    1. **XML External Entity (XXE)**:
+       - Modify XML declarations to include external entities
+       - Test for file disclosure and SSRF
+    
+    2. **XML Injection**:
+       - Insert malicious XML content
+       - Test XML parser vulnerabilities
+    
+    3. **SOAP Action Spoofing**:
+       - Modify the SOAPAction header
+       - Test for unauthorized access to operations
+    
+    4. **WS-Security Issues**:
+       - Test for weak encryption
+       - Test for signature verification bypasses
+       - Test for token replay attacks
+  </Step>
+</Steps>
+
+## Advanced API Testing Techniques
+
+### API Fuzzing
+
+<Steps>
+  <Step title="Set Up API Fuzzing">
+    1. Right-click on an API request in the History tab
+    2. Select **Attack > Fuzz**
+    3. Select the parameter to fuzz
+    4. Add fuzz payloads appropriate for the parameter type
+  </Step>
+  <Step title="Custom Fuzzing Payloads">
+    Create custom fuzzing payloads for API testing:
+    
+    1. Go to **Tools > Options > Fuzzer**
+    2. Add custom payload files
+    
+    Effective API fuzzing payloads include:
+    - JSON structure manipulation
+    - GraphQL query manipulation
+    - XML structure manipulation
+    - Type conversion attacks (e.g., sending strings to numeric fields)
+    - Boundary testing values
+  </Step>
+  <Step title="Fuzzing Strategies">
+    Apply these fuzzing strategies:
+    
+    1. **Parameter Fuzzing**:
+       - Fuzz individual parameters
+       - Try different data types
+       - Test boundary conditions
+    
+    2. **Structure Fuzzing**:
+       - Modify JSON/XML structure
+       - Add unexpected fields
+       - Remove required fields
+    
+    3. **Protocol Fuzzing**:
+       - Modify content types
+       - Test with malformed requests
+       - Test with unexpected HTTP methods
+  </Step>
+</Steps>
+
+### Custom Scan Rules for APIs
+
+<Tabs defaultValue={"passive"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"passive"}>Passive Rules</TabsTrigger>
+    <TabsTrigger value={"active"}>Active Rules</TabsTrigger>
+    <TabsTrigger value={"examples"}>Example Rules</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"passive"}>
+    ### Custom Passive Rules
+    
+    Create passive scan rules for API-specific issues:
+    
+    1. Go to **Tools > Scripts**
+    2. Select **Passive Rules** script type
+    3. Create a new script
+    4. Implement the `scan` function to analyze requests and responses
+    
+    Example passive rules for APIs:
+    - Detecting sensitive information in responses
+    - Identifying missing security headers
+    - Checking for verbose error messages
+    - Detecting insecure API configurations
+  </TabsContent>
+  <TabsContent value={"active"}>
+    ### Custom Active Rules
+    
+    Create active scan rules for API-specific vulnerabilities:
+    
+    1. Go to **Tools > Scripts**
+    2. Select **Active Rules** script type
+    3. Create a new script
+    4. Implement the `scan` function to send test requests
+    
+    Example active rules for APIs:
+    - Testing for business logic flaws
+    - Checking for mass assignment vulnerabilities
+    - Testing for improper access controls
+    - Checking for rate limiting bypasses
+  </TabsContent>
+  <TabsContent value={"examples"}>
+    ### Example Custom Rule
+    
+    Here's an example passive rule to detect sensitive information in API responses:
+    
+    ```javascript
+    // Passive scan rule to detect sensitive information in API responses
+    function scan(ps, msg, src) {
+        // Check if this is an API response
+        var url = msg.getRequestHeader().getURI().toString();
+        var contentType = msg.getResponseHeader().getHeader("Content-Type");
+        
+        if (!contentType || !contentType.includes("application/json")) {
+            return;
+        }
+        
+        // Get the response body
+        var responseBody = msg.getResponseBody().toString();
+        
+        try {
+            // Parse JSON response
+            var json = JSON.parse(responseBody);
+            
+            // Patterns to detect
+            var patterns = {
+                "credit_card": /\b(?:\d{4}[- ]?){3}\d{4}\b/,
+                "ssn": /\b\d{3}[- ]?\d{2}[- ]?\d{4}\b/,
+                "api_key": /(?:api[_-]?key|token)[\"']?\s*[:=]\s*[\"']?([a-zA-Z0-9]{20,})/i,
+                "password": /\"password\":\s*\"[^\"]+\"/i,
+                "email": /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/
+            };
+            
+            // Convert JSON to string for pattern matching
+            var jsonString = JSON.stringify(json);
+            
+            // Check for each pattern
+            for (var key in patterns) {
+                var matches = jsonString.match(patterns[key]);
+                if (matches) {
+                    // Create an alert
+                    ps.newAlert()
+                        .setRisk(2)  // Medium
+                        .setConfidence(2)  // Medium
+                        .setName("Sensitive Information in API Response")
+                        .setDescription("The API response contains potentially sensitive information: " + key)
+                        .setEvidence(matches[0])
+                        .setMessage(msg)
+                        .raise();
+                }
+            }
+            
+        } catch (e) {
+            // Not JSON or parsing error
+        }
+    }
+    ```
+  </TabsContent>
+</Tabs>
+
+### API Security Testing Automation
+
+<Steps>
+  <Step title="Automation Framework">
+    Use ZAP's Automation Framework for API testing:
+    
+    ```yaml
+    env:
+      contexts:
+        - name: "API Context"
+          urls:
+            - "https://api.example.com"
+    
+    jobs:
+      - type: import
+        parameters:
+          type: "openapi"
+          file: "/path/to/openapi.json"
+          target: "https://api.example.com"
+    
+      - type: passiveScan-wait
+        parameters:
+          maxDuration: 10
+    
+      - type: activeScan
+        parameters:
+          context: "API Context"
+          policy: "API-Only"
+    
+      - type: report
+        parameters:
+          template: "traditional-json"
+          reportDir: "/path/to/reports"
+          reportFile: "api-scan-report"
+    ```
+  </Step>
+  <Step title="API Testing Scripts">
+    Create scripts for automated API testing:
+    
+    ```javascript
+    // Example standalone script for API testing
+    function testApi() {
+        var HttpSender = Java.type("org.parosproxy.paros.network.HttpSender");
+        var HttpMessage = Java.type("org.parosproxy.paros.network.HttpMessage");
+        var URI = Java.type("org.apache.commons.httpclient.URI");
+        
+        // Create a new HTTP sender
+        var sender = new HttpSender(
+            HttpSender.MANUAL_REQUEST_INITIATOR);
+        
+        // Define API endpoints to test
+        var endpoints = [
+            {
+                url: "https://api.example.com/users",
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer YOUR_TOKEN"
+                }
+            },
+            {
+                url: "https://api.example.com/data",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer YOUR_TOKEN"
+                },
+                body: '{"key": "value"}'
+            }
+        ];
+        
+        // Test each endpoint
+        for (var i = 0; i < endpoints.length; i++) {
+            var endpoint = endpoints[i];
+            print("Testing endpoint: " + endpoint.url);
+            
+            // Create message
+            var msg = new HttpMessage(new URI(endpoint.url, true));
+            
+            // Set method
+            msg.getRequestHeader().setMethod(endpoint.method);
+            
+            // Set headers
+            for (var header in endpoint.headers) {
+                msg.getRequestHeader().setHeader(header, endpoint.headers[header]);
+            }
+            
+            // Set body if present
+            if (endpoint.body) {
+                msg.setRequestBody(endpoint.body);
+                msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+            }
+            
+            // Send request
+            sender.sendAndReceive(msg, true);
+            
+            // Process response
+            var responseStatus = msg.getResponseHeader().getStatusCode();
+            var responseBody = msg.getResponseBody().toString();
+            
+            print("Response status: " + responseStatus);
+            print("Response body: " + responseBody);
+            
+            // Add to history
+            model.getSession().getHistory().addHistory(msg);
+        }
+    }
+    
+    testApi();
+    ```
+  </Step>
+  <Step title="CI/CD Integration">
+    Integrate API security testing into CI/CD pipelines:
+    
+    ```bash
+    # Example Jenkins pipeline step
+    stage('API Security Testing') {
+        steps {
+            sh '''
+                docker run -v ${WORKSPACE}:/zap/wrk/:rw -t owasp/zap2docker-stable \
+                zap-api-scan.py -t https://api.example.com -f openapi \
+                -d /zap/wrk/openapi.json -r api-report.html
+            '''
+            
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: '.',
+                reportFiles: 'api-report.html',
+                reportName: 'ZAP API Security Report'
+            ])
+        }
+    }
+    ```
+  </Step>
+</Steps>
+
+## API Security Best Practices
+
+<Tabs defaultValue={"testing"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"testing"}>Testing Approach</TabsTrigger>
+    <TabsTrigger value={"common"}>Common Vulnerabilities</TabsTrigger>
+    <TabsTrigger value={"checklist"}>API Testing Checklist</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"testing"}>
+    ### API Testing Approach
+    
+    Follow these best practices for API security testing:
+    
+    1. **Understand the API**:
+       - Review API documentation
+       - Identify authentication mechanisms
+       - Understand data formats and structures
+       - Map out endpoints and operations
+    
+    2. **Test Methodically**:
+       - Start with passive analysis
+       - Test authentication and authorization
+       - Test input validation
+       - Test business logic
+       - Test error handling
+    
+    3. **Use Multiple Techniques**:
+       - Automated scanning
+       - Manual testing
+       - Fuzzing
+       - Custom scripts
+       - Business logic testing
+  </TabsContent>
+  <TabsContent value={"common"}>
+    ### Common API Vulnerabilities
+    
+    Focus on these common API security issues:
+    
+    1. **Authentication Flaws**:
+       - Weak authentication mechanisms
+       - Token exposure
+       - Insecure credential storage
+       - Session management issues
+    
+    2. **Authorization Issues**:
+       - Broken object-level authorization
+       - Missing function-level authorization
+       - Excessive data exposure
+       - Mass assignment
+    
+    3. **Input Validation**:
+       - Injection vulnerabilities
+       - Improper data type handling
+       - Missing validation
+       - Bypass of validation mechanisms
+    
+    4. **Resource Management**:
+       - Rate limiting bypasses
+       - Denial of service vulnerabilities
+       - Resource exhaustion
+       - Unhandled file uploads
+  </TabsContent>
+  <TabsContent value={"checklist"}>
+    ### API Testing Checklist
+    
+    Use this checklist for comprehensive API testing:
+    
+    - [ ] **Authentication**
+      - [ ] Test for authentication bypass
+      - [ ] Test token handling
+      - [ ] Test credential security
+      - [ ] Test session management
+    
+    - [ ] **Authorization**
+      - [ ] Test vertical access controls
+      - [ ] Test horizontal access controls
+      - [ ] Test for IDOR vulnerabilities
+      - [ ] Test role-based access
+    
+    - [ ] **Input Validation**
+      - [ ] Test parameter validation
+      - [ ] Test for injection vulnerabilities
+      - [ ] Test data type handling
+      - [ ] Test boundary conditions
+    
+    - [ ] **Business Logic**
+      - [ ] Test workflow bypasses
+      - [ ] Test for logic flaws
+      - [ ] Test rate limiting
+      - [ ] Test transaction integrity
+    
+    - [ ] **Error Handling**
+      - [ ] Test for information disclosure
+      - [ ] Test error responses
+      - [ ] Test exception handling
+      - [ ] Test logging mechanisms
+  </TabsContent>
+</Tabs>
+
+## Case Studies
+
+### REST API Testing Example
+
+<Steps>
+  <Step title="Scenario">
+    Testing a RESTful e-commerce API with endpoints for products, users, and orders.
+  </Step>
+  <Step title="Approach">
+    1. Import the OpenAPI definition
+    2. Configure authentication with API keys
+    3. Generate requests for all endpoints
+    4. Perform passive scanning
+    5. Test authorization between different user roles
+    6. Perform active scanning with API-specific rules
+    7. Fuzz critical parameters
+    8. Test business logic flows
+  </Step>
+  <Step title="Findings">
+    Common issues found in REST APIs:
+    
+    - Broken object-level authorization allowing access to other users' data
+    - Mass assignment vulnerabilities in update endpoints
+    - Excessive data exposure in responses
+    - Missing rate limiting on authentication endpoints
+    - Improper error handling revealing sensitive information
+  </Step>
+</Steps>
+
+### GraphQL API Testing Example
+
+<Steps>
+  <Step title="Scenario">
+    Testing a GraphQL API for a social media application.
+  </Step>
+  <Step title="Approach">
+    1. Import the GraphQL schema
+    2. Generate queries for all types and operations
+    3. Test introspection security
+    4. Test query depth and complexity limits
+    5. Test authorization between different user roles
+    6. Fuzz GraphQL variables and arguments
+    7. Test for injection in arguments
+  </Step>
+  <Step title="Findings">
+    Common issues found in GraphQL APIs:
+    
+    - Introspection enabled in production
+    - Missing query depth limits allowing DoS attacks
+    - Authorization flaws in nested objects
+    - Information disclosure through detailed error messages
+    - Injection vulnerabilities in arguments
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you understand API security testing with OWASP ZAP, explore these related topics:
+
+- [Authentication Techniques](/docs/owasp-zap/advanced-techniques/authentication) - Configure authentication for API testing
+- [Scripting](/docs/owasp-zap/advanced-techniques/scripting) - Create custom scripts for API testing
+- [Automation](/docs/owasp-zap/advanced-techniques/automation) - Automate API security testing
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

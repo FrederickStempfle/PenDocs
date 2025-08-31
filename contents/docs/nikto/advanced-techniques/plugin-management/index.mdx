@@ -1,0 +1,732 @@
+---
+title: Nikto Plugin Management
+description: Learn how to manage, configure, and customize Nikto plugins for effective web server scanning
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nikto Plugin Management
+
+Nikto's plugin architecture is one of its most powerful features, allowing for extensible and customizable scanning capabilities. This guide covers how to effectively manage, configure, and customize Nikto plugins.
+
+## Understanding Nikto Plugins
+
+Nikto plugins are specialized modules that perform specific types of checks against web servers. Each plugin focuses on a particular aspect of security testing, such as:
+
+- Common vulnerabilities and exposures (CVEs)
+- Misconfigurations
+- Default files and directories
+- Information disclosure
+- Authentication issues
+- And many more specialized tests
+
+<Tabs defaultValue={"structure"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"structure"}>Plugin Structure</TabsTrigger>
+    <TabsTrigger value={"types"}>Plugin Types</TabsTrigger>
+    <TabsTrigger value={"location"}>Plugin Location</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"structure"}>
+    ### Plugin Structure
+    
+    Nikto plugins are written in Perl and follow a specific structure:
+    
+    ```perl
+    # Plugin Name: example_plugin
+    # Description: Example plugin for demonstration
+    
+    sub nikto_example_plugin_init {
+        my $id = { 
+            name        => "example_plugin",
+            full_name   => "Example Plugin",
+            author      => "Your Name",
+            description => "This is an example plugin",
+            version     => "1.0",
+            hooks       => {
+                scan => { method => \&scan, weight => 10 },
+                start => { method => \&start, },
+                postfetch => { method => \&postfetch, },
+            },
+        };
+        return $id;
+    }
+    
+    sub start {
+        # Code executed when Nikto starts
+    }
+    
+    sub scan {
+        # Code executed during scanning
+    }
+    
+    sub postfetch {
+        # Code executed after a request is made
+    }
+    
+    1;
+    ```
+    
+    Each plugin must have:
+    - A unique name
+    - An initialization function
+    - At least one hook function
+  </TabsContent>
+  <TabsContent value={"types"}>
+    ### Plugin Types
+    
+    Nikto includes several types of plugins:
+    
+    1. **Core Plugins**: Essential functionality like host scanning and report generation
+    
+    2. **Standard Test Plugins**: Common security checks including:
+       - `tests_headers.plugin`: HTTP header checks
+       - `tests_outdated.plugin`: Outdated software detection
+       - `tests_cgi.plugin`: CGI vulnerability checks
+       - `tests_sql.plugin`: SQL injection checks
+    
+    3. **Specialized Plugins**:
+       - `robots.plugin`: robots.txt analysis
+       - `cookies.plugin`: Cookie security checks
+       - `put_del_test.plugin`: HTTP PUT/DELETE method testing
+       - `apacheusers.plugin`: Apache user enumeration
+    
+    4. **Report Plugins**: Different output formats
+       - `report_csv.plugin`: CSV output
+       - `report_html.plugin`: HTML output
+       - `report_xml.plugin`: XML output
+       - `report_json.plugin`: JSON output
+  </TabsContent>
+  <TabsContent value={"location"}>
+    ### Plugin Location
+    
+    Nikto plugins are typically located in:
+    
+    - **Linux/macOS**: `/usr/local/share/nikto/plugins/` or wherever Nikto is installed
+    - **Windows**: `C:\Program Files\nikto\plugins\` or your installation directory
+    - **Custom Location**: Specified with `-p` or `--plugin-dir` option
+    
+    The default plugin directory contains:
+    
+    ```
+    plugins/
+    ├── LW2.pm                 # LibWhisker2 library
+    ├── JSON.pm                # JSON handling
+    ├── nikto_core.plugin      # Core functionality
+    ├── nikto_headers.plugin   # HTTP header tests
+    ├── nikto_apacheusers.plugin
+    ├── nikto_outdated.plugin
+    ├── ...
+    ├── databases/             # Plugin databases
+    │   ├── db_404_strings
+    │   ├── db_content_types
+    │   ├── db_embedded
+    │   ├── ...
+    ```
+  </TabsContent>
+</Tabs>
+
+## Managing Plugins
+
+<Steps>
+  <Step title="List Available Plugins">
+    To see all available plugins in Nikto:
+    
+    ```bash
+    nikto -list-plugins
+    ```
+    
+    This command displays all plugins with their names and descriptions:
+    
+    ```
+    Plugin: apacheusers
+       Apache users scan
+    Plugin: auth
+       Checks for authentication configuration
+    Plugin: cgi
+       CGI checks
+    Plugin: cookies
+       Looks for cookie issues
+    ...
+    ```
+  </Step>
+  <Step title="Enable and Disable Plugins">
+    Control which plugins are used during a scan:
+    
+    **Enable specific plugins**:
+    
+    ```bash
+    nikto -h target.com -Plugins "apacheusers,headers,outdated"
+    ```
+    
+    **Disable specific plugins**:
+    
+    ```bash
+    nikto -h target.com -Plugins "!apacheusers,!headers"
+    ```
+    
+    **Enable all plugins except specific ones**:
+    
+    ```bash
+    nikto -h target.com -Plugins "@@DEFAULT,!headers,!outdated"
+    ```
+    
+    <Note>
+      The `@@DEFAULT` keyword represents all default plugins. Use this when you want to enable most plugins but exclude a few.
+    </Note>
+  </Step>
+  <Step title="Plugin Configuration">
+    Many plugins have configurable options in the `nikto.conf` file:
+    
+    ```
+    # Sample nikto.conf plugin configuration
+    
+    # Configure the outdated plugin
+    OUTDATED:WARN:1
+    
+    # Configure the report_csv plugin
+    REPORT_CSV_SEPARATOR:,
+    
+    # Configure the tests_ssl plugin
+    SSLCIPHERS:HIGH:MEDIUM:LOW
+    ```
+    
+    You can also pass configuration options via command line:
+    
+    ```bash
+    nikto -h target.com -config OUTDATED:WARN:0
+    ```
+  </Step>
+</Steps>
+
+## Plugin Databases
+
+Nikto plugins rely on databases that contain test patterns, signatures, and other information needed for scanning.
+
+<Tabs defaultValue={"structure"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"structure"}>Database Structure</TabsTrigger>
+    <TabsTrigger value={"update"}>Updating Databases</TabsTrigger>
+    <TabsTrigger value={"custom"}>Custom Databases</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"structure"}>
+    ### Database Structure
+    
+    Nikto databases are text files with a specific format:
+    
+    ```
+    # Format: "ID","OSVDB","Server Type","URI","HTTP Method","Match String","Output","Threat Level"
+    
+    "000001","0","","/.git/HEAD","GET","ref: refs/heads/","Git repository found at /.git/HEAD","2",""
+    "000002","0","","/.svn/entries","GET","dir\n","Subversion repository found at /.svn/entries","2",""
+    "000003","0","","/.hg/requires","GET","revlogv1","Mercurial repository found at /.hg/requires","2",""
+    ```
+    
+    Key database files include:
+    
+    - `db_tests`: Main database of tests
+    - `db_variables`: Variables used in tests
+    - `db_headers`: HTTP header tests
+    - `db_404_strings`: Strings to identify 404 pages
+    - `db_outdated`: Outdated software signatures
+  </TabsContent>
+  <TabsContent value={"update"}>
+    ### Updating Databases
+    
+    Keep Nikto's databases updated for the latest vulnerabilities:
+    
+    ```bash
+    nikto -update
+    ```
+    
+    This command:
+    1. Connects to the Nikto update server
+    2. Downloads the latest database files
+    3. Verifies and installs the updates
+    
+    <Note>
+      Regular updates are essential as new vulnerabilities are discovered daily. Consider scheduling automatic updates in your security workflow.
+    </Note>
+    
+    You can also specify a custom update server:
+    
+    ```bash
+    nikto -update -update-url http://your-update-server.com/nikto/
+    ```
+  </TabsContent>
+  <TabsContent value={"custom"}>
+    ### Custom Databases
+    
+    Create custom databases for specialized testing:
+    
+    1. Create a new database file following the format:
+    
+    ```
+    # Custom database for internal applications
+    # Format: "ID","OSVDB","Server Type","URI","HTTP Method","Match String","Output","Threat Level"
+    
+    "C00001","0","","/_internal/version.txt","GET","Version:","Internal version file found","1",""
+    "C00002","0","","/_admin/","GET","Login","Internal admin interface found","2",""
+    ```
+    
+    2. Save the file in the `plugins/databases/` directory with a name like `db_custom`
+    
+    3. Use your custom database:
+    
+    ```bash
+    nikto -h target.com -Tuning x -config CUSTOMDB:db_custom
+    ```
+    
+    <Note>
+      Custom databases are excellent for organization-specific tests, internal applications, or specialized environments.
+    </Note>
+  </TabsContent>
+</Tabs>
+
+## Advanced Plugin Usage
+
+<Steps>
+  <Step title="Plugin Tuning">
+    Fine-tune which plugin tests are executed using the `-Tuning` option:
+    
+    ```bash
+    # Run only tests for file uploads and command execution
+    nikto -h target.com -Tuning 7
+    
+    # Run all tests except error messages
+    nikto -h target.com -Tuning x+0123456789abc
+    ```
+    
+    Tuning options:
+    
+    - `0` - File Upload
+    - `1` - Interesting File / Seen in logs
+    - `2` - Misconfiguration / Default File
+    - `3` - Information Disclosure
+    - `4` - Injection (XSS/Script/HTML)
+    - `5` - Remote File Retrieval
+    - `6` - Denial of Service
+    - `7` - Remote File Retrieval
+    - `8` - Command Execution / Remote Shell
+    - `9` - SQL Injection
+    - `a` - Authentication Bypass
+    - `b` - Software Identification
+    - `c` - Remote Source Inclusion
+    - `x` - Reverse Tuning Options (perform all except specified)
+  </Step>
+  <Step title="Plugin Debugging">
+    Debug plugin execution with verbose output:
+    
+    ```bash
+    nikto -h target.com -Plugins apacheusers -Display V
+    ```
+    
+    For even more detailed debugging:
+    
+    ```bash
+    nikto -h target.com -Plugins apacheusers -Display 1234EP
+    ```
+    
+    Display options:
+    
+    - `1` - Show redirects
+    - `2` - Show cookies received
+    - `3` - Show all 200/OK responses
+    - `4` - Show URLs which require authentication
+    - `D` - Debug output
+    - `E` - Display all HTTP errors
+    - `P` - Print plugin and version details
+    - `V` - Verbose output
+  </Step>
+  <Step title="Plugin Performance Optimization">
+    Optimize plugin performance for large scans:
+    
+    ```bash
+    # Increase the number of concurrent hosts
+    nikto -h target.com -Plugins apacheusers,headers -Tuning 23 -maxhosts 10
+    
+    # Adjust request timing
+    nikto -h target.com -Plugins apacheusers,headers -Tuning 23 -Sleep 1
+    ```
+    
+    Performance options:
+    
+    - `-maxhosts`: Maximum number of hosts to scan in parallel
+    - `-Sleep`: Delay between requests (in seconds)
+    - `-Timeout`: Connection timeout (in seconds)
+    - `-maxtime`: Maximum scan time (in seconds)
+    - `-maxretry`: Maximum number of retries
+  </Step>
+</Steps>
+
+## Creating Custom Plugins
+
+<Tabs defaultValue={"basic"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"basic"}>Basic Plugin</TabsTrigger>
+    <TabsTrigger value={"advanced"}>Advanced Plugin</TabsTrigger>
+    <TabsTrigger value={"testing"}>Testing & Debugging</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"basic"}>
+    ### Basic Custom Plugin
+    
+    Create a simple custom plugin:
+    
+    1. Create a new file `nikto_custom.plugin` in the plugins directory:
+    
+    ```perl
+    # Plugin: custom
+    # Description: Custom plugin example
+    
+    sub nikto_custom_init {
+        my $id = {
+            name        => "custom",
+            full_name   => "Custom Plugin",
+            author      => "Your Name",
+            description => "A custom plugin for specific tests",
+            version     => "1.0",
+            hooks       => {
+                scan => { method => \&scan, weight => 5 },
+            },
+        };
+        return $id;
+    }
+    
+    sub scan {
+        my ($self, $mark, $parameters) = @_;
+        my ($found, $requests, $responses) = (0, 0, 0);
+        
+        # Get the base URL
+        my $target = $mark->{'root'} . "/custom-path.php";
+        
+        # Make the request
+        my ($res, $content, $error, $request, $response) = nfetch($mark, $target, "GET", "", "", "", "custom plugin");
+        $requests++;
+        
+        # Check the response
+        if ($content =~ /sensitive information/i) {
+            # Add a vulnerability
+            add_vulnerability($mark, "Custom vulnerability found: $target", "999999", "custom", $target, $request, $response);
+            $found++;
+        }
+        
+        # Return statistics
+        return ($found, $requests, $responses);
+    }
+    
+    1;
+    ```
+    
+    2. Use your custom plugin:
+    
+    ```bash
+    nikto -h target.com -Plugins custom
+    ```
+  </TabsContent>
+  <TabsContent value={"advanced"}>
+    ### Advanced Custom Plugin
+    
+    Create a more advanced plugin with multiple hooks:
+    
+    ```perl
+    # Plugin: advanced_custom
+    # Description: Advanced custom plugin example
+    
+    use vars qw/$TEMPLATES/;
+    
+    sub nikto_advanced_custom_init {
+        my $id = {
+            name        => "advanced_custom",
+            full_name   => "Advanced Custom Plugin",
+            author      => "Your Name",
+            description => "Advanced custom plugin with multiple hooks",
+            version     => "1.0",
+            hooks       => {
+                start     => { method => \&start },
+                scan      => { method => \&scan, weight => 8 },
+                postfetch => { method => \&postfetch },
+                finish    => { method => \&finish }
+            },
+        };
+        return $id;
+    }
+    
+    sub start {
+        my ($self, $mark) = @_;
+        
+        # Initialize plugin data
+        $self->{paths_to_check} = [
+            "/admin/",
+            "/console/",
+            "/management/",
+            "/internal/",
+            "/private/"
+        ];
+        
+        # Log plugin start
+        nprint("Starting advanced custom plugin for " . $mark->{hostname});
+        return;
+    }
+    
+    sub scan {
+        my ($self, $mark, $parameters) = @_;
+        my ($found, $requests, $responses) = (0, 0, 0);
+        
+        # Check each path
+        foreach my $path (@{$self->{paths_to_check}}) {
+            my $target = $mark->{'root'} . $path;
+            
+            # Make the request
+            my ($res, $content, $error, $request, $response) = nfetch($mark, $target, "GET", "", "", "", "advanced custom plugin");
+            $requests++;
+            
+            # Check for admin interfaces
+            if ($res eq "200" && ($content =~ /login|admin|console|dashboard/i)) {
+                add_vulnerability($mark, "Potential admin interface found: $target", "999998", "advanced_custom", $target, $request, $response);
+                $found++;
+            }
+        }
+        
+        return ($found, $requests, $responses);
+    }
+    
+    sub postfetch {
+        my ($self, $mark, $parameters) = @_;
+        
+        # Extract response data
+        my $response = $parameters->{response};
+        my $content  = $parameters->{content};
+        my $uri      = $parameters->{uri};
+        
+        # Look for specific patterns in all responses
+        if ($content =~ /internal error|stack trace|exception at line/i) {
+            add_vulnerability($mark, "Error disclosure found at: $uri", "999997", "advanced_custom", $uri, $parameters->{request}, $response);
+            return 1;
+        }
+        
+        return 0;
+    }
+    
+    sub finish {
+        my ($self, $mark) = @_;
+        
+        # Cleanup and final reporting
+        nprint("Advanced custom plugin completed for " . $mark->{hostname});
+        return;
+    }
+    
+    1;
+    ```
+  </TabsContent>
+  <TabsContent value={"testing"}>
+    ### Testing & Debugging Custom Plugins
+    
+    Test and debug your custom plugins:
+    
+    1. **Enable Debug Mode**:
+    
+    ```bash
+    nikto -h target.com -Plugins custom -Display PD
+    ```
+    
+    2. **Validate Plugin Syntax**:
+    
+    ```bash
+    perl -c nikto_custom.plugin
+    ```
+    
+    3. **Test Individual Functions**:
+    
+    Create a test script `test_plugin.pl`:
+    
+    ```perl
+    #!/usr/bin/perl
+    
+    use strict;
+    use warnings;
+    
+    # Load Nikto libraries
+    use lib '/path/to/nikto/';
+    require 'plugins/nikto_core.plugin';
+    
+    # Load your plugin
+    require 'plugins/nikto_custom.plugin';
+    
+    # Create a mock mark
+    my $mark = {
+        'hostname' => 'example.com',
+        'port' => 80,
+        'root' => 'http://example.com',
+        'ssl' => 0
+    };
+    
+    # Initialize plugin
+    my $plugin = nikto_custom_init();
+    print "Plugin loaded: " . $plugin->{full_name} . "\n";
+    
+    # Test scan function
+    my ($found, $requests, $responses) = scan($plugin, $mark, {});
+    print "Scan results: Found=$found, Requests=$requests, Responses=$responses\n";
+    ```
+    
+    4. **Common Debugging Tips**:
+    
+    - Add print statements for debugging:
+    ```perl
+    nprint("DEBUG: Checking path $target");
+    ```
+    
+    - Inspect variables:
+    ```perl
+    use Data::Dumper;
+    nprint("DEBUG: Response: " . Dumper($response));
+    ```
+    
+    - Check return values:
+    ```perl
+    nprint("DEBUG: HTTP Status: $res");
+    ```
+  </TabsContent>
+</Tabs>
+
+## Best Practices for Plugin Management
+
+<Steps>
+  <Step title="Regular Updates">
+    - Update Nikto databases regularly with `nikto -update`
+    - Check for new plugin versions
+    - Follow security advisories for new web vulnerabilities
+    - Consider automating updates in your security workflow
+  </Step>
+  <Step title="Plugin Selection">
+    - Use targeted plugin selection for specific testing scenarios
+    - Avoid running unnecessary plugins to improve performance
+    - Create custom plugin configurations for different testing scenarios
+    - Document which plugins are used for specific testing requirements
+    
+    Example plugin configurations:
+    
+    ```bash
+    # Quick scan configuration
+    nikto -h target.com -Plugins "@@DEFAULT,!outdated,!msgs"
+    
+    # Thorough scan configuration
+    nikto -h target.com -Plugins "@@DEFAULT,report_xml"
+    
+    # Custom scan configuration
+    nikto -h target.com -Plugins "headers,apacheusers,cgi,cookies,ssl"
+    ```
+  </Step>
+  <Step title="Custom Plugin Development">
+    - Follow Nikto's plugin structure and coding standards
+    - Document your custom plugins thoroughly
+    - Use version control for plugin development
+    - Test plugins in isolated environments before production use
+    - Share useful plugins with the community
+    - Maintain a repository of organization-specific plugins
+  </Step>
+</Steps>
+
+## Troubleshooting Plugin Issues
+
+<Tabs defaultValue={"common"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"common"}>Common Issues</TabsTrigger>
+    <TabsTrigger value={"errors"}>Error Messages</TabsTrigger>
+    <TabsTrigger value={"solutions"}>Solutions</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"common"}>
+    ### Common Plugin Issues
+    
+    1. **Plugin Not Found**
+       - Verify the plugin exists in the plugins directory
+       - Check plugin name spelling in the command
+       - Ensure proper plugin directory path
+    
+    2. **Plugin Not Running**
+       - Check if the plugin is disabled in configuration
+       - Verify plugin compatibility with your Nikto version
+       - Check for syntax errors in custom plugins
+    
+    3. **Plugin Performance Issues**
+       - Too many plugins running simultaneously
+       - Resource-intensive plugins slowing down scans
+       - Network latency affecting plugin operation
+    
+    4. **Database Issues**
+       - Corrupted or outdated databases
+       - Missing database files
+       - Incompatible database formats
+  </TabsContent>
+  <TabsContent value={"errors"}>
+    ### Common Error Messages
+    
+    1. **"Plugin XYZ not found"**
+       - The specified plugin doesn't exist or is misspelled
+       - Solution: Verify plugin name with `nikto -list-plugins`
+    
+    2. **"Can't locate object method via package"**
+       - Perl module dependency missing
+       - Plugin has syntax errors
+       - Solution: Check plugin code and dependencies
+    
+    3. **"Database not found"**
+       - Missing or corrupted database file
+       - Solution: Run `nikto -update` to restore databases
+    
+    4. **"Plugin returned error"**
+       - Runtime error in plugin execution
+       - Solution: Run with `-Display D` for debugging information
+    
+    5. **"No plugins enabled"**
+       - All plugins have been disabled
+       - Solution: Check plugin configuration and command line options
+  </TabsContent>
+  <TabsContent value={"solutions"}>
+    ### Solutions and Fixes
+    
+    1. **Reinstall Plugins**
+       ```bash
+       # Backup custom plugins
+       cp -r /usr/share/nikto/plugins/custom* /tmp/
+       
+       # Reinstall Nikto
+       apt-get reinstall nikto  # Debian/Ubuntu
+       yum reinstall nikto      # CentOS/RHEL
+       
+       # Restore custom plugins
+       cp -r /tmp/custom* /usr/share/nikto/plugins/
+       ```
+    
+    2. **Reset Plugin Databases**
+       ```bash
+       nikto -update -force
+       ```
+    
+    3. **Debug Plugin Execution**
+       ```bash
+       nikto -h target.com -Plugins problematic_plugin -Display 1234EPVD
+       ```
+    
+    4. **Fix Plugin Permissions**
+       ```bash
+       chmod 644 /usr/share/nikto/plugins/*.plugin
+       chmod 644 /usr/share/nikto/plugins/databases/*
+       ```
+    
+    5. **Check Perl Dependencies**
+       ```bash
+       perl -e 'use JSON; use Net::SSLeay; use Time::HiRes; print "All dependencies installed\n";'
+       ```
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand Nikto plugin management, explore these related topics:
+
+- [Plugin Development](/docs/nikto/advanced-techniques/plugin-development) - Learn how to create custom Nikto plugins
+- [Evasion Techniques](/docs/nikto/advanced-techniques/evasion-techniques) - Configure plugins for IDS/IPS evasion
+- [Integration](/docs/nikto/integration) - Integrate Nikto with other security tools
+- [Best Practices](/docs/nikto/best-practices) - Best practices for effective and ethical use of Nikto

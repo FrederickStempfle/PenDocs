@@ -1,0 +1,95 @@
+---
+title: Hash Types in Hashcat
+description: Understanding the various hash types supported by Hashcat and how to use them effectively
+---
+
+# Hash Types in Hashcat
+
+Hashcat supports a vast array of hash types, making it one of the most versatile password cracking tools available. This guide explains how to identify, specify, and work with different hash types in your password cracking operations.
+
+## Understanding Hash Types in Hashcat
+
+Hashcat uses a numerical system to identify different hash algorithms. Each hash type is assigned a unique mode number that you specify when running the tool. This system allows Hashcat to efficiently handle hundreds of different hash algorithms and variants.
+
+## Common Hash Types
+
+Below are some of the most commonly used hash types in penetration testing:
+
+- **MD5** (mode: 0) - Fast and widely used, though cryptographically broken
+- **SHA1** (mode: 100) - Formerly used for many security applications, now considered insecure
+- **SHA2-256** (mode: 1400) - Stronger algorithm commonly used in modern applications
+- **SHA2-512** (mode: 1700) - Enhanced security with larger digest size
+- **NTLM** (mode: 1000) - Used in Windows authentication
+- **NetNTLMv1** (mode: 5500) - Windows challenge-response authentication protocol
+- **NetNTLMv2** (mode: 5600) - Improved version of NetNTLMv1
+- **bcrypt** (mode: 3200) - Modern password hashing function with adjustable cost
+- **WPA/WPA2** (mode: 2500) - Wi-Fi Protected Access protocols
+- **MySQL** (mode: 300) - MySQL database password hashes
+
+## Specifying Hash Types
+
+To specify a hash type in Hashcat, use the `-m` or `--hash-type` option followed by the mode number:
+
+```bash
+hashcat -m 0 hashes.txt wordlist.txt  # For MD5 hashes
+hashcat -m 1000 hashes.txt wordlist.txt  # For NTLM hashes
+```
+
+## Identifying Unknown Hash Types
+
+When you encounter an unknown hash, you can use these methods to identify it:
+
+1. **Visual inspection** - Examine the character length and format
+2. **Hash-identifier tools** - Use specialized tools like `hash-identifier` or online services
+3. **Hashcat's built-in example hashes** - Compare with Hashcat's reference examples
+
+```bash
+hashcat --example-hashes | grep -A 2 -B 2 "$HASH_SUBSTRING"
+```
+
+## Hash Detection
+
+Hashcat can sometimes automatically detect the hash type using the `--identify` option:
+
+```bash
+hashcat --identify hash.txt
+```
+
+However, this feature is not always reliable, especially with common formats that share similar patterns.
+
+## Working with Hash Files
+
+When preparing hash files for Hashcat:
+
+- Place each hash on a separate line
+- Remove any prefixes or formatting (unless using a specific format like username:hash)
+- Ensure there are no extra spaces or characters
+- For salted hashes, follow the format required by the specific hash mode
+
+## Salted Hashes
+
+Many modern hash algorithms use salts to prevent rainbow table attacks. When working with salted hashes in Hashcat, you need to format them according to the specific hash type requirements:
+
+```bash
+hashcat -m 1800 "hash:salt" wordlist.txt  # For sha512crypt $6$ (Unix)
+```
+
+## Special Hash Formats
+
+Some hash types require special formatting:
+
+- **WPA/WPA2** - Requires HCCAPX or PMKID format
+- **Office documents** - Requires hash extraction with office2hashcat
+- **ZIP/RAR archives** - Requires hash extraction with zip2john or rar2john
+
+## Verifying Results
+
+After cracking, always verify that the recovered plaintext actually produces the original hash when run through the same algorithm. This confirms the hash type was correctly identified.
+
+## Next Steps
+
+Now that you understand hash types in Hashcat, you may want to explore:
+
+- [Attack Modes](/docs/hashcat/core-operations/attack-modes) - Different strategies for cracking passwords
+- [Basic Usage](/docs/hashcat/core-operations/basic-usage) - Fundamental Hashcat commands and operations
+- [Advanced Techniques](/docs/hashcat/advanced-techniques) - More sophisticated approaches to password cracking

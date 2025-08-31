@@ -1,0 +1,275 @@
+---
+title: Hydra Attack Options
+description: Learn about advanced attack configuration options for Hydra
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hydra Attack Options
+
+This guide covers the advanced attack configuration options available in Hydra. These options allow you to fine-tune your attacks for different scenarios, optimize performance, and control output.
+
+## Authentication Options
+
+### Username and Password Specification
+
+Hydra offers multiple ways to specify usernames and passwords:
+
+```bash
+# Single username and password
+hydra -l admin -p password123 ssh://192.168.1.100
+
+# Username list and single password
+hydra -L usernames.txt -p password123 ssh://192.168.1.100
+
+# Single username and password list
+hydra -l admin -P passwords.txt ssh://192.168.1.100
+
+# Username and password lists
+hydra -L usernames.txt -P passwords.txt ssh://192.168.1.100
+
+# Colon-separated username:password combinations
+hydra -C combos.txt ssh://192.168.1.100
+```
+
+### Empty and Special Passwords
+
+Test for empty passwords and common variations:
+
+```bash
+# Try null password (-e n)
+# Try username as password (-e s)
+# Try reversed username as password (-e r)
+hydra -L usernames.txt -e nsr ssh://192.168.1.100
+
+# Combine with password list
+hydra -L usernames.txt -P passwords.txt -e nsr ssh://192.168.1.100
+```
+
+## Performance Options
+
+### Parallelism Control
+
+Control the number of parallel connections:
+
+```bash
+# Set tasks per target (default is 16)
+hydra -l admin -P passwords.txt -t 4 ssh://192.168.1.100
+
+# Set total tasks across all targets
+hydra -l admin -P passwords.txt -T 64 -M targets.txt ssh
+
+# Limit connections per second
+hydra -l admin -P passwords.txt -c 10 ssh://192.168.1.100
+```
+
+<Note>
+Higher parallelism can increase speed but may trigger security alerts or cause denial of service. Start with lower values and increase gradually if needed.
+</Note>
+
+### Timeout Control
+
+Adjust connection and response timeouts:
+
+```bash
+# Set connection timeout in seconds (default is 30)
+hydra -l admin -P passwords.txt -w 60 ssh://192.168.1.100
+
+# Set response wait time in seconds
+hydra -l admin -P passwords.txt -W 10 ssh://192.168.1.100
+```
+
+## Attack Control Options
+
+### Exit Conditions
+
+Control when Hydra stops:
+
+```bash
+# Exit after finding first valid credential
+hydra -l admin -P passwords.txt -f ssh://192.168.1.100
+
+# Exit after finding N valid credentials per target
+hydra -l admin -P passwords.txt -F ssh://192.168.1.100
+```
+
+### Login Attempt Control
+
+Control how login attempts are performed:
+
+```bash
+# Perform login attempts in reverse order
+hydra -l admin -P passwords.txt -R ssh://192.168.1.100
+
+# Restore previous session
+hydra -l admin -P passwords.txt -R ssh://192.168.1.100
+
+# Start at specific position in wordlist
+hydra -l admin -P passwords.txt -s 1000 ssh://192.168.1.100
+```
+
+## Output Options
+
+### Verbosity Control
+
+Control the amount of information displayed:
+
+```bash
+# Verbose mode
+hydra -l admin -P passwords.txt -v ssh://192.168.1.100
+
+# Very verbose mode
+hydra -l admin -P passwords.txt -V ssh://192.168.1.100
+
+# Debug mode
+hydra -l admin -P passwords.txt -d ssh://192.168.1.100
+
+# Quiet mode (show only results)
+hydra -l admin -P passwords.txt -q ssh://192.168.1.100
+```
+
+### Output Format
+
+Save results in different formats:
+
+```bash
+# Save to text file
+hydra -l admin -P passwords.txt -o results.txt ssh://192.168.1.100
+
+# Save in JSON format
+hydra -l admin -P passwords.txt -o results.json -b json ssh://192.168.1.100
+
+# Save in XML format
+hydra -l admin -P passwords.txt -o results.xml -b xml ssh://192.168.1.100
+
+# Save in JSONV1 format (one line per finding)
+hydra -l admin -P passwords.txt -o results.jsonv1 -b jsonv1 ssh://192.168.1.100
+```
+
+## Advanced Attack Options
+
+### IP Version Control
+
+Specify which IP version to use:
+
+```bash
+# Force IPv4
+hydra -l admin -P passwords.txt -4 ssh://example.com
+
+# Force IPv6
+hydra -l admin -P passwords.txt -6 ssh://example.com
+```
+
+### SSL/TLS Options
+
+Control SSL/TLS behavior:
+
+```bash
+# Use SSL/TLS
+hydra -l admin -P passwords.txt -S smtp://192.168.1.100
+
+# Use SSL/TLS with specific port
+hydra -l admin -P passwords.txt -S -s 465 smtp://192.168.1.100
+```
+
+### Proxy Support
+
+Route attacks through a proxy:
+
+```bash
+# Use HTTP proxy
+hydra -l admin -P passwords.txt -x 127.0.0.1:8080 http-post-form "/:user=^USER^&pass=^PASS^:F=incorrect"
+
+# Use SOCKS proxy
+hydra -l admin -P passwords.txt -X 5:127.0.0.1:9050 ssh://192.168.1.100
+```
+
+## Protocol-Specific Options
+
+Many protocols have specific options that can be passed using the `-m` parameter:
+
+### HTTP Form Options
+
+```bash
+# Specify custom headers
+hydra -l admin -P passwords.txt http-post-form "/login.php:username=^USER^&password=^PASS^:F=Login failed:H=Cookie: sessid=1234\nUser-Agent: Mozilla/5.0"
+
+# Specify success condition
+hydra -l admin -P passwords.txt http-post-form "/login.php:username=^USER^&password=^PASS^:F=Login failed:S=Welcome"
+
+# Specify redirect follow
+hydra -l admin -P passwords.txt http-post-form "/login.php:username=^USER^&password=^PASS^:F=Login failed:H=Cookie: sessid=1234\nUser-Agent: Mozilla/5.0:L=1"
+```
+
+### SSH Options
+
+```bash
+# Specify SSH key authentication
+hydra -l username -P keyfiles.txt -m 1 ssh://192.168.1.100
+
+# Specify SSH protocol version
+hydra -l username -P passwords.txt -m ssh2 ssh://192.168.1.100
+```
+
+### SMB Options
+
+```bash
+# Specify domain
+hydra -l administrator -P passwords.txt -m WORKGROUP smb://192.168.1.100
+
+# Target specific share
+hydra -l administrator -P passwords.txt smb://192.168.1.100/C$
+```
+
+## Advanced Examples
+
+### Complex Web Form Attack
+
+```bash
+hydra -l admin -P passwords.txt 192.168.1.100 http-post-form "/login.php:username=^USER^&password=^PASS^&csrf=1234:F=Login failed:H=Cookie: sessid=1234\nUser-Agent: Mozilla/5.0:S=Welcome:L=1"
+```
+
+This command:
+- Uses HTTP POST to `/login.php`
+- Includes a CSRF token in the form data
+- Looks for "Login failed" to detect failed attempts
+- Sets a cookie and user agent header
+- Looks for "Welcome" to detect successful login
+- Follows redirects (L=1)
+
+### Multi-Service Attack
+
+```bash
+hydra -L usernames.txt -P passwords.txt -M targets.txt -t 4 ssh ftp mysql
+```
+
+This command:
+- Tests multiple services (SSH, FTP, MySQL) on each target
+- Uses 4 parallel tasks per target
+- Uses username and password lists
+- Targets are read from a file
+
+### Distributed Attack
+
+```bash
+# On master node
+hydra -l admin -P passwords.txt -M targets.txt ssh -T 64 -g 3000 -G 3001
+
+# On slave nodes
+hydra -l admin -P passwords.txt -M targets.txt ssh -T 64 -g 3000 -G 3001 -U
+```
+
+This setup:
+- Distributes the attack across multiple systems
+- Uses port 3000 for control and 3001 for data
+- Coordinates tasks across all nodes
+
+## Next Steps
+
+Now that you understand Hydra's attack options, explore the following topics:
+
+- [Performance Tuning](/docs/hydra/advanced-techniques/performance-tuning) - Optimize Hydra for speed and efficiency
+- [Custom Modules](/docs/hydra/advanced-techniques/custom-modules) - Learn how to create custom protocol modules
+- [Protocol-Specific Guides](/docs/hydra/protocol-guides) - Detailed guides for specific protocols

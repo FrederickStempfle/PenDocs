@@ -1,0 +1,401 @@
+---
+title: Nikto Output Formats
+description: Detailed guide to Nikto's output formats and reporting capabilities
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nikto Output Formats
+
+This guide covers Nikto's various output formats and reporting capabilities. Understanding these options will help you generate appropriate reports for different audiences and integrate Nikto results with other tools.
+
+## Available Output Formats
+
+Nikto supports several output formats, each with specific use cases:
+
+<Tabs defaultValue={"text"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"text"}>Text</TabsTrigger>
+    <TabsTrigger value={"html"}>HTML</TabsTrigger>
+    <TabsTrigger value={"csv"}>CSV</TabsTrigger>
+    <TabsTrigger value={"xml"}>XML</TabsTrigger>
+    <TabsTrigger value={"json"}>JSON</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"text"}>
+    ### Text Format
+    
+    The default plain text format is readable and suitable for quick analysis:
+    
+    ```bash
+    nikto -h example.com -o report.txt -Format txt
+    ```
+    
+    **Sample Output:**
+    
+    ```
+    - Nikto v2.1.6
+    ---------------------------------------------------------------------------
+    + Target IP:          93.184.216.34
+    + Target Hostname:    example.com
+    + Target Port:        80
+    + Start Time:         2023-10-15 14:30:12 (GMT-4)
+    ---------------------------------------------------------------------------
+    + Server: ECS (dcb/7F84)
+    + The anti-clickjacking X-Frame-Options header is not present.
+    + The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
+    + The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
+    + No CGI Directories found (use '-C all' to force check all possible dirs)
+    + 7915 requests: 0 error(s) and 3 item(s) reported on remote host
+    + End Time:           2023-10-15 14:35:27 (GMT-4) (315 seconds)
+    ---------------------------------------------------------------------------
+    + 1 host(s) tested
+    ```
+    
+    **Use Cases:**
+    - Quick analysis
+    - Command line review
+    - Log file integration
+    - Simple documentation
+  </TabsContent>
+  <TabsContent value={"html"}>
+    ### HTML Format
+    
+    The HTML format provides a more visual and structured report:
+    
+    ```bash
+    nikto -h example.com -o report.html -Format htm
+    ```
+    
+    **Features:**
+    - Organized by vulnerability type
+    - Color-coded severity indicators
+    - Clickable references
+    - Sortable tables
+    - Easy to share with non-technical stakeholders
+    
+    **Use Cases:**
+    - Client reports
+    - Management presentations
+    - Documentation for non-technical audiences
+    - Archiving scan results
+  </TabsContent>
+  <TabsContent value={"csv"}>
+    ### CSV Format
+    
+    The CSV format is ideal for data processing and integration:
+    
+    ```bash
+    nikto -h example.com -o report.csv -Format csv
+    ```
+    
+    **Sample Structure:**
+    ```
+    "ip","hostname","port","banner","vulnerabilityID","OSVDB","message","url"
+    "93.184.216.34","example.com","80","ECS (dcb/7F84)","999990","-","The anti-clickjacking X-Frame-Options header is not present.","-"
+    "93.184.216.34","example.com","80","ECS (dcb/7F84)","999991","-","The X-XSS-Protection header is not defined.","-"
+    ```
+    
+    **Use Cases:**
+    - Data analysis in spreadsheets
+    - Custom reporting
+    - Integration with other tools
+    - Trend analysis across multiple scans
+  </TabsContent>
+  <TabsContent value={"xml"}>
+    ### XML Format
+    
+    The XML format provides structured data with detailed metadata:
+    
+    ```bash
+    nikto -h example.com -o report.xml -Format xml
+    ```
+    
+    **Sample Structure:**
+    ```
+    <niktoscan>
+      <scandetails targetip="93.184.216.34" targethostname="example.com" targetport="80" targetbanner="ECS (dcb/7F84)" starttime="2023-10-15 14:30:12" endtime="2023-10-15 14:35:27" version="2.1.6">
+        <item id="999990" osvdbid="0" osvdblink="" method="GET">
+          <description>The anti-clickjacking X-Frame-Options header is not present.</description>
+          <uri>/</uri>
+          <namelink>http://example.com:80/</namelink>
+          <iplink>http://93.184.216.34:80/</iplink>
+        </item>
+        {/* Additional items */}
+      </scandetails>
+    </niktoscan>
+    ```
+    
+    **Use Cases:**
+    - Integration with vulnerability management systems
+    - Automated processing
+    - Custom report generation
+    - Data transformation
+  </TabsContent>
+  <TabsContent value={"json"}>
+    ### JSON Format
+    
+    The JSON format is ideal for modern API integration:
+    
+    ```bash
+    nikto -h example.com -o report.json -Format json
+    ```
+    
+    **Sample Structure:**
+    ```
+    {
+      "version": "2.1.6",
+      "host": {
+        "ip": "93.184.216.34",
+        "hostname": "example.com",
+        "port": "80",
+        "banner": "ECS (dcb/7F84)"
+      },
+      "scan_start": "2023-10-15 14:30:12",
+      "scan_end": "2023-10-15 14:35:27",
+      "vulnerabilities": [
+        {
+          "id": "999990",
+          "osvdb": "0",
+          "method": "GET",
+          "description": "The anti-clickjacking X-Frame-Options header is not present.",
+          "uri": "/",
+          "url": "http://example.com:80/"
+        }
+      ]
+    }
+    ```
+    
+    **Use Cases:**
+    - Modern API integration
+    - Web application dashboards
+    - JavaScript processing
+    - Cloud service integration
+  </TabsContent>
+</Tabs>
+
+## Configuring Output Options
+
+### Basic Output Configuration
+
+To save scan results to a file:
+
+```bash
+# Basic output to file
+nikto -h example.com -o report.txt
+
+# Specify format explicitly
+nikto -h example.com -o report.html -Format htm
+```
+
+### Multiple Output Formats
+
+You can generate multiple output formats in a single scan:
+
+```bash
+# Using the report_* plugins
+nikto -h example.com -Plugins "report_text;report_html;report_xml" -o nikto_report
+```
+
+This will create:
+- nikto_report.txt
+- nikto_report.html
+- nikto_report.xml
+
+### Controlling Output Content
+
+Control what information is included in the output:
+
+```bash
+# Include only vulnerabilities
+nikto -h example.com -o report.txt -Display 1
+
+# Include vulnerabilities and information items
+nikto -h example.com -o report.txt -Display 12
+
+# Include full HTTP requests and responses
+nikto -h example.com -o report.txt -Display V -show
+```
+
+## Understanding Output Elements
+
+### Common Report Elements
+
+All Nikto reports typically include:
+
+1. **Scan Metadata**
+   - Target information (IP, hostname, port)
+   - Scan start and end times
+   - Nikto version
+
+2. **Server Information**
+   - Server type and version
+   - Detected technologies
+
+3. **Findings**
+   - Vulnerabilities
+   - Misconfigurations
+   - Information disclosure
+   - Each finding includes:
+     - Description
+     - URL/path
+     - Reference IDs (OSVDB, etc.)
+     - Severity indication
+
+4. **Statistics**
+   - Number of requests
+   - Number of findings
+   - Scan duration
+
+### Severity Indicators
+
+Nikto uses different indicators to show the severity of findings:
+
+- In text format: `+`, `-`, `*`, `!` symbols
+- In HTML format: Color coding (red, yellow, green)
+- In structured formats: Severity fields or IDs
+
+## Working with Output Files
+
+### Post-Processing Reports
+
+<Steps>
+  <Step title="Extract Specific Information">
+    Extract specific information from reports:
+    
+    ```bash
+    # Extract all URLs from a text report
+    grep "+" report.txt | grep -o "http://[^ ]*"
+    
+    # Extract all vulnerabilities from a CSV report
+    awk -F, '{print $7}' report.csv
+    ```
+  </Step>
+  <Step title="Convert Between Formats">
+    Convert between different formats:
+    
+    ```bash
+    # Convert XML to JSON using tools like jq
+    cat report.xml | xml2json > converted.json
+    
+    # Convert CSV to HTML using tools like csvkit
+    csvtohtml report.csv > converted.html
+    ```
+  </Step>
+  <Step title="Filter and Sort">
+    Filter and sort findings:
+    
+    ```bash
+    # Filter for specific vulnerabilities
+    grep "XSS" report.txt > xss_findings.txt
+    
+    # Sort CSV by severity
+    sort -t, -k5,5 report.csv > sorted_report.csv
+    ```
+  </Step>
+</Steps>
+
+### Integration with Other Tools
+
+<Tabs defaultValue={"vuln"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"vuln"}>Vulnerability Management</TabsTrigger>
+    <TabsTrigger value={"ci"}>CI/CD Integration</TabsTrigger>
+    <TabsTrigger value={"custom"}>Custom Dashboards</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"vuln"}>
+    ### Vulnerability Management Systems
+    
+    Integration with vulnerability management systems:
+    
+    ```bash
+    # Generate XML for import into vulnerability management systems
+    nikto -h example.com -o report.xml -Format xml
+    ```
+    
+    Many vulnerability management systems can import Nikto's XML or CSV output, including:
+    - DefectDojo
+    - ThreadFix
+    - OWASP ZAP (via XML import)
+    - Nessus (via CSV import)
+  </TabsContent>
+  <TabsContent value={"ci"}>
+    ### CI/CD Integration
+    
+    Integration with CI/CD pipelines:
+    
+    ```bash
+    # Run Nikto in a CI/CD pipeline
+    nikto -h ${TARGET_URL} -o report.json -Format json -Tuning 123
+    
+    # Parse results and fail the build if critical issues are found
+    if grep -q "SQL Injection" report.json; then
+      echo "Critical vulnerability found!"
+      exit 1
+    fi
+    ```
+    
+    This approach allows you to:
+    - Automate security testing
+    - Enforce security gates
+    - Track security issues over time
+  </TabsContent>
+  <TabsContent value={"custom"}>
+    ### Custom Dashboards
+    
+    Creating custom dashboards:
+    
+    ```bash
+    # Generate JSON for dashboard integration
+    nikto -h example.com -o report.json -Format json
+    
+    # Process with jq for dashboard-specific format
+    cat report.json | jq '{"vulnerabilities": .vulnerabilities | length, "critical": [.vulnerabilities[] | select(.severity \=\= "critical")] | length}' > dashboard_data.json
+    ```
+    
+    This data can be used with:
+    - Grafana
+    - Kibana
+    - Custom web dashboards
+    - Security metrics systems
+  </TabsContent>
+</Tabs>
+
+## Best Practices for Reporting
+
+### Choosing the Right Format
+
+Select the appropriate format based on your needs:
+
+- **Text**: For quick analysis and command line review
+- **HTML**: For client reports and visual presentation
+- **CSV**: For data analysis and spreadsheet integration
+- **XML/JSON**: For integration with other security tools
+
+### Enhancing Reports
+
+Improve the value of your reports:
+
+1. **Add Context**
+   - Include scope information
+   - Add business impact assessments
+   - Prioritize findings based on risk
+
+2. **Include Remediation Steps**
+   - Add specific remediation advice
+   - Link to best practices
+   - Provide code examples where applicable
+
+3. **Track Changes Over Time**
+   - Compare with previous scans
+   - Highlight new and resolved issues
+   - Track security posture improvements
+
+## Next Steps
+
+Now that you understand Nikto's output formats, explore the following topics:
+
+- [Advanced Techniques](/docs/nikto/advanced-techniques) - Discover advanced usage scenarios and techniques
+- [Best Practices](/docs/nikto/best-practices) - Learn best practices for effective and ethical use of Nikto
+- [Integration with Other Tools](/docs/nikto/integration) - Learn how to integrate Nikto with other security tools

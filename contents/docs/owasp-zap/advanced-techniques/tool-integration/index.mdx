@@ -1,0 +1,764 @@
+---
+title: OWASP ZAP Tool Integration
+description: Integrating OWASP ZAP with other security tools, CI/CD pipelines, and development workflows
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Tool Integration
+
+OWASP ZAP can be integrated with various security tools, development workflows, and CI/CD pipelines to create a comprehensive security testing ecosystem. This guide covers key integration approaches and best practices.
+
+## Integration with Security Tools
+
+<Tabs defaultValue={"burp"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"burp"}>Burp Suite</TabsTrigger>
+    <TabsTrigger value={"nessus"}>Nessus/Vulnerability Scanners</TabsTrigger>
+    <TabsTrigger value={"sast"}>SAST Tools</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"burp"}>
+    ### Burp Suite Integration
+    
+    Combine ZAP with Burp Suite for comprehensive testing:
+    
+    1. **Complementary Usage**:
+       - Use ZAP for automation and CI/CD integration
+       - Use Burp Suite for manual testing
+       - Share findings between tools
+       - Leverage strengths of each tool
+    
+    2. **Integration Methods**:
+       - Use ZAP as upstream proxy for Burp
+       - Export/import scan results between tools
+       - Compare findings for validation
+       - Use both tools in parallel testing workflows
+    
+    3. **Configuration Example**:
+       - Configure ZAP to listen on port 8080
+       - Configure Burp to use upstream proxy at 127.0.0.1:8080
+       - Traffic flows through ZAP first, then Burp
+       - Both tools can analyze the same traffic
+  </TabsContent>
+  <TabsContent value={"nessus"}>
+    ### Vulnerability Scanner Integration
+    
+    Integrate ZAP with vulnerability scanners like Nessus:
+    
+    1. **Complementary Scanning**:
+       - Use vulnerability scanners for infrastructure testing
+       - Use ZAP for web application testing
+       - Combine findings for comprehensive coverage
+       - Correlate results for validation
+    
+    2. **Integration Methods**:
+       - Export ZAP findings to common formats (XML, JSON)
+       - Import results into vulnerability management platforms
+       - Use common identifiers (CVE, CWE) for correlation
+       - Implement consolidated reporting
+    
+    3. **Workflow Example**:
+       - Run Nessus scan for infrastructure vulnerabilities
+       - Run ZAP scan for web application vulnerabilities
+       - Export both results to a common format
+       - Import into vulnerability management system
+       - Generate consolidated risk reports
+  </TabsContent>
+  <TabsContent value={"sast"}>
+    ### SAST Tool Integration
+    
+    Combine ZAP (DAST) with SAST tools:
+    
+    1. **Complementary Testing**:
+       - Use SAST for code-level vulnerabilities
+       - Use ZAP for runtime vulnerabilities
+       - Correlate findings between tools
+       - Create comprehensive security testing strategy
+    
+    2. **Integration Methods**:
+       - Export findings to common formats
+       - Use vulnerability management platforms
+       - Implement correlation through CI/CD pipelines
+       - Create unified dashboards
+    
+    3. **Benefits**:
+       - Identify vulnerabilities from multiple perspectives
+       - Reduce false positives through correlation
+       - Provide developers with code-level context
+       - Create comprehensive security coverage
+  </TabsContent>
+</Tabs>
+
+## CI/CD Integration
+
+<Steps>
+  <Step title="Jenkins Integration">
+    Integrate ZAP with Jenkins:
+    
+    1. Install the "OWASP ZAP Scanner" plugin in Jenkins
+    2. Configure a Jenkins pipeline:
+    
+    ```groovy
+    pipeline {
+        agent any
+        
+        stages {
+            stage('ZAP Security Tests') {
+                steps {
+                    // Start ZAP in daemon mode
+                    sh 'docker run -d --name zap -u zap -p 2375:2375 -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 2375 -config api.disablekey=true'
+                    
+                    // Run application tests with ZAP proxy
+                    sh 'APP_PROXY=http://localhost:2375 npm test'
+                    
+                    // Run ZAP active scan
+                    sh 'docker exec zap zap-cli -p 2375 active-scan --scanners xss,sqli http://target-application'
+                    
+                    // Generate report
+                    sh 'docker exec zap zap-cli -p 2375 report -o /home/zap/report.html -f html'
+                    
+                    // Copy report from container
+                    sh 'docker cp zap:/home/zap/report.html ./zap-report.html'
+                }
+                post {
+                    always {
+                        // Publish HTML report
+                        publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: '.',
+                            reportFiles: 'zap-report.html',
+                            reportName: 'ZAP Security Report'
+                        ])
+                        
+                        // Stop ZAP container
+                        sh 'docker stop zap && docker rm zap'
+                    }
+                }
+            }
+        }
+    }
+    ```
+  </Step>
+  <Step title="GitHub Actions Integration">
+    Integrate ZAP with GitHub Actions:
+    
+    ```yaml
+    name: OWASP ZAP Security Scan
+    
+    on:
+      push:
+        branches: [ main ]
+      pull_request:
+        branches: [ main ]
+    
+    jobs:
+      zap_scan:
+        runs-on: ubuntu-latest
+        
+        steps:
+        - uses: actions/checkout@v2
+        
+        - name: ZAP Scan
+          uses: zaproxy/action-baseline@v0.7.0
+          with:
+            target: 'https://www.example.com'
+            rules_file_name: '.zap/rules.tsv'
+            cmd_options: '-a'
+        
+        - name: Upload ZAP Report
+          uses: actions/upload-artifact@v2
+          with:
+            name: ZAP Report
+            path: reports/
+    ```
+    
+    Create a `.zap/rules.tsv` file to customize the scan:
+    
+    ```
+    10016	IGNORE	(Modern Web Application)
+    10020	IGNORE	(X-Frame-Options Header)
+    ```
+  </Step>
+  <Step title="GitLab CI Integration">
+    Integrate ZAP with GitLab CI:
+    
+    ```yaml
+    stages:
+      - build
+      - test
+      - security
+      - deploy
+    
+    zap_security_scan:
+      stage: security
+      image: owasp/zap2docker-stable
+      variables:
+        TARGET_URL: "https://example.com"
+      script:
+        - mkdir -p /zap/wrk/
+        - zap-baseline.py -t $TARGET_URL -g gen.conf -r zap-report.html
+      artifacts:
+        paths:
+          - zap-report.html
+        expire_in: 1 week
+      allow_failure: true
+    ```
+  </Step>
+</Steps>
+
+## Issue Tracking Integration
+
+<Tabs defaultValue={"jira"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"jira"}>Jira</TabsTrigger>
+    <TabsTrigger value={"github"}>GitHub Issues</TabsTrigger>
+    <TabsTrigger value={"defectdojo"}>DefectDojo</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"jira"}>
+    ### Jira Integration
+    
+    Integrate ZAP findings with Jira:
+    
+    1. **Setup**:
+       - Install the "OWASP ZAP - Jira" add-on
+       - Configure Jira connection details in ZAP
+       - Set up issue creation templates
+    
+    2. **Configuration**:
+       - Go to **Tools > Options > Jira**
+       - Enter Jira URL, API token, and project key
+       - Configure issue type and field mappings
+       - Set up severity mapping
+    
+    3. **Usage**:
+       - Right-click on an alert in ZAP
+       - Select "Create Jira Issue"
+       - Review and customize the issue details
+       - Submit to create the Jira issue
+       - Track issues through Jira dashboard
+  </TabsContent>
+  <TabsContent value={"github"}>
+    ### GitHub Issues Integration
+    
+    Create GitHub issues from ZAP findings:
+    
+    1. **Manual Integration**:
+       - Export ZAP findings to JSON or XML
+       - Use GitHub API to create issues
+       - Include vulnerability details and evidence
+       - Link to source code when possible
+    
+    2. **Automated Integration**:
+       - Use GitHub Actions for automation
+       - Process ZAP reports with custom scripts
+       - Create issues for high/medium findings
+       - Add appropriate labels and assignees
+    
+    Example GitHub Actions workflow:
+    
+    ```yaml
+    - name: Process ZAP Results
+      run: |
+        python .github/scripts/process_zap_results.py \
+          --input-file reports/zap-report.json \
+          --github-token ${{ secrets.GITHUB_TOKEN }} \
+          --repo ${{ github.repository }} \
+          --min-severity "Medium"
+    ```
+  </TabsContent>
+  <TabsContent value={"defectdojo"}>
+    ### DefectDojo Integration
+    
+    Integrate ZAP with DefectDojo:
+    
+    1. **Setup**:
+       - Configure DefectDojo API connection
+       - Create product and engagement in DefectDojo
+       - Set up import configuration
+    
+    2. **Manual Import**:
+       - Export ZAP findings as XML
+       - Import into DefectDojo through UI
+       - Associate with appropriate product/engagement
+       - Review and manage findings
+    
+    3. **Automated Import**:
+       - Use DefectDojo API for automation
+       - Integrate with CI/CD pipeline
+       - Automatically import scan results
+       - Track findings over time
+    
+    Example API integration:
+    
+    ```python
+    import requests
+    import json
+    
+    # DefectDojo API configuration
+    url = 'https://defectdojo.example.com/api/v2/import-scan/'
+    headers = {
+        'Authorization': f'Token {api_token}',
+        'Content-Type': 'multipart/form-data'
+    }
+    
+    # Prepare data for import
+    data = {
+        'scan_type': 'ZAP Scan',
+        'file': open('zap-report.xml', 'rb'),
+        'engagement': engagement_id,
+        'close_old_findings': True,
+        'push_to_jira': True
+    }
+    
+    # Send request
+    response = requests.post(url, headers=headers, files=data)
+    ```
+  </TabsContent>
+</Tabs>
+
+## Development Workflow Integration
+
+<Steps>
+  <Step title="IDE Integration">
+    Integrate ZAP with development environments:
+    
+    1. **Browser Developer Tools**:
+       - Use ZAP as proxy with browser dev tools
+       - Analyze requests and responses
+       - Debug security issues in real-time
+       - Test fixes immediately
+    
+    2. **IDE Plugins**:
+       - Use ZAP extensions for popular IDEs
+       - View security findings in IDE
+       - Navigate to vulnerable code
+       - Fix issues without leaving IDE
+    
+    3. **Local Development**:
+       - Run ZAP locally during development
+       - Configure local applications to use ZAP proxy
+       - Test security during feature development
+       - Implement security-by-design approach
+  </Step>
+  <Step title="Pre-commit Hooks">
+    Implement security checks before code commits:
+    
+    1. Set up pre-commit hooks for security testing:
+    
+    ```bash
+    #!/bin/bash
+    # Pre-commit hook for security testing
+    
+    # Run ZAP API scan on local service
+    zap-api-scan.py -t http://localhost:8080/api -f openapi -r pre-commit-report.html
+    
+    # Check for high alerts
+    if grep -q "High Alerts: [1-9]" pre-commit-report.html; then
+        echo "Security issues found! See pre-commit-report.html for details."
+        exit 1
+    fi
+    
+    exit 0
+    ```
+    
+    2. Install the hook in your repository:
+    
+    ```bash
+    cp pre-commit-hook.sh .git/hooks/pre-commit
+    chmod +x .git/hooks/pre-commit
+    ```
+  </Step>
+  <Step title="Developer Training">
+    Use ZAP for security training:
+    
+    1. **Security Workshops**:
+       - Use ZAP to demonstrate vulnerabilities
+       - Show real-time exploitation and mitigation
+       - Create hands-on training exercises
+       - Build security awareness
+    
+    2. **Security Champions**:
+       - Train security champions on ZAP usage
+       - Implement peer security reviews
+       - Create security testing guidelines
+       - Build security expertise within teams
+    
+    3. **Self-Service Security**:
+       - Provide developers with ZAP training
+       - Create security testing playbooks
+       - Implement security testing templates
+       - Encourage proactive security testing
+  </Step>
+</Steps>
+
+## API Integration
+
+<Tabs defaultValue={"rest"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"rest"}>REST API</TabsTrigger>
+    <TabsTrigger value={"clients"}>Client Libraries</TabsTrigger>
+    <TabsTrigger value={"custom"}>Custom Integrations</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"rest"}>
+    ### ZAP REST API
+    
+    Use ZAP's REST API for custom integrations:
+    
+    1. **API Basics**:
+       - ZAP provides a comprehensive REST API
+       - Access via http://zap-address:port/JSON/
+       - API key required for most operations
+       - Supports JSON and XML formats
+    
+    2. **Key Endpoints**:
+       - `/JSON/core/view/alerts`: Get current alerts
+       - `/JSON/ascan/action/scan`: Start active scan
+       - `/JSON/spider/action/scan`: Start spider
+       - `/JSON/pscan/view/scanners`: View passive scanners
+    
+    3. **Example API Usage**:
+    
+    ```bash
+    # Start a spider scan
+    curl "http://localhost:8080/JSON/spider/action/scan/?apikey=12345&url=https://example.com&recurse=true"
+    
+    # Check spider status
+    curl "http://localhost:8080/JSON/spider/view/status/?apikey=12345"
+    
+    # Start an active scan
+    curl "http://localhost:8080/JSON/ascan/action/scan/?apikey=12345&url=https://example.com&recurse=true"
+    
+    # Get alerts
+    curl "http://localhost:8080/JSON/core/view/alerts/?apikey=12345&baseurl=https://example.com"
+    ```
+  </TabsContent>
+  <TabsContent value={"clients"}>
+    ### Client Libraries
+    
+    Use ZAP client libraries for various programming languages:
+    
+    1. **Python Client**:
+    
+    ```python
+    from zapv2 import ZAPv2
+    
+    # Connect to ZAP
+    zap = ZAPv2(apikey="12345", proxies={"http": "http://127.0.0.1:8080", "https": "http://127.0.0.1:8080"})
+    
+    # Spider a site
+    scan_id = zap.spider.scan(url="https://example.com")
+    
+    # Wait for spider to complete
+    from time import sleep
+    while int(zap.spider.status(scan_id)) < 100:
+        print("Spider progress: " + zap.spider.status(scan_id) + "%")
+        sleep(2)
+    
+    # Start an active scan
+    scan_id = zap.ascan.scan(url="https://example.com")
+    
+    # Wait for active scan to complete
+    while int(zap.ascan.status(scan_id)) < 100:
+        print("Active scan progress: " + zap.ascan.status(scan_id) + "%")
+        sleep(5)
+    
+    # Get alerts
+    alerts = zap.core.alerts(baseurl="https://example.com")
+    for alert in alerts:
+        print("Alert: " + alert["name"] + ", Risk: " + alert["risk"] + ", URL: " + alert["url"])
+    ```
+    
+    2. **Java Client**:
+    
+    ```java
+    import org.zaproxy.clientapi.core.ClientApi;
+    import org.zaproxy.clientapi.core.ApiResponse;
+    
+    public class ZapExample {
+        private static final String ZAP_ADDRESS = "localhost";
+        private static final int ZAP_PORT = 8080;
+        private static final String ZAP_API_KEY = "12345";
+        
+        public static void main(String[] args) {
+            ClientApi api = new ClientApi(ZAP_ADDRESS, ZAP_PORT, ZAP_API_KEY);
+            
+            try {
+                // Spider a URL
+                ApiResponse resp = api.spider.scan("https://example.com", null, null, null, null);
+                String scanID = ((ApiResponseElement) resp).getValue();
+                
+                // Poll the status until it completes
+                int progress;
+                do {
+                    Thread.sleep(1000);
+                    progress = Integer.parseInt(((ApiResponseElement) api.spider.status(scanID)).getValue());
+                    System.out.println("Spider progress: " + progress + "%");
+                } while (progress < 100);
+                
+                // Start an active scan
+                resp = api.ascan.scan("https://example.com", "True", "False", null, null, null);
+                scanID = ((ApiResponseElement) resp).getValue();
+                
+                // Poll the status until it completes
+                do {
+                    Thread.sleep(5000);
+                    progress = Integer.parseInt(((ApiResponseElement) api.ascan.status(scanID)).getValue());
+                    System.out.println("Active scan progress: " + progress + "%");
+                } while (progress < 100);
+                
+                // Get the alerts
+                System.out.println("Alerts:");
+                System.out.println(new String(api.core.xmlreport()));
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    ```
+  </TabsContent>
+  <TabsContent value={"custom"}>
+    ### Custom Integrations
+    
+    Build custom integrations with ZAP:
+    
+    1. **Webhook Integration**:
+       - Configure ZAP to send alerts to webhooks
+       - Integrate with chat platforms (Slack, Teams)
+       - Send notifications for critical findings
+       - Create custom alert workflows
+    
+    2. **Dashboard Integration**:
+       - Build custom security dashboards
+       - Aggregate findings from multiple scans
+       - Track security metrics over time
+       - Create executive-level reporting
+    
+    3. **Example Webhook Integration**:
+    
+    ```python
+    import requests
+    import json
+    from zapv2 import ZAPv2
+    
+    # Connect to ZAP
+    zap = ZAPv2(apikey="12345", proxies={"http": "http://127.0.0.1:8080"})
+    
+    # Get alerts
+    alerts = zap.core.alerts()
+    
+    # Filter high-risk alerts
+    high_alerts = [a for a in alerts if a["risk"] == "High"]
+    
+    if high_alerts:
+        # Prepare webhook payload
+        payload = {
+            "text": "⚠️ " + str(len(high_alerts)) + " high-risk security issues found!",
+            "attachments": [{
+                "title": alert["name"],
+                "text": "URL: " + alert["url"] + "\nDescription: " + alert["description"],
+                "color": "danger"
+            } for alert in high_alerts[:5]]  # First 5 alerts
+        }
+        
+        # Send to webhook (e.g., Slack)
+        requests.post(
+            "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+            data=json.dumps(payload),
+            headers={"Content-Type": "application/json"}
+        )
+    ```
+  </TabsContent>
+</Tabs>
+
+## Docker Integration
+
+<Steps>
+  <Step title="Basic Docker Usage">
+    Use ZAP Docker containers for testing:
+    
+    ```bash
+    # Run ZAP in headless mode
+    docker run -t owasp/zap2docker-stable zap-baseline.py -t https://example.com -r report.html
+    
+    # Run ZAP with web UI
+    docker run -u zap -p 8080:8080 -p 8090:8090 -i owasp/zap2docker-stable zap-webswing.sh
+    
+    # Run ZAP API scan
+    docker run -t owasp/zap2docker-stable zap-api-scan.py -t https://example.com/api/swagger.json -f openapi
+    
+    # Run ZAP full scan
+    docker run -t owasp/zap2docker-stable zap-full-scan.py -t https://example.com
+    ```
+  </Step>
+  <Step title="Docker Compose Integration">
+    Create a Docker Compose setup for ZAP and your application:
+    
+    ```yaml
+    # docker-compose.yml
+    version: '3'
+    services:
+      webapp:
+        build: .
+        ports:
+          - "8080:8080"
+        networks:
+          - security-net
+      
+      zap:
+        image: owasp/zap2docker-stable
+        command: zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+        ports:
+          - "8090:8090"
+        networks:
+          - security-net
+        volumes:
+          - ./reports:/zap/reports
+      
+      security-tests:
+        image: owasp/zap2docker-stable
+        command: >
+          zap-baseline.py -t http://webapp:8080
+          -r /reports/zap-report.html
+          -z "-config api.disablekey=true"
+        networks:
+          - security-net
+        volumes:
+          - ./reports:/reports
+        depends_on:
+          - webapp
+          - zap
+    
+    networks:
+      security-net:
+    ```
+  </Step>
+  <Step title="Custom Docker Images">
+    Create custom ZAP Docker images for specific needs:
+    
+    ```dockerfile
+    # Dockerfile for custom ZAP image
+    FROM owasp/zap2docker-stable
+    
+    # Install additional tools
+    RUN apt-get update && apt-get install -y \
+        python3-pip \
+        curl \
+        jq
+    
+    # Install Python dependencies
+    RUN pip3 install requests python-owasp-zap-v2.4 pytest
+    
+    # Add custom scripts
+    COPY scripts/ /zap/scripts/
+    RUN chmod +x /zap/scripts/*.py /zap/scripts/*.sh
+    
+    # Add custom ZAP configuration
+    COPY config/config.xml /home/zap/.ZAP/config.xml
+    
+    # Set working directory
+    WORKDIR /zap
+    
+    # Default command
+    ENTRYPOINT ["/zap/scripts/custom-entrypoint.sh"]
+    ```
+  </Step>
+</Steps>
+
+## Advanced Integration Scenarios
+
+<Tabs defaultValue={"devsecops"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"devsecops"}>DevSecOps Pipeline</TabsTrigger>
+    <TabsTrigger value={"cloud"}>Cloud Security</TabsTrigger>
+    <TabsTrigger value={"monitoring"}>Security Monitoring</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"devsecops"}>
+    ### DevSecOps Pipeline Integration
+    
+    Create a comprehensive DevSecOps pipeline with ZAP:
+    
+    1. **Multi-Stage Testing**:
+       - Run baseline scans during development
+       - Perform API testing during integration
+       - Execute full scans before production
+       - Implement continuous monitoring
+    
+    2. **Quality Gates**:
+       - Define security quality gates
+       - Block deployments for critical issues
+       - Implement risk-based approvals
+       - Track security debt over time
+    
+    3. **Example Pipeline Flow**:
+       - Developer commits code
+       - SAST tools analyze code
+       - Build and deploy to test environment
+       - ZAP performs API and baseline testing
+       - Security review for medium/high issues
+       - Deploy to staging environment
+       - ZAP performs full scan
+       - Security sign-off
+       - Deploy to production
+       - Continuous monitoring with ZAP
+  </TabsContent>
+  <TabsContent value={"cloud"}>
+    ### Cloud Security Integration
+    
+    Integrate ZAP with cloud environments:
+    
+    1. **Cloud-Native Security**:
+       - Deploy ZAP in cloud environments
+       - Test cloud-native applications
+       - Integrate with cloud security services
+       - Implement serverless security testing
+    
+    2. **AWS Integration**:
+       - Deploy ZAP in AWS environments
+       - Use AWS Lambda for serverless scanning
+       - Integrate with AWS Security Hub
+       - Implement security testing in CodePipeline
+    
+    3. **Azure/GCP Integration**:
+       - Deploy ZAP in Azure/GCP
+       - Integrate with cloud security services
+       - Implement security testing in cloud pipelines
+       - Use managed services for security testing
+  </TabsContent>
+  <TabsContent value={"monitoring"}>
+    ### Security Monitoring Integration
+    
+    Use ZAP for continuous security monitoring:
+    
+    1. **Passive Monitoring**:
+       - Deploy ZAP as passive proxy
+       - Monitor production traffic
+       - Detect security issues in real-time
+       - Integrate with SIEM systems
+    
+    2. **Scheduled Scanning**:
+       - Implement regular security scans
+       - Schedule non-intrusive testing
+       - Monitor for new vulnerabilities
+       - Track security posture over time
+    
+    3. **Alert Integration**:
+       - Send ZAP alerts to monitoring systems
+       - Integrate with incident management
+       - Implement security alerting workflows
+       - Create security dashboards
+  </TabsContent>
+</Tabs>
+
+## Next Steps
+
+Now that you understand OWASP ZAP tool integration, explore these related topics:
+
+- [Automation](/docs/owasp-zap/advanced-techniques/automation) - Learn more about automating ZAP
+- [API Security Testing](/docs/owasp-zap/advanced-techniques/api-security) - Test API security with ZAP
+- [Custom Rules](/docs/owasp-zap/advanced-techniques/custom-rules) - Create custom scan rules
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

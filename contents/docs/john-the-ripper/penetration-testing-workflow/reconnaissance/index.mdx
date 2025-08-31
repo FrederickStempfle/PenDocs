@@ -1,0 +1,73 @@
+---
+title: John the Ripper in Reconnaissance
+description: Using John the Ripper during the reconnaissance phase of penetration testing
+---
+
+# John the Ripper in Reconnaissance
+
+During the reconnaissance phase of penetration testing, John the Ripper can be used to gather valuable information about password policies, potential default credentials, and system security posture.
+
+## Password Policy Analysis
+
+John the Ripper can help analyze password policies by:
+
+- Testing sample hashes to determine complexity requirements
+- Identifying patterns in existing password databases
+- Evaluating the strength of default credentials
+
+## Information Gathering Techniques
+
+### Default Credential Testing
+
+```bash
+# Create a wordlist of common default credentials
+echo "admin:admin" > default_creds.txt
+echo "admin:password" >> default_creds.txt
+echo "root:toor" >> default_creds.txt
+
+# Use John to test these against captured hashes
+john --wordlist=default_creds.txt --format=raw-md5 target_hashes.txt
+```
+
+### Password Pattern Analysis
+
+```bash
+# Extract patterns from previously cracked passwords
+john --show --format=raw-md5 cracked_hashes.txt | cut -d: -f2 > cracked_passwords.txt
+
+# Analyze patterns
+john --wordlist=cracked_passwords.txt --stdout --rules=single > password_patterns.txt
+```
+
+## Integration with Other Reconnaissance Tools
+
+John the Ripper can be integrated with other reconnaissance tools to enhance information gathering:
+
+- Use with Nmap scripts to identify authentication services
+- Combine with OSINT tools to create targeted wordlists
+- Integrate with web crawlers to identify login portals
+
+## Best Practices
+
+1. **Legal Compliance**
+   - Ensure all reconnaissance activities are within scope
+   - Document all actions taken during this phase
+   - Obtain proper authorization before testing credentials
+
+2. **Operational Security**
+   - Use secure channels when transferring hash files
+   - Avoid leaving evidence of reconnaissance activities
+   - Properly secure any discovered credentials
+
+3. **Efficiency**
+   - Focus on high-value targets first
+   - Use incremental approaches to avoid detection
+   - Prioritize services based on business impact
+
+## Next Steps
+
+After completing reconnaissance with John the Ripper, proceed to:
+
+- Vulnerability analysis to identify potential weaknesses
+- Target prioritization based on discovered information
+- Planning for exploitation based on reconnaissance findings

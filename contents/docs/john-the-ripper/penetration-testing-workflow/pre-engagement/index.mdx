@@ -1,0 +1,86 @@
+---
+title: John the Ripper in Pre-Engagement
+description: Using John the Ripper during the pre-engagement phase of penetration testing
+---
+
+# John the Ripper in Pre-Engagement
+
+During the pre-engagement phase of penetration testing, John the Ripper can be used for planning, preparation, and resource allocation to ensure an effective password assessment.
+
+## Planning and Preparation
+
+Before beginning a penetration test, John the Ripper helps with:
+
+- Hardware and resource planning
+- Wordlist and rule preparation
+- Testing methodology development
+
+## Pre-Engagement Techniques
+
+### Hardware Planning
+
+```bash
+# Benchmark John's performance on your hardware
+john --test
+
+# Test specific hash types to estimate cracking time
+john --test --format=bcrypt
+john --test --format=raw-md5
+```
+
+### Wordlist Preparation
+
+```bash
+# Combine multiple wordlists
+cat wordlist1.txt wordlist2.txt | sort -u > combined_wordlist.txt
+
+# Create targeted wordlists based on client information
+grep -i "companyname" /usr/share/wordlists/rockyou.txt > company_specific.txt
+```
+
+### Rule Development
+
+```bash
+# Test rule effectiveness on sample data
+john --wordlist=sample_words.txt --rules=best64 --stdout | wc -l
+
+# Create custom rules based on known patterns
+echo "[List.Rules:Custom]" > custom.conf
+echo "Az\"123\"" >> custom.conf
+echo "Az\"!\"" >> custom.conf
+```
+
+## Scope Definition
+
+John the Ripper considerations for scope definition:
+
+1. **Target Systems**
+   - Identify authentication systems to be tested
+   - Determine hash types likely to be encountered
+   - Plan for different operating systems and services
+
+2. **Time Allocation**
+   - Estimate time required for different hash types
+   - Plan for incremental approaches based on time constraints
+   - Allocate resources for different cracking strategies
+
+3. **Success Criteria**
+   - Define metrics for password strength assessment
+   - Establish reporting requirements for cracked credentials
+   - Set thresholds for password policy recommendations
+
+## Legal and Ethical Considerations
+
+Important pre-engagement considerations:
+
+- Obtain proper authorization for password testing
+- Establish data handling procedures for credentials
+- Define scope limitations for password cracking activities
+
+## Next Steps
+
+After completing pre-engagement planning with John the Ripper, proceed to:
+
+- Reconnaissance to gather initial information
+- Vulnerability assessment to identify weak points
+- Exploitation planning based on discovered information

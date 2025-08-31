@@ -1,0 +1,557 @@
+---
+title: OWASP ZAP Authentication Techniques
+description: Advanced authentication handling in OWASP ZAP for testing secure applications
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# OWASP ZAP Authentication Techniques
+
+Authentication is a critical aspect of web application security testing. OWASP ZAP provides robust support for testing authenticated applications using various authentication mechanisms. This guide covers advanced authentication techniques to help you effectively test secure applications.
+
+## Authentication Overview
+
+When testing web applications, you often need to:
+
+1. Authenticate to access protected functionality
+2. Maintain authenticated sessions during testing
+3. Test different user roles and permissions
+4. Verify authentication security controls
+
+ZAP provides several methods to handle these requirements:
+
+<Tabs defaultValue={"methods"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"methods"}>Authentication Methods</TabsTrigger>
+    <TabsTrigger value={"session"}>Session Management</TabsTrigger>
+    <TabsTrigger value={"users"}>User Management</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"methods"}>
+    ### Authentication Methods
+    
+    ZAP supports multiple authentication methods:
+    
+    - **Manual Authentication**: Manually log in through the browser
+    - **Form-based Authentication**: Standard username/password forms
+    - **HTTP/NTLM Authentication**: Basic, Digest, NTLM authentication
+    - **JSON-based Authentication**: REST API authentication
+    - **Script-based Authentication**: Custom authentication flows
+    
+    Each method is configured at the context level, allowing different authentication mechanisms for different applications or parts of an application.
+  </TabsContent>
+  <TabsContent value={"session"}>
+    ### Session Management
+    
+    ZAP offers various session management methods:
+    
+    - **Cookie-based**: Track and maintain cookies
+    - **HTTP Authentication**: Maintain HTTP authentication
+    - **Script-based**: Custom session handling
+    
+    Session management works alongside authentication to maintain the authenticated state during testing.
+  </TabsContent>
+  <TabsContent value={"users"}>
+    ### User Management
+    
+    ZAP allows you to define multiple users:
+    
+    - Create users with different credentials
+    - Assign users to specific contexts
+    - Configure user-specific authentication credentials
+    - Test with different user roles
+    - Force ZAP to use a specific user for testing
+    
+    This enables testing of role-based access controls and user-specific functionality.
+  </TabsContent>
+</Tabs>
+
+## Setting Up Authentication
+
+### Context Configuration
+
+<Steps>
+  <Step title="Create a Context">
+    1. Right-click on a site in the Sites tree
+    2. Select **Include in Context > New Context**
+    3. Enter a name for the context
+    4. Define the scope using include/exclude patterns
+  </Step>
+  <Step title="Configure Authentication Method">
+    1. In the context dialog, select **Authentication**
+    2. Choose the appropriate authentication method
+    3. Configure method-specific settings (covered in detail below)
+  </Step>
+  <Step title="Configure Session Management">
+    1. In the context dialog, select **Session Management**
+    2. Choose the appropriate session management method
+    3. Configure method-specific settings
+  </Step>
+  <Step title="Create Users">
+    1. In the context dialog, select **Users**
+    2. Click **Add** to create a new user
+    3. Enter a name for the user
+    4. Configure authentication credentials
+    5. Enable the user for testing
+  </Step>
+</Steps>
+
+## Authentication Methods in Detail
+
+### Form-Based Authentication
+
+Form-based authentication is the most common method used by web applications.
+
+<Steps>
+  <Step title="Configure Form-Based Authentication">
+    1. In the context authentication panel, select **Form-based Authentication**
+    2. Configure the following settings:
+       - **Login URL**: The URL of the login page (e.g., `https://example.com/login`)
+       - **Login Request POST Data**: The form parameters (e.g., `username=%username%&password=%password%`)
+       - **Username Parameter**: Parameter name for username (e.g., `username`)
+       - **Password Parameter**: Parameter name for password (e.g., `password`)
+  </Step>
+  <Step title="Configure Authentication Verification">
+    1. Set up logged-in/out indicators:
+       - **Logged In Indicator**: Regex pattern that appears when logged in (e.g., `Logout|Welcome`)
+       - **Logged Out Indicator**: Regex pattern that appears when logged out (e.g., `Login|Sign in`)
+    
+    These patterns help ZAP determine if the authentication was successful and if the session is still valid.
+  </Step>
+  <Step title="Create Users">
+    1. In the context Users panel, add users with their credentials
+    2. For each user, provide:
+       - **Username**: The username to use
+       - **Password**: The password to use
+    3. Enable the users for testing
+  </Step>
+</Steps>
+
+<Note>
+  The login request POST data must use `{%username%}` and `{%password%}` as placeholders. ZAP will replace these with the actual credentials when authenticating.
+</Note>
+
+### HTTP Authentication
+
+HTTP authentication is used by applications that rely on HTTP Basic, Digest, or NTLM authentication.
+
+<Steps>
+  <Step title="Configure HTTP Authentication">
+    1. In the context authentication panel, select **HTTP/NTLM Authentication**
+    2. Configure the following settings:
+       - **Hostname**: The hostname requiring authentication
+       - **Port**: The port number (usually 80 or 443)
+       - **Realm**: The authentication realm (if known)
+       - **Authentication Type**: Basic, Digest, or NTLM
+  </Step>
+  <Step title="Create Users">
+    1. In the context Users panel, add users with their credentials
+    2. For each user, provide:
+       - **Username**: The username to use
+       - **Password**: The password to use
+    3. Enable the users for testing
+  </Step>
+</Steps>
+
+### JSON-Based Authentication
+
+Many modern applications, especially single-page applications (SPAs) and APIs, use JSON for authentication.
+
+<Steps>
+  <Step title="Configure JSON-Based Authentication">
+    1. In the context authentication panel, select **JSON-based Authentication**
+    2. Configure the following settings:
+       - **Login URL**: The authentication endpoint (e.g., `https://example.com/api/login`)
+       - **Login Request POST Data**: JSON payload (e.g., `{"username":"{%username%}","password":"{%password%}"}`)
+       - **Username Parameter**: JSON path to username (e.g., `username`)
+       - **Password Parameter**: JSON path to password (e.g., `password`)
+  </Step>
+  <Step title="Configure Token Extraction">
+    For applications that return authentication tokens:
+    
+    1. Set the **Token URL**: URL that returns the token (usually same as login URL)
+    2. Set the **Token Element**: JSON path to the token (e.g., `$.token` or `$.data.access_token`)
+    3. Configure how the token should be used:
+       - **HTTP Header**: Add token to requests as a header (e.g., `Authorization: Bearer {%token%}`)
+       - **Cookie**: Add token as a cookie
+  </Step>
+  <Step title="Configure Authentication Verification">
+    Set up logged-in/out indicators as described in form-based authentication
+  </Step>
+</Steps>
+
+<Note>
+  For complex JSON structures, you may need to use JSONPath expressions to extract tokens. For example, `$.data.auth.token` for a token nested in a data object.
+</Note>
+
+### Script-Based Authentication
+
+Script-based authentication provides the most flexibility for complex authentication flows.
+
+<Steps>
+  <Step title="Create Authentication Script">
+    1. Go to **Tools > Scripts**
+    2. Select the **Authentication** script type
+    3. Click **New** to create a new script
+    4. Select the scripting language (JavaScript, Python, etc.)
+    5. Implement the required functions:
+       - `authenticate(helper, paramsValues, credentials)`: Performs the authentication
+       - `getRequiredParamsNames()`: Returns parameters needed by the script
+       - `getCredentialsParamsNames()`: Returns credential parameters
+       - `isAuthenticated(helper, paramsValues, credentials)`: Checks if authenticated
+  </Step>
+  <Step title="Configure Script-Based Authentication">
+    1. In the context authentication panel, select **Script-Based Authentication**
+    2. Select your authentication script
+    3. Configure script parameters as required
+  </Step>
+  <Step title="Create Users">
+    Create users with credentials as required by your script
+  </Step>
+</Steps>
+
+### Example Authentication Script
+
+Here's an example of a JavaScript authentication script for a token-based API:
+
+```javascript
+// Authentication script for token-based API
+
+// Define required parameters
+function getRequiredParamsNames() {
+    return ["loginUrl", "tokenPath"];
+}
+
+// Define credential parameters
+function getCredentialsParamsNames() {
+    return ["username", "password"];
+}
+
+// Authenticate function
+function authenticate(helper, paramsValues, credentials) {
+    var loginUrl = paramsValues.get("loginUrl");
+    var tokenPath = paramsValues.get("tokenPath");
+    var username = credentials.get("username");
+    var password = credentials.get("password");
+    
+    // Prepare the login request
+    var requestBody = '{"username":"' + encodeURIComponent(username) + 
+                      '","password":"' + encodeURIComponent(password) + '"}';
+    
+    // Set up the authentication request details
+    var method = "POST";
+    var headers = "Content-Type: application/json\r\n";
+    var body = requestBody;
+    
+    // Send the authentication request
+    var response = helper.prepareMessage();
+    response = helper.sendAndReceive(loginUrl, method, headers, body, response);
+    
+    // Extract the authentication token
+    var responseBody = response.getResponseBody().toString();
+    var json = JSON.parse(responseBody);
+    
+    // Use JSONPath to extract the token
+    var token = extractValue(json, tokenPath);
+    
+    if (token) {
+        // Add the token as a header for future requests
+        helper.getHttpSender().addHeader("Authorization", "Bearer " + token);
+        return true;
+    }
+    
+    return false;
+}
+
+// Check if the user is authenticated
+function isAuthenticated(helper, paramsValues, credentials) {
+    // This is a simple example - you might need to check a protected resource
+    var requestHeader = helper.getHttpMessage().getRequestHeader();
+    return requestHeader.getHeader("Authorization") != null;
+}
+
+// Helper function to extract values using JSONPath-like syntax
+function extractValue(json, path) {
+    var parts = path.split('.');
+    var current = json;
+    
+    for (var i = 0; i < parts.length; i++) {
+        var part = parts[i];
+        if (part.startsWith('$')) {
+            continue; // Skip the root indicator
+        }
+        
+        if (current[part] === undefined) {
+            return null;
+        }
+        
+        current = current[part];
+    }
+    
+    return current;
+}
+```
+
+## Session Management
+
+Session management works alongside authentication to maintain the authenticated state during testing.
+
+<Tabs defaultValue={"cookie"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"cookie"}>Cookie-Based</TabsTrigger>
+    <TabsTrigger value={"http"}>HTTP Authentication</TabsTrigger>
+    <TabsTrigger value={"script"}>Script-Based</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"cookie"}>
+    ### Cookie-Based Session Management
+    
+    Most web applications use cookies for session management:
+    
+    1. In the context dialog, select **Session Management**
+    2. Choose **Cookie-based Session Management**
+    3. ZAP will automatically track and maintain cookies
+    
+    This method works for most applications and requires no additional configuration.
+  </TabsContent>
+  <TabsContent value={"http"}>
+    ### HTTP Authentication Session Management
+    
+    For applications using HTTP authentication:
+    
+    1. In the context dialog, select **Session Management**
+    2. Choose **HTTP Authentication Session Management**
+    3. ZAP will maintain the HTTP authentication credentials
+    
+    This method is automatically selected when using HTTP/NTLM authentication.
+  </TabsContent>
+  <TabsContent value={"script"}>
+    ### Script-Based Session Management
+    
+    For complex session handling:
+    
+    1. Create a session management script:
+       - Go to **Tools > Scripts**
+       - Select the **Session Management** script type
+       - Implement required functions
+    
+    2. In the context dialog, select **Session Management**
+    3. Choose **Script-Based Session Management**
+    4. Select your session management script
+    5. Configure script parameters as required
+    
+    This method is useful for applications with custom session handling, such as:
+    - Token rotation
+    - Multiple tokens (access + refresh)
+    - Custom header-based sessions
+  </TabsContent>
+</Tabs>
+
+## Using Authenticated Scanning
+
+Once authentication is configured, you can perform authenticated scanning.
+
+<Steps>
+  <Step title="Enable Forced User Mode">
+    1. Select a user in the Users panel
+    2. Click **Set as Forced User**
+    3. Enable forced user mode by clicking the "person" icon in the toolbar
+    4. ZAP will now authenticate as this user for all requests
+  </Step>
+  <Step title="Spider with Authentication">
+    1. Right-click on a target in the Sites tree
+    2. Select **Attack > Spider**
+    3. In the Spider dialog:
+       - Select the appropriate context
+       - Select the user to authenticate as
+       - Configure other spider options
+    4. Click **Start Scan**
+  </Step>
+  <Step title="Active Scan with Authentication">
+    1. Right-click on a target in the Sites tree
+    2. Select **Attack > Active Scan**
+    3. In the Active Scan dialog:
+       - Select the appropriate context
+       - Select the user to authenticate as
+       - Configure other scan options
+    4. Click **Start Scan**
+  </Step>
+</Steps>
+
+## Advanced Authentication Scenarios
+
+### Multi-Factor Authentication (MFA)
+
+Testing applications with MFA requires special handling:
+
+<Steps>
+  <Step title="Script-Based Approach">
+    For applications with MFA:
+    
+    1. Create a script-based authentication script
+    2. Implement the authentication flow:
+       - First factor (username/password)
+       - Handle second factor (if possible)
+    
+    Options for handling the second factor:
+    - Use pre-generated backup codes
+    - Use a fixed TOTP seed and generate codes
+    - Implement a custom solution for your specific MFA
+  </Step>
+  <Step title="Manual Authentication with Session Import">
+    If automated MFA handling is not possible:
+    
+    1. Manually authenticate through the browser
+    2. Export the authenticated cookies/session
+    3. Import the session into ZAP
+    4. Use the imported session for testing
+    
+    This approach requires re-authentication when the session expires.
+  </Step>
+</Steps>
+
+### OAuth and OpenID Connect
+
+Testing applications using OAuth or OpenID Connect:
+
+<Steps>
+  <Step title="Using the OAuth Add-on">
+    1. Install the OAuth Support add-on
+    2. Configure the OAuth settings:
+       - Client ID and Secret
+       - Authorization and Token endpoints
+       - Redirect URI
+       - Scopes
+    3. ZAP will handle the OAuth flow automatically
+  </Step>
+  <Step title="Script-Based OAuth Handling">
+    For complex OAuth scenarios:
+    
+    1. Create a script-based authentication script
+    2. Implement the OAuth flow:
+       - Authorization request
+       - Token exchange
+       - Token refresh
+    3. Store and use the access token
+  </Step>
+</Steps>
+
+### JWT Authentication
+
+Many modern applications use JSON Web Tokens (JWT) for authentication:
+
+<Steps>
+  <Step title="Using the JWT Support Add-on">
+    1. Install the JWT Support add-on
+    2. The add-on provides:
+       - JWT token detection
+       - Token decoding and analysis
+       - Token fuzzing capabilities
+       - Signature verification testing
+  </Step>
+  <Step title="Script-Based JWT Handling">
+    For applications using JWT:
+    
+    1. Create an authentication script that:
+       - Performs the login
+       - Extracts the JWT token
+       - Adds the token to subsequent requests
+    2. Optionally, implement token refresh logic
+  </Step>
+</Steps>
+
+## Troubleshooting Authentication
+
+<Tabs defaultValue={"verification"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"verification"}>Verification Issues</TabsTrigger>
+    <TabsTrigger value={"session"}>Session Problems</TabsTrigger>
+    <TabsTrigger value={"csrf"}>CSRF Tokens</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"verification"}>
+    ### Authentication Verification Issues
+    
+    If ZAP cannot determine authentication status:
+    
+    1. **Check Indicators**:
+       - Ensure logged-in/out indicators are correct
+       - Use regex patterns that reliably appear/disappear
+       - Test patterns with the "Find..." feature in responses
+    
+    2. **Verify Response Content**:
+       - Check if the application returns different content when authenticated
+       - Some applications use status codes or headers instead of body content
+    
+    3. **Use Script-Based Verification**:
+       - Implement custom verification logic in a script
+       - Check specific elements, headers, or response characteristics
+  </TabsContent>
+  <TabsContent value={"session"}>
+    ### Session Management Problems
+    
+    If sessions expire too quickly or aren't maintained:
+    
+    1. **Check Session Timeout**:
+       - Some applications have short session timeouts
+       - Consider extending the timeout in the application for testing
+    
+    2. **Verify Cookie Handling**:
+       - Check if all required cookies are being captured
+       - Some applications use multiple cookies or headers
+    
+    3. **Implement Custom Session Management**:
+       - Use script-based session management
+       - Handle token refresh or re-authentication
+  </TabsContent>
+  <TabsContent value={"csrf"}>
+    ### CSRF Token Handling
+    
+    If the application uses CSRF tokens:
+    
+    1. **Enable Anti-CSRF Handling**:
+       - Go to **Tools > Options > Anti-CSRF Tokens**
+       - Add token names used by the application
+    
+    2. **Use the Replacer Add-on**:
+       - Configure replacer rules to extract and inject tokens
+    
+    3. **Script-Based Solution**:
+       - Create a script to extract tokens from responses
+       - Inject tokens into subsequent requests
+  </TabsContent>
+</Tabs>
+
+## Best Practices
+
+<Steps>
+  <Step title="Test with Multiple Users">
+    Create multiple users with different roles to:
+    - Test role-based access controls
+    - Identify privilege escalation issues
+    - Verify proper authorization checks
+  </Step>
+  <Step title="Maintain Authentication State">
+    - Monitor for session expiration
+    - Implement re-authentication when needed
+    - Use appropriate session management methods
+  </Step>
+  <Step title="Secure Credential Handling">
+    - Don't commit real credentials to scripts
+    - Use test accounts with limited privileges
+    - Consider environment variables or secure storage for credentials
+  </Step>
+  <Step title="Combine Manual and Automated Testing">
+    - Use automated authentication for repetitive testing
+    - Perform manual testing for complex authentication flows
+    - Verify authentication security controls manually
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you understand authentication techniques in OWASP ZAP, explore these related topics:
+
+- [Scripting](/docs/owasp-zap/advanced-techniques/scripting) - Create custom scripts for authentication and session management
+- [API Security Testing](/docs/owasp-zap/advanced-techniques/api-security) - Test API authentication and authorization
+- [Automation](/docs/owasp-zap/advanced-techniques/automation) - Automate authenticated scanning
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

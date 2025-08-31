@@ -1,0 +1,495 @@
+---
+title: Nikto Advanced Techniques
+description: Advanced techniques and strategies for using Nikto in penetration testing
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Nikto Advanced Techniques
+
+This section covers advanced techniques and strategies for using Nikto in penetration testing scenarios. These techniques will help you leverage Nikto's full capabilities for comprehensive web vulnerability assessments.
+
+## Overview of Advanced Techniques
+
+Nikto offers several advanced capabilities beyond basic scanning:
+
+1. **Custom Scanning**: Tailoring scans for specific environments and requirements
+2. **Plugin Development**: Creating custom plugins for specialized tests
+3. **Evasion Techniques**: Bypassing detection mechanisms
+4. **Integration**: Working with other security tools
+5. **Automation**: Incorporating Nikto into security workflows
+
+## Custom Scanning Techniques
+
+### Targeted Scanning
+
+Focus your scans on specific vulnerabilities or areas:
+
+```bash
+# Focus on SQL injection vulnerabilities
+nikto -h example.com -Tuning 9
+
+# Focus on authentication bypass
+nikto -h example.com -Tuning a
+
+# Focus on information disclosure and XSS
+nikto -h example.com -Tuning 34
+```
+
+### Multi-Host Scanning
+
+Efficiently scan multiple hosts:
+
+```bash
+# Create a hosts file
+echo "example.com" > hosts.txt
+echo "test.example.com" >> hosts.txt
+echo "192.168.1.100" >> hosts.txt
+
+# Scan all hosts
+nikto -h hosts.txt -o multi_scan_results.csv -Format csv
+```
+
+### Incremental Scanning
+
+Break large scans into manageable chunks:
+
+```bash
+# First scan: Basic tests
+nikto -h example.com -Tuning 123b -o phase1.txt
+
+# Second scan: Injection tests
+nikto -h example.com -Tuning 49 -o phase2.txt
+
+# Third scan: Authentication tests
+nikto -h example.com -Tuning a -o phase3.txt
+```
+
+## Advanced Configuration
+
+### Custom Database Usage
+
+Nikto uses databases for its tests, which you can customize:
+
+<Steps>
+  <Step title="Locate Database Files">
+    Find the database files in your Nikto installation:
+    
+    ```bash
+    # Show database location
+    nikto -dbcheck
+    ```
+    
+    Common locations include:
+    - `/usr/share/nikto/databases/`
+    - `/usr/local/share/nikto/databases/`
+    - `[nikto_installation_dir]/databases/`
+  </Step>
+  <Step title="Examine Database Structure">
+    The main databases include:
+    
+    - `db_variables`: Configuration variables
+    - `db_tests`: Test definitions
+    - `db_outdated`: Outdated software signatures
+    - `db_server_msgs`: Server message patterns
+    - `db_favicon`: Favicon hashes
+    - `db_404_strings`: 404 page patterns
+    - `db_headers`: HTTP header tests
+    - `db_content_dirs`: Common directories
+    - `db_multiple_index`: Multiple index file tests
+  </Step>
+  <Step title="Customize Databases">
+    Create custom database entries:
+    
+    ```bash
+    # Add custom test to db_tests
+    echo '"999999","0","d","Custom test for internal app","/internal/status.php",""' >> db_tests
+    
+    # Use custom database
+    nikto -h example.com -config /path/to/custom/nikto.conf
+    ```
+  </Step>
+</Steps>
+
+### Advanced Plugin Usage
+
+Leverage Nikto's plugin system for specialized testing:
+
+```bash
+# List available plugins
+nikto -list-plugins
+
+# Run specific plugins with options
+nikto -h example.com -Plugins "@@default;apacheusers:verbose"
+
+# Disable specific plugins
+nikto -h example.com -Plugins "@@default;-outdated;-msgs"
+```
+
+## Evasion Techniques
+
+### IDS/IPS Evasion
+
+Bypass intrusion detection/prevention systems:
+
+<Tabs defaultValue={"encoding"} className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value={"encoding"}>URI Encoding</TabsTrigger>
+    <TabsTrigger value={"path"}>Path Manipulation</TabsTrigger>
+    <TabsTrigger value={"timing"}>Timing Techniques</TabsTrigger>
+    <TabsTrigger value={"combined"}>Combined Approach</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"encoding"}>
+    ### URI Encoding
+    
+    Use random URI encoding to evade pattern matching:
+    
+    ```bash
+    # Random URI encoding
+    nikto -h example.com -evasion 1
+    ```
+    
+    This technique encodes parts of the URL in non-standard ways that may bypass signature-based detection.
+  </TabsContent>
+  <TabsContent value={"path"}>
+    ### Path Manipulation
+    
+    Modify path structures to bypass filters:
+    
+    ```bash
+    # Directory self-reference
+    nikto -h example.com -evasion 2
+    
+    # Windows directory separator
+    nikto -h example.com -evasion 8
+    ```
+    
+    These techniques change how paths are represented while maintaining their functionality.
+  </TabsContent>
+  <TabsContent value={"timing"}>
+    ### Timing Techniques
+    
+    Slow down scanning to avoid rate-based detection:
+    
+    ```bash
+    # Add delay between requests
+    nikto -h example.com -delay 3
+    
+    # Limit connections per second
+    nikto -h example.com -vhost example.com -delay 2
+    ```
+    
+    Timing adjustments help avoid triggering alerts based on request frequency.
+  </TabsContent>
+  <TabsContent value={"combined"}>
+    ### Combined Approach
+    
+    Use multiple evasion techniques together:
+    
+    ```bash
+    # Multiple evasion techniques with timing
+    nikto -h example.com -evasion 1267 -delay 2 -useragent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    ```
+    
+    This combines:
+    - Random URI encoding (1)
+    - Directory self-reference (2)
+    - TAB as request spacer (6)
+    - URL case changes (7)
+    - 2-second delay between requests
+    - Custom User-Agent
+  </TabsContent>
+</Tabs>
+
+### User-Agent Manipulation
+
+Modify the User-Agent to appear as legitimate traffic:
+
+```bash
+# Use a specific browser User-Agent
+nikto -h example.com -useragent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+
+# Use a random User-Agent
+nikto -h example.com -useragent FUZZ
+```
+
+## Integration with Other Tools
+
+### Proxy Integration
+
+Route Nikto through proxies for additional analysis:
+
+```bash
+# Use Burp Suite as a proxy
+nikto -h example.com -useproxy http://127.0.0.1:8080
+
+# Use ZAP as a proxy
+nikto -h example.com -useproxy http://127.0.0.1:8090
+```
+
+### Tool Chaining
+
+<Steps>
+  <Step title="Reconnaissance">
+    Use other tools for initial reconnaissance:
+    
+    ```bash
+    # Use Nmap for service discovery
+    nmap -sV -p 80,443,8080,8443 192.168.1.0/24 -oG web_servers.txt
+    
+    # Extract web servers
+    grep "open" web_servers.txt | grep "http" > http_targets.txt
+    ```
+  </Step>
+  <Step title="Targeted Scanning">
+    Use Nikto for targeted scanning:
+    
+    ```bash
+    # Create a hosts file from Nmap results
+    cat http_targets.txt | cut -d " " -f 2 > nikto_targets.txt
+    
+    # Scan with Nikto
+    nikto -h nikto_targets.txt -Tuning 123b -o initial_scan.xml -Format xml
+    ```
+  </Step>
+  <Step title="Detailed Analysis">
+    Use specialized tools for detailed analysis of findings:
+    
+    ```bash
+    # Extract vulnerable URLs
+    grep "OSVDB" initial_scan.xml | grep -o "http://[^<]*" > vulnerable_urls.txt
+    
+    # Use specialized tools for further testing
+    # Example: SQLmap for SQL injection
+    sqlmap -m vulnerable_urls.txt --batch
+    ```
+  </Step>
+</Steps>
+
+## Automation and Scripting
+
+### Batch Processing
+
+Create scripts for batch processing:
+
+```bash
+#!/bin/bash
+# nikto_batch.sh - Run Nikto against multiple targets with different configurations
+
+TARGETS_FILE="targets.txt"
+OUTPUT_DIR="nikto_results_$(date +%Y%m%d)"
+
+mkdir -p $OUTPUT_DIR
+
+# Read targets file
+while IFS= read -r target
+do
+  # Skip comments and empty lines
+  [[ "$target" =~ ^#.*$ || -z "$target" ]] && continue
+  
+  # Extract hostname for file naming
+  hostname=$(echo $target | sed 's/https\?:\/\///' | sed 's/:.*//')
+  
+  echo "Scanning $target..."
+  
+  # Run basic scan
+  nikto -h "$target" -Tuning 123b -o "$OUTPUT_DIR/${hostname}_basic.html" -Format htm
+  
+  # Run injection tests
+  nikto -h "$target" -Tuning 49 -o "$OUTPUT_DIR/${hostname}_injection.html" -Format htm
+  
+  echo "Completed scan of $target"
+done < "$TARGETS_FILE"
+
+echo "All scans complete. Results in $OUTPUT_DIR"
+```
+
+### Continuous Integration
+
+Integrate Nikto into CI/CD pipelines:
+
+```bash
+#!/bin/bash
+# ci_nikto.sh - CI/CD integration script for Nikto
+
+TARGET_URL=$1
+THRESHOLD=5
+
+echo "Running Nikto security scan against $TARGET_URL"
+
+# Run Nikto with JSON output
+nikto -h "$TARGET_URL" -Tuning 123ab -o scan_results.json -Format json
+
+# Count high-severity findings
+HIGH_SEVERITY=$(cat scan_results.json | grep -c "HIGH")
+
+echo "Found $HIGH_SEVERITY high severity issues"
+
+# Fail the build if too many high-severity issues
+if [ $HIGH_SEVERITY \-gt $THRESHOLD ]; then
+  echo "Security scan failed: $HIGH_SEVERITY high severity issues found (threshold: $THRESHOLD)"
+  exit 1
+else
+  echo "Security scan passed: $HIGH_SEVERITY high severity issues found (threshold: $THRESHOLD)"
+  exit 0
+fi
+```
+
+## Custom Plugin Development
+
+### Plugin Structure
+
+Nikto plugins are written in Perl and follow a specific structure:
+
+```perl
+# Example plugin structure
+package Nikto::Plugin::myplugin;
+use strict;
+use Nikto;
+
+sub new {
+    my $class = shift;
+    my $self = {
+        name        => "myplugin",
+        full_name   => "My Custom Plugin",
+        author      => "Your Name",
+        description => "Description of what this plugin does",
+        hooks       => {
+            scan => { method => \&scan, weight => 10 },
+        },
+    };
+    bless $self, $class;
+    return $self;
+}
+
+sub scan {
+    my ($self, $mark, $parameters) = @_;
+    my ($found, $requests, $responses) = (0, 0, 0);
+    
+    # Plugin logic goes here
+    # Example: Check for a specific vulnerability
+    
+    return ($found, $requests, $responses);
+}
+
+1;
+```
+
+### Creating a Simple Plugin
+
+<Steps>
+  <Step title="Create Plugin File">
+    Create a new file in the plugins directory:
+    
+    ```bash
+    # Navigate to plugins directory
+    cd /usr/share/nikto/plugins/
+    
+    # Create new plugin file
+    sudo touch myplugin.plugin
+    ```
+  </Step>
+  <Step title="Implement Plugin Logic">
+    Edit the plugin file with your custom logic:
+    
+    ```perl
+    # Basic plugin to check for a specific header
+    package Nikto::Plugin::myplugin;
+    use strict;
+    use Nikto;
+    
+    sub new {
+        my $class = shift;
+        my $self = {
+            name        => "myplugin",
+            full_name   => "Custom Header Check",
+            author      => "Your Name",
+            description => "Checks for a specific security header",
+            hooks       => {
+                postfetch => { method => \&postfetch, weight => 10 },
+            },
+        };
+        bless $self, $class;
+        return $self;
+    }
+    
+    sub postfetch {
+        my ($self, $mark, $parameters) = @_;
+        my ($found, $requests, $responses) = (0, 0, 0);
+        
+        # Check for specific header
+        if (defined $mark->{'response'}{'headers'}) {
+            if (!defined $mark->{'response'}{'headers'}{'content-security-policy'}) {
+                add_vulnerability($mark, "Content-Security-Policy header is missing", 999999);
+                $found++;
+            }
+        }
+        
+        return ($found, $requests, $responses);
+    }
+    
+    1;
+    ```
+  </Step>
+  <Step title="Test the Plugin">
+    Run Nikto with your custom plugin:
+    
+    ```bash
+    nikto -h example.com -Plugins "myplugin"
+    ```
+  </Step>
+</Steps>
+
+## Advanced Use Cases
+
+### Web Application Firewall Testing
+
+Test the effectiveness of WAFs:
+
+```bash
+# Use evasion techniques against WAF
+nikto -h example.com -evasion 1267 -Tuning 4 -useragent "Mozilla/5.0"
+
+# Test with different User-Agents
+nikto -h example.com -useragent "Mozilla/5.0" -Tuning 4 -o waf_test1.txt
+nikto -h example.com -useragent "Nikto/2.1.6" -Tuning 4 -o waf_test2.txt
+
+# Compare results
+diff waf_test1.txt waf_test2.txt
+```
+
+### API Security Testing
+
+Adapt Nikto for API testing:
+
+```bash
+# Test API endpoints
+nikto -h api.example.com -p 443 -ssl -id "apikey:12345" -Tuning 39 -Plugins "headers;auth"
+
+# Test with custom headers
+nikto -h api.example.com -ssl -Cookies "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.."
+```
+
+### Cloud Service Testing
+
+Test cloud-hosted applications:
+
+```bash
+# Test multiple subdomains
+echo "app.cloudservice.com" > cloud_targets.txt
+echo "api.cloudservice.com" >> cloud_targets.txt
+echo "admin.cloudservice.com" >> cloud_targets.txt
+
+nikto -h cloud_targets.txt -ssl -Tuning 123b -o cloud_scan.html -Format htm
+```
+
+## Next Steps
+
+Now that you understand advanced Nikto techniques, explore the following topics:
+
+- [Plugin Development](/docs/nikto/advanced-techniques/plugin-development) - Learn more about creating custom Nikto plugins
+- [Evasion Techniques](/docs/nikto/advanced-techniques/evasion-techniques) - Detailed guide to evading detection
+- [Integration](/docs/nikto/integration) - Comprehensive guide to integrating Nikto with other tools
+- [Best Practices](/docs/nikto/best-practices) - Learn best practices for effective and ethical use of Nikto

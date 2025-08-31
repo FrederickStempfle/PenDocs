@@ -1,0 +1,804 @@
+---
+title: OWASP ZAP Custom Rules
+description: Creating and implementing custom scan rules and policies in OWASP ZAP
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Custom Rules in OWASP ZAP
+
+OWASP ZAP provides powerful capabilities for creating custom scan rules to detect application-specific vulnerabilities. This guide covers how to develop, implement, and manage custom rules to enhance your security testing.
+
+## Understanding ZAP Rules
+
+<Tabs defaultValue={"passive"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"passive"}>Passive Scan Rules</TabsTrigger>
+    <TabsTrigger value={"active"}>Active Scan Rules</TabsTrigger>
+    <TabsTrigger value={"policies"}>Scan Policies</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"passive"}>
+    ### Passive Scan Rules
+    
+    Passive scan rules analyze requests and responses without sending additional requests:
+    
+    - They examine traffic that passes through ZAP
+    - They don't modify requests or generate new ones
+    - They're ideal for detecting information disclosure, missing headers, etc.
+    - They run automatically on all traffic
+    
+    Examples include:
+    - Information disclosure detection
+    - Security header analysis
+    - Content security policy validation
+    - Cookie attribute checking
+  </TabsContent>
+  <TabsContent value={"active"}>
+    ### Active Scan Rules
+    
+    Active scan rules send additional requests to test for vulnerabilities:
+    
+    - They actively probe the application
+    - They generate new requests based on the original
+    - They're used for detecting injection vulnerabilities, XSS, etc.
+    - They run only when an active scan is initiated
+    
+    Examples include:
+    - SQL injection testing
+    - Cross-site scripting detection
+    - Command injection testing
+    - Path traversal detection
+  </TabsContent>
+  <TabsContent value={"policies"}>
+    ### Scan Policies
+    
+    Scan policies define which rules to run and their configuration:
+    
+    - They determine which rules are enabled/disabled
+    - They configure rule strength and threshold
+    - They can be customized for different testing scenarios
+    - They can be exported and shared
+    
+    Default policies include:
+    - Default Policy
+    - API-only Policy
+    - Low and Fast Policy
+    - High and Slow Policy
+  </TabsContent>
+</Tabs>
+
+## Creating Custom Rules with Scripts
+
+<Steps>
+  <Step title="Set Up the Scripting Environment">
+    1. Install the Script Console add-on if not already installed
+    2. Go to **Tools > Scripts**
+    3. Select the appropriate script type:
+       - **Passive Rules** for passive scanning
+       - **Active Rules** for active scanning
+    4. Click **New Script**
+    5. Select the scripting language (JavaScript, Grails, Python, etc.)
+    6. Name your script and click **OK**
+  </Step>
+  <Step title="Understand the Script Template">
+    For passive rules, implement these functions:
+    
+    ```javascript
+    // The scan function will be called for request/response pairs
+    function scan(ps, msg, src) {
+        // ps - PassiveScan parent object
+        // msg - HTTP Message being scanned
+        // src - Source of the message (proxy, spider, etc.)
+        
+        // Your scanning logic here
+        
+        // If an issue is found, raise an alert
+        ps.newAlert()
+            .setRisk(1)        // 0: info, 1: low, 2: medium, 3: high
+            .setConfidence(2)  // 0: false positive, 1: low, 2: medium, 3: high
+            .setName("Example Vulnerability")
+            .setDescription("Description of the vulnerability")
+            .setParam("parameter")
+            .setEvidence("evidence")
+            .setMessage(msg)
+            .raise();
+    }
+    
+    // The setParameter function will be called when the user changes the script parameters
+    function setParameter(param) {
+        // Handle any script parameters
+    }
+    ```
+    
+    For active rules, implement these functions:
+    
+    ```javascript
+    // The scan function will be called for each URL
+    function scan(as, msg, param, value) {
+        // as - ActiveScan parent object
+        // msg - HTTP Message being scanned
+        // param - Parameter being tested
+        // value - Value of the parameter
+        
+        // Your scanning logic here
+        
+        // If an issue is found, raise an alert
+        as.newAlert()
+            .setRisk(1)
+            .setConfidence(2)
+            .setName("Example Vulnerability")
+            .setDescription("Description of the vulnerability")
+            .setParam(param)
+            .setEvidence("evidence")
+            .setMessage(msg)
+            .raise();
+    }
+    ```
+  </Step>
+  <Step title="Implement Your Rule Logic">
+    For a passive rule example (detecting sensitive information):
+    
+    ```javascript
+    function scan(ps, msg, src) {
+        // Only check responses
+        if (!msg.isResponseFromTargetHost()) {
+            return;
+        }
+        
+        // Get the response body
+        var responseBody = msg.getResponseBody().toString();
+        
+        // Check for sensitive patterns
+        var patterns = {
+            "credit_card": /\b(?:\d{4}[- ]?){3}\d{4}\b/,
+            "ssn": /\b\d{3}[- ]?\d{2}[- ]?\d{4}\b/,
+            "api_key": /['"]?api[_-]?key['"]?\s*[:=]\s*['"]?([a-zA-Z0-9]{20,})/i
+        };
+        
+        // Check each pattern
+        for (var key in patterns) {
+            var matches = responseBody.match(patterns[key]);
+            if (matches) {
+                // Create an alert
+                ps.newAlert()
+                    .setRisk(2)  // Medium
+                    .setConfidence(2)  // Medium
+                    .setName("Sensitive Information Disclosure")
+                    .setDescription("The response contains potentially sensitive information: " + key)
+                    .setEvidence(matches[0])
+                    .setMessage(msg)
+                    .raise();
+                
+                // Only raise one alert per pattern
+                break;
+            }
+        }
+    }
+    ```
+    
+    For an active rule example (testing for open redirects):
+    
+    ```javascript
+    function scan(as, msg, param, value) {
+        // Create a test URL
+        var attackUrl = "https://evil-site.com";
+        
+        // Make a copy of the message
+        var testMsg = msg.cloneRequest();
+        
+        // Update the parameter value
+        as.setParam(testMsg, param, attackUrl);
+        
+        // Send the request
+        as.sendAndReceive(testMsg);
+        
+        // Check if the response is a redirect to our attack URL
+        var responseHeader = testMsg.getResponseHeader().toString();
+        if (responseHeader.indexOf("Location: " + attackUrl) > 0) {
+            // Create an alert
+            as.newAlert()
+                .setRisk(2)  // Medium
+                .setConfidence(2)  // Medium
+                .setName("Open Redirect")
+                .setDescription("The application redirects to arbitrary URLs")
+                .setParam(param)
+                .setEvidence("Location: " + attackUrl)
+                .setMessage(testMsg)
+                .raise();
+        }
+    }
+    ```
+  </Step>
+</Steps>
+
+## Advanced Rule Development
+
+<Tabs defaultValue={"java"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"java"}>Java-Based Rules</TabsTrigger>
+    <TabsTrigger value={"addon"}>Add-on Development</TabsTrigger>
+    <TabsTrigger value={"testing"}>Testing and Debugging</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"java"}>
+    ### Java-Based Rules
+    
+    For more complex rules, you can develop Java-based scan rules:
+    
+    1. **Setup Development Environment**:
+       - Clone the ZAP repository
+       - Set up Java development environment
+       - Understand ZAP's plugin architecture
+    
+    2. **Implement Scan Rule Classes**:
+       - For passive rules, extend `PluginPassiveScanner`
+       - For active rules, extend `AbstractAppParamPlugin`
+       - Implement required methods
+    
+    Example passive scanner class structure:
+    
+    ```java
+    public class CustomPassiveScanner extends PluginPassiveScanner {
+    
+        @Override
+        public void scanHttpRequestSend(HttpMessage msg, int id) {
+            // Scan the request if needed
+        }
+    
+        @Override
+        public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
+            // Scan the response
+            // If issue found, createAlert()
+        }
+    
+        @Override
+        public int getPluginId() {
+            return 60101; // Custom ID
+        }
+    
+        @Override
+        public String getName() {
+            return "Custom Passive Scanner";
+        }
+    }
+    ```
+  </TabsContent>
+  <TabsContent value={"addon"}>
+    ### Add-on Development
+    
+    Package your custom rules as ZAP add-ons:
+    
+    1. **Create Add-on Structure**:
+       - Follow ZAP add-on template
+       - Include necessary manifest files
+       - Package scan rules together
+    
+    2. **Build and Deploy**:
+       - Build the add-on using Gradle or Maven
+       - Test in a development ZAP instance
+       - Share with your team or the community
+    
+    Basic add-on structure:
+    
+    ```
+    my-custom-rules/
+    ├── src/
+    │   └── org/example/zap/
+    │       ├── CustomPassiveScanner.java
+    │       ├── CustomActiveScanner.java
+    │       └── ExtensionCustomRules.java
+    ├── resources/
+    │   └── ZapAddOn.xml
+    └── build.gradle
+    ```
+    
+    Example ZapAddOn.xml:
+    
+    ```xml
+    <zapaddon>
+        <name>Custom Rules</name>
+        <version>1.0.0</version>
+        <description>Custom scan rules for application-specific vulnerabilities</description>
+        <author>Your Name</author>
+        <url>https://example.com/custom-rules</url>
+        <changes>Initial release</changes>
+        <extensions>
+            <extension>org.example.zap.ExtensionCustomRules</extension>
+        </extensions>
+        <ascanrules>
+            <ascanrule>org.example.zap.CustomActiveScanner</ascanrule>
+        </ascanrules>
+        <pscanrules>
+            <pscanrule>org.example.zap.CustomPassiveScanner</pscanrule>
+        </pscanrules>
+    </zapaddon>
+    ```
+  </TabsContent>
+  <TabsContent value={"testing"}>
+    ### Testing and Debugging
+    
+    Effectively test and debug your custom rules:
+    
+    1. **Script Debugging**:
+       - Use `print()` statements for debugging
+       - Check the script console output
+       - Test with known vulnerable samples
+       - Verify alert generation
+    
+    2. **Java Debugging**:
+       - Use remote debugging with IDE
+       - Set breakpoints in your code
+       - Inspect variables and execution flow
+       - Use logging for persistent debugging
+    
+    3. **Validation Techniques**:
+       - Create test cases with expected results
+       - Use ZAP's test framework
+       - Validate against known vulnerabilities
+       - Test edge cases and boundary conditions
+  </TabsContent>
+</Tabs>
+
+## Custom Scan Policies
+
+<Steps>
+  <Step title="Create a Custom Scan Policy">
+    1. Go to **Analyze > Scan Policy Manager**
+    2. Click **Add**
+    3. Enter a name for your policy
+    4. Select a template to start from (e.g., Default Policy)
+    5. Click **OK**
+    6. Modify the policy settings:
+       - Enable/disable specific rules
+       - Adjust rule strength and threshold
+       - Configure category settings
+    7. Click **Save**
+  </Step>
+  <Step title="Configure Policy Settings">
+    Customize policy settings for different scenarios:
+    
+    1. **API Testing Policy**:
+       - Disable browser-based rules
+       - Enable API-specific rules
+       - Focus on injection vulnerabilities
+       - Configure appropriate thresholds
+    
+    2. **Performance-Focused Policy**:
+       - Disable resource-intensive rules
+       - Lower scan strength for faster execution
+       - Focus on critical vulnerabilities only
+       - Limit scan depth and breadth
+    
+    3. **Compliance Policy**:
+       - Enable rules relevant to specific standards
+       - Configure appropriate risk thresholds
+       - Include all required compliance checks
+       - Generate appropriate reporting
+  </Step>
+  <Step title="Export and Share Policies">
+    Share your custom policies with your team:
+    
+    1. In the Scan Policy Manager, select your policy
+    2. Click **Export**
+    3. Save the policy file (.policy)
+    4. Share the file with your team
+    5. Others can import it via **Import** in the Scan Policy Manager
+    
+    This allows standardized testing across your organization.
+  </Step>
+</Steps>
+
+## Application-Specific Rules
+
+<Tabs defaultValue={"web"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"web"}>Web Applications</TabsTrigger>
+    <TabsTrigger value={"api"}>API Security</TabsTrigger>
+    <TabsTrigger value={"framework"}>Framework-Specific</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"web"}>
+    ### Web Application Rules
+    
+    Custom rules for common web application vulnerabilities:
+    
+    1. **Business Logic Vulnerabilities**:
+       - Create rules to detect application-specific logic flaws
+       - Test for insecure direct object references
+       - Check for missing access controls
+       - Verify transaction integrity
+    
+    2. **Custom Authentication Checks**:
+       - Test for weak password policies
+       - Check for authentication bypasses
+       - Verify multi-factor authentication
+       - Test session management
+    
+    Example passive rule for detecting weak password reset functionality:
+    
+    ```javascript
+    function scan(ps, msg, src) {
+        var url = msg.getRequestHeader().getURI().toString();
+        
+        // Check if this is a password reset page
+        if (url.indexOf("reset-password") > 0 || 
+            url.indexOf("forgot-password") > 0) {
+            
+            var responseBody = msg.getResponseBody().toString();
+            
+            // Check for indicators of insecure practices
+            if (responseBody.indexOf("security question") > 0 ||
+                responseBody.indexOf("mother's maiden name") > 0) {
+                
+                ps.newAlert()
+                    .setRisk(2)  // Medium
+                    .setConfidence(2)  // Medium
+                    .setName("Weak Password Reset Mechanism")
+                    .setDescription("The application uses potentially weak methods for password reset")
+                    .setEvidence("security question")
+                    .setMessage(msg)
+                    .raise();
+            }
+        }
+    }
+    ```
+  </TabsContent>
+  <TabsContent value={"api"}>
+    ### API Security Rules
+    
+    Custom rules for API-specific vulnerabilities:
+    
+    1. **API-Specific Checks**:
+       - Test for improper API key handling
+       - Check for missing rate limiting
+       - Verify proper error handling
+       - Test for mass assignment vulnerabilities
+    
+    2. **GraphQL Security**:
+       - Test for introspection vulnerabilities
+       - Check for query depth issues
+       - Verify proper authorization
+       - Test for injection in arguments
+    
+    Example active rule for testing API rate limiting:
+    
+    ```javascript
+    function scan(as, msg, param, value) {
+        // Make multiple rapid requests to test rate limiting
+        var testMsg = msg.cloneRequest();
+        var responses = [];
+        
+        // Send 10 requests in rapid succession
+        for (var i = 0; i < 10; i++) {
+            var clone = testMsg.cloneRequest();
+            as.sendAndReceive(clone);
+            responses.push({
+                status: clone.getResponseHeader().getStatusCode(),
+                headers: clone.getResponseHeader().toString()
+            });
+        }
+        
+        // Check if all requests succeeded (no rate limiting)
+        var allSucceeded = responses.every(function(resp) {
+            return resp.status >= 200 && resp.status < 300;
+        });
+        
+        // Check if none had rate limiting headers
+        var hasRateLimitHeaders = responses.some(function(resp) {
+            return resp.headers.indexOf("X-RateLimit") > 0 || 
+                   resp.headers.indexOf("Retry-After") > 0;
+        });
+        
+        if (allSucceeded && !hasRateLimitHeaders) {
+            as.newAlert()
+                .setRisk(1)  // Low
+                .setConfidence(2)  // Medium
+                .setName("Missing API Rate Limiting")
+                .setDescription("The API endpoint does not appear to implement rate limiting")
+                .setMessage(msg)
+                .raise();
+        }
+    }
+    ```
+  </TabsContent>
+  <TabsContent value={"framework"}>
+    ### Framework-Specific Rules
+    
+    Custom rules for popular frameworks:
+    
+    1. **Spring Framework**:
+       - Test for Spring-specific vulnerabilities
+       - Check for insecure configurations
+       - Verify proper authentication setup
+       - Test for expression language injection
+    
+    2. **React/Angular/Vue**:
+       - Test for client-side vulnerabilities
+       - Check for insecure state management
+       - Verify proper CSP implementation
+       - Test for DOM-based XSS
+    
+    Example passive rule for detecting insecure Spring Boot actuator endpoints:
+    
+    ```javascript
+    function scan(ps, msg, src) {
+        var url = msg.getRequestHeader().getURI().toString();
+        
+        // Check if this is a Spring Boot actuator endpoint
+        var actuatorEndpoints = [
+            "/actuator", "/env", "/health", "/info", 
+            "/metrics", "/trace", "/configprops", "/mappings"
+        ];
+        
+        for (var i = 0; i < actuatorEndpoints.length; i++) {
+            if (url.endsWith(actuatorEndpoints[i])) {
+                var responseBody = msg.getResponseBody().toString();
+                
+                // Check if the endpoint returns sensitive data
+                if (msg.getResponseHeader().getStatusCode() == 200 && 
+                    responseBody.length > 0) {
+                    
+                    ps.newAlert()
+                        .setRisk(2)  // Medium
+                        .setConfidence(2)  // Medium
+                        .setName("Exposed Spring Boot Actuator")
+                        .setDescription("Spring Boot Actuator endpoint is exposed and may reveal sensitive information")
+                        .setEvidence(actuatorEndpoints[i])
+                        .setMessage(msg)
+                        .raise();
+                    
+                    break;
+                }
+            }
+        }
+    }
+    ```
+  </TabsContent>
+</Tabs>
+
+## Rule Management Best Practices
+
+<Steps>
+  <Step title="Organize Your Rules">
+    Implement a structured approach to rule management:
+    
+    1. Categorize rules by:
+       - Vulnerability type
+       - Application area
+       - Risk level
+       - Testing phase
+    
+    2. Use consistent naming conventions:
+       - Include vulnerability type in name
+       - Use prefixes for categorization
+       - Include version numbers
+       - Document rule purpose
+  </Step>
+  <Step title="Version Control">
+    Maintain rules in version control:
+    
+    1. Store rules in a repository:
+       - Use Git for version control
+       - Document changes and updates
+       - Track rule effectiveness
+       - Implement peer review process
+    
+    2. Implement change management:
+       - Test rules before deployment
+       - Document rule changes
+       - Communicate updates to team
+       - Track rule versions
+  </Step>
+  <Step title="Continuous Improvement">
+    Regularly review and improve your rules:
+    
+    1. Monitor rule effectiveness:
+       - Track true/false positives
+       - Gather user feedback
+       - Analyze detection rates
+       - Compare with manual testing
+    
+    2. Update rules based on:
+       - New vulnerability types
+       - Application changes
+       - False positive reduction
+       - Performance optimization
+       - User feedback
+  </Step>
+</Steps>
+
+## Integration with Development Workflow
+
+<Tabs defaultValue={"cicd"} className={"pt-5 pb-1"}>
+  <TabsList>
+    <TabsTrigger value={"cicd"}>CI/CD Integration</TabsTrigger>
+    <TabsTrigger value={"devsecops"}>DevSecOps</TabsTrigger>
+    <TabsTrigger value={"automation"}>Automation Framework</TabsTrigger>
+  </TabsList>
+  <TabsContent value={"cicd"}>
+    ### CI/CD Integration
+    
+    Integrate custom rules into CI/CD pipelines:
+    
+    1. **Automated Testing**:
+       - Run ZAP with custom rules in CI/CD
+       - Configure appropriate scan policies
+       - Set quality gates based on findings
+       - Generate reports for review
+    
+    2. **Implementation Example**:
+       
+       Jenkins pipeline example:
+       
+       ```groovy
+       pipeline {
+           agent any
+           
+           stages {
+               stage('ZAP Security Test') {
+                   steps {
+                       sh '''
+                           docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable \
+                           zap-baseline.py -t https://example.com \
+                           -c custom-rules.conf -r testreport.html
+                       '''
+                   }
+                   post {
+                       always {
+                           publishHTML([
+                               allowMissing: false,
+                               alwaysLinkToLastBuild: true,
+                               keepAll: true,
+                               reportDir: '.',
+                               reportFiles: 'testreport.html',
+                               reportName: 'ZAP Security Report'
+                           ])
+                       }
+                   }
+               }
+           }
+       }
+       ```
+  </TabsContent>
+  <TabsContent value={"devsecops"}>
+    ### DevSecOps Practices
+    
+    Implement DevSecOps with custom rules:
+    
+    1. **Security as Code**:
+       - Store custom rules as code
+       - Version control rule definitions
+       - Implement peer review for rules
+       - Automate rule deployment
+    
+    2. **Developer Enablement**:
+       - Create developer-friendly rules
+       - Provide clear remediation guidance
+       - Integrate with developer tools
+       - Implement pre-commit hooks
+    
+    3. **Continuous Security**:
+       - Run rules at multiple pipeline stages
+       - Implement incremental scanning
+       - Track security debt over time
+       - Provide security metrics
+  </TabsContent>
+  <TabsContent value={"automation"}>
+    ### Automation Framework
+    
+    Use ZAP's Automation Framework with custom rules:
+    
+    1. **Automation Configuration**:
+       
+       Example automation.yaml with custom rules:
+       
+       ```yaml
+       env:
+         contexts:
+           - name: "Example Context"
+             urls:
+               - "https://example.com"
+       
+       jobs:
+         - type: passiveScan-config
+           parameters:
+             scanOnlyInScope: true
+             enableTags:
+               - "custom-rules"
+       
+         - type: activeScan
+           parameters:
+             context: "Example Context"
+             policy: "Custom-Policy"
+       
+         - type: report
+           parameters:
+             template: "traditional-html"
+             reportDir: "/zap/wrk/"
+             reportFile: "security-report.html"
+       ```
+    
+    2. **Custom Rule Integration**:
+       - Include custom rules in automation
+       - Configure rule parameters
+       - Set appropriate thresholds
+       - Generate standardized reports
+  </TabsContent>
+</Tabs>
+
+## Case Studies
+
+<Steps>
+  <Step title="E-commerce Application">
+    Custom rules for an e-commerce platform:
+    
+    1. **Business Logic Rules**:
+       - Price manipulation detection
+       - Order process validation
+       - Discount code abuse detection
+       - Inventory manipulation checks
+    
+    2. **Implementation Approach**:
+       - Created passive rules for monitoring transactions
+       - Developed active rules for testing checkout process
+       - Implemented custom scan policy for e-commerce
+       - Integrated with CI/CD pipeline
+    
+    3. **Results**:
+       - Detected price manipulation vulnerability
+       - Found order process bypass
+       - Identified insecure discount code implementation
+       - Improved overall security posture
+  </Step>
+  <Step title="Banking Application">
+    Custom rules for a banking application:
+    
+    1. **Security-Critical Rules**:
+       - Transaction integrity validation
+       - Authentication flow testing
+       - Session management verification
+       - Authorization bypass detection
+    
+    2. **Implementation Approach**:
+       - Developed Java-based custom rules
+       - Created application-specific scan policy
+       - Implemented continuous security testing
+       - Integrated with compliance reporting
+    
+    3. **Results**:
+       - Identified session fixation vulnerability
+       - Detected insecure transaction processing
+       - Found authorization bypass in account management
+       - Achieved compliance with financial regulations
+  </Step>
+  <Step title="Healthcare System">
+    Custom rules for a healthcare system:
+    
+    1. **Privacy-Focused Rules**:
+       - PHI exposure detection
+       - Access control verification
+       - Audit logging validation
+       - Encryption implementation checks
+    
+    2. **Implementation Approach**:
+       - Created passive rules for PHI detection
+       - Developed active rules for access control testing
+       - Implemented HIPAA-focused scan policy
+       - Integrated with compliance reporting
+    
+    3. **Results**:
+       - Detected PHI exposure in error messages
+       - Found insufficient access controls
+       - Identified missing audit logs
+       - Improved HIPAA compliance
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you understand custom rules in OWASP ZAP, explore these related topics:
+
+- [Advanced Techniques](/docs/owasp-zap/advanced-techniques) - Explore other advanced ZAP features
+- [Scripting](/docs/owasp-zap/advanced-techniques/scripting) - Learn more about ZAP scripting capabilities
+- [Automation](/docs/owasp-zap/advanced-techniques/automation) - Automate security testing with ZAP
+- [Best Practices](/docs/owasp-zap/best-practices) - Best practices for effective and ethical use of ZAP

@@ -1,0 +1,320 @@
+---
+title: Hydra Performance Tuning
+description: Optimize Hydra for speed and efficiency in penetration testing
+---
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Steps, Step } from "@/components/markdown/steps"
+import { Note } from "@/components/markdown/note"
+
+# Hydra Performance Tuning
+
+This guide covers techniques for optimizing Hydra's performance to achieve faster and more efficient password cracking while minimizing resource usage and avoiding detection.
+
+## Understanding Performance Factors
+
+Several factors affect Hydra's performance:
+
+1. **Parallelism**: Number of concurrent connections
+2. **Network latency**: Time to establish connections and receive responses
+3. **Target system capacity**: How many authentication attempts the target can handle
+4. **Local system resources**: CPU, memory, and network capacity
+5. **Authentication complexity**: Some protocols require more steps than others
+
+## Parallelism Control
+
+The most important performance factor is parallelism - the number of concurrent connections:
+
+<Tabs defaultValue="tasks" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="tasks">Tasks Per Target</TabsTrigger>
+    <TabsTrigger value="total">Total Tasks</TabsTrigger>
+    <TabsTrigger value="rate">Connection Rate</TabsTrigger>
+  </TabsList>
+  <TabsContent value="tasks">
+    ### Tasks Per Target
+    
+    The `-t` option controls the number of parallel connections per target:
+    
+    ```bash
+    # Default (16 tasks)
+    hydra -l admin -P passwords.txt ssh://192.168.1.100
+    
+    # Low parallelism (4 tasks)
+    hydra -l admin -P passwords.txt -t 4 ssh://192.168.1.100
+    
+    # High parallelism (64 tasks)
+    hydra -l admin -P passwords.txt -t 64 ssh://192.168.1.100
+    ```
+    
+    **Guidelines:**
+    - Start with lower values (4-8) and increase gradually
+    - For stable services (SSH, FTP), 16-32 is usually safe
+    - For web services, 4-8 is recommended to avoid overloading
+    - For local services, 64 or higher can be used
+    
+    <Note>
+    Higher parallelism doesn't always mean better performance. If you set it too high, you may trigger rate limiting, account lockouts, or even crash the service.
+    </Note>
+  </TabsContent>
+  <TabsContent value="total">
+    ### Total Tasks
+    
+    The `-T` option controls the total number of parallel connections across all targets:
+    
+    ```bash
+    # 64 total tasks across all targets
+    hydra -l admin -P passwords.txt -T 64 -M targets.txt ssh
+    ```
+    
+    This is useful when attacking multiple targets simultaneously to limit the overall resource usage.
+    
+    **Guidelines:**
+    - For multiple targets, set this based on your system's capabilities
+    - Consider network bandwidth and CPU usage
+    - For 10+ targets, limiting total tasks prevents resource exhaustion
+  </TabsContent>
+  <TabsContent value="rate">
+    ### Connection Rate
+    
+    The `-c` option limits the number of connects per second:
+    
+    ```bash
+    # Limit to 10 connections per second
+    hydra -l admin -P passwords.txt -c 10 ssh://192.168.1.100
+    ```
+    
+    This is useful for:
+    - Avoiding detection by IDS/IPS systems
+    - Working around rate limiting
+    - Reducing load on both target and local system
+    
+    **Guidelines:**
+    - For stealthy operations, use 1-5 connections per second
+    - For systems with known rate limiting, stay under the limit
+    - Monitor for "connection refused" errors and adjust accordingly
+  </TabsContent>
+</Tabs>
+
+## Timeout Management
+
+Proper timeout settings can significantly improve performance:
+
+```bash
+# Set connection timeout (default is 30 seconds)
+hydra -l admin -P passwords.txt -w 10 ssh://192.168.1.100
+
+# Set response wait time
+hydra -l admin -P passwords.txt -W 5 ssh://192.168.1.100
+```
+
+**Guidelines:**
+- For stable, fast networks, reduce timeouts to 5-10 seconds
+- For unstable or slow networks, increase timeouts to 60+ seconds
+- If you see many timeout errors, increase the value
+- If the target responds quickly, decrease the value
+
+## Wordlist Optimization
+
+Optimizing your wordlists can dramatically improve efficiency:
+
+<Steps>
+  <Step title="Sort and Deduplicate">
+    Remove duplicates and sort by likelihood:
+    
+    ```bash
+    # Remove duplicates
+    sort -u passwords.txt > passwords_unique.txt
+    
+    # Sort by length (shorter passwords first)
+    cat passwords_unique.txt | awk '{print length, $0}' | sort -n | cut -d ' ' -f 2- > passwords_sorted.txt
+    ```
+  </Step>
+  <Step title="Prioritize Common Passwords">
+    Put the most common passwords at the beginning:
+    
+    ```bash
+    # Create a file with common passwords
+    echo -e "password\n123456\nadmin\nqwerty" > common.txt
+    
+    # Combine with main wordlist
+    cat common.txt passwords_sorted.txt > optimized_passwords.txt
+    ```
+  </Step>
+  <Step title="Target-Specific Customization">
+    Tailor wordlists to your target:
+    
+    ```bash
+    # For a company named "acme"
+    echo -e "acme\nACME\nacme123\nAcme2023" > company_specific.txt
+    cat company_specific.txt optimized_passwords.txt > final_wordlist.txt
+    ```
+  </Step>
+</Steps>
+
+## Protocol-Specific Optimizations
+
+Different protocols have different performance characteristics:
+
+<Tabs defaultValue="ssh" className="pt-5 pb-1">
+  <TabsList>
+    <TabsTrigger value="ssh">SSH</TabsTrigger>
+    <TabsTrigger value="http">HTTP</TabsTrigger>
+    <TabsTrigger value="smb">SMB</TabsTrigger>
+    <TabsTrigger value="db">Databases</TabsTrigger>
+  </TabsList>
+  <TabsContent value="ssh">
+    ### SSH Optimization
+    
+    SSH can handle moderate parallelism but has connection overhead:
+    
+    ```bash
+    # Optimized SSH attack
+    hydra -l admin -P passwords.txt -t 16 -w 10 -f ssh://192.168.1.100
+    ```
+    
+    **Tips:**
+    - Use 16-32 tasks for best performance
+    - Reduce timeout to 10 seconds
+    - Exit after first found credential to avoid unnecessary attempts
+  </TabsContent>
+  <TabsContent value="http">
+    ### HTTP Optimization
+    
+    HTTP/HTTPS forms require careful tuning:
+    
+    ```bash
+    # Optimized HTTP form attack
+    hydra -l admin -P passwords.txt -t 4 -w 8 -f -L http-post-form "/login:username=^USER^&password=^PASS^:F=Login failed"
+    ```
+    
+    **Tips:**
+    - Use lower parallelism (4-8 tasks)
+    - Use the `-L` option to follow redirects
+    - Specify both failure and success conditions for faster detection
+    - Use `-f` to exit after first valid credential
+  </TabsContent>
+  <TabsContent value="smb">
+    ### SMB Optimization
+    
+    SMB can be slower due to Windows authentication:
+    
+    ```bash
+    # Optimized SMB attack
+    hydra -l administrator -P passwords.txt -t 1 -w 60 smb://192.168.1.100
+    ```
+    
+    **Tips:**
+    - Use lower parallelism (1-4 tasks)
+    - Increase timeout for domain authentication
+    - Be cautious of account lockout policies
+  </TabsContent>
+  <TabsContent value="db">
+    ### Database Optimization
+    
+    Database servers can handle higher parallelism:
+    
+    ```bash
+    # Optimized MySQL attack
+    hydra -l root -P passwords.txt -t 32 -w 5 mysql://192.168.1.100
+    ```
+    
+    **Tips:**
+    - Use higher parallelism (16-64 tasks)
+    - Reduce timeout for faster connections
+    - Target specific database instances if known
+  </TabsContent>
+</Tabs>
+
+## System Resource Optimization
+
+Optimize your local system for better performance:
+
+<Steps>
+  <Step title="Network Optimization">
+    Ensure your network connection is optimized:
+    
+    ```bash
+    # Increase network buffer sizes
+    sudo sysctl -w net.core.rmem_max=16777216
+    sudo sysctl -w net.core.wmem_max=16777216
+    
+    # Increase maximum connections
+    sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+    ```
+  </Step>
+  <Step title="File Descriptor Limits">
+    Increase file descriptor limits for many connections:
+    
+    ```bash
+    # Check current limits
+    ulimit -n
+    
+    # Increase limits temporarily
+    ulimit -n 65535
+    
+    # For permanent changes, edit /etc/security/limits.conf
+    ```
+  </Step>
+  <Step title="CPU Priority">
+    Adjust process priority:
+    
+    ```bash
+    # Run Hydra with higher priority
+    nice -n -10 hydra -l admin -P passwords.txt ssh://192.168.1.100
+    ```
+  </Step>
+</Steps>
+
+## Distributed Attacks
+
+For very large wordlists or multiple targets, distribute the workload:
+
+```bash
+# Split wordlist into chunks
+split -n 4 passwords.txt passwords_chunk_
+
+# On master node
+hydra -l admin -P passwords_chunk_aa -M targets.txt ssh -t 16
+
+# On other nodes
+hydra -l admin -P passwords_chunk_ab -M targets.txt ssh -t 16
+hydra -l admin -P passwords_chunk_ac -M targets.txt ssh -t 16
+hydra -l admin -P passwords_chunk_ad -M targets.txt ssh -t 16
+```
+
+For true distributed coordination:
+
+```bash
+# On master node
+hydra -l admin -P passwords.txt -M targets.txt ssh -t 16 -g 3000 -G 3001
+
+# On slave nodes
+hydra -l admin -P passwords.txt -M targets.txt ssh -t 16 -g 3000 -G 3001 -U
+```
+
+## Performance Monitoring
+
+Monitor Hydra's performance to make adjustments:
+
+```bash
+# Run with very verbose output
+hydra -l admin -P passwords.txt -V ssh://192.168.1.100
+
+# Check attempts per minute in output
+# Look for lines like: [STATUS] 123.45 tries/min, 1234 tries in 00:10h
+```
+
+If the attempts per minute are decreasing, you may need to:
+- Reduce parallelism
+- Increase timeouts
+- Check for network issues
+- Verify the target is still responding
+
+## Next Steps
+
+Now that you understand how to optimize Hydra's performance, explore the following topics:
+
+- [Custom Modules](/docs/hydra/advanced-techniques/custom-modules) - Learn how to create custom protocol modules
+- [Protocol-Specific Guides](/docs/hydra/protocol-guides) - Detailed guides for specific protocols
+- [Best Practices](/docs/hydra/best-practices) - Learn best practices for effective and ethical use of Hydra
